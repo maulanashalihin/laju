@@ -157,7 +157,8 @@ command file will be generated in commands folder. you can execute the file with
     ├── app                     # Main App (mostly touch files)
     │   ├── controllers         # controllers
     │   ├── db                  # db connector, schema and migrators 
-    │   └── responses           # responses
+    │   ├── responses           # responses handler 
+    │   └── services            # reusable function
     ├── commands                # files to use as command line service 
     ├── migrations              # Generated SQL files
     ├── public                  # static file of your apps 
@@ -169,7 +170,9 @@ command file will be generated in commands folder. you can execute the file with
     ├── .env.example 
     ├── sqlite.db
     ├── .gitignore 
-    ├── clean
+    ├── clean.ts
+    ├── sync_version.ts
+    ├── make.ts
     ├── package.json 
     ├── tailwind.config.js
     ├── esbuild.watch.ts

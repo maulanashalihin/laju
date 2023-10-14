@@ -1,13 +1,13 @@
 {
   "name": "laju",
-  "version": "0.0.1",
+  "version": "0.0.12",
   "module": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tailwind-dev": "bunx tailwindcss -i ./resources/js/index.css -o ./public/style.css -w -p",
     "tailwind-build": "bunx tailwindcss -i ./resources/js/index.css -o ./public/style.css -m",
     "dev": "bunx concurrently  'bun run tailwind-dev' 'bun run esbuild.watch.ts' 'bun run --watch index.ts'",
-    "build": "node clean && bun run tailwind-build && bun esbuild.build.ts",
+    "build": "bun clean.ts && bun sync_version.ts && bun run tailwind-build && bun esbuild.build.ts",
     "start": "bun run bootstrap/index.ts",
     "generate": "drizzle-kit generate:sqlite"
   },

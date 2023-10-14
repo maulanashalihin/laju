@@ -1,24 +1,22 @@
- 
-
-const fs = require('fs');
-const path = require('path');
+import { readdir, stat, unlink } from "fs"; 
+import { join } from "path";
 const directory = './public';
 
 // delete all file in folder function
 function deleteFileinFolder()
 {
   
-    fs.readdir(directory, (err, files) => {
+    readdir(directory, (err, files) => {
         if (err) throw err;
       
         for (const file of files) {
         // check is file is folder
        
 
-          fs.stat(path.join(directory, file), function(err, stats) {
+          stat(join(directory, file), function(err, stats) {
             if(!stats.isDirectory()) { 
               if(file != "manifest.json")
-                fs.unlink(path.join(directory, file), err => {
+                unlink(join(directory, file), err => {
                     if (err) throw err;
                 });
             }
