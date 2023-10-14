@@ -23,11 +23,11 @@ export default function(ctx){
             
         },
         set : (name : string, value : string)=>{
-            ctx.headers.set("Set-Cookie", `${name}=${value}; Secure;SameSite=Strict;`); 
+            ctx.headers.set("Set-Cookie", `${name}=${value};Path=/;Secure;`); 
         },
         remove : (name : string)=>{
             
-            ctx.headers.set("Set-Cookie",  `${name}=; Secure;SameSite=Strict; Expires=Thu, 01 Jan 1970 00:00:00 GMT`); 
+            ctx.headers.set("Set-Cookie",  `${name}=; Secure;Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT`); 
         }
     }
 }

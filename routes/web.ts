@@ -5,11 +5,13 @@ import Cookie from "../app/services/Cookie";
 
 import Session from "../app/services/Session";
 
-const Route = new Router();
+const Route = new Router({port : 5555});
 
 Route.get("/login", AuthController.loginPage);
 Route.post("/login", AuthController.loginWithPassword, { body: "json" });
-Route.get("/login-with-google", AuthController.loginWithGoogle);
+Route.get("/google/redirect", AuthController.loginWithGoogle);
+
+Route.get("/google/callback",AuthController.googleCallback);
 Route.get("/register", AuthController.registerPage);
 Route.post("/register", AuthController.register, { body: "json" });
 Route.post("/logout", AuthController.logout);

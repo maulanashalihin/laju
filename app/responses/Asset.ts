@@ -4,8 +4,7 @@ export default function (context: any) {
    if (cache[context.params["*"]]) {
     
       return new Response(cache[context.params["*"]]);
-   } else {
-      console.log(context.params["*"])
+   } else { 
      
       cache[context.params["*"]] = Bun.file("public/" + context.params["*"]);
 

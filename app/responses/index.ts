@@ -2,9 +2,9 @@ let cache = {} as any;
 export default function (ctx,headers = {}) {
     return {
         redirect : (location,status=302)=>{
-            
+ 
              
-            return new Response(null,{
+            return new Response("",{
                 status: status,
                 headers: { 
                     ...headers,

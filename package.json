@@ -21,6 +21,7 @@
     "@inertiajs/svelte": "^1.0.12",
     "@stricjs/router": "^5.0.3",
     "@stricjs/utils": "^1.5.6",
+    "axios": "^1.5.1",
     "chokidar": "^3.5.3",
     "dayjs": "^1.11.10",
     "drizzle-kit": "^0.19.13",
