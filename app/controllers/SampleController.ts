@@ -28,7 +28,16 @@ class Controller {
       return Html(ctx).render("home.html", { message: "Hello World" });
    }
    public async inertia(ctx) {
-    return Inertia(ctx).render("home", { message: "Hello World" });
+      return Inertia(ctx).render("home", { message: "Hello World" });
+   }
+
+   public async htmlSvelte(ctx) {
+
+    const hello = await import("../../cache/hello")
+
+    const component = hello.default.render({ message: "Hello World" });
+
+    return Html(ctx).render("hello.html", { message: component.html });
  }
 }
 

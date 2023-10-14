@@ -4,9 +4,11 @@ import AuthController from "../app/controllers/AuthController";
 import Cookie from "../app/services/Cookie";
 
 import Session from "../app/services/Session";
+import SampleController from "../app/controllers/SampleController";
 
 const Route = new Router({port : 5555});
 
+Route.get("/html-svelte", SampleController.htmlSvelte);
 Route.get("/login", AuthController.loginPage);
 Route.post("/login", AuthController.loginWithPassword, { body: "json" });
 Route.get("/google/redirect", AuthController.loginWithGoogle);
