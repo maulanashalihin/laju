@@ -3,7 +3,7 @@ import DB from "../db";
 import { sessions, users } from "../db/schema";
 import response from "../responses";
 import Inertia from "../responses/Inertia";
-import { generateUUID, getQueryParameters } from "../services/Helper";
+import { generateUUID, getQuery } from "../services/Helper";
 import Cookie from "../services/Cookie";
 import Session from "../services/Session";
 import { redirectParamsURL } from "../services/GoogleAuth"; 
@@ -65,7 +65,7 @@ class Controller {
    }
 
    public async googleCallback(ctx) {
-      const {code} = getQueryParameters(ctx.url)
+      const {code} = getQuery(ctx.url)
 
       let data;
 

@@ -1,6 +1,4 @@
-import { writeHead } from '@stricjs/utils';
-
-export default function(ctx){
+ export default function(ctx){
     return {
         get : (name : string)=>{
 
