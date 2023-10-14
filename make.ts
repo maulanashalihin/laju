@@ -11,11 +11,7 @@ switch (filetype) {
         break;
     case 'command':
         MakeCommand.run(filename); 
-        break;
-    case 'page':
-        const pageTemplate = require('./templates/page');
-        pageTemplate(filename);
-        break;
+        break; 
     default:
         console.error('Unknown filetype: ' + filetype);
         break;
