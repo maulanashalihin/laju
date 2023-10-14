@@ -1,6 +1,6 @@
 import { renderToString } from "react-dom/server";
 
-export default async function (ctx, headers = {}) {
+export default  function (ctx, headers = {}) {
    return {
       render: async (filename: string, params: any) => {
          const { Component } = await import(
