@@ -33,6 +33,8 @@ Clone this repo and install packages
   git clone https://github.com/maulanashalihin/laju.git
   bun install
   cp  .env.example .env
+  bun run generate
+  bun run app/db/migrator.ts
   bun run dev
 ```
 

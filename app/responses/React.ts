@@ -1,15 +1,22 @@
 import { renderToString } from "react-dom/server";
 
+export default async function (ctx, headers = {}) {
+   return {
+      render: async (filename: string, params: any) => {
+         const { Component } = await import(
+            `../../resources/views/${filename}`
+         );
 
-export default async function (filename : string, params : any) {
+         const page = Component(params);
 
-    const {Component} = await import(`../../resources/views/${filename}`);
+         const stream = await renderToString(page);
 
-    const page = Component(params);
-
-    const stream = await renderToString(page);
-
-   return new Response(stream, {
-      headers: { "Content-Type": "text/html" },
-   });
+         return new Response(stream, {
+            headers: { ...headers,
+                "Content-Type": "text/html",
+                "Set-Cookie": ctx.headers.get("Set-Cookie"),
+             },
+         });
+      },
+   };
 }

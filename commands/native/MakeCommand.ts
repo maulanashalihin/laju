@@ -17,6 +17,8 @@ class Command {
       }
 
       fs.writeFileSync(path, this.getText());
+
+      console.log(`Command ${filename} created`);
    }
 
    getText() {

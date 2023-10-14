@@ -1,11 +1,13 @@
 <script>
     import {Link} from '@inertiajs/svelte';
-    export let username = 'Maulana';
+    
+    export let session; 
 </script>
 <div>
-    halo {username}
+    halo {session.user.name}
     <div>
-        <Link href="/about"> cool
+ 
+        <Link as="button" href="/logout" method="POST"> Logout
         </Link>
     </div>
 </div>

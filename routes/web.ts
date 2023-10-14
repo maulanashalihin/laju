@@ -1,62 +1,40 @@
-import { Router } from '@stricjs/router';
-import { html } from '@stricjs/utils';
-import UserController from '../app/controllers/UserController'; 
-import React from '../app/responses/React';
-import Html from '../app/responses/Html';
-import Inertia from '../app/responses/Inertia';
-import DB from '../app/db';
-import { users } from '../app/db/schema';
+import { Router } from "@stricjs/router";
+import AuthController from "../app/controllers/AuthController";
+
+import Cookie from "../app/services/Cookie";
+
+import Session from "../app/services/Session";
 
 const Route = new Router();
 
+Route.get("/login", AuthController.loginPage);
+Route.post("/login", AuthController.loginWithPassword, { body: "json" });
+Route.get("/login-with-google", AuthController.loginWithGoogle);
+Route.get("/register", AuthController.registerPage);
+Route.post("/register", AuthController.register, { body: "json" });
+Route.post("/logout", AuthController.logout);
 
+Route.guard("/auth", async (ctx : any) => {
+   const session_id = Cookie(ctx).get("session_id");
 
+   if (session_id) {
+      let session_ = await Session.get(session_id);
 
+      
+      if (!session_) {
+         return null;
+      }
 
-Route.get("/jsx",()=>{
-    return React("home.jsx",{message : "Hello World"})
-   
-})
-Route.get("/html",()=>{
-    return Html("home.html",{message : "Hello World"})
-})
-const results =   DB.select().from(users).prepare()
+      
 
-Route.get("/inertia",async (ctx)=>{
+      return true;
+   }
 
-    
-    const _user = await results.execute();
+   return null;
+});
 
-    return Inertia(ctx).render("home",_user)
+Route.get("/auth/home", AuthController.home);
 
-})
-
-Route.get("/_user",async (ctx)=>{
-
-    
-    const _user = await results.execute();
-
-    return new Response(JSON.stringify(_user));
-
-})
-
-Route.get("/about",(ctx)=>{
-
-    return Inertia(ctx).render("about")
-
-})
-
-Route.get('/string', () => new Response("OK"));
-
-Route.get('/', () => html(`<p>Hi guys</p>`));
-
-Route.get('/json', () => new Response(JSON.stringify({ message: 'Hi guys' }),{
-    headers: { 'Content-Type': 'application/json' },
-}));
-
-
-Route.get("/user",UserController.index)
- 
-
+Route.reject("/auth", () => new Response("Forbidden"));
 
 export default Route;

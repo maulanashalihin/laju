@@ -15,11 +15,13 @@ class Command {
       if (fs.existsSync(path)) {
          //file exists
 
-         console.log("File already exists");
+         console.log(`${filename} already exists`);
          return;
       }
 
       fs.writeFileSync(path, this.getText());
+
+      console.log(`Controller ${filename} created`);
    }
 
    getText() {

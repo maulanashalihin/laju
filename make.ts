@@ -10,7 +10,7 @@ switch (filetype) {
         MakeController.run(filename);
         break;
     case 'command':
-        MakeCommand.run(filename);
+        MakeCommand.run(filename); 
         break;
     case 'page':
         const pageTemplate = require('./templates/page');

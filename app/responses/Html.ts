@@ -39,43 +39,50 @@ for (const file of files) {
 
 
 
-export default   function(filename, params = {})
+export default   function(ctx, headers = {})
 {
     
   
-    let html =  cache_view[filename] || ''; 
+   return {
+    render : (filename, params = {})=>{
+
+        let html =  cache_view[filename] || ''; 
     
-    if (process.env.APP_ENV == "development") {
-
-        html = readFileSync(path.join("resources/views", filename), "utf8");
-
-        html = html.replace(
-           "</body>",
-           `
-        <script>
-        var evtSource = new EventSource('http://localhost:8005/subscribe');
-  
-           evtSource.onmessage = function (event) { 
-           if (event.data.includes("reload")) {
-              console.log("reloaded")
-              location.reload()
-           }
-        };
-        </script>
-        </body>
-        `
-        );
-     }
-
-     Object.keys(params).forEach(key => {
-        html = html.replaceAll(`{{${key}}}`, params[key]);
-    }) 
-
-   
-    return new Response(html, {
-        headers: {
-            "Content-Type": "text/html"
-        }
-    });
+        if (process.env.APP_ENV == "development") {
+    
+            html = readFileSync(path.join("resources/views", filename), "utf8");
+    
+            html = html.replace(
+               "</body>",
+               `
+            <script>
+            var evtSource = new EventSource('http://localhost:8005/subscribe');
+      
+               evtSource.onmessage = function (event) { 
+               if (event.data.includes("reload")) {
+                  console.log("reloaded")
+                  location.reload()
+               }
+            };
+            </script>
+            </body>
+            `
+            );
+         }
+    
+         Object.keys(params).forEach(key => {
+            html = html.replaceAll(`{{${key}}}`, params[key]);
+        }) 
+    
+       
+        return new Response(html, {
+            headers: {
+                ...headers,
+                "Set-Cookie": ctx.headers.get("Set-Cookie"),
+                "Content-Type": "text/html"
+            }
+        });
+    }
+   }
 }
 

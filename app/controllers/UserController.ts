@@ -1,7 +1,9 @@
+import Cookie from "../services/Cookie";
+
 class Controller {
     
-  public async index () { 
- 
+  public async index (ctx) { 
+     
     return new Response("Hello World");
   }
 
@@ -12,6 +14,7 @@ class Controller {
   }
 
   public async show () {
+    return new Response("Hello World");
   }
 
   public async edit () {
