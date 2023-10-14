@@ -20,7 +20,7 @@ Route.get("/jsx",()=>{
 Route.get("/html",()=>{
     return Html("home.html",{message : "Hello World"})
 })
-const results = await DB.select().from(users).prepare()
+const results =   DB.select().from(users).prepare()
 
 Route.get("/inertia",async (ctx)=>{
 
@@ -31,12 +31,23 @@ Route.get("/inertia",async (ctx)=>{
 
 })
 
+Route.get("/_user",async (ctx)=>{
+
+    
+    const _user = await results.execute();
+
+    return new Response(JSON.stringify(_user));
+
+})
+
 Route.get("/about",(ctx)=>{
 
     return Inertia(ctx).render("about")
 
 })
- 
+
+Route.get('/string', () => new Response("OK"));
+
 Route.get('/', () => html(`<p>Hi guys</p>`));
 
 Route.get('/json', () => new Response(JSON.stringify({ message: 'Hi guys' }),{

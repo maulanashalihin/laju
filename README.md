@@ -7,11 +7,12 @@ Equipped with the *best* and the *fastest* web technology.
 
 |                          | Version | Requests/s | Latency | Throughput/s |
 | :--                      | --:     | :-:        | --:     | --:          | 
-| Laju / String            | 1.0.0   | 113,907.24 | 3.47ms  | 13.80 MB/s   |
-| Laju / JSON              | 1.0.0   | 101193.37  | 3.91ms  | 12.16 MB/s   |
-| Laju / HTML              | 1.0.0   | 88,924.53  | 4.44ms  | 42.06 MB/s   |
-| Laju / Inertia Render    | 1.0.0   | 81,181.96  | 4.87ms  | 48.23 MB/s   |
-| Laju / Drizzle Select    | 1.0.0   | 51,281.99  | 7.78ms  | 9.9 8MB/s    |
+| Laju / String            | 1.0.0   | 178,077.14 |  2.24m  | 19.87 MB/s   |
+| Laju / JSON              | 1.0.0   | 158,273.52  | 2.53ms |   19.47 MB/s |
+| Laju / HTML              | 1.0.0   | 143,676.34  | 2.82ms | 53.03 MB/s   |
+| Laju / Inertia Render    | 1.0.0   | 90,271.41  | 4.40ms  | 80.32MB/s    |
+| Laju / Drizzle Select    | 1.0.0   | 60,898.62  | 6.51ms  | 12.72MB/s    |
+| Drizzle + Inertia        | 1.0.0   | 44,093.53  | 9.10 ms | 46.89 MB/s   |
 | Native NodeJS            | 18.16.0 | 72,670     | 5.45ms  | 11.09 Mb/s   | 
 
 
@@ -208,11 +209,11 @@ You can study the stacks in the repository in the respective library documentati
 
 |                          | Version | Requests/s | Latency | Throughput/s |
 | :--                      | --:     | :-:        | --:     | --:          | 
-| Laju / String            | 1.0.0   | 113,907.24 | 3.47ms  | 13.80 MB/s   |
-| Laju / JSON              | 1.0.0   | 101193.37  | 3.91ms  | 12.16 MB/s   |
-| Laju / HTML              | 1.0.0   | 88,924.53  | 4.44ms  | 42.06 MB/s   |
-| Laju / Inertia Render    | 1.0.0   | 81,181.96  | 4.87ms  | 48.23 MB/s   |
-| Laju / Drizzle Select    | 1.0.0   | 51,281.99  | 7.78ms  | 9.9 8MB/s    |
+| Laju / String            | 1.0.0   | 178,077.14 |  2.24m  | 19.87 MB/s   |
+| Laju / JSON              | 1.0.0   | 158,273.52  | 2.53ms |   19.47 MB/s |
+| Laju / HTML              | 1.0.0   | 143,676.34  | 2.82ms | 53.03 MB/s   |
+| Laju / Inertia Render    | 1.0.0   | 90,271.41  | 4.40ms  | 80.32MB/s    |
+| Laju / Drizzle Select    | 1.0.0   | 60,898.62  | 6.51ms  | 12.72MB/s    |
+| Drizzle + Inertia        | 1.0.0   | 44,093.53  | 9.10 ms | 46.89 MB/s   |
 | Native NodeJS            | 18.16.0 | 72,670     | 5.45ms  | 11.09 Mb/s   | 
-
  
