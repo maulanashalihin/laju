@@ -1,0 +1,36 @@
+{
+  "name": "laju",
+  "version" : "0.0.1",
+  "module": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tailwind-dev": "bunx tailwindcss -i ./resources/js/index.css -o ./public/style.css -w -p",
+    "tailwind-build": "bunx tailwindcss -i ./resources/js/index.css -o ./public/style.css -m",
+    "dev": "bunx concurrently  'bun run tailwind-dev' 'bun run esbuild.watch.ts' 'bun run --watch index.ts'",
+    "build": "node clean && bun run tailwind-build && bun esbuild.build.ts",
+    "start": "bun run bootstrap/index.ts",
+    "generate": "drizzle-kit generate:sqlite"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@inertiajs/svelte": "^1.0.12",
+    "@stricjs/router": "^5.0.3",
+    "@stricjs/utils": "^1.5.6",
+    "chokidar": "^3.5.3",
+    "drizzle-kit": "^0.19.13",
+    "drizzle-orm": "^0.28.6",
+    "esbuild": "^0.19.4",
+    "esbuild-svelte": "^0.8.0",
+    "esbuild-svelte-inertia": "^0.0.5",
+    "fs-extra": "^11.1.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "svelte": "^4.2.1",
+    "tailwindcss": "^3.3.3"
+  }
+}
