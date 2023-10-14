@@ -82,10 +82,10 @@ Speed up development process with File Generator.
 
 Controller is some function to handle REST 
 
-Generate new Controller with **node laju make:controller ControllerFile**
+Generate new Controller with **bun make.ts controller ControllerFile**
 
 ```bash
-    node ace make:controller User 
+    bun make.ts controller User 
 ```
 
 *UserController.ts*
@@ -99,19 +99,19 @@ class Controller {
   public async create () {
   }
 
-  public async store ({params, body} : any) {
+  public async store () {
   }
 
-  public async show ({params} : any) {
+  public async show () {
   }
 
-  public async edit ({params} : any) {
+  public async edit () {
   }
 
-  public async update ({params, body} : any) {
+  public async update () {
   }
 
-  public async destroy ({params} : any) {
+  public async destroy () {
   }
 
 }
@@ -126,12 +126,12 @@ export default new Controller()
 
 Create Command Line App then you can trigger with cron
 
-Generate new CommandFile with **node laju make:command CommandFile**
+Generate new CommandFile with **bun make.ts command CommandFile**
 
 ```bash
-   node ace make:command UnsubUser 
+   bun make.ts command ShowUser 
 ```
-command file will be generated in commands folder. you can execute the file with `bun run commands/CommandFile.ts`  
+command file will be generated in commands folder. you can execute the file with `bun run commands/ShowUser.ts`  
 
  
 
@@ -140,26 +140,22 @@ command file will be generated in commands folder. you can execute the file with
 
     .
     ├── app                     # Main App (mostly touch files)
-    │   ├── controllers         # controllerss 
-    │   └── services            # reusable services such as connecting to DB and Redis Service  
-    ├── commands                # files to use as command line service
-    ├── db                      # Database Schema
-    ├── drizzle                 # Generated SQL files
-    ├── public                  # static file of your apps
-    ├── public                  # static file of your apps
+    │   ├── controllers         # controllers
+    │   ├── db                  # db connector, schema and migrators 
+    │   └── responses           # responses
+    ├── commands                # files to use as command line service 
+    ├── migrations              # Generated SQL files
+    ├── public                  # static file of your apps 
     ├── resources               # front end files
     │   ├── js                  # js folders
     │   └── views               # server side rending files
     ├── routes                  # route configuration
-    ├── bootstrap               # first load file
-    ├── env.dev
-    ├── env.production
+    ├── index.ts                # first load file
+    ├── .env.example 
     ├── sqlite.db
-    ├── .gitignore
-    ├── ace
+    ├── .gitignore 
     ├── clean
-    ├── package.json
-    ├── sync_version
+    ├── package.json 
     ├── tailwind.config.js
     ├── esbuild.watch.ts
     ├── esbuild.build.ts

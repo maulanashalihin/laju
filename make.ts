@@ -1,3 +1,4 @@
+import MakeCommand from "./commands/native/MakeCommand";
 import MakeController from "./commands/native/MakeController";
 
 const args = process.argv.slice(2);
@@ -9,7 +10,7 @@ switch (filetype) {
         MakeController.run(filename);
         break;
     case 'command':
-        console.log("create command")
+        MakeCommand.run(filename);
         break;
     case 'page':
         const pageTemplate = require('./templates/page');
