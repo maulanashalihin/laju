@@ -27,7 +27,7 @@ Equipped with the *best* and the *fastest* web technology.
 
 ## Get Started
 
-Install Bun 
+1. Install Bun 
 
 ```bash
    curl -fsSL https://bun.sh/install | bash
@@ -35,7 +35,7 @@ Install Bun
 Supported on macOS, Linux, and WSL
 
 
-Install App with bun-create
+2. Install App with bun-create
 
 ```bash
   bun create maulanashalihin/laju hi-laju 
