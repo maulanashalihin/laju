@@ -1,4 +1,5 @@
 import { Router } from "@stricjs/router";
+
 import AuthController from "../app/controllers/AuthController";
 
 import Cookie from "../app/services/Cookie";
@@ -10,7 +11,6 @@ const Route = new Router({port : process.env.PORT || 5555});
 Route.get("/login", AuthController.loginPage);
 Route.post("/login", AuthController.loginWithPassword, { body: "json" });
 Route.get("/google/redirect", AuthController.loginWithGoogle);
-
 Route.get("/google/callback",AuthController.googleCallback);
 Route.get("/register", AuthController.registerPage);
 Route.post("/register", AuthController.register, { body: "json" });
