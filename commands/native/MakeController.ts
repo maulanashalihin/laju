@@ -28,25 +28,25 @@ class Command {
       return ` 
 class Controller {
     
-  public async index () { 
+  public async index (ctx) { 
   }
 
-  public async create () {
+  public async create (ctx) {
   }
 
-  public async store () {
+  public async store (ctx) {
   }
 
-  public async show () {
+  public async show (ctx) {
   }
 
-  public async edit () {
+  public async edit (ctx) {
   }
 
-  public async update () {
+  public async update (ctx) {
   }
 
-  public async destroy () {
+  public async destroy (ctx) {
   }
 
 }

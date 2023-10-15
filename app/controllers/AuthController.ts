@@ -6,7 +6,7 @@ import Inertia from "../responses/Inertia";
 import { generateUUID, getQuery } from "../services/Helper";
 import Cookie from "../services/Cookie";
 import Session from "../services/Session";
-import { redirectParamsURL } from "../services/GoogleAuth"; 
+import { redirectParamsURL } from "../services/GoogleAuth";
 import axios from "axios";
 
 const user = DB.select()
@@ -65,30 +65,27 @@ class Controller {
    }
 
    public async googleCallback(ctx) {
-      const {code} = getQuery(ctx.url)
+      const { code } = getQuery(ctx.url);
 
       let data;
 
-   try {
-      const result  = await axios({
-         url: `https://oauth2.googleapis.com/token`,
-         method: "post",
-         data: {
-            client_id: process.env.GOOGLE_CLIENT_ID,
-            client_secret: process.env.GOOGLE_CLIENT_SECRET,
-            redirect_uri: process.env.GOOGLE_REDIRECT_URI,
-            grant_type: "authorization_code",
-            code,
-         },
-      });
+      try {
+         const result = await axios({
+            url: `https://oauth2.googleapis.com/token`,
+            method: "post",
+            data: {
+               client_id: process.env.GOOGLE_CLIENT_ID,
+               client_secret: process.env.GOOGLE_CLIENT_SECRET,
+               redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+               grant_type: "authorization_code",
+               code,
+            },
+         });
 
-      data = result.data;
-
-   } catch (error) {
-         return response(ctx).redirect("/login");   
+         data = result.data;
+      } catch (error) {
+         return response(ctx).redirect("/login");
       }
-  
- 
 
       const result = await axios({
          url: "https://www.googleapis.com/oauth2/v2/userinfo",
@@ -104,25 +101,22 @@ class Controller {
 
       const check = await user.execute({ email: email });
 
-  
       if (check.length) {
-
          const _user = check[0] as any;
          //
          const session_ = await DB.insert(sessions)
-               .values({
-                  id: generateUUID(),
-                  user_id: _user.id,
-                  user_agent: ctx.headers.get("user-agent"),
-                  createdAt: new Date().toISOString(),
-                  updatedAt: new Date().toISOString(),
-               })
-               .returning();
- 
- 
-              Cookie(ctx).set("session_id", session_[0].id);
+            .values({
+               id: generateUUID(),
+               user_id: _user.id,
+               user_agent: ctx.headers.get("user-agent"),
+               createdAt: new Date().toISOString(),
+               updatedAt: new Date().toISOString(),
+            })
+            .returning();
 
-            return response(ctx).redirect("/auth/home")
+         Cookie(ctx).set("session_id", session_[0].id);
+
+         return response(ctx).redirect("/auth/home");
       } else {
          const _user = await DB.insert(users)
             .values({
