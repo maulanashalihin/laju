@@ -30,8 +30,7 @@ Equipped with the *best* and the *fastest* web technology.
 Clone this repo and install packages
 
 ```bash
-  git clone https://github.com/maulanashalihin/laju.git
-  bun install
+  bun create maulanashalihin/laju hi-laju
   cp  .env.example .env
   bun run generate
   bun run app/db/migrator.ts
