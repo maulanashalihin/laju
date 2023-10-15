@@ -89,8 +89,37 @@ Route.reject("/auth", () => new Response("Forbidden"));
 export default Route;
 
 ```
+### Request Handler Example
 
-Example Response Handler
+1. Get params
+
+```bash
+Route.get('/id/:id', (ctx) => new Response(ctx.params.id));
+```
+
+2. Get Query
+
+```bash
+import responses from "../responses";
+import {getQuery} from "../app/services/Helper";
+
+Route.get('/search', (ctx) => {
+  
+  const query = getQuery(ctx)
+
+  return responses.json(query);
+
+});
+```
+
+3. Get Data
+
+```bash
+Route.post("/login", AuthController.loginWithPassword, { body: "json" });
+```
+
+### Response Example
+You can create response with inertia, Html, React, redirect, json, and string.
 
 *SampleController.ts*
 ```bash
@@ -134,14 +163,15 @@ class Controller {
     const component = hello.default.render({ message: "Hello World" });
 
     return Html(ctx).render("hello.html", { message: component.html });
- }
+  }
 }
 
 export default new Controller();
 
-
 ```
- 
+
+
+
 
  
 ###  File Generator
@@ -163,25 +193,25 @@ Generate new Controller with **bun make.ts controller ControllerFile**
  
 class Controller {
     
-  public async index () { 
+  public async index (ctx) { 
   }
 
-  public async create () {
+  public async create (ctx) {
   }
 
-  public async store () {
+  public async store (ctx) {
   }
 
-  public async show () {
+  public async show (ctx) {
   }
 
-  public async edit () {
+  public async edit (ctx) {
   }
 
-  public async update () {
+  public async update (ctx) {
   }
 
-  public async destroy () {
+  public async destroy (ctx) {
   }
 
 }
