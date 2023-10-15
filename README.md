@@ -27,6 +27,14 @@ Equipped with the *best* and the *fastest* web technology.
 
 ## Get Started
 
+Install Bun 
+
+```bash
+   curl -fsSL https://bun.sh/install | bash
+```
+Supported on macOS, Linux, and WSL
+
+
 Clone this repo and install packages
 
 ```bash
