@@ -234,17 +234,7 @@ command file will be generated in commands folder. you can execute the file with
     ├── esbuild.build.ts
     └── tsconfig.json
 
- 
-    
-### Inertia
-create https://inertiajs.com/ with by passing the inertia file in Pages folder like this.
-
-    public async loginPage ({inertia}) { 
- 
-        return inertia.render("auth/login")
-    
-    }
-
+  
 
 ## Documentation
 
