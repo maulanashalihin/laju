@@ -17,6 +17,9 @@
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
+   "bun-create": { 
+    "postinstall": ["cp .env.example .env","bun run app/db/migrator.ts"], // an array of commands 
+  },
   "dependencies": {
     "@inertiajs/svelte": "^1.0.12",
     "@stricjs/router": "^5.0.3",
