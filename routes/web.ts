@@ -6,7 +6,7 @@ import Cookie from "../app/services/Cookie";
 import Session from "../app/services/Session";
 import SampleController from "../app/controllers/SampleController";
 
-const Route = new Router({port : 5555});
+const Route = new Router({port : process.env.PORT || 5555});
 
 Route.get("/html-svelte", SampleController.htmlSvelte);
 Route.get("/login", AuthController.loginPage);
