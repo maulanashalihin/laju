@@ -3,7 +3,6 @@ CREATE TABLE `sessions` (
 	`user_id` text,
 	`user_agent` text,
 	`created_at` text,
-	`deleted_at` text,
 	`updated_at` text
 );
 --> statement-breakpoint

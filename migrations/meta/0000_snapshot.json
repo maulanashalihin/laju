@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "8436313c-2020-45d6-a8f7-160c6b81541b",
+  "id": "1aac176c-384c-4d7a-acf8-876225898c31",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "sessions": {
@@ -30,13 +30,6 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "deleted_at": {
-          "name": "deleted_at",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
