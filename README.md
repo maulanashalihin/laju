@@ -99,8 +99,8 @@ Route.get('/id/:id', (ctx) => new Response(ctx.params.id));
 
 2. Get Query
 
-```bash
-import responses from "../responses";
+```bash 
+import responses from "../app/responses";
 import {getQuery} from "../app/services/Helper";
 
 Route.get('/search', (ctx) => {
@@ -115,14 +115,13 @@ Route.get('/search', (ctx) => {
 3. Get Data
 
 ```bash
-import responses from "../responses";
+import responses from "../app/responses";
 
 Route.post("/login", (ctx)=>{
 
   const data = ctx.data;
 
   return responses.json(data);
-
 
 }, { body: "json" });
 ```
