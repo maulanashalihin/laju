@@ -3,12 +3,10 @@ import AuthController from "../app/controllers/AuthController";
 
 import Cookie from "../app/services/Cookie";
 
-import Session from "../app/services/Session";
-import SampleController from "../app/controllers/SampleController";
+import Session from "../app/services/Session"; 
 
 const Route = new Router({port : process.env.PORT || 5555});
-
-Route.get("/html-svelte", SampleController.htmlSvelte);
+ 
 Route.get("/login", AuthController.loginPage);
 Route.post("/login", AuthController.loginWithPassword, { body: "json" });
 Route.get("/google/redirect", AuthController.loginWithGoogle);
