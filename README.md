@@ -30,11 +30,8 @@ Equipped with the *best* and the *fastest* web technology.
 Clone this repo and install packages
 
 ```bash
-  bun create maulanashalihin/laju hi-laju
-  cp  .env.example .env
-  bun run generate
-  bun run app/db/migrator.ts
-  bun run dev
+  bun create maulanashalihin/laju hi-laju 
+  bun dev
 ```
 
 ### Route to Controller
