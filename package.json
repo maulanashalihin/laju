@@ -18,7 +18,7 @@
     "typescript": "^5.0.0"
   },
    "bun-create": { 
-    "postinstall": ["cp .env.example .env","bun run app/db/migrator.ts"], // an array of commands 
+    "postinstall": ["cp .env.example .env","bun run app/db/migrator.ts"]
   },
   "dependencies": {
     "@inertiajs/svelte": "^1.0.12",
