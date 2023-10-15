@@ -115,7 +115,16 @@ Route.get('/search', (ctx) => {
 3. Get Data
 
 ```bash
-Route.post("/login", AuthController.loginWithPassword, { body: "json" });
+import responses from "../responses";
+
+Route.post("/login", (ctx)=>{
+
+  const data = ctx.data;
+
+  return responses.json(data);
+
+
+}, { body: "json" });
 ```
 
 ### Response Example
