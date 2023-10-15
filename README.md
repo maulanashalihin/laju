@@ -35,7 +35,7 @@ Install Bun
 Supported on macOS, Linux, and WSL
 
 
-Clone this repo and install packages
+Install App with bun-create
 
 ```bash
   bun create maulanashalihin/laju hi-laju 
