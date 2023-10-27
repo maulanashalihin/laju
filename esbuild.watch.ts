@@ -52,10 +52,9 @@ async function Build(init = false) {
          if (hash[filename] != file.hash) {
             push_change = true;
             hash[filename] = file.hash;
-         } 
-         manifest += `"${filename}": "http://localhost:${port}/${filename}"${
-            count < out.length ? "," : ""
-         }`;
+         }
+         manifest += `"${filename}": "http://localhost:${port}/${filename}"${count < out.length ? "," : ""
+            }`;
       }
 
       if (push_change && !init) {
@@ -70,15 +69,15 @@ async function Build(init = false) {
 
       if (init) {
          writeFileSync("./public/manifest.json", manifest);
-         
+
          const getEnv = readFileSync("./.env", "utf8");
- 
+
          getEnv.replace("APP_ENV=production", "APP_ENV=development");
 
          writeFileSync("./.env", getEnv);
 
       }
-   } catch (error) {}
+   } catch (error) { }
 }
 
 import chokidar from "chokidar";
@@ -122,10 +121,10 @@ watcher
    .on("change", (path) => {
       console.log("File", path, "has been changed");
 
-      if (path.includes("/views/")) { 
+      if (path.includes("/views/")) {
 
          clients.forEach((client) => {
-           
+
             client.controller.enqueue(`data: reload\n\n`);
          });
 
@@ -136,25 +135,32 @@ watcher
          Build(false);
       }
    });
- 
+
 const server = Bun.serve({
    port: port,
    fetch(request) {
       const path = request.url.replace("http://localhost:" + port + "/", "");
 
-    
+
       if (path == "subscribe") {
-        
+
+         
+         const signal = request.signal;
+
          const stream = new ReadableStream({
-            start(controller) {
+            async start(controller) {
                controller.enqueue(`data: initialize\n\n`);
-             
+
                clients.push({ controller });
-            },
-            pull(controller: ReadableStreamDefaultController) {},
-            cancel(controller: ReadableStreamDefaultController) {
-               controller.close();
-            },
+
+               while (!signal.aborted) {
+                  await Bun.sleep(1000);
+               }
+               clients = clients.filter((client) => client.controller != controller);
+               controller.close(); 
+
+
+            }
          });
 
          return new Response(stream, {

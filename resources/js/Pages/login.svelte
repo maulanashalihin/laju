@@ -1,4 +1,4 @@
-<script>
+ <script>
     import { inertia,router } from '@inertiajs/svelte' 
     import Logo from '../Components/Logo.svelte';
   
@@ -7,7 +7,7 @@
       password: '',
       password_confirmation: '',
       terms: false,
-    }
+    } 
     export let error;
     function submitForm()
     {
