@@ -13,7 +13,7 @@ Equipped with the *best* and the *fastest* web technology.
 
 ## Tech Stack
 
-**FrontEnd:** [Svelte](https://learn.svelte.dev/tutorial/welcome-to-svelte), [Inertia](https://inertiajs.com/), [TailwindCSS](https://tailwindcss.com/), [esbuild](https://esbuild.github.io/)
+**FrontEnd:** [Svelte](https://learn.svelte.dev/tutorial/welcome-to-svelte), [Inertia](https://inertiajs.com/), [TailwindCSS](https://tailwindcss.com/), [vite](https://vite.dev/)
 
 **BackEnd:** [Hyper Express](https://github.com/kartikk221/hyper-express), Typescript
 
@@ -195,9 +195,7 @@ Learn more about Knex.js migration here https://knexjs.org/guide/migrations.html
     ├── package.json
     ├── postcss.config.js
     ├── sync_version
-    ├── tailwind.config.js
-    ├── esbuild.watch.js
-    ├── esbuild.build.js
+    ├── tailwind.config.js 
     └── tsconfig.json
 
  
