@@ -1,6 +1,5 @@
  
-import { view } from "../services/View";
-import { asset } from "../services/helper";
+import { view } from "../services/View"; 
 let pkg = require("../../package.json");
 
 const inertia = () => {
@@ -27,8 +26,7 @@ const inertia = () => {
          if (!req.header("X-Inertia")) {
             const html = await view("inertia.html", {
                page: JSON.stringify(inertiaObject),
-               title:    "Blogpost",
-               app_js: asset("app.js"),
+               title:  process.env.TITLE ||  "DRIPSENDER "
             });
 
             return res.type("html").send(html);

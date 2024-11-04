@@ -1,9 +1,8 @@
 let randomUUID = self.crypto.randomUUID();
 import dayjs from "dayjs"; 
-var relativeTime = require('dayjs/plugin/relativeTime')
+import relativeTime from 'dayjs/plugin/relativeTime';
 import Toastify from "toastify-js";
-dayjs.extend(relativeTime)
-/** Dispatch event on click outside of node */
+dayjs.extend(relativeTime);/** Dispatch event on click outside of node */
 export function clickOutside(node) {
   
     const handleClick = event => {

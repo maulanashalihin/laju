@@ -1,62 +1,89 @@
 import { readFileSync, readdirSync, statSync } from "fs";
 import * as Sqrl from 'squirrelly'
-const manifest = require("../../public/manifest.json");
+// const manifest = require("../../public/manifest.json");
 import path from "path";
 
 let html_files = {} as {
    [key: string]: string;
 };
+
+let manifest = {};
+
+ function getJsFiles(directory = "resources/js") {
+    const files = readdirSync(directory);
  
-function importFiles(directory = "resources/views") {
-   const files = readdirSync(directory);
+ 
+    for (const filename of files) {
+     
+       const filePath = path.join(directory, filename);
+       const stats = statSync(filePath);
+ 
+       if (!stats.isDirectory()) { 
+       
+         if(process.env.NODE_ENV == 'development')
+         {
+            manifest[filename] = `http://localhost:${process.env.VITE_PORT}/js/${filename}`;
+         }else{
+            manifest[filename] = "/js/" + filename;
+         }
+        
+          
+       }
+    }
+ 
+ }
+ 
+
+ let directory = "resources/views";
+
+ if(process.env.NODE_ENV == 'production')
+{
+   directory = "dist/views";
+} 
+ 
+function importFiles( nextDirectory = "resources/views") {
+
+
+   const files = readdirSync(nextDirectory);
 
    for (const filename of files) {
-      const results = statSync(path.join(directory, filename));
+      const results = statSync(path.join(nextDirectory, filename));
 
       if (results.isDirectory()) {
-         importFiles(path.join(directory, filename)); // recursive call to get all files
+         importFiles(path.join(nextDirectory, filename)); // recursive call to get all files
       } else {
-         const html = readFileSync(path.join(directory, filename), "utf8");
+         const html = readFileSync(path.join(nextDirectory, filename), "utf8");
 
-         html_files[directory + "/" + filename] = html;
+         html_files[nextDirectory + "/" + filename] = html;
       }
    }
+
+   getJsFiles()
 }
 export function view(filename: string, view_data?: any) {
-   let directory = "resources/views";
+    
 
    const keys = Object.keys(view_data || {});
 
    let html = process.env.CACHE_VIEW == "true" ?  html_files[directory + "/" + filename] : readFileSync(path.join(directory, filename), "utf8");;
    
+   if(process.env.NODE_ENV == 'development')
+   {
+      Object.keys(manifest).forEach((key) => {
+         html = html.replace("/js/"+key, manifest[key]);
+      });
+   }
  
 
    html = Sqrl.render(html, {
-      ...view_data,
-      ...manifest
+      ...view_data
    });
 
 
 
-   if(process.env.NODE_ENV == 'development')
-   {
-      html = html.replace("</body>",`
-      <script>
-      var evtSource = new EventSource('http://localhost:8001/subscribe');
-
-         evtSource.onmessage = function (event) { 
-         if (event.data.includes("reload")) {
-            console.log("reloaded")
-            location.reload()
-         }
-      };
-      </script>
-      </body>
-      `)
-   }
-   
+ 
 
    return html;
 }
 
-export default importFiles();
+export default importFiles(directory);

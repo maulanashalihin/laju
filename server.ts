@@ -21,7 +21,7 @@ import "./app/services/View";
 
 var cors = require('cors') 
 
-webserver.use(cors())
+webserver.use(cors());
 
 
  
@@ -48,35 +48,35 @@ const LiveAssets = new LiveDirectory(__dirname+"/public",{  // We want to provid
 
 
 
-// Create static serve route to serve frontend assets
-webserver.get('*', (request, response) => {
-    // Strip away '/assets' from the request path to get asset relative path
-    // Lookup LiveFile instance from our LiveDirectory instance.
+// // Create static serve route to serve frontend assets
+// webserver.get('*', (request, response) => {
+//     // Strip away '/assets' from the request path to get asset relative path
+//     // Lookup LiveFile instance from our LiveDirectory instance.
 
-    const path = request.path.replace('/', '').replaceAll("%20"," ");
+//     const path = request.path.replace('/', '').replaceAll("%20"," ");
  
  
 
-    const asset = LiveAssets.get(path);
-    if (!asset) return response.status(404).send('Not Found');
+//     const asset = LiveAssets.get(path);
+//     if (!asset) return response.status(404).send('Not Found');
     
-    // Send the asset content as response depending on if the file is cached
-    if (asset.cached) {
-        // Simply send the Buffer returned by asset.content as the response
-        // You can convert a Buffer to a string using Buffer.toString() if your webserver requires string response body
-        if(path.endsWith(".css"))
-        return response.header("Content-Type","text/css").send(asset.content);
+//     // Send the asset content as response depending on if the file is cached
+//     if (asset.cached) {
+//         // Simply send the Buffer returned by asset.content as the response
+//         // You can convert a Buffer to a string using Buffer.toString() if your webserver requires string response body
+//         if(path.endsWith(".css"))
+//         return response.header("Content-Type","text/css").send(asset.content);
 
-        if(path.endsWith(".js"))
-        return response.header("Content-Type","text/javascript").send(asset.content);
+//         if(path.endsWith(".js"))
+//         return response.header("Content-Type","text/javascript").send(asset.content);
 
-        response.send(asset.content);
-    } else {
-        // For files that are not cached, you must create a stream and pipe it as the response for memory efficiency
-        const readable = asset.stream();
-        return readable.pipe(response);
-    }
-});
+//         response.send(asset.content);
+//     } else {
+//         // For files that are not cached, you must create a stream and pipe it as the response for memory efficiency
+//         const readable = asset.stream();
+//         return readable.pipe(response);
+//     }
+// });
 
 const PORT = parseInt(process.env.PORT) || 5000;
  
