@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "clear && npx concurrently 'vite'  'sleep 1 && npx nodemon'  ",
     "testing-cypress-dev": "clear && concurrently 'encore dev --watch'  'npx nodemon'  ",
-    "cypress": "npx cypress open", 
+    "cypress": "npx cypress open",
     "build": " vite build && tsc && cp -rf dist build"
   },
   "author": "",
@@ -24,7 +24,6 @@
     "hashids": "^2.3.0",
     "hyper-express": "^6.17.2",
     "knex": "^3.1.0",
-    "live-directory": "^3.0.3",
     "nodemailer": "^6.9.15",
     "redis": "^4.7.0",
     "squirrelly": "^9.1.0",
