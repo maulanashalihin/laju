@@ -48,5 +48,5 @@
     "baseUrl": "."
   }, 
   /* Files to include in compilation */
-  "include": ["./server.ts","./type/index.d.ts","commands","migrations","seeds"], 
+  "include": ["./*.ts","./type/index.d.ts","commands","migrations","seeds"], 
 }
