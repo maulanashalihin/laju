@@ -7,7 +7,8 @@
     "dev": "clear && npx concurrently 'vite'  'sleep 1 && npx nodemon'  ",
     "testing-cypress-dev": "clear && concurrently 'encore dev --watch'  'npx nodemon'  ",
     "cypress": "npx cypress open",
-   "rm -rf" :  "build && vite build && tsc && cp -rf dist build && cp -rf public build"
+    "build": "rm -rf build && vite build && tsc && cp -rf dist build && cp -rf public build ",
+    "front-build" : "vite build &&   cp -rf dist build "
   },
   "author": "",
   "license": "ISC",
