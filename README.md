@@ -232,7 +232,7 @@ You can study the stacks in the repository in the respective library documentati
 [6. Redis](https://github.com/redis/node-redis)
 
 
-[7. esbuild](https://esbuild.github.io/)
+[7. [vite](https://vite.dev/)
 
 
 
