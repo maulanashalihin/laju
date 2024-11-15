@@ -1,6 +1,5 @@
 import { readFileSync, readdirSync, statSync } from "fs";
-import * as Sqrl from 'squirrelly'
-// const manifest = require("../../public/manifest.json");
+import * as Sqrl from 'squirrelly' 
 import path from "path";
 
 let html_files = {} as {
@@ -9,39 +8,13 @@ let html_files = {} as {
 
 let manifest = {};
 
- function getJsFiles(directory = "resources/js") {
-    const files = readdirSync(directory);
- 
- 
-    for (const filename of files) {
-     
-       const filePath = path.join(directory, filename);
-       const stats = statSync(filePath);
- 
-       if (!stats.isDirectory()) { 
-       
-         if(process.env.NODE_ENV == 'development')
-         {
-            manifest[filename] = `http://localhost:${process.env.VITE_PORT}/js/${filename}`;
-         }else{
-            manifest[filename] = "/js/" + filename;
-         }
-        
-          
-       }
-    }
- 
- }
  
 
- let directory = "resources/views";
+ let directory = process.env.NODE_ENV == 'production' ? "dist/views" :  "resources/views";
 
- if(process.env.NODE_ENV == 'production')
-{
-   directory = "dist/views";
-} 
  
 function importFiles( nextDirectory = "resources/views") {
+
 
 
    const files = readdirSync(nextDirectory);
@@ -58,20 +31,28 @@ function importFiles( nextDirectory = "resources/views") {
       }
    }
 
-   getJsFiles()
+   
+  
 }
 export function view(filename: string, view_data?: any) {
     
 
    const keys = Object.keys(view_data || {});
+   
 
    let html = process.env.CACHE_VIEW == "true" ?  html_files[directory + "/" + filename] : readFileSync(path.join(directory, filename), "utf8");;
    
    if(process.env.NODE_ENV == 'development')
    {
-      Object.keys(manifest).forEach((key) => {
-         html = html.replace("/js/"+key, manifest[key]);
-      });
+      const files = readdirSync("resources/js");
+
+      for (const filename of files) {
+     
+         
+         html = html.replace("/js/"+filename, `http://localhost:${process.env.VITE_PORT}/js/${filename}`);
+      }
+
+       
    }
  
 
