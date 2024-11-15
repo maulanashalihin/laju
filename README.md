@@ -23,9 +23,9 @@ Equipped with the *best* and the *fastest* web technology.
 ## Get Started
 
 Clone this repo and install packages
-
+[
 ```bash
-  git clone [https://github.com/maulanashalihin/laju.git](https://github.com/maulanashalihin/hyper-express-svelte-5.git)
+  git clone https://github.com/maulanashalihin/hyper-express-svelte-5.git
   npm install
   cp .env.example .env
   npm run dev
