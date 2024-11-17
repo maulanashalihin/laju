@@ -17,7 +17,7 @@
     let menus = [
       {
         path: "home",
-        href: "/auth/home",
+        href: "/home",
         title: "Home",
         show: true,
       }
@@ -79,7 +79,7 @@
             <!-- Logo -->
             <a
               use:inertia
-              href="/auth/home"
+              href="/home"
               class="group inline-flex items-center space-x-2 font-bold text-lg tracking-wide text-gray-700 hover:text-cyan-600 active:text-gray-700"
             > 
               <!-- svelte-ignore a11y-missing-attribute -->
@@ -175,7 +175,7 @@
                     <a
                       class="w-full text-left flex items-center space-x-2 rounded py-2 px-3 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:bg-gray-100 focus:text-gray-700"
                       use:inertia
-                      href="/auth/profile">Profile</a
+                      href="/profile">Profile</a
                     >
   
                     <form on:submit|preventDefault={Logout}>

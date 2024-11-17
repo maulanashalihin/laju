@@ -22,13 +22,13 @@ class Autenticate {
 
       response
          .cookie("auth_id", token, 1000 * 60 * 60 * 24 * 60)
-         .redirect("/auth/home");
+         .redirect("home");
    }
 
    async logout(request: Request, response: Response) {
       await DB.from("sessions").where("id", request.cookies.auth_id).delete();
 
-      response.cookie("auth_id", "", 0).redirect("/login");
+      response.cookie("auth_id", "", 0).redirect("login");
    }
 }
 

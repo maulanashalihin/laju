@@ -5,9 +5,10 @@ let pkg = require("../../package.json");
 const inertia = () => {
    return (req, res, next) => {
       res.inertia = async (component, inertiaProps = {}, viewProps = {}) => {
+         
          const url = `//${req.get("host")}${req.originalUrl}`;
 
-         let props = { ...inertiaProps, ...viewProps, error : null, user : req.user || {}  } as any;
+         let props = { user : req.user || {}, ...inertiaProps, ...viewProps, error : null  } as any;
 
          
 

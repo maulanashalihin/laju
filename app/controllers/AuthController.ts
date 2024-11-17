@@ -11,18 +11,71 @@ import { Response, Request } from "../../type";
 class AuthController {
    public async registerPage(request : Request, response: Response) {
       if (request.cookies.auth_id) {
-         return response.redirect("/auth/home");
+         return response.redirect("/home");
       }
 
       return response.inertia("auth/register");
    }
 
    public async homePage(request : Request, response: Response) {
+      const page = parseInt(request.query.page as string) || 1;
+      const search = request.query.search as string || "";
+      const filter = request.query.filter as string || "all";
+      
+      let query = DB.from("users").select("*");
+      
+      // Apply search
+      if (search) {
+         query = query.where(function() {
+            this.where('name', 'like', `%${search}%`)
+                .orWhere('email', 'like', `%${search}%`)
+                .orWhere('phone', 'like', `%${search}%`);
+         });
+      }
+      
+      // Apply filters
+      if (filter === 'verified') {
+         query = query.where('is_verified', true);
+      } else if (filter === 'unverified') {
+         query = query.where('is_verified', false);
+      }
+      
+      // Get total count
+      const countQuery = query.clone();
+      const total = await countQuery.count('* as count').first();
+      
+      // Get paginated results
+      const users = await query
+         .orderBy('created_at', 'desc')
+         .offset((page - 1) * 10)
+         .limit(10);
+      
+      return response.inertia("home", { 
+         users, 
+         total:   0,
+         page,
+         search,
+         filter
+      });
+   }
 
-
-      return response.inertia("home");
-
-     
+   public async deleteUsers(request : Request, response: Response) {
+      const { ids } = request.body;
+      
+      if (!Array.isArray(ids)) {
+         return response.status(400).json({ error: 'Invalid request format' });
+      }
+      
+      // Only allow admin to delete users
+      if (!request.user.is_admin) {
+         return response.status(403).json({ error: 'Unauthorized' });
+      }
+      
+      await DB.from("users")
+         .whereIn('id', ids)
+         .delete();
+      
+      return response.redirect("/home");
    }
 
    public async profilePage(request : Request, response: Response) { 
@@ -277,18 +330,18 @@ Jika anda tidak merasa melakukan reset password, abaikan pesan  ini.
             text:
                "Klik link berikut untuk verifikasi email anda : " +
                process.env.APP_URL +
-               "/auth/verify/" +
+               "/verify/" +
                id,
          });
       } catch (error) {
          console.log(error);
 
-         return response.redirect("/auth/home");
+         return response.redirect("/home");
       }
 
       await Redis.setEx("verifikasi-user:" + request.user.id, 60 * 60 * 24, id);
 
-      return response.redirect("/auth/home");
+      return response.redirect("/home");
    }
 
    public async verifyPage(request : Request, response: Response) {
@@ -302,7 +355,7 @@ Jika anda tidak merasa melakukan reset password, abaikan pesan  ini.
             .update({ is_verified: true });
       }
 
-      return response.redirect("/auth/home?verified=true");
+      return response.redirect("/home?verified=true");
    }
 
    public async logout(request : Request, response: Response) {
