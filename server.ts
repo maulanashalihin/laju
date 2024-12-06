@@ -6,11 +6,9 @@ import HyperExpress from "hyper-express";
 
 const webserver = new HyperExpress.Server();
 
-import fs from "fs";
-
+import * as fs from 'fs';
 
 require("dotenv").config();
-
 
 //  rendering html files
 import "./app/services/View";
@@ -66,19 +64,27 @@ webserver.get("/assets/:file", async (request, response) => {
 });
 
 webserver.get("/*", (request, response) => {
-   const allowedExtensions = ['.ico', '.png', '.jpeg', '.txt'];
+   const allowedExtensions = [
+      '.ico', '.png', '.jpeg', '.jpg', '.gif', '.svg', 
+      '.txt', '.pdf', '.css', '.js', 
+      '.woff', '.woff2', '.ttf', '.eot',
+      '.mp4', '.webm', '.mp3', '.wav'
+   ];
    const path = "public/"+request.path.replace("/", "").replaceAll("%20", " ");
    
    if (!allowedExtensions.some(ext => path.toLowerCase().endsWith(ext))) {
       return response.status(403).send('File type not allowed');
    }
 
+   if (!fs.existsSync(path)) {
+      return response.status(404).send('File not found');
+   }
+
    return response.download(path);
 });
 
 const PORT = parseInt(process.env.PORT) || 5000;
-
-// Activate webserver by calling .listen(port, callback);
+ 
 
 webserver.set_error_handler((req, res, error: any) => {
    console.log(error);
