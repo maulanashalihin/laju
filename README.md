@@ -105,6 +105,7 @@ This command will:
   - `/views` - Svelte components and views
   - `/js` - JavaScript assets and modules
 - `/routes` - Route definitions
+- `/commands` - Custom CLI commands
 - `/migrations` - Database migrations
 - `/public` - Static files
 - `/dist` - Compiled assets (generated)
@@ -129,6 +130,36 @@ This command will:
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production 
+
+## CLI Commands
+
+### Create Controller
+```bash
+node laju make:controller ControllerName
+```
+This will create a new controller in `app/controllers` with basic CRUD methods.
+
+Example:
+```bash
+node laju make:controller UserController
+```
+
+### Create Command
+```bash
+node laju make:command CommandName
+```
+This will create a new command in `commands` that can be scheduled with cron jobs.
+
+Example:
+```bash
+node laju make:command SendDailyEmails
+```
+
+To schedule the command with cron, add it to your crontab:
+```bash
+# Run command every day at midnight
+0 0 * * * cd /path/to/your/app/build && node commands/SendDailyEmails.js
+```
 
 ## Contributing
 
@@ -331,7 +362,8 @@ npm run dev
 
 1. **File Organization**
    - Keep controllers in `app/controllers`
-   - Place Svelte components in `resources/views`
+   - Create inertia pages in `resources/js/Pages`
+   - Place Svelte components in `resources/js/Components`
    - Database migrations in `migrations`
 
 2. **Code Structure**
