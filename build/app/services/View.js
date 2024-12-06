@@ -33,6 +33,7 @@ const path_1 = __importDefault(require("path"));
 let html_files = {};
 const chokidar_1 = __importDefault(require("chokidar"));
 let directory = process.env.NODE_ENV == 'production' ? "dist/views" : "resources/views";
+console.log(process.env.NODE_ENV);
 console.log(directory);
 if (process.env.NODE_ENV == 'development') {
     var watcher = chokidar_1.default.watch('resources/views', { ignored: /^\./, persistent: true });

@@ -11,7 +11,7 @@ import chokidar from "chokidar"
 
 
  let directory = process.env.NODE_ENV == 'production' ? "dist/views" :  "resources/views";
-
+console.log(process.env.NODE_ENV)
  console.log(directory)
  if(process.env.NODE_ENV == 'development')
    {
