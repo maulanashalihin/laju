@@ -1,279 +1,312 @@
+# Hyper App
 
-# Laju
+A modern web application built with HyperExpress, Svelte, and TypeScript.
 
-Ship your next project faster with Laju.
+## Features
 
-Equipped with the *best* and the *fastest* web technology. 
+- Fast server-side rendering with HyperExpress
+- Modern frontend with Svelte 5
+- TypeScript support for better type safety
+- Inertia.js integration for seamless client-server communication
+- Built-in authentication system
+- SQLite database with Knex query builder
+- Email support with Nodemailer
+- Google APIs integration
+- Redis caching support
+- Asset bundling with Vite
+- TailwindCSS for styling
 
-|                          | Version | Requests/s | Latency | Throughput/s |
-| :--                      | --:     | :-:        | --:     | --:          | 
-| Hyper Express / Laju     | 6.5.9   | 193,834    |  2.04ms  | 17.38 Mb/s  |
-| Native NodeJS            | 18.16.0  | 72,670    |  5.45ms  | 11.09 Mb/s  | 
+## Prerequisites
 
+- Node.js (Latest LTS version recommended)
+- npm or yarn
+- Redis server (optional, for caching)
 
-## Tech Stack
+## Installation
 
-**FrontEnd:** [Svelte](https://learn.svelte.dev/tutorial/welcome-to-svelte), [Inertia](https://inertiajs.com/), [TailwindCSS](https://tailwindcss.com/), [vite](https://vite.dev/)
-
-**BackEnd:** [Hyper Express](https://github.com/kartikk221/hyper-express), Typescript
-
-**Database** : [Knex.js](https://knexjs.org/)
-
-
-## Get Started
-
-Clone this repo and install packages
-[
+1. Clone the repository
+2. Install dependencies:
 ```bash
-  git clone https://github.com/maulanashalihin/hyper-express-svelte-5.git
-  npm install
-  cp .env.example .env
-  npm run dev
+npm install
+```
+3. Copy `.env.example` to `.env` and configure your environment variables:
+```bash
+cp .env.example .env
 ```
 
-### Route to Controller
+## Development
 
-Create your first API with this simple flow
+To start the development server:
 
-*web.ts*
 ```bash
-
-  import UserController from "../app/controllers/UserController"; 
-
-  Route.get("/user",UserController.index);
+npm run dev
 ```
 
-*UserController.ts*
+This will:
+- Start the Vite development server for frontend assets
+- Run the backend server with nodemon for auto-reloading
+
+## Building for Production
+
+To build the application for production:
+
 ```bash
-
-class Controller {
-
-  public async index (request,response) { 
-
-    const users = await DB.from("users");
-
-    return response.json(users)
-  } 
-
-}
-
-export default new Controller()
+npm run build
 ```
 
+This command will:
+- Clean the build directory
+- Build frontend assets with Vite
+- Compile TypeScript files
+- Copy necessary files to the build directory
 
- 
-###  File Generator
+## Project Structure
 
-Speed up development process with File Generator.
+- `/app` - Core application files
+  - `/middlewares` - Custom middleware functions
+  - `/services` - Service layer implementations
+- `/resources` - Frontend resources
+  - `/views` - Svelte components and views
+- `/routes` - Route definitions
+- `/migrations` - Database migrations
+- `/public` - Static files
+- `/dist` - Compiled assets (generated)
+- `/build` - Production build output
 
-#### 1. Generate Controller
+## Key Dependencies
 
-Controller is some function to handle REST 
+### Backend
+- HyperExpress - High-performance web server
+- Knex - SQL query builder
+- SQLite3 - Database
+- Nodemailer - Email sending
+- Redis - Caching (optional)
 
-Generate new Controller with **node laju make:controller ControllerFile**
+### Frontend
+- Svelte 5 - UI framework
+- Inertia.js - Client-server communication
+- TailwindCSS - Utility-first CSS framework
+- Vite - Build tool and dev server
 
-```bash
-    node laju make:controller User 
-```
+## Scripts
 
-*UserController.ts*
-```bash
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run front-build` - Build frontend assets only
+- `npm run cypress` - Open Cypress for testing
 
-import { Response, Request } from "../../type"; 
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
+
+## License
+
+ISC License
+
+## Tutorial: Building Your First App
+
+This tutorial will guide you through building a simple application using this framework.
+
+### 1. Setting Up a New Route and Controller
+
+First, let's create a new route and controller for a blog post feature.
+
+1. Create a new controller file `app/controllers/PostController.ts`:
+
+```typescript
+import { Request, Response } from "../../type";
 import DB from "../services/DB";
 
 class Controller {
+  public async index(request: Request, response: Response) {
+    const posts = await DB.from("posts");
+    return response.inertia("posts/index", { posts });
+  }
+
+  public async create(request: Request, response: Response) {
+    return response.inertia("posts/create");
+  }
+
+  public async store(request: Request, response: Response) {
+    const { title, content } = request.body;
     
-  public async index (request : Request,response : Response) { 
-  }
+    await DB.table("posts").insert({
+      title,
+      content,
+      created_at: Date.now(),
+      updated_at: Date.now()
+    });
 
-  public async create (request : Request, response : Response) {
+    return response.redirect("/posts");
   }
-
-  public async store (request : Request, response : Response) {
-  }
-
-  public async show (request : Request, response : Response) {
-  }
-
-  public async edit (request : Request, response : Response) {
-  }
-
-  public async update (request : Request, response : Response) {
-  }
-
-  public async destroy (request : Request, response : Response) {
-  }
-
 }
 
-export default new Controller()
-```
-      
- 
-
-#### 2. Generate Command
-
-Create Command Line App then you can trigger with cron
-
-Generate new CommandFile with **node laju make:command CommandFile**
-
-```bash
-   node laju make:command UnsubUser 
-```
-command file will be generated in commands folder. you can execute the file with `npx ts-node commands/CommandFile.ts` (development) or `node build/commands/CommandFile.js` (production)
-
-
-#### 2. Generate Migration
-```bash
-  npx knex migrate:make users
+export default new Controller();
 ```
 
-generated users migration
+2. Add routes in `routes/web.ts`:
 
-*20230513055909_users.ts*
+```typescript
+import PostController from "../app/controllers/PostController";
+
+// Add these routes with your existing routes
+Route.get("/posts", PostController.index);
+Route.get("/posts/create", PostController.create);
+Route.post("/posts", PostController.store);
+```
+
+### 2. Creating the Database Migration
+
+Create a migration for the posts table:
+
 ```bash
-  import { Knex } from "knex";
+npx knex migrate:make create_posts_table
+```
 
+In the generated migration file:
+
+```typescript
+import { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
-    await knex.schema.createTable('users', function (table) {
-        table.uuid('id').primary().notNullable()
-        table.string('name', 255)
-        table.string('phone', 255)
-        table.string('email', 255).notNullable()
-        table.boolean("is_verified").defaultTo(false)
-        table.uuid("plan_id")
-        table.dateTime('membership_date');
-        table.boolean("is_admin").defaultTo(false);
-        table.string('password', 180).notNullable()
-        table.string('remember_me_token').nullable()
-  
-        table.index(['email'], 'user_email_index')
-        /**
-         * Uses timestampz for PostgreSQL and DATETIME2 for MSSQL
-         */
-        table.bigInteger("created_at")
-        table.bigInteger("updated_at")
-      
-    }) 
+  await knex.schema.createTable('posts', function (table) {
+    table.increments('id').primary();
+    table.string('title').notNullable();
+    table.text('content').notNullable();
+    table.bigInteger('created_at');
+    table.bigInteger('updated_at');
+  });
 }
-
 
 export async function down(knex: Knex): Promise<void> {
-    await knex.schema.dropTable('users')
+  await knex.schema.dropTable('posts');
 }
-
 ```
-Learn more about Knex.js migration here https://knexjs.org/guide/migrations.html
 
-    
-
-
-### Folder Structure
-
-    .
-    ├── app                     # Main App (mostly touch files)
-    │   ├── controllers         # controllerss
-    │   ├── middlewares         # request interceptor
-    │   └── services            # reusable services such as connecting to DB and Redis Service
-    ├── benchmark               # Source files to compare this framework
-    ├── build                   # compiled JS files
-    ├── commands                # files to use as command line service
-    ├── migrations              # create, alter and drop DB tables
-    ├── public                  # static file of your apps
-    ├── resources               # front end files
-    │   ├── js                  # js folders
-    │   └── views               # server side rending files
-    ├── routes                  # route configuration
-    ├── env.example
-    ├── .gitignore
-    ├── laju
-    ├── clean
-    ├── knexfile.ts
-    ├── nodemon.json
-    ├── package.json
-    ├── postcss.config.js
-    ├── sync_version
-    ├── tailwind.config.js 
-    └── tsconfig.json
-
- 
-    
-### Inertia
-create https://inertiajs.com/ with by passing the inertia file in Pages folder like this.
-
-    public async loginPage (request,response) { 
- 
-        return response.inertia("auth/login")
-    
-    }
-
-
-## Documentation
-
-You can study the stacks in the repository in the respective library documentation.
-
-[1. Hyper Express](https://github.com/kartikk221/hyper-express)
-
-
-[2. Svelte](https://learn.svelte.dev/tutorial/welcome-to-svelte)
-
-
-[3. Inertia](https://inertiajs.com/)
-
-
-[4. TailwindCSS](https://tailwindcss.com/)
-
-
-[5. Knex.js](https://knexjs.org/)
-
-
-[6. Redis](https://github.com/redis/node-redis)
-
-
-[7. [vite](https://vite.dev/)
-
-
-
-    
-### Benchmark Results
-**Note!** these benchmark test in Macbook Air M1 with [wrk](https://github.com/wg/wrk). test script in benchmark folder.
-
-|                          | Version | Requests/s | Latency | Throughput/s |
-| :--                      | --:     | :-:        | --:     | --:          | 
-| Hyper Express / Laju     | 6.5.9   | 193,834    |  2.04ms  | 17.38 Mb/s  |
-| Native NodeJS            | 18.16.0  | 72,670    |  5.45ms  | 11.09 Mb/s  | 
-
-
-**Hyper Express / Laju**
-
-    wrk -t12 -c400 -d30s http://localhost:3006
+Run the migration:
 
 ```bash
-Running 30s test @ http://localhost:3006
-  12 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     2.04ms  486.96us  19.81ms   95.72%
-    Req/Sec    16.24k     1.45k   21.21k    84.36%
-  5820498 requests in 30.03s, 521.78MB read
-  Socket errors: connect 0, read 372, write 0, timeout 0
-Requests/sec: 193834.13
-Transfer/sec:     17.38MB
+npx knex migrate:latest
 ```
 
-**Native NodeJS**
+### 3. Creating Svelte Components
 
-    wrk -t12 -c400 -d30s http://localhost:3007
+1. Create `resources/views/posts/index.svelte`:
 
+```svelte
+<script>
+  export let posts = [];
+</script>
+
+<div class="max-w-4xl mx-auto p-4">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Blog Posts</h1>
+    <a 
+      href="/posts/create" 
+      class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+    >
+      Create Post
+    </a>
+  </div>
+
+  <div class="space-y-4">
+    {#each posts as post}
+      <div class="border p-4 rounded">
+        <h2 class="text-xl font-semibold">{post.title}</h2>
+        <p class="mt-2 text-gray-600">{post.content}</p>
+      </div>
+    {/each}
+  </div>
+</div>
+```
+
+2. Create `resources/views/posts/create.svelte`:
+
+```svelte
+<script>
+  import { router } from '@inertiajs/svelte';
+
+  let form = {
+    title: '',
+    content: ''
+  };
+
+  function handleSubmit() {
+    router.post('/posts', form);
+  }
+</script>
+
+<div class="max-w-4xl mx-auto p-4">
+  <h1 class="text-2xl font-bold mb-6">Create New Post</h1>
+
+  <form on:submit|preventDefault={handleSubmit} class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium mb-1">Title</label>
+      <input
+        type="text"
+        bind:value={form.title}
+        class="w-full px-3 py-2 border rounded"
+      />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Content</label>
+      <textarea
+        bind:value={form.content}
+        class="w-full px-3 py-2 border rounded h-32"
+      ></textarea>
+    </div>
+
+    <div>
+      <button
+        type="submit"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Create Post
+      </button>
+    </div>
+  </form>
+</div>
+```
+
+### 4. Testing Your Application
+
+1. Start the development server:
 ```bash
-Running 30s test @ http://localhost:3007
-  12 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     5.45ms  729.74us  34.11ms   97.20%
-    Req/Sec     6.09k   370.90     7.83k    92.00%
-  2181301 requests in 30.02s, 332.84MB read
-  Socket errors: connect 0, read 676, write 5, timeout 0
-Requests/sec:  72670.72
-Transfer/sec:     11.09MB
+npm run dev
 ```
+
+2. Visit `http://localhost:5555/posts` in your browser
+3. Try creating a new post using the form
+4. View the list of posts on the index page
+
+### Key Concepts
+
+1. **Routing**: Routes are defined in `routes/web.ts` using the HyperExpress router
+2. **Controllers**: Handle business logic and return Inertia responses
+3. **Database**: Use Knex.js for database operations and migrations
+4. **Frontend**: Svelte components with Inertia.js for seamless page transitions
+5. **Styling**: TailwindCSS for utility-first styling
+
+### Best Practices
+
+1. **File Organization**
+   - Keep controllers in `app/controllers`
+   - Place Svelte components in `resources/views`
+   - Database migrations in `migrations`
+
+2. **Code Structure**
+   - Use TypeScript types for better type safety
+   - Keep controllers focused on single responsibilities
+   - Use Inertia.js for state management between server and client
+
+3. **Database**
+   - Always use migrations for database changes
+   - Use the Query Builder for complex queries
+   - Include timestamps for tracking record changes
+
+Need help with anything specific? Feel free to ask!
