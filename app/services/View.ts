@@ -6,11 +6,24 @@ let html_files = {} as {
    [key: string]: string;
 };
 
-let manifest = {};
+import chokidar from "chokidar"
 
- 
+
 
  let directory = process.env.NODE_ENV == 'production' ? "dist/views" :  "resources/views";
+
+ if(process.env.NODE_ENV == 'development')
+   {
+      var watcher = chokidar.watch('resources/views', { ignored: /^\./, persistent: true });
+
+      watcher 
+      .on('change', (path) => {
+
+         importFiles(directory);
+         
+      })
+   }
+
 
  
 function importFiles( nextDirectory = "resources/views") {
@@ -27,6 +40,13 @@ function importFiles( nextDirectory = "resources/views") {
       } else {
          const html = readFileSync(path.join(nextDirectory, filename), "utf8");
 
+         if(nextDirectory.includes("partials"))
+         {
+            Sqrl.templates.define(filename, Sqrl.compile(html))
+         }
+         
+
+
          html_files[nextDirectory + "/" + filename] = html;
       }
    }
@@ -37,13 +57,13 @@ function importFiles( nextDirectory = "resources/views") {
 export function view(filename: string, view_data?: any) {
     
 
-   const keys = Object.keys(view_data || {});
-   
+   const keys = Object.keys(view_data || {}); 
 
-   let html = process.env.CACHE_VIEW == "true" ?  html_files[directory + "/" + filename] : readFileSync(path.join(directory, filename), "utf8");;
+   let html = html_files[directory + "/" + filename];
    
    if(process.env.NODE_ENV == 'development')
    {
+      
       const files = readdirSync("resources/js");
 
       for (const filename of files) {
