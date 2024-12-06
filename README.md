@@ -65,8 +65,10 @@ This command will:
 - `/app` - Core application files
   - `/middlewares` - Custom middleware functions
   - `/services` - Service layer implementations
+  - `/controllers` - Application controllers
 - `/resources` - Frontend resources
   - `/views` - Svelte components and views
+  - `/js` - JavaScript assets and modules
 - `/routes` - Route definitions
 - `/migrations` - Database migrations
 - `/public` - Static files
@@ -91,9 +93,7 @@ This command will:
 ## Scripts
 
 - `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run front-build` - Build frontend assets only
-- `npm run cypress` - Open Cypress for testing
+- `npm run build` - Build for production 
 
 ## Contributing
 
