@@ -11,7 +11,7 @@ Visit [laju.dev](https://laju.dev)
 - TypeScript support for better type safety
 - Inertia.js integration for seamless client-server communication
 - Built-in authentication system
-- SQLite database with Knex query builder
+- BetterSQLite3 database with Knex query builder
 - Email support with Nodemailer
 - Google APIs integration
 - Redis caching support
@@ -116,7 +116,7 @@ This command will:
 ### Backend
 - HyperExpress - High-performance web server
 - Knex - SQL query builder
-- SQLite3 - Database
+- BetterSQLite3 - Database
 - Nodemailer - Email sending
 - Redis - Caching (optional)
 
