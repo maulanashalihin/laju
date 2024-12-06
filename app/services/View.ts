@@ -11,8 +11,7 @@ import chokidar from "chokidar"
 
 
  let directory = process.env.NODE_ENV == 'development' ?    "resources/views" : "dist/views";
-console.log(process.env.NODE_ENV)
- console.log(directory)
+ 
  if(process.env.NODE_ENV == 'development')
    {
       var watcher = chokidar.watch('resources/views', { ignored: /^\./, persistent: true });
