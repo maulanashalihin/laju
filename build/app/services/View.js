@@ -30,6 +30,7 @@ exports.view = view;
 const fs_1 = require("fs");
 const Sqrl = __importStar(require("squirrelly"));
 const path_1 = __importDefault(require("path"));
+require("dotenv").config();
 let html_files = {};
 const chokidar_1 = __importDefault(require("chokidar"));
 let directory = process.env.NODE_ENV == 'production' ? "dist/views" : "resources/views";

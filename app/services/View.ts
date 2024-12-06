@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync, statSync } from "fs";
 import * as Sqrl from 'squirrelly' 
 import path from "path";
-
+require("dotenv").config();
 let html_files = {} as {
    [key: string]: string;
 };
