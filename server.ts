@@ -8,6 +8,10 @@ const webserver = new HyperExpress.Server();
 
 import fs from "fs";
 
+
+require("dotenv").config();
+
+
 //  rendering html files
 import "./app/services/View";
 

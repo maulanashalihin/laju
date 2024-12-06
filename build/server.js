@@ -8,6 +8,7 @@ const web_1 = __importDefault(require("./routes/web"));
 const hyper_express_1 = __importDefault(require("hyper-express"));
 const webserver = new hyper_express_1.default.Server();
 const fs_1 = __importDefault(require("fs"));
+require("dotenv").config();
 require("./app/services/View");
 var cors = require("cors");
 webserver.use(cors());
