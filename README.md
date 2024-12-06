@@ -26,12 +26,19 @@ Visit [laju.dev](https://laju.dev)
 
 ## Installation
 
-1. Clone the repository
+1. Run the following command
+```bash
+npx create-laju-app project-name
+```
+2. Open the project directory
+```bash
+cd project-name
+```
 2. Install dependencies:
 ```bash
 npm install
 ```
-3. Copy `.env.example` to `.env` and configure your environment variables:
+4. Copy `.env.example` to `.env` and configure your environment variables:
 ```bash
 cp .env.example .env
 ```
