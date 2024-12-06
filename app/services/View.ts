@@ -4,16 +4,14 @@ import path from "path";
 require("dotenv").config();
 let html_files = {} as {
    [key: string]: string;
-};
-
-import chokidar from "chokidar"
-
-
+}; 
 
  let directory = process.env.NODE_ENV == 'development' ?    "resources/views" : "dist/views";
  
  if(process.env.NODE_ENV == 'development')
    {
+      const chokidar = require("chokidar");
+
       var watcher = chokidar.watch('resources/views', { ignored: /^\./, persistent: true });
 
       watcher 
