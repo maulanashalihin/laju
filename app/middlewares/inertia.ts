@@ -1,6 +1,6 @@
  
 import { view } from "../services/View"; 
-let pkg = require("../../package.json");
+let pkg = process.env.NODE_ENV == 'development' ? require("../../package.json") : require("../../../package.json");
 
 const inertia = () => {
    return (req, res, next) => {
