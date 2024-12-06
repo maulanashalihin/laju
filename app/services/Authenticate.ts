@@ -22,7 +22,7 @@ class Autenticate {
 
       response
          .cookie("auth_id", token, 1000 * 60 * 60 * 24 * 60)
-         .redirect("home");
+         .redirect("/home");
    }
 
    async logout(request: Request, response: Response) {
