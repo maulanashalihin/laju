@@ -1,6 +1,6 @@
-# Hyper App
+# Laju
 
-A modern web application built with HyperExpress, Svelte, and TypeScript.
+A high-performance TypeScript web framework combining HyperExpress, Svelte 5, and Inertia.js for building modern full-stack applications. Features server-side rendering, real-time capabilities, and seamless client-server state management.
 
 ## Features
 
