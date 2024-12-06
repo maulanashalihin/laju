@@ -26,6 +26,15 @@ Visit [laju.dev](https://laju.dev)
 
 ## Installation
 
+### Quick Start
+```bash
+npx create-laju-app project-name
+cd project-name
+npm run dev
+```
+
+### Manual Installation
+
 1. Clone the repository
 2. Install dependencies:
 ```bash
@@ -54,6 +63,11 @@ cp .env.example .env
    GOOGLE_CLIENT_ID=your_client_id_here
    GOOGLE_CLIENT_SECRET=your_client_secret_here
    ```
+
+5. Run database migrations:
+```bash
+npx knex migrate:latest
+```
 
 ## Development
 
