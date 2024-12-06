@@ -36,6 +36,25 @@ npm install
 cp .env.example .env
 ```
 
+4. Set up Google OAuth credentials:
+   1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+   2. Create a new project or select an existing one
+   3. Enable the Google+ API and Google OAuth2 API
+   4. Go to "Credentials" in the left sidebar
+   5. Click "Create Credentials" and select "OAuth client ID"
+   6. Select "Web application" as the application type
+   7. Set the following:
+      - Name: Your application name
+      - Authorized JavaScript origins: `http://localhost:5555` (for development)
+      - Authorized redirect URIs: `http://localhost:5555/google/callback`
+   8. Click "Create"
+   9. Copy the generated Client ID and Client Secret
+   10. Add them to your `.env` file:
+   ```
+   GOOGLE_CLIENT_ID=your_client_id_here
+   GOOGLE_CLIENT_SECRET=your_client_secret_here
+   ```
+
 ## Development
 
 To start the development server:
