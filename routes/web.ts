@@ -34,6 +34,20 @@ Route.get("/google/redirect", AuthController.redirect);
 Route.get("/google/callback", AuthController.googleCallback);
 
 /**
+ * Password Reset Routes
+ * Routes for handling password reset
+ * ------------------------------------------------
+ * GET   /forgot-password - Forgot password page
+ * POST  /forgot-password - Send reset password link
+ * GET   /reset-password/:id - Reset password page
+ * POST  /reset-password - Process password reset
+ */
+Route.get("/forgot-password", AuthController.forgotPasswordPage);
+Route.post("/forgot-password", AuthController.sendResetPassword);
+Route.get("/reset-password/:id", AuthController.resetPasswordPage);
+Route.post("/reset-password", AuthController.resetPassword);
+
+/**
  * Protected Routes
  * These routes require authentication
  * ------------------------------------------------

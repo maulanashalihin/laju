@@ -3,7 +3,7 @@
     import { clickOutside } from "../Components/helper";
       import { onMount } from "svelte";
       import dayjs from "dayjs"
-    import DripformIcon from "../Components/DripformIcon.svelte";
+    import LajuIcon from "../Components/LajuIcon.svelte";
     let show = false;
   
     let mobile_menu = false;
@@ -83,7 +83,7 @@
               class="group inline-flex items-center space-x-2 font-bold text-lg tracking-wide text-gray-700 hover:text-cyan-600 active:text-gray-700"
             > 
               <!-- svelte-ignore a11y-missing-attribute -->
-              <DripformIcon></DripformIcon>
+              <LajuIcon></LajuIcon>
             </a>
             <!-- END Logo -->
   
