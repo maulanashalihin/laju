@@ -146,19 +146,6 @@ class AuthController {
             expires_at: (0, dayjs_1.default)().add(24, 'hours').toDate()
         });
         try {
-            await Mailer_1.default.sendMail({
-                from: '"Dripsender Auth" <dripsender.id@gmail.com>',
-                to: email,
-                subject: "Reset Password",
-                text: `Anda telah melakukan reset password. Jika itu benar, silakan Klik link berikut : 
-      
-        ${process.env.APP_URL}/reset-password/${token}
-        
-        Jika anda tidak merasa melakukan reset password, abaikan email ini.
-        
-        Link ini akan kadaluarsa dalam 24 jam.
-              `,
-            });
         }
         catch (error) { }
         try {
