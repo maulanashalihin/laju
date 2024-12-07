@@ -52,7 +52,7 @@
                             type="text" 
                             name="email" 
                             id="email" 
-                            class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-emerald-600 focus:border-emerald-600 block w-full p-2.5" 
+                            class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:border-emerald-600    focus:outline-none block w-full py-2.5 px-3" 
                             placeholder="email@example.com atau 08xxxxxxxxxx"
                             required
                         >
