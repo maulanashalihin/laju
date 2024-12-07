@@ -19,7 +19,7 @@ const inertia = () => {
             if (!req.header("X-Inertia")) {
                 const html = await (0, View_1.view)("inertia.html", {
                     page: JSON.stringify(inertiaObject),
-                    title: process.env.TITLE || "DRIPSENDER "
+                    title: process.env.TITLE || "LAJU - Ship Your Next Project Faster",
                 });
                 return res.type("html").send(html);
             }

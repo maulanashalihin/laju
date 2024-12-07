@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const Redis_1 = __importDefault(require("../services/Redis"));
 const DB_1 = __importDefault(require("../services/DB"));
 const Authenticate_1 = __importDefault(require("../services/Authenticate"));
 const GoogleAuth_1 = require("../services/GoogleAuth");
@@ -99,22 +98,33 @@ class AuthController {
     }
     async resetPasswordPage(request, response) {
         const id = request.params.id;
-        const user_id = await Redis_1.default.get("reset-password:" + id);
-        if (!user_id) {
-            return response.status(404).send("Link tidak valid");
+        const token = await DB_1.default.from("password_reset_tokens")
+            .where("token", id)
+            .where("expires_at", ">", new Date())
+            .first();
+        if (!token) {
+            return response.status(404).send("Link tidak valid atau sudah kadaluarsa");
         }
         return response.inertia("auth/reset-password", { id: request.params.id });
     }
     async resetPassword(request, response) {
         const { id, password } = await request.json();
-        const user_id = await Redis_1.default.get("reset-password:" + id);
-        if (!user_id) {
-            return response.status(404).send("Link tidak valid");
+        const token = await DB_1.default.from("password_reset_tokens")
+            .where("token", id)
+            .where("expires_at", ">", new Date())
+            .first();
+        if (!token) {
+            return response.status(404).send("Link tidak valid atau sudah kadaluarsa");
         }
+        const user = await DB_1.default.from("users")
+            .where("email", token.email)
+            .first();
         await DB_1.default.from("users")
-            .where("id", user_id)
+            .where("id", user.id)
             .update({ password: await Authenticate_1.default.hash(password) });
-        const user = await DB_1.default.from("users").where("id", user_id).first();
+        await DB_1.default.from("password_reset_tokens")
+            .where("token", id)
+            .delete();
         return Authenticate_1.default.process(user, request, response);
     }
     async sendResetPassword(request, response) {
@@ -129,7 +139,12 @@ class AuthController {
         if (!user) {
             return response.status(404).send("Email tidak terdaftar");
         }
-        const id = (0, helper_1.generateUUID)();
+        const token = (0, helper_1.generateUUID)();
+        await DB_1.default.from("password_reset_tokens").insert({
+            email: user.email,
+            token: token,
+            expires_at: (0, dayjs_1.default)().add(24, 'hours').toDate()
+        });
         try {
             await Mailer_1.default.sendMail({
                 from: '"Dripsender Auth" <dripsender.id@gmail.com>',
@@ -137,9 +152,11 @@ class AuthController {
                 subject: "Reset Password",
                 text: `Anda telah melakukan reset password. Jika itu benar, silakan Klik link berikut : 
       
-        ${process.env.APP_URL}/reset-password/${id}
+        ${process.env.APP_URL}/reset-password/${token}
         
         Jika anda tidak merasa melakukan reset password, abaikan email ini.
+        
+        Link ini akan kadaluarsa dalam 24 jam.
               `,
             });
         }
@@ -151,14 +168,15 @@ class AuthController {
                     phone: user.phone,
                     text: `Anda telah melakukan reset password. Jika itu benar, silakan Klik link berikut : 
       
-${process.env.APP_URL}/reset-password/${id}
+${process.env.APP_URL}/reset-password/${token}
           
-Jika anda tidak merasa melakukan reset password, abaikan pesan  ini.
+Jika anda tidak merasa melakukan reset password, abaikan pesan ini.
+
+Link ini akan kadaluarsa dalam 24 jam.
                 `,
                 });
         }
         catch (error) { }
-        await Redis_1.default.setEx("reset-password:" + id, 60 * 60 * 24, user.id);
         return response.send("OK");
     }
     async loginPage(request, response) {
@@ -257,32 +275,48 @@ Jika anda tidak merasa melakukan reset password, abaikan pesan  ini.
         }
     }
     async verify(request, response) {
-        const id = (0, helper_1.generateUUID)();
+        const token = (0, helper_1.generateUUID)();
+        await DB_1.default.from("email_verification_tokens")
+            .where("user_id", request.user.id)
+            .delete();
+        await DB_1.default.from("email_verification_tokens").insert({
+            user_id: request.user.id,
+            token: token,
+            expires_at: (0, dayjs_1.default)().add(24, 'hours').toDate()
+        });
         try {
             await Mailer_1.default.sendMail({
                 from: '"Dripsender Auth" <dripsender.id@gmail.com>',
                 to: request.user.email,
                 subject: "Verifikasi Akun",
-                text: "Klik link berikut untuk verifikasi email anda : " +
-                    process.env.APP_URL +
-                    "/verify/" +
-                    id,
+                text: `Klik link berikut untuk verifikasi email anda:
+${process.env.APP_URL}/verify/${token}
+
+Link ini akan kadaluarsa dalam 24 jam.`,
             });
         }
         catch (error) {
             console.log(error);
             return response.redirect("/home");
         }
-        await Redis_1.default.setEx("verifikasi-user:" + request.user.id, 60 * 60 * 24, id);
         return response.redirect("/home");
     }
     async verifyPage(request, response) {
         const { id } = request.params;
-        const verifikasi = await Redis_1.default.get("verifikasi-user:" + request.user.id);
-        if (verifikasi == id) {
+        const verificationToken = await DB_1.default.from("email_verification_tokens")
+            .where({
+            user_id: request.user.id,
+            token: id
+        })
+            .where("expires_at", ">", new Date())
+            .first();
+        if (verificationToken) {
             await DB_1.default.from("users")
                 .where("id", request.user.id)
                 .update({ is_verified: true });
+            await DB_1.default.from("email_verification_tokens")
+                .where("id", verificationToken.id)
+                .delete();
         }
         return response.redirect("/home?verified=true");
     }
