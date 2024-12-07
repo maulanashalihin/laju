@@ -72,7 +72,7 @@
         <a
           href="/register"
           use:inertia
-          class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
         >
           Add User
         </a>
@@ -87,11 +87,11 @@
           type="text"
           bind:value={search}
           placeholder="Search users..."
-          class="w-full rounded-l-lg border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+          class="w-full rounded-l-lg border border-gray-300 px-4 py-2 text-sm focus:border-emerald-500 focus:outline-none"
           on:keyup={(e) => e.key === "Enter" && handleSearch()}
         />
         <button
-          class="rounded-r-lg border border-l-0 border-indigo-600 bg-indigo-600 px-4 py-2 text-sm text-white hover:bg-indigo-700"
+          class="rounded-r-lg border border-l-0 border-emerald-600 bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700"
           on:click={handleSearch}
         >
           Search
@@ -101,19 +101,19 @@
       <!-- Filter Buttons -->
       <div class="flex space-x-2">
         <button
-          class="px-4 py-2 text-sm rounded-lg {filter === 'all' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
+          class="px-4 py-2 text-sm rounded-lg {filter === 'all' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
           on:click={() => handleFilter('all')}
         >
           All Users
         </button>
         <button
-          class="px-4 py-2 text-sm rounded-lg {filter === 'verified' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
+          class="px-4 py-2 text-sm rounded-lg {filter === 'verified' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
           on:click={() => handleFilter('verified')}
         >
           Verified
         </button>
         <button
-          class="px-4 py-2 text-sm rounded-lg {filter === 'unverified' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
+          class="px-4 py-2 text-sm rounded-lg {filter === 'unverified' ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}"
           on:click={() => handleFilter('unverified')}
         >
           Unverified
@@ -130,7 +130,7 @@
               <input
                 type="checkbox"
                 bind:checked={selectAll}
-                class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
               />
             </th>
             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -158,7 +158,7 @@
                   type="checkbox"
                   checked={selectedUsers.has(user.id)}
                   on:change={() => toggleUser(user.id)}
-                  class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  class="rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
                 />
               </td>
               <td class="px-4 py-3">
@@ -188,7 +188,7 @@
               </td>
               <td class="px-4 py-3 text-sm text-gray-500">
                 <button
-                  class="text-indigo-600 hover:text-indigo-900"
+                  class="text-emerald-600 hover:text-emerald-900"
                   on:click={() => inertia.visit(`/users/${user.id}/edit`)}
                 >
                   Edit
@@ -229,7 +229,7 @@
     {#if selectedUsers.size > 0}
       <div class="fixed bottom-0 inset-x-0 pb-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="bg-indigo-600 rounded-lg shadow-lg px-6 py-4">
+          <div class="bg-emerald-600 rounded-lg shadow-lg px-6 py-4">
             <div class="flex items-center justify-between flex-wrap">
               <div class="flex-1 flex items-center">
                 <span class="text-white">
@@ -239,7 +239,7 @@
               <div class="flex-shrink-0">
                 <button
                   on:click={deleteSelected}
-                  class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white"
+                  class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-emerald-600 bg-white hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-emerald-600 focus:ring-white"
                 >
                   Delete Selected
                 </button>
