@@ -220,7 +220,7 @@ Link ini akan kadaluarsa dalam 24 jam.
             });
       } catch (error) {}
 
-      return response.send("OK");
+      return response.send("OK")
    }
 
    public async loginPage(request : Request, response: Response) {
