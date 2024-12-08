@@ -1,6 +1,6 @@
 <script>
     import { inertia,router } from '@inertiajs/svelte' 
-    import LajuIcon from '../../Components/LajuIcon.svelte';
+    import LajuIcon from '../../Components/LajuIcon.svelte'; 
   
     let form = {
       email: '',
@@ -14,6 +14,8 @@
       
       router.post("/login", {email:form.email,password:form.password})
     }
+
+ 
   </script>
   
   <section class="bg-gray-50  ">
