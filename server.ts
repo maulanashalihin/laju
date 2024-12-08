@@ -4,32 +4,24 @@ import Web from "./routes/web";
 
 import HyperExpress from "hyper-express";
 
+import cors from 'cors';
+
 const webserver = new HyperExpress.Server();
-
-import * as fs from 'fs';
-
+ 
 require("dotenv").config();
 
 //  rendering html files
 import "./app/services/View";
 
-//
-
-var cors = require("cors");
 
 webserver.use(cors());
 
 webserver.use(inertia());
 
-webserver.use(Web);
+webserver.use(Web); 
 
+const PORT = parseInt(process.env.PORT) || 5555;
  
-
-
-
-const PORT = parseInt(process.env.PORT) || 5000;
- 
-
 webserver.set_error_handler((req, res, error: any) => {
    console.log(error);
 
