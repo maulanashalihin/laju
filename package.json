@@ -4,7 +4,7 @@
   "description": "Laju (Indonesian for 'fast/swift') is a high-performance TypeScript web framework combining HyperExpress, Svelte 5, and Inertia.js for building modern full-stack applications. Features server-side rendering, real-time capabilities, and seamless client-server state management.",
   "main": "server.ts",
   "scripts": {
-    "dev": "clear && npx concurrently 'vite'  'sleep 1 && npx nodemon'  ", 
+    "dev": "clear && npx concurrently 'vite'  'sleep 1 && npx nodemon'  ",
     "build": "rm -rf build && vite build && tsc && cp -rf dist build && cp -rf public build "
   },
   "author": "",
@@ -21,9 +21,9 @@
     "googleapis": "^144.0.0",
     "hashids": "^2.3.0",
     "hyper-express": "^6.17.2",
+    "ioredis": "^5.4.1",
     "knex": "^3.1.0",
     "nodemailer": "^6.9.15",
-    "redis": "^4.7.0",
     "squirrelly": "^9.1.0",
     "toastify-js": "^1.12.0"
   },
