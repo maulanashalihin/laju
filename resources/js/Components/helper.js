@@ -20,7 +20,7 @@ export function clickOutside(node) {
       destroy() {
         document.removeEventListener('click', handleClick, true);
       }
-      }
+    }
   }
 
 /**
@@ -33,6 +33,7 @@ export function validatePhone(phone, selected_dial_code = "+62") {
  
     
     var number = phone.toString().split('-').join(' ').split(' ').join('');
+
     if (number[0] == '0') {
     number = number.replace('0', '')
     }
@@ -50,7 +51,6 @@ export function validatePhone(phone, selected_dial_code = "+62") {
 
 
     return number;
-
 
     }
 
