@@ -1,6 +1,15 @@
 import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import 'dotenv/config'
+import { readdirSync } from 'fs';
+
+const files = readdirSync("resources/views");
+
+let input = {};
+
+for (const filename of files) {
+  input[filename.replace(".html", "")] = `resources/views/${filename}`;
+}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -13,9 +22,8 @@ export default defineConfig({
   build: {
     outDir: '../dist',
     rollupOptions: {
-      input: {
-        main: 'resources/views/inertia.html',
-        home: 'resources/views/index.html'
+      rollupOptions: {
+        input
       }
     }
   }
