@@ -14,7 +14,7 @@ var fs = require("fs");
         if(natives[0].includes("js"))
         {
             
-            exec("node ./commands/index.js "+args.join(" "), (err, stdout, stderr)=>{   
+            exec("npx ts-node ./commands/index.ts "+args.join(" "), (err, stdout, stderr)=>{   
                 if(err)
                 {
                     console.log(err);
@@ -26,7 +26,7 @@ var fs = require("fs");
         }else if(natives[0].includes("ts")){
      
           
-            exec("ts-node ./commands/index.ts "+args.join(" "), (err, stdout, stderr)=>{   
+            exec("npx ts-node ./commands/index.ts "+args.join(" "), (err, stdout, stderr)=>{   
                 if(err)
                 {
                     console.log(err);
