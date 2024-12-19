@@ -307,12 +307,12 @@ This link will expire in 24 hours.
             return Authenticate.process(user, request, response);
          } else {
             return response
-               .flash("error", "Maaf, Password salah")
+                .cookie("error", "Maaf, Password salah") 
                .redirect("/login");
          }
       } else {
-         return response
-            .flash("error", "Email/No.HP tidak terdaftar")
+         return response 
+            .cookie("error", "Email/No.HP tidak terdaftar")
             .redirect("/login");
       }
    }
