@@ -58,7 +58,8 @@ function importFiles( nextDirectory = "resources/views") {
 
             if(nextDirectory.includes("partials"))
             {
-               Sqrl.templates.define(filename, Sqrl.compile(html))
+               const dir = nextDirectory.replace(directory+"/", ""); 
+               Sqrl.templates.define(dir + "/" + filename, Sqrl.compile(html))
             } 
             html_files[nextDirectory + "/" + filename] = html;
          }
