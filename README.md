@@ -198,7 +198,7 @@ class Controller {
   }
 
   public async store(request: Request, response: Response) {
-    const { title, content } = request.body;
+    const { title, content } = await request.json();
     
     await DB.table("posts").insert({
       title,
