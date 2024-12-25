@@ -1,0 +1,112 @@
+# Studio Project Guide
+
+## Tech Stack Overview
+
+### Backend
+- *Runtime*: Node.js dengan TypeScript
+- *Web Server*: HyperExpress
+- *Database*: SQLite dengan Knex.js (migrations)
+- *Caching*: Redis (ioredis)
+
+### Frontend
+- *Framework*: Svelte 5 (beta)
+- *Styling*: Tailwind CSS
+- *State Management*: Inertia.js
+- *Build Tool*: Vite
+
+## Project Structure
+
+
+studio/
+├── app/                    # Core application code
+│   ├── controllers/        # Request handlers
+│   ├── middlewares/       # Authentication & validation
+│   └── services/          # Business logic
+├── resources/             # Frontend resources
+├── routes/                # Route definitions
+├── migrations/            # Database migrations
+├── public/               # Static assets
+└── build/, dist/         # Compiled output
+
+
+## Key Dependencies
+
+### Production
+- @inertiajs/svelte: Frontend-backend integration
+- hyper-express: High-performance web server
+- better-sqlite3: SQLite database driver
+- bcrypt: Password hashing
+- nodemailer: Email functionality
+- googleapis: Google API integration
+- dayjs: Date manipulation
+- squirrelly: Template engine
+
+### Development
+- typescript: Type safety
+- vite: Build tooling
+- tailwindcss: Utility-first CSS
+- nodemon: Development server
+- ts-node: TypeScript execution
+
+## Development Commands
+
+bash
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+
+## Project Features
+
+1. Full-stack TypeScript support
+2. Server-side rendering capabilities
+3. Real-time features support
+4. Modern component-based UI with Svelte
+5. Robust database migrations
+6. Integrated caching system
+7. Email functionality
+8. Google API integration
+9. Secure authentication system
+
+## Best Practices
+
+1. Menggunakan arsitektur MVC untuk organisasi kode
+2. Pemisahan concerns antara controllers dan services
+3. Type safety dengan TypeScript
+4. Modern frontend dengan Svelte dan Tailwind
+5. Database migrations untuk version control schema
+6. Environment configuration (.env)
+
+
+## Controller Sample
+
+import { Request, Response } from "../../type";
+import DB from "../services/DB";
+
+class Controller {
+  public async index(request: Request, response: Response) {
+    const posts = await DB.from("posts");
+    return response.inertia("posts/index", { posts });
+  }
+
+  public async create(request: Request, response: Response) {
+    return response.inertia("posts/create");
+  }
+
+  public async store(request: Request, response: Response) {
+    const { title, content } = await request.json();
+    
+    await DB.table("posts").insert({
+      title,
+      content,
+      created_at: Date.now(),
+      updated_at: Date.now()
+    });
+
+    return response.redirect("/posts");
+  }
+}
+
+export default new Controller();
