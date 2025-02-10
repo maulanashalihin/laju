@@ -16,6 +16,7 @@ export default defineConfig({
   plugins: [svelte()],
   root: 'resources',
   server: {
+    host: '0.0.0.0',
     port: process.env.VITE_PORT
   },
   

@@ -1,0 +1,16 @@
+version: "3.3"
+services:
+  web:
+    image: node:lts
+    container_name: laju
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5173:5173" # Vite frontend
+      - "5555:5555" # Backend
+    volumes:
+      - .:/app
+      - ./build/public:/app/public
+    working_dir: /app

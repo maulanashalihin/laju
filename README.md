@@ -23,10 +23,24 @@ Visit [laju.dev](https://laju.dev)
 - Node.js (Latest LTS version recommended)
 - npm or yarn
 - Redis server (optional, for caching)
+- Docker & Docker Compose (optional, for development with container)
 
 ## Installation
 
-### Quick Start
+### Menggunakan Docker (Direkomendasikan)
+
+1. Pastikan Docker dan Docker Compose sudah terinstall
+2. Clone repository
+3. Jalankan dengan Docker Compose:
+```bash
+docker-compose up -d
+```
+
+Aplikasi akan berjalan di:
+- Frontend (Vite): http://localhost:5173
+- Backend: http://localhost:5555
+
+### Quick Start (Tanpa Docker)
 ```bash
 npx create-laju-app project-name
 cd project-name
@@ -71,6 +85,26 @@ npx knex migrate:latest
 
 ## Development
 
+### Menggunakan Docker
+
+Untuk memulai server development dengan Docker:
+
+```bash
+docker-compose up -d
+```
+
+Untuk melihat log:
+```bash
+docker-compose logs -f
+```
+
+Untuk menghentikan container:
+```bash
+docker-compose down
+```
+
+### Tanpa Docker
+
 To start the development server:
 
 ```bash
@@ -82,6 +116,21 @@ This will:
 - Run the backend server with nodemon for auto-reloading
 
 ## Building for Production
+
+### Build dengan Docker
+
+1. Edit Dockerfile, uncomment baris terakhir untuk menggunakan mode production:
+```dockerfile
+# CMD [ "npm", "run", "dev", "--", "--host"] ]
+CMD [ "pm2-runtime", "start", "./build/server.js" ]
+```
+
+2. Build dan jalankan container:
+```bash
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+### Build tanpa Docker
 
 To build the application for production:
 
