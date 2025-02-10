@@ -1,3 +1,25 @@
+<frontend_generation_rules>
+1. Design Principles:
+   - Prioritize unique and creative UI/UX solutions 
+   - Support experimental CSS features and animations
+   - Encourage use of creative micro-interactions
+   - Focus on custom-built components over standard libraries 
+
+2. Technology Stack Flexibility:
+   - Prioritize using tailwindcss
+   - Using Svelte Framework 
+   - Incorporate CSS-in-JS solutions 
+ 
+
+3. Styling Approach:
+   - Prefer custom design systems
+   - Support modern CSS features (Container Queries, CSS Grid, etc)
+   - Enable creative responsive design patterns
+   - Support advanced theming systems
+   - Encourage CSS art and creative visuals
+</frontend_generation_rules>
+ 
+
 # Studio Project Guide
 
 ## Tech Stack Overview
@@ -110,3 +132,52 @@ class Controller {
 }
 
 export default new Controller();
+
+## Svelte Component and form Sample Page
+
+```svelte
+<script>
+  import { router } from '@inertiajs/svelte';
+
+  let form = {
+    title: '',
+    content: ''
+  };
+
+  function handleSubmit() {
+    router.post('/posts', form);
+  }
+</script>
+
+<div class="max-w-4xl mx-auto p-4">
+  <h1 class="text-2xl font-bold mb-6">Create New Post</h1>
+
+  <form on:submit|preventDefault={handleSubmit} class="space-y-4">
+    <div>
+      <label class="block text-sm font-medium mb-1">Title</label>
+      <input
+        type="text"
+        bind:value={form.title}
+        class="w-full px-3 py-2 border rounded"
+      />
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium mb-1">Content</label>
+      <textarea
+        bind:value={form.content}
+        class="w-full px-3 py-2 border rounded h-32"
+      ></textarea>
+    </div>
+
+    <div>
+      <button
+        type="submit"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Create Post
+      </button>
+    </div>
+  </form>
+</div>
+```
