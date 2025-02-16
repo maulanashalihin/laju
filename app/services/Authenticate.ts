@@ -6,31 +6,39 @@
 
 import DB from "./DB"; 
 import { Request, Response } from "../../type";
-import bcrypt from "bcrypt";
-import { randomUUID } from "crypto";
-const saltRounds = 10; // Number of salt rounds for bcrypt hashing
+import { randomUUID, pbkdf2Sync, randomBytes } from "crypto";
+
+// PBKDF2 configuration
+const ITERATIONS = 100000;
+const KEYLEN = 64;
+const DIGEST = 'sha512';
+const SALT_SIZE = 16;
 
 /**
  * Authentication class providing core authentication functionality
  */
 class Autenticate {
    /**
-    * Hashes a plain text password using bcrypt
+    * Hashes a plain text password using PBKDF2
     * @param {string} password - The plain text password to hash
-    * @returns {Promise<string>} The hashed password
+    * @returns {string} The hashed password with salt (format: salt:hash)
     */
    async hash(password: string) {
-      return await bcrypt.hash(password, saltRounds);
+      const salt = randomBytes(SALT_SIZE).toString('hex');
+      const hash = pbkdf2Sync(password, salt, ITERATIONS, KEYLEN, DIGEST).toString('hex');
+      return `${salt}:${hash}`;
    }
 
    /**
     * Compares a plain text password with a hashed password
     * @param {string} password - The plain text password to verify
-    * @param {string} hash - The hashed password to compare against
-    * @returns {Promise<boolean>} True if passwords match, false otherwise
+    * @param {string} storedHash - The stored password hash with salt (format: salt:hash)
+    * @returns {boolean} True if passwords match, false otherwise
     */
-   async compare(password: string, hash: string) {
-      return await bcrypt.compare(password, hash);
+   async compare(password: string, storedHash: string) {
+      const [salt, hash] = storedHash.split(':');
+      const newHash = pbkdf2Sync(password, salt, ITERATIONS, KEYLEN, DIGEST).toString('hex');
+      return hash === newHash;
    }
 
    /**
