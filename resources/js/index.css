@@ -1,3 +1,88 @@
+@import url('https://rsms.me/inter/inter.css');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  body::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  body::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  body::-webkit-scrollbar-thumb {
+    background-color: theme('colors.blue.500');
+    border-radius: 3px;
+  }
+}
+
+@layer components {
+ 
+  
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-soft hover:-translate-y-1;
+  }
+  
+  .nav-link {
+    @apply px-4 py-2 text-gray-600 dark:text-gray-200 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-300;
+  }
+
+  .nav-link.active {
+    @apply bg-primary-50 dark:bg-gray-800 text-primary-600;
+  }
+ 
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400;
+  }
+  
+  .mobile-nav-link {
+    @apply block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50;
+  }
+  
+  .mobile-nav-link.active {
+    @apply text-primary-600 font-semibold;
+  }
+
+  .btn-primary {
+    @apply bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 
+           transition-all duration-300 active:bg-primary-800 
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-gray-900 px-4 py-2 rounded-lg border border-gray-300
+           hover:bg-gray-50 transition-all duration-300 active:bg-gray-100
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-soft p-6 transition-all duration-300
+           shadow-lg hover:shadow-xl hover:-translate-y-0.5;
+  }
+
+  /* Custom scrollbar for side menu */
+  .side-menu::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .side-menu::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .side-menu::-webkit-scrollbar-thumb {
+    background-color: theme('colors.blue.500');
+    border-radius: 3px;
+  }
+
+  .dark .side-menu {
+    border-color: theme('colors.gray.700');
+  }
+}

@@ -140,44 +140,40 @@ export default new Controller();
   import { router } from '@inertiajs/svelte';
 
   let form = {
-    title: '',
-    content: ''
+    email : '',
+    password: ''
   };
 
-  function handleSubmit() {
-    router.post('/posts', form);
+  function submitForm() {
+    router.post('/login', form);
   }
 </script>
 
 <div class="max-w-4xl mx-auto p-4">
-  <h1 class="text-2xl font-bold mb-6">Create New Post</h1>
+  <h1 class="text-2xl font-bold mb-6">Login</h1>
 
-  <form on:submit|preventDefault={handleSubmit} class="space-y-4">
-    <div>
-      <label class="block text-sm font-medium mb-1">Title</label>
-      <input
-        type="text"
-        bind:value={form.title}
-        class="w-full px-3 py-2 border rounded"
-      />
-    </div>
-
-    <div>
-      <label class="block text-sm font-medium mb-1">Content</label>
-      <textarea
-        bind:value={form.content}
-        class="w-full px-3 py-2 border rounded h-32"
-      ></textarea>
-    </div>
-
-    <div>
-      <button
-        type="submit"
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      >
-        Create Post
-      </button>
-    </div>
-  </form>
+   
+                <form class="space-y-4 md:space-y-6" on:submit|preventDefault={submitForm}>
+                    <div>
+                        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                        <input bind:value={form.email} required type="text" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:border-blue-600 focus:outline-none block w-full py-2.5 px-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="maulanaibrahim@gmail.com" >
+                     
+                    </div>
+                    <div>
+                        <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
+                        <input bind:value={form.password} required type="password" name="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:border-blue-600 focus:outline-none block w-full py-2.5 px-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" >
+                    </div>  
+                    <div class="flex items-center justify-end">
+                        <a href="/forgot-password" use:inertia class="text-sm font-medium text-blue-600 hover:underline dark:text-blue-400">Lupa Password?</a>
+                    </div>
+                    <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Login</button>
+                    <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+                        Belum punya akun?   <a href="/register" use:inertia class="font-medium text-blue-600 hover:underline dark:text-blue-400">Buat disini</a>
+                    </p>
+                    
+                </form>
 </div>
 ```
+
+Standar input form class
+```html  <input bind:value={form.email} required type="text" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:border-blue-600 focus:outline-none block w-full py-2.5 px-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="maulanaibrahim@gmail.com" >```
