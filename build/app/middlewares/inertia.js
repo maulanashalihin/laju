@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const View_1 = require("../services/View");
-let pkg = process.env.NODE_ENV == 'development' ? require("../../package.json") : require("../../../package.json");
+let pkg = { version: "1.0.0" };
 const inertia = () => {
     return (req, res, next) => {
         res.inertia = async (component, inertiaProps = {}, viewProps = {}) => {

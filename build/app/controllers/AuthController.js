@@ -7,9 +7,9 @@ const DB_1 = __importDefault(require("../services/DB"));
 const Authenticate_1 = __importDefault(require("../services/Authenticate"));
 const GoogleAuth_1 = require("../services/GoogleAuth");
 const axios_1 = __importDefault(require("axios"));
-const helper_1 = require("../services/helper");
 const dayjs_1 = __importDefault(require("dayjs"));
 const Mailer_1 = __importDefault(require("../services/Mailer"));
+const crypto_1 = require("crypto");
 class AuthController {
     async registerPage(request, response) {
         if (request.cookies.auth_id) {
@@ -139,27 +139,40 @@ class AuthController {
         if (!user) {
             return response.status(404).send("Email tidak terdaftar");
         }
-        const token = (0, helper_1.generateUUID)();
+        const token = (0, crypto_1.randomUUID)();
         await DB_1.default.from("password_reset_tokens").insert({
             email: user.email,
             token: token,
             expires_at: (0, dayjs_1.default)().add(24, 'hours').toDate()
         });
         try {
+            await Mailer_1.default.sendMail({
+                from: process.env.USER_MAILER,
+                to: email,
+                subject: "Reset Password",
+                text: `You have requested a password reset. If this was you, please click the following link:
+      
+        ${process.env.APP_URL}/reset-password/${token}
+        
+        If you did not request a password reset, please ignore this email.
+        
+        This link will expire in 24 hours.
+              `,
+            });
         }
         catch (error) { }
         try {
             if (user.phone)
                 await axios_1.default.post("https://api.dripsender.id/send", {
-                    api_key: "ee042c8b-f5e1-4366-abc1-ee771d209384",
+                    api_key: "DRIPSENDER_API_KEY",
                     phone: user.phone,
-                    text: `Anda telah melakukan reset password. Jika itu benar, silakan Klik link berikut : 
+                    text: `You have requested a password reset. If this was you, please click the following link:
       
 ${process.env.APP_URL}/reset-password/${token}
           
-Jika anda tidak merasa melakukan reset password, abaikan pesan ini.
+If you did not request a password reset, please ignore this message.
 
-Link ini akan kadaluarsa dalam 24 jam.
+This link will expire in 24 hours.
                 `,
                 });
         }
@@ -202,7 +215,7 @@ Link ini akan kadaluarsa dalam 24 jam.
         }
         else {
             const user = {
-                id: (0, helper_1.generateUUID)(),
+                id: (0, crypto_1.randomUUID)(),
                 email: email,
                 password: await Authenticate_1.default.hash(email),
                 name: name,
@@ -231,13 +244,13 @@ Link ini akan kadaluarsa dalam 24 jam.
             }
             else {
                 return response
-                    .flash("error", "Maaf, Password salah")
+                    .cookie("error", "Maaf, Password salah")
                     .redirect("/login");
             }
         }
         else {
             return response
-                .flash("error", "Email/No.HP tidak terdaftar")
+                .cookie("error", "Email/No.HP tidak terdaftar")
                 .redirect("/login");
         }
     }
@@ -247,7 +260,7 @@ Link ini akan kadaluarsa dalam 24 jam.
         try {
             const user = {
                 email: email,
-                id: (0, helper_1.generateUUID)(),
+                id: (0, crypto_1.randomUUID)(),
                 name,
                 password: await Authenticate_1.default.hash(password),
             };
@@ -262,7 +275,7 @@ Link ini akan kadaluarsa dalam 24 jam.
         }
     }
     async verify(request, response) {
-        const token = (0, helper_1.generateUUID)();
+        const token = (0, crypto_1.randomUUID)();
         await DB_1.default.from("email_verification_tokens")
             .where("user_id", request.user.id)
             .delete();
@@ -273,7 +286,7 @@ Link ini akan kadaluarsa dalam 24 jam.
         });
         try {
             await Mailer_1.default.sendMail({
-                from: '"Dripsender Auth" <dripsender.id@gmail.com>',
+                from: process.env.USER_MAILER,
                 to: request.user.email,
                 subject: "Verifikasi Akun",
                 text: `Klik link berikut untuk verifikasi email anda:

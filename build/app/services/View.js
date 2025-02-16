@@ -42,19 +42,31 @@ if (process.env.NODE_ENV == 'development') {
     });
 }
 function importFiles(nextDirectory = "resources/views") {
-    const files = (0, fs_1.readdirSync)(nextDirectory);
-    for (const filename of files) {
-        const results = (0, fs_1.statSync)(path_1.default.join(nextDirectory, filename));
-        if (results.isDirectory()) {
-            importFiles(path_1.default.join(nextDirectory, filename));
+    try {
+        if (!(0, fs_1.statSync)(nextDirectory).isDirectory()) {
+            throw new Error(`Path ${nextDirectory} is not a directory`);
         }
-        else {
-            const html = (0, fs_1.readFileSync)(path_1.default.join(nextDirectory, filename), "utf8");
-            if (nextDirectory.includes("partials")) {
-                Sqrl.templates.define(filename, Sqrl.compile(html));
+        const files = (0, fs_1.readdirSync)(nextDirectory);
+        for (const filename of files) {
+            const results = (0, fs_1.statSync)(path_1.default.join(nextDirectory, filename));
+            if (results.isDirectory()) {
+                importFiles(path_1.default.join(nextDirectory, filename));
             }
-            html_files[nextDirectory + "/" + filename] = html;
+            else {
+                const html = (0, fs_1.readFileSync)(path_1.default.join(nextDirectory, filename), "utf8");
+                if (nextDirectory.includes("partials")) {
+                    const dir = nextDirectory.replace(directory + "/", "");
+                    Sqrl.templates.define(dir + "/" + filename, Sqrl.compile(html));
+                }
+                html_files[nextDirectory + "/" + filename] = html;
+            }
         }
+    }
+    catch (error) {
+        if (error.code === 'ENOENT') {
+            throw new Error(`Views directory not found: ${nextDirectory}. Please make sure the directory exists.`);
+        }
+        throw error;
     }
 }
 function view(filename, view_data) {
