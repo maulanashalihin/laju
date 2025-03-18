@@ -17,7 +17,7 @@ const inertia = () => {
          {
             props.error = req.cookies.error; 
             res
-               .cookie("error",",0)
+               .cookie("error","",0)
          }
 
          const inertiaObject = {
