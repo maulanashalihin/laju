@@ -244,13 +244,13 @@ This link will expire in 24 hours.
             }
             else {
                 return response
-                    .cookie("error", "Maaf, Password salah")
+                    .cookie("error", "Maaf, Password salah", 3000)
                     .redirect("/login");
             }
         }
         else {
             return response
-                .cookie("error", "Email/No.HP tidak terdaftar")
+                .cookie("error", "Email/No.HP tidak terdaftar", 3000)
                 .redirect("/login");
         }
     }
@@ -270,7 +270,7 @@ This link will expire in 24 hours.
         catch (error) {
             console.log(error);
             return response
-                .cookie("error", "Maaf, Email sudah terdaftar")
+                .cookie("error", "Maaf, Email sudah terdaftar", 3000)
                 .redirect("/register");
         }
     }

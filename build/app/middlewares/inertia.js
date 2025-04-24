@@ -9,6 +9,8 @@ const inertia = () => {
             let props = { user: req.user || {}, ...inertiaProps, ...viewProps, error: null };
             if (req.cookies.error) {
                 props.error = req.cookies.error;
+                res
+                    .cookie("error", "", 0);
             }
             const inertiaObject = {
                 component: component,
