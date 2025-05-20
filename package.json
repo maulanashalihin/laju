@@ -7,7 +7,7 @@
     "dev": "clear && npx concurrently 'vite'  'sleep 1 && npx nodemon --legacy-watch'",
     "build": "rm -rf build && vite build && tsc && cp -rf dist build && cp -rf public build "
   },
-  "author": "",
+  "author": "Maulana Shalihin",
   "license": "ISC",
   "dependencies": {
     "@inertiajs/svelte": "^2.0.0-beta.2",
