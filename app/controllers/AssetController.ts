@@ -1,5 +1,11 @@
+import { uuidv7 } from "uuidv7";
 import { Response, Request } from "../../type";
 import fs from "fs";
+import sharp from "sharp"; 
+import S3 from "../services/S3";
+import DB from "app/services/DB";
+
+
 
 // Cache object to store file contents in memory
 let cache: { [key: string]: Buffer } = {};
@@ -11,6 +17,87 @@ class Controller {
      * - Implements file caching for better performance
      * - Sets appropriate cache headers for browser caching
      */
+
+    public async uploadAsset(request: Request, response: Response) {
+        try { 
+
+        
+     
+
+            let isValidFile = true;
+
+            await request.multipart(async (field: any) => {
+                if (field.file) {
+                    if (!field.mime_type.includes("image")) {
+                        isValidFile = false;
+                        return;
+                    }
+
+                    const id = uuidv7();
+                    const fileName = `${id}.webp`; 
+
+                    // Create a buffer to store the image data
+                    const chunks: Buffer[] = [];
+                    const readable = field.file.stream;
+
+                    readable.on('data', (chunk: Buffer) => {
+                        chunks.push(chunk);
+                    });
+
+                    readable.on('end', async () => {
+                        const buffer = Buffer.concat(chunks);
+
+                        try {
+                            // Process image with Sharp and get buffer
+                            const processedBuffer = await sharp(buffer)
+                                .webp({ quality: 80 }) // Convert to WebP with 80% quality
+                                .resize(1200, 1200, { // Resize to max 1200x1200 while maintaining aspect ratio
+                                    fit: 'inside',
+                                    withoutEnlargement: true
+                                })
+                                .toBuffer();
+
+                            // Upload directly to S3/Wasabi
+                            const s3Key = `/assets/${fileName}`;
+                            await S3.uploadBuffer(processedBuffer, s3Key, 'image/webp');
+
+                            // Get public URL from S3 service
+                            const publicUrl = S3.getPublicUrl(s3Key);
+
+                            // Save to assets table with S3 URL
+                            const result = {
+                                id,
+                                type: 'image',
+                                url: publicUrl,
+                                mime_type: 'image/webp',
+                                name: fileName,
+                                size: processedBuffer.length,
+                                user_id: request.user.id,
+                                s3_key: s3Key, // Store S3 key for future reference
+                                created_at: Date.now(),
+                                updated_at: Date.now()
+                            }
+                            await DB.from("assets").insert(result);
+
+                            response.json(result);
+                        } catch (err) {
+                            console.error('Error processing and uploading image:', err);
+                            response.status(500).send("Error processing and uploading image");
+                        }
+                    });
+                }
+            });
+
+            if (!isValidFile) {
+                return response.status(400).send("Invalid file type. Only images are allowed.");
+            }
+
+        } catch (error) {
+            console.error("Error uploading asset:", error);
+            return response.status(500).send("Internal server error");
+        }
+    }
+
     public async distFolder(request: Request, response: Response) {
         const file = request.params.file;
 
