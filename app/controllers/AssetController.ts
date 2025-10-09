@@ -3,7 +3,7 @@ import { Response, Request } from "../../type";
 import fs from "fs";
 import sharp from "sharp"; 
 import S3 from "../services/S3";
-import DB from "app/services/DB";
+import DB from "../services/DB";
 
 
 

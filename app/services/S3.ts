@@ -1,18 +1,27 @@
-import AWS from 'aws-sdk';
+import { 
+    S3Client, 
+    PutObjectCommand, 
+    DeleteObjectCommand, 
+    HeadObjectCommand,
+    PutObjectCommandInput 
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { v4 as uuidv4 } from 'uuid';
 
 class S3Service {
-    private s3: AWS.S3;
+    private s3Client: S3Client;
     private bucket: string;
 
     constructor() {
-        // Configure AWS SDK for Wasabi
-        this.s3 = new AWS.S3({
-            accessKeyId: process.env.WASABI_ACCESS_KEY,
-            secretAccessKey: process.env.WASABI_SECRET_KEY,
+        // Configure AWS SDK v3 for Wasabi
+        this.s3Client = new S3Client({
+            credentials: {
+                accessKeyId: process.env.WASABI_ACCESS_KEY!,
+                secretAccessKey: process.env.WASABI_SECRET_KEY!,
+            },
             endpoint: process.env.WASABI_ENDPOINT,
-            region: process.env.WASABI_REGION,
-            s3ForcePathStyle: true, // Required for Wasabi
-            signatureVersion: 'v4'
+            region: process.env.WASABI_REGION || 'us-east-1',
+            forcePathStyle: true, // Required for Wasabi
         });
 
         this.bucket = process.env.WASABI_BUCKET || 'laju-dev';
@@ -25,16 +34,34 @@ class S3Service {
      * @param contentType - MIME type of the file
      * @returns Promise with upload result
      */
-    async uploadBuffer(buffer: Buffer, key: string, contentType: string): Promise<AWS.S3.ManagedUpload.SendData> {
-        const params: AWS.S3.PutObjectRequest = {
+    async uploadBuffer(buffer: Buffer, key: string, contentType: string): Promise<any> {
+        const command = new PutObjectCommand({
             Bucket: this.bucket,
             Key: key,
             Body: buffer,
             ContentType: contentType,
             ACL: 'public-read' // Make files publicly accessible
-        };
+        });
 
-        return this.s3.upload(params).promise();
+        return await this.s3Client.send(command);
+    }
+
+    async getSignedUploadUrl(
+        key: string,
+        contentType: string,
+        expiresIn: number = 3600
+    ): Promise<string> {
+        const command = new PutObjectCommand({
+            Bucket: this.bucket,
+            Key: key,
+            ContentType: contentType,
+        });
+
+        const signedUrl = await getSignedUrl(this.s3Client, command, {
+            expiresIn,
+        });
+
+        return signedUrl;
     }
 
     /**
@@ -42,13 +69,13 @@ class S3Service {
      * @param key - The S3 key to delete
      * @returns Promise with deletion result
      */
-    async deleteObject(key: string): Promise<AWS.S3.DeleteObjectOutput> {
-        const params: AWS.S3.DeleteObjectRequest = {
+    async deleteObject(key: string): Promise<any> {
+        const command = new DeleteObjectCommand({
             Bucket: this.bucket,
             Key: key
-        };
+        });
 
-        return this.s3.deleteObject(params).promise();
+        return await this.s3Client.send(command);
     }
 
     /**
@@ -74,15 +101,24 @@ class S3Service {
      */
     async objectExists(key: string): Promise<boolean> {
         try {
-            await this.s3.headObject({
+            const command = new HeadObjectCommand({
                 Bucket: this.bucket,
                 Key: key
-            }).promise();
+            });
+            await this.s3Client.send(command);
             return true;
         } catch (error) {
             return false;
         }
     }
+
+    /**
+     * Get bucket name
+     * @returns string
+     */
+    getBucket(): string {
+        return this.bucket;
+    } 
 }
 
 export default new S3Service();

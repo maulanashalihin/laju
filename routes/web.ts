@@ -2,6 +2,7 @@ import AuthController from "../app/controllers/AuthController";
 import Auth from "../app/middlewares/auth"
 import HomeController from "../app/controllers/HomeController";
 import AssetController from "../app/controllers/AssetController";
+import S3Controller from "../app/controllers/S3Controller";
 import HyperExpress from 'hyper-express';
 
 const Route = new HyperExpress.Router();
@@ -14,6 +15,19 @@ const Route = new HyperExpress.Router();
  */
 Route.get("/", HomeController.index);
 
+/**
+ * S3 Routes
+ * Routes for handling S3 operations
+ * ------------------------------------------------
+ * POST /api/s3/signed-url - Generate signed URL for file upload
+ * POST /api/s3/product-image-url - Generate signed URL for product images
+ * GET  /api/s3/public-url/:fileKey - Get public URL for existing file
+ * GET  /api/s3/health - S3 service health check
+ */
+Route.post("/api/s3/signed-url", [Auth], S3Controller.getSignedUrl);
+Route.post("/api/s3/product-image-url", [Auth], S3Controller.getProductImageUrl);
+Route.get("/api/s3/public-url/:fileKey", S3Controller.getPublicUrl);
+Route.get("/api/s3/health", S3Controller.health);
 /**
  * Authentication Routes
  * Routes for handling user authentication

@@ -1,0 +1,216 @@
+import { Request, Response } from "../../type";
+import S3Service from "../services/S3";
+
+class S3Controller {
+  /**
+   * Generate signed URL for file upload
+   * POST /api/s3/signed-url
+   */
+  public async getSignedUrl(request: Request, response: Response) {
+    try {
+      const { filename, contentType, folder } = await request.json();
+
+      // Validate required fields
+      if (!filename || !contentType) {
+        return response.status(400).json({
+          success: false,
+          message: "Filename and content type are required",
+        });
+      }
+
+      // Validate content type based on folder
+      let allowedTypes = [];
+      let errorMessage = "";
+
+      if (folder === "carousel" || folder === "uploads") {
+        // Allow images and videos for carousel and uploads
+        allowedTypes = [
+          "image/jpeg",
+          "image/jpg", 
+          "image/png",
+          "image/gif",
+          "image/webp",
+          "image/svg+xml",
+          "video/mp4",
+          "video/mpeg",
+          "video/quicktime",
+          "video/x-msvideo", // .avi
+          "video/webm",
+          "application/pdf",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "application/vnd.ms-excel",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "application/vnd.ms-powerpoint",
+          "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        ];
+        errorMessage = "Only image, video, and document files are allowed";
+      } else {
+        // Default: only images for other folders (like products)
+        allowedTypes = [
+          "image/jpeg",
+          "image/jpg", 
+          "image/png",
+          "image/gif",
+          "image/webp",
+          "image/svg+xml"
+        ];
+        errorMessage = "Only image files are allowed";
+      }
+
+      if (!allowedTypes.includes(contentType)) {
+        return response.status(400).json({
+          success: false,
+          message: errorMessage,
+        });
+      }
+
+      // Generate unique file key
+      const fileKey = "assets/" + filename;
+
+      // Generate signed URL
+      const signedUrl = await S3Service.getSignedUploadUrl(fileKey, contentType);
+      const publicUrl = S3Service.getPublicUrl(fileKey);
+
+      return response.json({
+        success: true,
+        data: {
+          signedUrl,
+          publicUrl,
+          fileKey,
+          bucket: S3Service.getBucket(),
+          expiresIn: 3600, // 1 hour
+        },
+      });
+    } catch (error) {
+      console.error("Error generating signed URL:", error);
+      return response.status(500).json({
+        success: false,
+        message: "Failed to generate signed URL",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+
+  /**
+   * Generate signed URL specifically for product images
+   * POST /api/s3/product-image-url
+   */
+  public async getProductImageUrl(request: Request, response: Response) {
+    try {
+      const { filename, contentType } = await request.json();
+
+      // Validate required fields
+      if (!filename || !contentType) {
+        return response.status(400).json({
+          success: false,
+          message: "Filename and content type are required",
+        });
+      }
+
+      // Validate content type (only allow images)
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png", 
+        "image/gif",
+        "image/webp",
+        "image/svg+xml"
+      ];
+
+      if (!allowedTypes.includes(contentType)) {
+        return response.status(400).json({
+          success: false,
+          message: "Only image files are allowed",
+        });
+      }
+
+      // Generate unique file key for product images
+      const fileKey = S3Service.generateProductImageKey(filename);
+
+      // Generate signed URL
+      const signedUrl = await S3Service.getSignedUploadUrl(fileKey, contentType);
+      const publicUrl = S3Service.getPublicUrl(fileKey);
+
+      return response.json({
+        success: true,
+        data: {
+          signedUrl,
+          publicUrl,
+          fileKey,
+          bucket: S3Service.getBucket(),
+          expiresIn: 3600, // 1 hour
+        },
+      });
+    } catch (error) {
+      console.error("Error generating product image signed URL:", error);
+      return response.status(500).json({
+        success: false,
+        message: "Failed to generate signed URL for product image",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+
+  /**
+   * Get public URL for existing file
+   * GET /api/s3/public-url/:fileKey
+   */
+  public async getPublicUrl(request: Request, response: Response) {
+    try {
+      const { fileKey } = request.params;
+
+      if (!fileKey) {
+        return response.status(400).json({
+          success: false,
+          message: "File key is required",
+        });
+      }
+
+      const publicUrl = S3Service.getPublicUrl(fileKey);
+
+      return response.json({
+        success: true,
+        data: {
+          publicUrl,
+          fileKey,
+          bucket: S3Service.getBucket(),
+        },
+      });
+    } catch (error) {
+      console.error("Error getting public URL:", error);
+      return response.status(500).json({
+        success: false,
+        message: "Failed to get public URL",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+
+  /**
+   * Health check for S3 service
+   * GET /api/s3/health
+   */
+  public async health(request: Request, response: Response) {
+    try {
+      return response.json({
+        success: true,
+        message: "S3 service is healthy",
+        data: {
+          bucket: S3Service.getBucket(),
+          endpoint: process.env.WASABI_ENDPOINT,
+          region: process.env.WASABI_REGION,
+        },
+      });
+    } catch (error) {
+      console.error("S3 health check failed:", error);
+      return response.status(500).json({
+        success: false,
+        message: "S3 service health check failed",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+}
+
+export default new S3Controller();
