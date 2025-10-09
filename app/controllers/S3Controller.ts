@@ -96,61 +96,7 @@ class S3Controller {
    * Generate signed URL specifically for product images
    * POST /api/s3/product-image-url
    */
-  public async getProductImageUrl(request: Request, response: Response) {
-    try {
-      const { filename, contentType } = await request.json();
-
-      // Validate required fields
-      if (!filename || !contentType) {
-        return response.status(400).json({
-          success: false,
-          message: "Filename and content type are required",
-        });
-      }
-
-      // Validate content type (only allow images)
-      const allowedTypes = [
-        "image/jpeg",
-        "image/jpg",
-        "image/png", 
-        "image/gif",
-        "image/webp",
-        "image/svg+xml"
-      ];
-
-      if (!allowedTypes.includes(contentType)) {
-        return response.status(400).json({
-          success: false,
-          message: "Only image files are allowed",
-        });
-      }
-
-      // Generate unique file key for product images
-      const fileKey = S3Service.generateProductImageKey(filename);
-
-      // Generate signed URL
-      const signedUrl = await S3Service.getSignedUploadUrl(fileKey, contentType);
-      const publicUrl = S3Service.getPublicUrl(fileKey);
-
-      return response.json({
-        success: true,
-        data: {
-          signedUrl,
-          publicUrl,
-          fileKey,
-          bucket: S3Service.getBucket(),
-          expiresIn: 3600, // 1 hour
-        },
-      });
-    } catch (error) {
-      console.error("Error generating product image signed URL:", error);
-      return response.status(500).json({
-        success: false,
-        message: "Failed to generate signed URL for product image",
-        error: error instanceof Error ? error.message : "Unknown error",
-      });
-    }
-  }
+  
 
   /**
    * Get public URL for existing file
