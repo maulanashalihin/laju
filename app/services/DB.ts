@@ -37,7 +37,29 @@ interface DBType extends Knex {
  * const stagingDB = DB.connection('staging');
  * const products = await stagingDB('products').select('*');
  */
-let DB = DBInstance(config[process.env.DB_CONNECTION]) as DBType;
+let DB = DBInstance(config[process.env.DB_CONNECTION as string]) as DBType;
+
+/**
+ * Apply SQLite PRAGMAs for better performance and correctness when using better-sqlite3
+ * Runs once per knex instance.
+ */
+function applySQLitePragmas(instance: Knex) {
+  const client = (config[process.env.DB_CONNECTION as string] || {}).client;
+  if (client === 'better-sqlite3') {
+    try {
+      // These PRAGMAs are safe for most applications; adjust if needed
+      instance.raw('PRAGMA journal_mode = WAL');
+      instance.raw('PRAGMA synchronous = NORMAL');
+      instance.raw('PRAGMA foreign_keys = ON');
+    } catch (err) {
+      // Non-fatal: continue even if PRAGMA fails
+      console.warn('Failed to apply SQLite PRAGMA:', err);
+    }
+  }
+}
+
+// Apply PRAGMA on the default instance
+applySQLitePragmas(DB);
 
 /**
  * Method to create a new database connection for a specific stage
@@ -47,7 +69,9 @@ let DB = DBInstance(config[process.env.DB_CONNECTION]) as DBType;
  * @returns {DBType} A new database instance configured for the specified stage
  */
 DB.connection = (stage: string) => {
-   return DBInstance(config[stage]) as DBType;
+   const instance = DBInstance(config[stage]) as DBType;
+   applySQLitePragmas(instance);
+   return instance;
 };
 
 export default DB;

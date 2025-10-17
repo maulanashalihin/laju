@@ -30,18 +30,31 @@ const connectionConfig = dbConfig.connection as SQLiteConnectionConfig;
  
 const nativeDb = new Database(connectionConfig.filename);
 
+// Define local type aliases based on the actual instance to avoid namespace issues
+type Statement = ReturnType<typeof nativeDb.prepare>;
+type RunResult = ReturnType<Statement['run']>;
+
 // Set pragmas for better performance
 nativeDb.pragma('journal_mode = WAL');
 nativeDb.pragma('synchronous = NORMAL');
 nativeDb.pragma('foreign_keys = ON');
 
 // Statement cache to reuse prepared statements
-const statementCache: Record<string, Database.Statement> = {};
+const statementCache: Record<string, Statement> = {};
 
 /**
  * SQLite Service with optimized prepared statements
  */
-const SQLiteService = {
+// Define an explicit interface to avoid self-referential type in initializer
+interface ISQLiteService {
+  get(sql: string, params?: any): any;
+  all(sql: string, params?: any): any[];
+  run(sql: string, params?: any): RunResult;
+  transaction<T>(fn: (db: ISQLiteService) => T): T;
+  getDatabase(): typeof nativeDb;
+}
+
+const SQLiteService: ISQLiteService = {
   /**
    * Get a single row from the database
    * @param sql SQL query with ? placeholders
@@ -100,7 +113,7 @@ const SQLiteService = {
    * @param params Parameters to bind to the query
    * @returns Result of the run operation
    */
-  run(sql: string, params: any = []): Database.RunResult {
+  run(sql: string, params: any = []): RunResult {
     try {
       // Convert object params to array if needed
       const parameters = Array.isArray(params) ? params : Object.values(params);
@@ -125,8 +138,8 @@ const SQLiteService = {
    * @param fn Function containing the transaction logic
    * @returns Result of the transaction
    */
-  transaction<T>(fn: (db: typeof SQLiteService) => T): T {
-    const transaction = nativeDb.transaction((args) => {
+  transaction<T>(fn: (db: ISQLiteService) => T): T {
+    const transaction = nativeDb.transaction(() => {
       return fn(SQLiteService);
     });
     
@@ -137,7 +150,7 @@ const SQLiteService = {
    * Get the raw database instance
    * @returns The better-sqlite3 database instance
    */
-  getDatabase(): Database.Database {
+  getDatabase(): typeof nativeDb {
     return nativeDb;
   }
 };

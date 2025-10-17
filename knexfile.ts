@@ -1,5 +1,4 @@
-import type { Knex } from "knex";
-import knex from "./app/services/DB";
+import type { Knex } from "knex"; 
 
 // Update with your config settings.
 

@@ -1,4 +1,61 @@
- import DB from "../services/DB";
+/**
+ * AuthController — Overview & Guide for New Contributors
+ *
+ * This controller centralizes authentication and account-related flows, including:
+ * - Rendering auth pages (register, login, forgot/reset password, verify)
+ * - Managing sessions (login, logout) via Authenticate service
+ * - User profile updates (name, email, phone, password)
+ * - Password reset via token with 24-hour expiry (email/SMS)
+ * - Email verification via token with 24-hour expiry
+ * - Google OAuth (redirect to Google, handle callback, auto-create user)
+ * - Admin utilities: user listing with search/filter/pagination and bulk delete
+ *
+ * Key methods:
+ * - registerPage: If already authenticated, redirects to "/home"; else renders register page.
+ * - homePage: Lists users with search, filter (verified/unverified), and pagination. Returns data to Inertia.
+ *   Note: The response currently sets `total: 0`. Consider wiring `total.count` from the DB query.
+ * - deleteUsers: Admin-only bulk delete by array of user IDs; validates input and authorization.
+ * - profilePage: Renders the profile page for the current user.
+ * - changeProfile: Updates the current user's name, email (normalized to lowercase), and phone.
+ * - changePassword: Verifies current password, then stores the new hashed password; returns 400 if mismatch.
+ * - forgotPasswordPage: Renders the page to request a password reset link.
+ * - resetPasswordPage: Validates the reset token and expiry; renders the reset form if valid, 404 otherwise.
+ * - resetPassword: Validates token, updates the user's password (hashed), deletes token, then logs the user in.
+ * - sendResetPassword: Generates a UUID token, stores it with 24h expiry, emails/SMS the reset link.
+ * - loginPage: Renders the login page.
+ * - redirect: Builds Google OAuth URL from env vars and redirects the browser to Google.
+ * - googleCallback: Exchanges `code` for tokens, fetches Google profile, creates user if needed, then logs in.
+ * - processLogin: Supports login via email or phone; compares hashed password; sets error cookies on failure.
+ * - processRegister: Creates a new user with hashed password; handles duplicate email via DB constraint.
+ * - verify: Generates email verification token (24h), sends email, and redirects to "/home".
+ * - verifyPage: Confirms token ownership and expiry, marks user as verified, cleans up token, redirects.
+ * - logout: Clears the auth session if present.
+ *
+ * Services & dependencies:
+ * - DB (Knex): All database access for users and token tables.
+ * - Authenticate: Hash/compare utilities and session/cookie management (`process`, `logout`).
+ * - Mailer: Sends emails (uses `USER_MAILER`).
+ * - GoogleAuth.redirectParamsURL: Builds OAuth querystring from `GOOGLE_CLIENT_ID`, `GOOGLE_REDIRECT_URI`, etc.
+ * - axios: HTTP calls (Google APIs and SMS provider).
+ * - dayjs: Time utilities for timestamps and token expiry.
+ *
+ * Security & correctness notes:
+ * - deleteUsers requires `request.user.is_admin`; ensure auth middleware populates `request.user`.
+ * - Email/phone login paths sanitize inputs and normalize emails to lowercase.
+ * - Tokens are stored in `password_reset_tokens` and `email_verification_tokens` with expiry; values are UUIDs.
+ * - Passwords are always hashed via `Authenticate.hash`; never store plaintext.
+ * - Replace `DRIPSENDER_API_KEY` with a real secret from environment before production.
+ *
+ * Routing expectations (typical):
+ * - Pages: /register, /login, /home, /profile, /forgot-password, /reset-password/:id, /verify/:id
+ * - Actions: POST /register, POST /login, POST /profile, POST /password, POST /reset-password,
+ *            POST /verify, GET /auth/google, GET /auth/google/callback, POST /users/delete
+ *
+ * Frontend integration:
+ * - `response.inertia(view, props)` renders views in `resources/js/Pages` using Inertia.
+ * - `Authenticate.process(user, request, response)` should set cookies/session and perform appropriate redirect.
+ */
+import DB from "../services/DB";
 import Authenticate from "../services/Authenticate";
 import { redirectParamsURL } from "../services/GoogleAuth";
 import axios from "axios"; 
