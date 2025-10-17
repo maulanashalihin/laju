@@ -25,22 +25,9 @@ Visit [laju.dev](https://laju.dev)
 - Redis server (optional, for caching)
 - Docker & Docker Compose (optional, for development with container)
 
-## Installation
+ 
 
-### Menggunakan Docker (Direkomendasikan)
-
-1. Pastikan Docker dan Docker Compose sudah terinstall
-2. Clone repository
-3. Jalankan dengan Docker Compose:
-```bash
-docker-compose up -d
-```
-
-Aplikasi akan berjalan di:
-- Frontend (Vite): http://localhost:5173
-- Backend: http://localhost:5555
-
-### Quick Start (Tanpa Docker)
+### Quick Start  
 ```bash
 npx create-laju-app project-name
 cd project-name
@@ -84,27 +71,7 @@ npx knex migrate:latest
 ```
 
 ## Development
-
-### Menggunakan Docker
-
-Untuk memulai server development dengan Docker:
-
-```bash
-docker-compose up -d
-```
-
-Untuk melihat log:
-```bash
-docker-compose logs -f
-```
-
-Untuk menghentikan container:
-```bash
-docker-compose down
-```
-
-### Tanpa Docker
-
+ 
 To start the development server:
 
 ```bash
@@ -116,22 +83,7 @@ This will:
 - Run the backend server with nodemon for auto-reloading
 
 ## Building for Production
-
-### Build dengan Docker
-
-1. Edit Dockerfile, uncomment baris terakhir untuk menggunakan mode production:
-```dockerfile
-# CMD [ "npm", "run", "dev", "--", "--host"] ]
-CMD [ "pm2-runtime", "start", "./build/server.js" ]
-```
-
-2. Build dan jalankan container:
-```bash
-docker-compose -f docker-compose.prod.yml up -d --build
-```
-
-### Build tanpa Docker
-
+ 
 To build the application for production:
 
 ```bash
@@ -151,8 +103,14 @@ This command will:
   - `/services` - Service layer implementations
   - `/controllers` - Application controllers
 - `/resources` - Frontend resources
-  - `/views` - Svelte components and views
+  - `/views` - Template HTML menggunakan Squirrelly
+    - `/Users/maulanashalihin/Project/laju/resources/views/index.html`
+    - `/Users/maulanashalihin/Project/laju/resources/views/inertia.html`
   - `/js` - JavaScript assets and modules
+    - `Pages/` - Halaman Svelte/Inertia
+    - `Components/` - Komponen UI reusable
+    - `app.js` - Entry point aplikasi (Inertia/Svelte via Vite)
+    - `index.css` - Styles utama (TailwindCSS)
 - `/routes` - Route definitions
 - `/commands` - Custom CLI commands
 - `/migrations` - Database migrations
@@ -163,17 +121,18 @@ This command will:
 ## Key Dependencies
 
 ### Backend
-- HyperExpress - High-performance web server
-- Knex - SQL query builder
-- BetterSQLite3 - Database
-- Nodemailer - Email sending
-- Redis - Caching (optional)
+- [HyperExpress](https://github.com/kartikk221/hyper-express) - High-performance web server
+- [Knex](https://knexjs.org) - SQL query builder
+- [BetterSQLite3](https://github.com/WiseLibs/better-sqlite3) - Database
+- [Nodemailer](https://nodemailer.com/) - Email sending
+- [Redis](https://redis.io/) - Caching (optional)
+- [Squirrelly](https://squirrelly.js.org/) - Fast template engine
 
 ### Frontend
-- Svelte 5 - UI framework
-- Inertia.js - Client-server communication
-- TailwindCSS - Utility-first CSS framework
-- Vite - Build tool and dev server
+- [Svelte 5](https://svelte.dev) - UI framework
+- [Inertia.js](https://inertiajs.com) - Client-server communication
+- [TailwindCSS](https://tailwindcss.com) - Utility-first CSS framework
+- [Vite](https://vitejs.dev) - Build tool and dev server
 
 ## Scripts
 

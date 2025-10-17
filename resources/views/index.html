@@ -123,55 +123,243 @@ Route.get("/", HomeController.index);
                 </div>
             </div>
 
+            <!-- Benchmark Results -->
+            <div class="mt-24 px-4 sm:px-6 lg:px-8">
+                <h2 class="text-2xl font-semibold text-center text-gray-900 mb-8">Benchmark Results</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Results — String (plain text) -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+                        <div class="p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900">Results — String (plain text)</h3>
+                            </div>
+                            <div class="overflow-x-auto -mx-4 sm:-mx-6 md:mx-0">
+                                <table class="min-w-full text-sm text-gray-700">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left font-medium text-gray-600">Framework</th>
+                                            <th class="px-4 py-2 text-right font-medium text-gray-600">Requests/sec</th>
+                                            <th class="px-4 py-2 text-right font-medium text-gray-600">Transfer/sec</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-4 py-2">HyperExpress</td>
+                                            <td class="px-4 py-2 text-right">221,189.15</td>
+                                            <td class="px-4 py-2 text-right">27.21 MB/s</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-2">Actix-web</td>
+                                            <td class="px-4 py-2 text-right">168,726.29</td>
+                                            <td class="px-4 py-2 text-right">18.34 MB/s</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-2">Go fasthttp</td>
+                                            <td class="px-4 py-2 text-right">169,273.78</td>
+                                            <td class="px-4 py-2 text-right">21.31 MB/s</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-2">Elysia (Bun)</td>
+                                            <td class="px-4 py-2 text-right">152,974.62</td>
+                                            <td class="px-4 py-2 text-right">16.63 MB/s</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-2">Bun raw</td>
+                                            <td class="px-4 py-2 text-right">142,768.23</td>
+                                            <td class="px-4 py-2 text-right">15.52 MB/s</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-4 text-sm text-gray-600 space-y-1">
+                                <p>• HyperExpress memimpin uji plain text.</p>
+                            
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results — JSON (per-request serialize) -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+                        <div class="p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900">Results — JSON (per-request serialize)</h3>
+                            </div>
+                            <div class="overflow-x-auto -mx-4 sm:-mx-6 md:mx-0">
+                                <table class="min-w-full text-sm text-gray-700">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left font-medium text-gray-600">Framework</th>
+                                            <th class="px-4 py-2 text-right font-medium text-gray-600">Requests/sec</th>
+                                            <th class="px-4 py-2 text-right font-medium text-gray-600">Transfer/sec</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-4 py-2">HyperExpress</td>
+                                            <td class="px-4 py-2 text-right">216,275.84</td>
+                                            <td class="px-4 py-2 text-right">25.78 MB/s</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-2">Actix-web</td>
+                                            <td class="px-4 py-2 text-right">169,993.85</td>
+                                            <td class="px-4 py-2 text-right">20.26 MB/s</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-2">Go fasthttp</td>
+                                            <td class="px-4 py-2 text-right">169,177.61</td>
+                                            <td class="px-4 py-2 text-right">23.07 MB/s</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-2">Elysia (Bun)</td>
+                                            <td class="px-4 py-2 text-right">151,733.85</td>
+                                            <td class="px-4 py-2 text-right">18.09 MB/s</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-2">Bun raw</td>
+                                            <td class="px-4 py-2 text-right">144,720.53</td>
+                                            <td class="px-4 py-2 text-right">17.25 MB/s</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-4 text-sm text-gray-600 space-y-1">
+                                <p>• HyperExpress juga memimpin uji JSON.</p>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Features Section -->
             <div id="features" class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-24 px-4 sm:px-6 lg:px-8">
-                <div
-                    class="p-6 rounded-xl bg-white shadow-lg border border-gray-100 hover:border-emerald-200 transition-colors">
+                <div class="p-6 rounded-xl bg-white shadow-lg border border-gray-100 hover:border-emerald-200 transition-colors">
                     <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
                         <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                     </div>
                     <div class="text-emerald-600 text-xl font-semibold mb-4">Frontend</div>
                     <ul class="space-y-3 text-gray-600">
-                        <li>• Svelte - Reactive UI framework</li>
-                        <li>• Inertia - Modern monolith</li>
-                        <li>• TailwindCSS - Utility-first CSS</li>
-                        <li>• Vite - Next gen bundling</li>
+                        <li>• <a href="https://svelte.dev" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700">Svelte</a> - Reactive UI framework</li>
+                        <li>• <a href="https://inertiajs.com" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700">Inertia</a> - Modern monolith</li>
+                        <li>• <a href="https://tailwindcss.com" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700">TailwindCSS</a> - Utility-first CSS</li>
+                        <li>• <a href="https://vitejs.dev" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700">Vite</a> - Next gen bundling</li>
                     </ul>
                 </div>
-                <div
-                    class="p-6 rounded-xl bg-white shadow-lg border border-gray-100 hover:border-emerald-200 transition-colors">
+                <div class="p-6 rounded-xl bg-white shadow-lg border border-gray-100 hover:border-emerald-200 transition-colors">
                     <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
                         <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                         </svg>
                     </div>
                     <div class="text-emerald-600 text-xl font-semibold mb-4">Backend</div>
                     <ul class="space-y-3 text-gray-600">
-                        <li>• Hyper Express - Ultra-fast server</li>
-                        <li>• TypeScript - Type safety</li>
+                        <li>• <a href="https://github.com/kartikk221/hyper-express" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700">HyperExpress</a> - Ultra-fast server</li>
+                        <li>• <a href="https://www.typescriptlang.org" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700">TypeScript</a> - Type safety</li>
+                        <li>• <a href="https://squirrelly.js.org" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700">Squirrelly</a> - Fast template engine</li>
                         <li>• File Generator - Quick scaffolding</li>
                         <li>• MVC Architecture</li>
                     </ul>
                 </div>
-                <div
-                    class="p-6 rounded-xl bg-white shadow-lg border border-gray-100 hover:border-emerald-200 transition-colors">
+                <div class="p-6 rounded-xl bg-white shadow-lg border border-gray-100 hover:border-emerald-200 transition-colors">
                     <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center mb-4">
                         <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
                         </svg>
                     </div>
                     <div class="text-emerald-600 text-xl font-semibold mb-4">Database</div>
                     <ul class="space-y-3 text-gray-600">
-                        <li>• Knex.js - SQL query builder</li>
-                        <li>• Migrations support</li>
-                        <li>• Multiple DB support</li>
-                        <li>• Type-safe queries</li>
+                        <li>• <a href="https://knexjs.org" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700">Knex.js</a> - SQL query builder</li>
+                        <li>• <a href="https://knexjs.org/guide/migrations.html" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700">Migrations support</a></li>
+                        <li>• <a href="https://knexjs.org/guide/#dialects" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700">Multiple DB support</a></li>
+                        <li>• <a href="https://knexjs.org/guide/typescript.html" target="_blank" rel="noopener noreferrer" class="text-emerald-600 hover:text-emerald-700">Type-safe queries</a></li>
                     </ul>
+                </div>
+            </div>
+
+            <!-- FAQ Section -->
+            <div id="faq" class="mt-24 px-4 sm:px-6 lg:px-8">
+                <h2 class="text-2xl font-semibold text-center text-gray-900 mb-8">FAQ</h2>
+                <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+                    <dl class="divide-y divide-gray-200">
+                        <details class="group open:bg-gray-50">
+                            <summary class="flex cursor-pointer items-center justify-between px-6 py-4">
+                                <span class="text-gray-900 font-medium">Apa itu Laju?</span>
+                                <svg class="w-5 h-5 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <div class="px-6 pb-4 text-gray-600">
+                                Laju adalah framework TypeScript full‑stack yang menggabungkan HyperExpress (server ultra‑cepat), Svelte 5, Inertia.js, TailwindCSS, Vite, dan template engine Squirrelly untuk pengembangan cepat dengan DX yang nyaman.
+                            </div>
+                        </details>
+                        <details class="group">
+                            <summary class="flex cursor-pointer items-center justify-between px-6 py-4">
+                                <span class="text-gray-900 font-medium">Bagaimana cara memulai dengan cepat?</span>
+                                <svg class="w-5 h-5 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <div class="px-6 pb-4 text-gray-600">
+                                Jalankan <code class="font-mono bg-gray-100 px-2 py-0.5 rounded">npx create-laju-app my-app</code>, lalu <code class="font-mono bg-gray-100 px-2 py-0.5 rounded">npm run dev</code>. Tidak perlu konfigurasi rumit.
+                            </div>
+                        </details>
+                        <details class="group">
+                            <summary class="flex cursor-pointer items-center justify-between px-6 py-4">
+                                <span class="text-gray-900 font-medium">Apa yang membuat Laju sangat cepat?</span>
+                                <svg class="w-5 h-5 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <div class="px-6 pb-4 text-gray-600">
+                                Kombinasi HyperExpress, Vite (hot module + build cepat), dan Squirrelly (template engine ringan & kencang) dengan arsitektur MVC yang sederhana.
+                            </div>
+                        </details>
+                        <details class="group">
+                            <summary class="flex cursor-pointer items-center justify-between px-6 py-4">
+                                <span class="text-gray-900 font-medium">Apakah ada autentikasi bawaan?</span>
+                                <svg class="w-5 h-5 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <div class="px-6 pb-4 text-gray-600">
+                                Ya. Tersedia login, register, forgot/reset password, dan integrasi Google OAuth.
+                            </div>
+                        </details>
+                        <details class="group">
+                            <summary class="flex cursor-pointer items-center justify-between px-6 py-4">
+                                <span class="text-gray-900 font-medium">Dukungan database dan migrasi?</span>
+                                <svg class="w-5 h-5 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <div class="px-6 pb-4 text-gray-600">
+                                Menggunakan Knex.js untuk query builder dan migrasi, dengan BetterSQLite3 secara default. Perintah: <code class="font-mono bg-gray-100 px-2 py-0.5 rounded">npx knex migrate:latest</code>.
+                            </div>
+                        </details>
+                        <details class="group">
+                            <summary class="flex cursor-pointer items-center justify-between px-6 py-4">
+                                <span class="text-gray-900 font-medium">Bagaimana cara deploy?</span>
+                                <svg class="w-5 h-5 text-gray-500 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </summary>
+                            <div class="px-6 pb-4 text-gray-600">
+                               <code class="font-mono bg-gray-100 px-2 py-0.5 rounded">npm run build</code>. Untuk produksi, gunakan PM2 runtime dengan konfigurasi di README.
+                            </div>
+                        </details>
+                    </dl>
                 </div>
             </div>
 
@@ -194,8 +382,7 @@ Route.get("/", HomeController.index);
             </div>
         </main>
     </div>
-
-    <script type="module" src="/js/app.js"></script>
+ 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
 </body>
