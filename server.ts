@@ -24,7 +24,7 @@ const webserver = new HyperExpress.Server(option);
 require("dotenv").config();
 
 //  rendering html files
-import "./app/services/View"; 
+import "app/services/View"; 
 
 
 webserver.use(cors());

@@ -8,7 +8,7 @@ class S3Controller {
    */
   public async getSignedUrl(request: Request, response: Response) {
     try {
-      const { filename, contentType, folder } = await request.json();
+      const { filename, contentType } = await request.json();
 
       // Validate required fields
       if (!filename || !contentType) {
@@ -17,53 +17,10 @@ class S3Controller {
           message: "Filename and content type are required",
         });
       }
+ 
+     
 
-      // Validate content type based on folder
-      let allowedTypes = [];
-      let errorMessage = "";
-
-      if (folder === "carousel" || folder === "uploads") {
-        // Allow images and videos for carousel and uploads
-        allowedTypes = [
-          "image/jpeg",
-          "image/jpg", 
-          "image/png",
-          "image/gif",
-          "image/webp",
-          "image/svg+xml",
-          "video/mp4",
-          "video/mpeg",
-          "video/quicktime",
-          "video/x-msvideo", // .avi
-          "video/webm",
-          "application/pdf",
-          "application/msword",
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-          "application/vnd.ms-excel",
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-          "application/vnd.ms-powerpoint",
-          "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-        ];
-        errorMessage = "Only image, video, and document files are allowed";
-      } else {
-        // Default: only images for other folders (like products)
-        allowedTypes = [
-          "image/jpeg",
-          "image/jpg", 
-          "image/png",
-          "image/gif",
-          "image/webp",
-          "image/svg+xml"
-        ];
-        errorMessage = "Only image files are allowed";
-      }
-
-      if (!allowedTypes.includes(contentType)) {
-        return response.status(400).json({
-          success: false,
-          message: errorMessage,
-        });
-      }
+  
 
       // Generate unique file key
       const fileKey = "assets/" + filename;

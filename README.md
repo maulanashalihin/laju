@@ -104,6 +104,20 @@ npm run build
 - Compiles TypeScript files
 - Copies required files to the build directory
 
+## Absolute Imports
+
+You can import from the project root without `./`:
+
+- Server/dev with ts-node:
+  - `import DB from "app/services/DB";`
+  - `import DB from "app/services/DB.ts";` (extension supported in dev)
+- Config:
+  - `tsconfig.json` sets `"baseUrl": "."` and `paths` for root folders
+  - Nodemon uses `ts-node -r tsconfig-paths/register` to resolve aliases at runtime
+- Notes:
+  - Prefer imports without the `.ts` extension for compatibility with production builds.
+  - If you run compiled JS from `build/`, keep using alias imports without extensions or use tools like `tsc-alias` to rewrite paths.
+
 ## Project Structure
 
 - `app/` — Core application code
@@ -321,6 +335,104 @@ Create `resources/js/Pages/posts/create.svelte`:
 - Run `npm run dev`
 - Visit `http://localhost:5555/posts`
 - Create a new post and verify listing on index page
+
+## Tutorial: Upload ke S3 (Presigned URL)
+
+Pendekatan prioritas di Laju: generate pre-signed URL di server, lalu lakukan upload langsung dari browser/klien ke URL tersebut dengan metode `PUT`. Ini mengurangi beban server dan tetap aman.
+
+### Prasyarat
+- Siapkan kredensial Wasabi/S3 di `.env` (lihat `.env.example`):
+  - `WASABI_ACCESS_KEY`, `WASABI_SECRET_KEY`
+  - `WASABI_BUCKET` (default: `laju-dev`)
+  - `WASABI_REGION` (contoh: `ap-southeast-1`)
+  - `WASABI_ENDPOINT` (contoh: `https://s3.ap-southeast-1.wasabisys.com`)
+  - `CDN_URL` (opsional; jika pakai CDN seperti Bunny, public URL akan mengarah ke CDN)
+- Pastikan bucket policy/akses publik disesuaikan jika ingin file bisa diakses via `publicUrl` (atau gunakan CDN di depan bucket).
+
+### Endpoint Server (Signed URL)
+- Path: `POST /api/s3/signed-url` (dilindungi middleware Auth)
+- Body:
+  ```json
+  {
+    "filename": "1699999999999-photo.jpg",
+    "contentType": "image/jpeg"
+  }
+  ```
+- Respon contoh:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "signedUrl": "https://...presigned-url...",
+      "publicUrl": "https://cdn-or-endpoint/bucket/assets/1699999999999-photo.jpg",
+      "fileKey": "assets/1699999999999-photo.jpg",
+      "bucket": "laju-dev",
+      "expiresIn": 3600
+    }
+  }
+  ```
+ 
+
+### Alur Upload dari Browser
+Contoh JavaScript murni:
+```js
+async function uploadToS3(file) {
+  const filename = `${Date.now()}-${file.name}`;
+  const payload = { filename, contentType: file.type };
+
+  // 1) Minta signed URL dari server (perlu cookie sesi, gunakan credentials)
+  const res = await fetch('/api/s3/signed-url', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }, 
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error('Gagal mendapatkan signed URL');
+  const { data } = await res.json();
+
+  // 2) Upload langsung ke S3/Wasabi via PUT
+  const put = await fetch(data.signedUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': file.type },
+    body: file
+  });
+  if (!put.ok) throw new Error('Upload gagal'); // biasanya 200 OK
+
+  // 3) Gunakan publicUrl (simpan ke DB atau tampilkan)
+  return { publicUrl: data.publicUrl, fileKey: data.fileKey, bucket: data.bucket };
+}
+```
+
+Contoh di Svelte (Inertia):
+```svelte
+<script>
+  async function handleFile(file) {
+    if (!file) return;
+    try {
+      const { publicUrl } = await uploadToS3(file);
+      // TODO: simpan publicUrl ke server/DB sesuai kebutuhan
+      console.log('Uploaded:', publicUrl);
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+</script>
+
+<input type="file" on:change={(e) => handleFile(e.target.files?.[0])} />
+```
+
+### Mendapatkan Public URL dari FileKey
+Jika Anda menyimpan `fileKey`, Anda bisa minta public URL dari server:
+- Path: `GET /api/s3/public-url/:fileKey`
+- Contoh: `GET /api/s3/public-url/assets/1699999999999-photo.jpg`
+
+### Health Check
+- Path: `GET /api/s3/health`
+- Mengembalikan info bucket, endpoint, dan region untuk verifikasi konfigurasi.
+
+### Catatan Penting
+- `expiresIn` untuk signed URL default 3600 detik (1 jam).
+- Upload via signed URL tidak mengatur ACL di request; pastikan bucket/CDN Anda mengizinkan pembacaan publik jika ingin langsung diakses.
+- `publicUrl` dibangun dari `CDN_URL` (jika diset) atau langsung dari `WASABI_ENDPOINT` + `bucket` + `key`.
 
 ## Squirrelly Quick Guide
 

@@ -45,7 +45,14 @@
     /* Allow importing .json files */
     "resolveJsonModule": true,
     /* Base directory to resolve non-relative module names */
-    "baseUrl": "."
+    "baseUrl": ".",
+    /* Path aliases to support absolute imports from project root */
+    "paths": {
+      "app/*": ["app/*"],
+      "routes/*": ["routes/*"],
+      "resources/*": ["resources/*"],
+      "type/*": ["type/*"]
+    }
   }, 
   /* Files to include in compilation */
   "include": ["./*.ts","./type/index.d.ts","commands","migrations","seeds"], 

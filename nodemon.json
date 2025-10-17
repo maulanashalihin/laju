@@ -2,5 +2,5 @@
     "watch": ["app/**","resources/views/**","server.ts","routes/**"],
     "ext": ".ts,.js,.svelte",
     "ignore": [],
-    "exec": "npx ts-node -r dotenv/config server.ts"
+    "exec": "npx ts-node -r dotenv/config -r tsconfig-paths/register server.ts"
   }
