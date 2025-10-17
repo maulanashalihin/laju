@@ -1,143 +1,150 @@
 # Laju
 
-A high-performance TypeScript web framework combining HyperExpress, Svelte 5, and Inertia.js for building modern full-stack applications. Features server-side rendering, real-time capabilities, and seamless client-server state management.
+A high-performance TypeScript web framework combining HyperExpress, Svelte 5, and Inertia.js for building modern full-stack applications. It features fast server-side rendering, modern frontend tooling, and seamless client–server state management.
 
-Visit [laju.dev](https://laju.dev)
+Visit `https://laju.dev`
+
+## Table of Contents
+- Overview
+- Features
+- Prerequisites
+- Quick Start
+- Manual Installation
+- Environment Setup (Google OAuth)
+- Development
+- Build for Production
+- Project Structure
+- Key Dependencies
+- Scripts
+- CLI Commands
+- Tutorial: Building Your First App
+- Squirrelly Quick Guide
+- Best Practices
+- Contributing
+- License
 
 ## Features
 
-- Fast server-side rendering with HyperExpress
-- Modern frontend with Svelte 5
+- Fast server-side rendering with `HyperExpress`
+- Modern frontend with `Svelte 5`
 - TypeScript support for better type safety
-- Inertia.js integration for seamless client-server communication
+- Inertia.js integration for seamless client–server communication
 - Built-in authentication system
 - BetterSQLite3 database with Knex query builder
 - Email support with Nodemailer
 - Google APIs integration
 - Redis caching support
 - Asset bundling with Vite
+- Squirrelly template engine for fast server-side HTML rendering
 - TailwindCSS for styling
 
 ## Prerequisites
 
-- Node.js (Latest LTS version recommended)
+- Node.js (latest LTS recommended)
 - npm or yarn
-- Redis server (optional, for caching)
-- Docker & Docker Compose (optional, for development with container)
 
- 
+## Quick Start
 
-### Quick Start  
 ```bash
 npx create-laju-app project-name
 cd project-name
 npm run dev
 ```
 
-### Manual Installation
+## Manual Installation
 
-1. Clone the repository
+1. Clone the repository.
 2. Install dependencies:
-```bash
-npm install
-```
-3. Copy `.env.example` to `.env` and configure your environment variables:
-```bash
-cp .env.example .env
-```
-
+   ```bash
+   npm install
+   ```
+3. Copy `.env.example` to `.env` and configure your variables:
+   ```bash
+   cp .env.example .env
+   ```
 4. Set up Google OAuth credentials:
-   1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
-   2. Create a new project or select an existing one
-   3. Enable the Google+ API and Google OAuth2 API
-   4. Go to "Credentials" in the left sidebar
-   5. Click "Create Credentials" and select "OAuth client ID"
-   6. Select "Web application" as the application type
-   7. Set the following:
-      - Name: Your application name
-      - Authorized JavaScript origins: `http://localhost:5555` (for development)
+   1. Go to the Google Cloud Console: `https://console.cloud.google.com/`
+   2. Create/select a project
+   3. Enable Google OAuth2 API
+   4. Go to "Credentials" → "Create Credentials" → "OAuth client ID"
+   5. Choose "Web application"
+   6. Use:
+      - Authorized JavaScript origins: `http://localhost:5555`
       - Authorized redirect URIs: `http://localhost:5555/google/callback`
-   8. Click "Create"
-   9. Copy the generated Client ID and Client Secret
-   10. Add them to your `.env` file:
-   ```
-   GOOGLE_CLIENT_ID=your_client_id_here
-   GOOGLE_CLIENT_SECRET=your_client_secret_here
-   ```
-
+   7. Copy the Client ID and Client Secret
+   8. Add them to `.env`:
+      ```
+      GOOGLE_CLIENT_ID=your_client_id_here
+      GOOGLE_CLIENT_SECRET=your_client_secret_here
+      ```
 5. Run database migrations:
-```bash
-npx knex migrate:latest
-```
+   ```bash
+   npx knex migrate:latest
+   ```
 
 ## Development
- 
-To start the development server:
+
+Run the development servers:
 
 ```bash
 npm run dev
 ```
 
-This will:
-- Start the Vite development server for frontend assets
-- Run the backend server with nodemon for auto-reloading
+- Starts the Vite dev server for frontend assets
+- Runs the backend server with nodemon (auto-reload)
 
-## Building for Production
- 
-To build the application for production:
+## Build for Production
 
 ```bash
 npm run build
 ```
 
-This command will:
-- Clean the build directory
-- Build frontend assets with Vite
-- Compile TypeScript files
-- Copy necessary files to the build directory
+- Cleans the build directory
+- Builds frontend assets with Vite
+- Compiles TypeScript files
+- Copies required files to the build directory
 
 ## Project Structure
 
-- `/app` - Core application files
-  - `/middlewares` - Custom middleware functions
-  - `/services` - Service layer implementations
-  - `/controllers` - Application controllers
-- `/resources` - Frontend resources
-  - `/views` - Template HTML menggunakan Squirrelly
-    - `/Users/maulanashalihin/Project/laju/resources/views/index.html`
-    - `/Users/maulanashalihin/Project/laju/resources/views/inertia.html`
-  - `/js` - JavaScript assets and modules
-    - `Pages/` - Halaman Svelte/Inertia
-    - `Components/` - Komponen UI reusable
-    - `app.js` - Entry point aplikasi (Inertia/Svelte via Vite)
-    - `index.css` - Styles utama (TailwindCSS)
-- `/routes` - Route definitions
-- `/commands` - Custom CLI commands
-- `/migrations` - Database migrations
-- `/public` - Static files
-- `/dist` - Compiled assets (generated)
-- `/build` - Production build output
+- `app/` — Core application code
+  - `middlewares/` — Custom middleware functions
+  - `services/` — Service layer implementations (DB, Mailer, Redis, View, etc.)
+  - `controllers/` — Application controllers
+- `resources/` — Frontend resources
+  - `views/` — Squirrelly HTML templates
+    - `resources/views/index.html`
+    - `resources/views/inertia.html`
+  - `js/` — JavaScript assets and modules
+    - `Pages/` — Svelte/Inertia pages
+    - `Components/` — Reusable UI components
+    - `app.js` — Inertia/Svelte entry (via Vite)
+    - `index.css` — Global styles (TailwindCSS)
+- `routes/` — Route definitions
+- `commands/` — Custom CLI commands
+- `migrations/` — Database migrations
+- `public/` — Static files
+- `dist/` — Compiled assets (generated)
+- `build/` — Production build output
 
 ## Key Dependencies
 
-### Backend
-- [HyperExpress](https://github.com/kartikk221/hyper-express) - High-performance web server
-- [Knex](https://knexjs.org) - SQL query builder
-- [BetterSQLite3](https://github.com/WiseLibs/better-sqlite3) - Database
-- [Nodemailer](https://nodemailer.com/) - Email sending
-- [Redis](https://redis.io/) - Caching (optional)
-- [Squirrelly](https://squirrelly.js.org/) - Fast template engine
-
-### Frontend
-- [Svelte 5](https://svelte.dev) - UI framework
-- [Inertia.js](https://inertiajs.com) - Client-server communication
-- [TailwindCSS](https://tailwindcss.com) - Utility-first CSS framework
-- [Vite](https://vitejs.dev) - Build tool and dev server
+- Backend:
+  - `HyperExpress` — High-performance web server
+  - `Knex` — SQL query builder
+  - `BetterSQLite3` — Embedded database
+  - `Nodemailer` — Email sending
+  - `Redis` — Caching (optional)
+  - `Squirrelly` — Fast template engine
+- Frontend:
+  - `Svelte 5` — UI framework
+  - `Inertia.js` — Client–server communication (modern monolith)
+  - `TailwindCSS` — Utility-first CSS
+  - `Vite` — Dev server and bundler
 
 ## Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production 
+- `npm run dev` — Start development servers
+- `npm run build` — Build for production
 
 ## CLI Commands
 
@@ -145,7 +152,7 @@ This command will:
 ```bash
 node laju make:controller ControllerName
 ```
-This will create a new controller in `app/controllers` with basic CRUD methods.
+Creates a new controller in `app/controllers` with basic CRUD methods.
 
 Example:
 ```bash
@@ -156,40 +163,26 @@ node laju make:controller UserController
 ```bash
 node laju make:command CommandName
 ```
-This will create a new command in `commands` that can be scheduled with cron jobs.
+Creates a new command in `commands` that can be scheduled with cron jobs.
 
 Example:
 ```bash
 node laju make:command SendDailyEmails
 ```
 
-To schedule the command with cron, add it to your crontab:
+Crontab example:
 ```bash
-# Run command every day at midnight
+# Run every day at midnight
 0 0 * * * cd /path/to/your/app/build && node commands/SendDailyEmails.js
 ```
 
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
-
-## License
-
-ISC License
-
 ## Tutorial: Building Your First App
 
-This tutorial will guide you through building a simple application using this framework.
+This tutorial walks you through a simple blog feature using Inertia + Svelte and Knex.
 
-### 1. Setting Up a New Route and Controller
+### 1) Routes and Controller
 
-First, let's create a new route and controller for a blog post feature.
-
-1. Create a new controller file `app/controllers/PostController.ts`:
+Create `app/controllers/PostController.ts`:
 
 ```typescript
 import { Request, Response } from "../../type";
@@ -207,14 +200,12 @@ class Controller {
 
   public async store(request: Request, response: Response) {
     const { title, content } = await request.json();
-    
     await DB.table("posts").insert({
       title,
       content,
       created_at: Date.now(),
       updated_at: Date.now()
     });
-
     return response.redirect("/posts");
   }
 }
@@ -222,26 +213,25 @@ class Controller {
 export default new Controller();
 ```
 
-2. Add routes in `routes/web.ts`:
+Add routes in `routes/web.ts`:
 
 ```typescript
 import PostController from "../app/controllers/PostController";
 
-// Add these routes with your existing routes
 Route.get("/posts", PostController.index);
 Route.get("/posts/create", PostController.create);
 Route.post("/posts", PostController.store);
 ```
 
-### 2. Creating the Database Migration
+### 2) Database Migration
 
-Create a migration for the posts table:
+Create a migration:
 
 ```bash
 npx knex migrate:make create_posts_table
 ```
 
-In the generated migration file:
+Migration content:
 
 ```typescript
 import { Knex } from "knex";
@@ -267,9 +257,9 @@ Run the migration:
 npx knex migrate:latest
 ```
 
-### 3. Creating Svelte Components
+### 3) Svelte Pages (Inertia)
 
-1. Create `resources/views/posts/index.svelte`:
+Create `resources/js/Pages/posts/index.svelte`:
 
 ```svelte
 <script>
@@ -298,20 +288,13 @@ npx knex migrate:latest
 </div>
 ```
 
-2. Create `resources/views/posts/create.svelte`:
+Create `resources/js/Pages/posts/create.svelte`:
 
 ```svelte
 <script>
   import { router } from '@inertiajs/svelte';
-
-  let form = {
-    title: '',
-    content: ''
-  };
-
-  function handleSubmit() {
-    router.post('/posts', form);
-  }
+  let form = { title: '', content: '' };
+  function handleSubmit() { router.post('/posts', form); }
 </script>
 
 <div class="max-w-4xl mx-auto p-4">
@@ -320,57 +303,30 @@ npx knex migrate:latest
   <form on:submit|preventDefault={handleSubmit} class="space-y-4">
     <div>
       <label class="block text-sm font-medium mb-1">Title</label>
-      <input
-        type="text"
-        bind:value={form.title}
-        class="w-full px-3 py-2 border rounded"
-      />
+      <input type="text" bind:value={form.title} class="w-full px-3 py-2 border rounded" />
     </div>
-
     <div>
       <label class="block text-sm font-medium mb-1">Content</label>
-      <textarea
-        bind:value={form.content}
-        class="w-full px-3 py-2 border rounded h-32"
-      ></textarea>
+      <textarea bind:value={form.content} class="w-full px-3 py-2 border rounded h-32"></textarea>
     </div>
-
     <div>
-      <button
-        type="submit"
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      >
-        Create Post
-      </button>
+      <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Create Post</button>
     </div>
   </form>
 </div>
 ```
 
-### 4. Testing Your Application
+### 4) Test the App
 
-1. Start the development server:
-```bash
-npm run dev
-```
+- Run `npm run dev`
+- Visit `http://localhost:5555/posts`
+- Create a new post and verify listing on index page
 
-2. Visit `http://localhost:5555/posts` in your browser
-3. Try creating a new post using the form
-4. View the list of posts on the index page
+## Squirrelly Quick Guide
 
-### Key Concepts
+Squirrelly is a lightweight and fast template engine used for server-side HTML rendering. Laju provides a `View` service that automatically loads all files from `resources/views` (development) or `dist/views` (production), supports partials, and adjusts asset paths during development.
 
-1. **Routing**: Routes are defined in `routes/web.ts` using the HyperExpress router
-2. **Controllers**: Handle business logic and return Inertia responses
-3. **Database**: Use Knex.js for database operations and migrations
-4. **Frontend**: Svelte components with Inertia.js for seamless page transitions
-5. **Styling**: TailwindCSS for utility-first styling
-
-### Tutorial Singkat: Squirrelly
-
-Squirrelly adalah template engine ringan dan cepat untuk merender HTML di server. Laju sudah menyiapkan service `View` yang otomatis memuat file dari `resources/views` (development) atau `dist/views` (production), mendukung partials, dan penyesuaian path aset saat dev.
-
-1) Buat file view `resources/views/hello.html`:
+1) Create `resources/views/hello.html`:
 
 ```html
 <!doctype html>
@@ -389,7 +345,7 @@ Squirrelly adalah template engine ringan dan cepat untuk merender HTML di server
 </html>
 ```
 
-2) Buat partial opsional `resources/views/partials/header.html`:
+2) Create optional partial `resources/views/partials/header.html`:
 
 ```html
 <header class="p-4 bg-gray-100 border-b">
@@ -397,7 +353,7 @@ Squirrelly adalah template engine ringan dan cepat untuk merender HTML di server
 </header>
 ```
 
-3) Render dari Controller:
+3) Render from a controller:
 
 ```ts
 // app/controllers/HomeController.ts
@@ -406,10 +362,7 @@ import { view } from "../services/View";
 
 class Controller {
   public async hello(request: Request, response: Response) {
-    const html = view("hello.html", {
-      title: "Hello Page",
-      name: "Laju",
-    });
+    const html = view("hello.html", { title: "Hello Page", name: "Laju" });
     return response.type("html").send(html);
   }
 }
@@ -417,7 +370,7 @@ class Controller {
 export default new Controller();
 ```
 
-4) Daftarkan route:
+4) Register the route:
 
 ```ts
 // routes/web.ts
@@ -428,29 +381,37 @@ const Route = new HyperExpress.Router();
 Route.get("/hello", HomeController.hello);
 ```
 
-Catatan:
-- Gunakan `{{it.xxx}}` untuk mengakses data yang dikirim ke template.
-- Saat development, path aset `/js/*` otomatis diarahkan ke Vite dev server (`VITE_PORT`).
-- Untuk Inertia, `resources/views/inertia.html` sudah memakai Squirrelly (`{{it.title}}`, `{{it.page}}`).
+Notes:
+- Use `{{it.xxx}}` to access data passed to the template
+- In development, `/js/*` assets are automatically served from the Vite dev server (`VITE_PORT`)
+- For Inertia, `resources/views/inertia.html` already uses Squirrelly (`{{it.title}}`, `{{it.page}}`)
 
-Referensi: dokumentasi resmi Squirrelly https://squirrelly.js.org
+Reference: `https://squirrelly.js.org`
 
-### Best Practices
+## Best Practices
 
-1. **File Organization**
-   - Keep controllers in `app/controllers`
-   - Create inertia pages in `resources/js/Pages`
-   - Place Svelte components in `resources/js/Components`
-   - Database migrations in `migrations`
+- File Organization
+  - Keep controllers in `app/controllers`
+  - Create Inertia pages in `resources/js/Pages`
+  - Place Svelte components in `resources/js/Components`
+  - Database migrations in `migrations`
+- Code Structure
+  - Use TypeScript types for safety and clarity
+  - Keep controllers focused on single responsibilities
+  - Use Inertia.js for state management between server and client
+- Database
+  - Always use migrations for schema changes
+  - Use the Query Builder for complex queries
+  - Include timestamps for tracking record changes
 
-2. **Code Structure**
-   - Use TypeScript types for better type safety
-   - Keep controllers focused on single responsibilities
-   - Use Inertia.js for state management between server and client
+## Contributing
 
-3. **Database**
-   - Always use migrations for database changes
-   - Use the Query Builder for complex queries
-   - Include timestamps for tracking record changes
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
-Need help with anything specific? Feel free to ask!
+## License
+
+ISC License
