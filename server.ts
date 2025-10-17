@@ -5,8 +5,21 @@ import Web from "./routes/web";
 import HyperExpress from "hyper-express";
 
 import cors from 'cors';
+import path from 'path';
+ 
 
-const webserver = new HyperExpress.Server();
+const option = {
+  max_body_length: 10 * 1024 * 1024, // 10MB
+  key_file_name : "",
+  cert_file_name : "",
+};
+
+if(process.env.PROTOCOL === 'https') {
+  option.key_file_name = path.join(process.cwd(), 'localhost+1-key.pem');
+  option.cert_file_name = path.join(process.cwd(), 'localhost+1.pem');
+}
+
+const webserver = new HyperExpress.Server(option);
  
 require("dotenv").config();
 
