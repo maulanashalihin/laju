@@ -37,40 +37,30 @@
 - [Inertia.js](https://inertiajs.com) - Client-server communication
 - [TailwindCSS](https://tailwindcss.com) - Utility-first CSS framework
 - [Vite](https://vitejs.dev) - Build tool and dev server
-
+ 
 ## Project Structure
 
+- `/app` - Core application files
+  - `/middlewares` - Custom middleware functions
+  - `/services` - Service layer implementations
+  - `/controllers` - Application controllers
+- `/resources` - Frontend resources
+  - `/views` - Template HTML menggunakan Squirrelly
+    - `/Users/maulanashalihin/Project/laju/resources/views/index.html`
+    - `/Users/maulanashalihin/Project/laju/resources/views/inertia.html`
+  - `/js` - JavaScript assets and modules
+    - `Pages/` - Halaman Svelte/Inertia
+    - `Components/` - Komponen UI reusable
+    - `app.js` - Entry point aplikasi (Inertia/Svelte via Vite)
+    - `index.css` - Styles utama (TailwindCSS)
+- `/routes` - Route definitions
+- `/commands` - Custom CLI commands
+- `/migrations` - Database migrations
+- `/public` - Static files
+- `/dist` - Compiled assets (generated)
+- `/build` - Production build output
 
-studio/
-├── app/                    # Core application code
-│   ├── controllers/        # Request handlers
-│   ├── middlewares/       # Authentication & validation
-│   └── services/          # Business logic
-├── resources/             # Frontend resources
-├── routes/                # Route definitions
-├── migrations/            # Database migrations
-├── public/               # Static assets
-└── build/, dist/         # Compiled output
-
-
-## Key Dependencies
-
-### Production
-- @inertiajs/svelte: Frontend-backend integration
-- hyper-express: High-performance web server
-- better-sqlite3: SQLite database driver
-- bcrypt: Password hashing
-- nodemailer: Email functionality
-- googleapis: Google API integration
-- dayjs: Date manipulation
-- squirrelly: Template engine
-
-### Development
-- typescript: Type safety
-- vite: Build tooling
-- tailwindcss: Utility-first CSS
-- nodemon: Development server
-- ts-node: TypeScript execution
+ 
 
 ## Development Commands
 
@@ -82,18 +72,6 @@ npm run dev
 npm run build
 
 
-## Project Features
-
-1. Full-stack TypeScript support
-2. Server-side rendering capabilities
-3. Real-time features support
-4. Modern component-based UI with Svelte
-5. Robust database migrations
-6. Integrated caching system
-7. Email functionality
-8. Google API integration
-9. Secure authentication system
-
 ## Best Practices
 
 1. Menggunakan arsitektur MVC untuk organisasi kode
@@ -102,6 +80,7 @@ npm run build
 4. Modern frontend dengan Svelte dan Tailwind
 5. Database migrations untuk version control schema
 6. Environment configuration (.env)
+7. Gunakan Squirrelly sebagai template engine untuk server side rendering HTML
 
 
 ## Controller Sample
@@ -135,7 +114,7 @@ class Controller {
 
 export default new Controller();
 
-## Svelte Component and form Sample Page
+## Svelte Component and form Sample Page, Khusus Untuk Inertia
 
 ```svelte
 <script>
@@ -179,3 +158,6 @@ export default new Controller();
 
 Standar input form class
 ```html  <input bind:value={form.email} required type="text" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:border-blue-600 focus:outline-none block w-full py-2.5 px-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="maulanaibrahim@gmail.com" >```
+
+<!-- Project Brief -->
+<!-- add project brief here -->

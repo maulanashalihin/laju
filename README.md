@@ -366,6 +366,75 @@ npm run dev
 4. **Frontend**: Svelte components with Inertia.js for seamless page transitions
 5. **Styling**: TailwindCSS for utility-first styling
 
+### Tutorial Singkat: Squirrelly
+
+Squirrelly adalah template engine ringan dan cepat untuk merender HTML di server. Laju sudah menyiapkan service `View` yang otomatis memuat file dari `resources/views` (development) atau `dist/views` (production), mendukung partials, dan penyesuaian path aset saat dev.
+
+1) Buat file view `resources/views/hello.html`:
+
+```html
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>{{it.title}}</title>
+    <link rel="stylesheet" href="/js/index.css" />
+  </head>
+  <body>
+    {{@include('partials/header.html')}}
+    <main class="p-6">
+      <h1 class="text-2xl font-bold">Hello, {{it.name}}!</h1>
+    </main>
+  </body>
+</html>
+```
+
+2) Buat partial opsional `resources/views/partials/header.html`:
+
+```html
+<header class="p-4 bg-gray-100 border-b">
+  <a href="/" class="text-emerald-600 font-semibold">Home</a>
+</header>
+```
+
+3) Render dari Controller:
+
+```ts
+// app/controllers/HomeController.ts
+import { Request, Response } from "../../type";
+import { view } from "../services/View";
+
+class Controller {
+  public async hello(request: Request, response: Response) {
+    const html = view("hello.html", {
+      title: "Hello Page",
+      name: "Laju",
+    });
+    return response.type("html").send(html);
+  }
+}
+
+export default new Controller();
+```
+
+4) Daftarkan route:
+
+```ts
+// routes/web.ts
+import HyperExpress from "hyper-express";
+import HomeController from "../app/controllers/HomeController";
+const Route = new HyperExpress.Router();
+
+Route.get("/hello", HomeController.hello);
+```
+
+Catatan:
+- Gunakan `{{it.xxx}}` untuk mengakses data yang dikirim ke template.
+- Saat development, path aset `/js/*` otomatis diarahkan ke Vite dev server (`VITE_PORT`).
+- Untuk Inertia, `resources/views/inertia.html` sudah memakai Squirrelly (`{{it.title}}`, `{{it.page}}`).
+
+Referensi: dokumentasi resmi Squirrelly https://squirrelly.js.org
+
 ### Best Practices
 
 1. **File Organization**
