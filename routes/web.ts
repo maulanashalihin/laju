@@ -24,8 +24,7 @@ Route.get("/", HomeController.index);
  * GET  /api/s3/public-url/:fileKey - Get public URL for existing file
  * GET  /api/s3/health - S3 service health check
  */
-Route.post("/api/s3/signed-url", [Auth], S3Controller.getSignedUrl);
-Route.post("/api/s3/product-image-url", [Auth], S3Controller.getProductImageUrl);
+Route.post("/api/s3/signed-url", [Auth], S3Controller.getSignedUrl); 
 Route.get("/api/s3/public-url/:fileKey", S3Controller.getPublicUrl);
 Route.get("/api/s3/health", S3Controller.health);
 /**
