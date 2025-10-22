@@ -16,7 +16,7 @@
     "@tailwindcss/typography": "^0.5.16",
     "@types/uuid": "^10.0.0",
     "axios": "^1.7.7",
-    "better-sqlite3": "^11.10.0",
+    "better-sqlite3": "^12.4.1",
     "concurrently": "^9.0.1",
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",
