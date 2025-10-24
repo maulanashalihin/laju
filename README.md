@@ -19,6 +19,7 @@ Visit `https://laju.dev`
 - CLI Commands
 - Tutorial: Building Your First App
 - Squirrelly Quick Guide
+- Backup & Restore Database
 - Best Practices
 - Contributing
 - License
@@ -527,3 +528,91 @@ Reference: `https://squirrelly.js.org`
 ## License
 
 ISC License
+
+## Backup & Restore Database
+
+Dokumentasi untuk tiga skrip utilitas:
+- `backup.ts` — membuat backup SQLite, kompres Gzip, enkripsi AES‑256‑GCM, upload ke Wasabi/S3, simpan metadata ke tabel `backup_files`.
+- `restore.ts` — mengunduh backup terenkripsi dari S3, dekripsi dengan `BACKUP_ENCRYPTION_KEY`, dekompres Gzip, lalu tulis file `.db` hasil restore.
+- `clean-backup.ts` — menghapus backup lama di S3 berdasarkan retensi dan menandai metadata sebagai `deleted_at`.
+
+### Prasyarat
+- Kredensial Wasabi/S3 sudah dikonfigurasi di `.env` (lihat bagian Upload ke S3 atau `.env.example`).
+- `BACKUP_ENCRYPTION_KEY` wajib 32 byte (base64/hex/utf8). Contoh:
+  - Base64: `BACKUP_ENCRYPTION_KEY=3q2+7wAAAAAAAAAAAAAAAAAAAA==`
+  - Hex: `BACKUP_ENCRYPTION_KEY=00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff`
+- Opsional: `BACKUP_RETENTION_DAYS` (default 30 hari) untuk `clean-backup.ts`.
+- Tabel `backup_files` tersedia (skema contoh ada di bawah).
+
+### Penggunaan
+1) Build dahulu agar skrip siap dijalankan sebagai JS:
+```bash
+npm run build
+```
+
+2) Jalankan backup:
+```bash
+node build/backup.js
+```
+- Output file lokal berada di `build/backups/` hanya sementara; setelah upload, file lokal dibersihkan.
+- Metadata yang disimpan: `key`, `file_name`, `file_size`, `compression`, `storage`, `checksum`, `uploaded_at`, `encryption`, `enc_iv`, `enc_tag`.
+
+3) Restore (ambil backup terbaru yang belum dihapus):
+```bash
+node build/restore.js
+```
+Atau restore berdasarkan `key` spesifik:
+```bash
+node build/restore.js --key backups/2025-01-10T23:33-<uuid>.db.gz.enc
+```
+- File hasil restore akan ditulis ke: `build/backups/restored-YYYY-MM-DDTHH:mm.db`.
+- Untuk mengaktifkan restore: hentikan aplikasi dan ganti file SQLite aktif dengan file hasil restore.
+- Jika DB tidak bisa diakses saat restore, skrip akan membaca `iv/tag` dari metadata objek S3.
+
+4) Clean backup (hapus yang lebih tua dari retensi):
+```bash
+node build/clean-backup.js
+```
+- Menandai kolom `deleted_at` pada `backup_files` dan menghapus objek di S3 jika ada.
+
+### Cron Contoh
+- Backup harian pukul 01:00:
+```
+0 1 * * * cd /path/to/app/build && node backup.js >> /var/log/laju-backup.log 2>&1
+```
+- Clean backup mingguan hari Minggu pukul 02:00:
+```
+0 2 * * 0 cd /path/to/app/build && node clean-backup.js >> /var/log/laju-clean-backup.log 2>&1
+```
+
+### Skema Tabel `backup_files` (Knex)
+Contoh migration untuk membuat tabel metadata backup:
+```ts
+import { Knex } from "knex";
+
+export async function up(knex: Knex): Promise<void> {
+  await knex.schema.createTable("backup_files", (table) => {
+    table.string("id").primary(); // uuid
+    table.string("key").notNullable().unique(); // path di S3, mis. backups/<file>.db.gz.enc
+    table.string("file_name").notNullable();
+    table.bigInteger("file_size").notNullable();
+    table.string("compression").notNullable(); // 'gzip'
+    table.string("storage").notNullable(); // 's3'
+    table.string("checksum").notNullable(); // md5 hex
+    table.bigInteger("uploaded_at").notNullable();
+    table.bigInteger("deleted_at").nullable();
+    table.string("encryption").notNullable(); // 'aes-256-gcm'
+    table.string("enc_iv").notNullable(); // base64
+    table.string("enc_tag").notNullable(); // base64
+  });
+}
+
+export async function down(knex: Knex): Promise<void> {
+  await knex.schema.dropTable("backup_files");
+}
+```
+
+### Catatan
+- Kunci enkripsi harus konsisten antara backup dan restore.
+- Metadata S3 menyimpan `iv`/`tag` sehingga restore tetap memungkinkan jika DB sementara tidak dapat diakses.
+- Pastikan kebijakan bucket/endpoint S3 (Wasabi) sesuai, termasuk ukuran upload dan metadata custom.

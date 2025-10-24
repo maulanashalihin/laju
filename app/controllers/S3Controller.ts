@@ -1,5 +1,5 @@
-import { Request, Response } from "../../type";
-import S3Service from "../services/S3";
+import { getPublicUrl, getSignedUploadUrl } from "app/services/S3";
+import { Request, Response } from "../../type"; 
 
 class S3Controller {
   /**
@@ -26,8 +26,8 @@ class S3Controller {
       const fileKey = "assets/" + filename;
 
       // Generate signed URL
-      const signedUrl = await S3Service.getSignedUploadUrl(fileKey, contentType);
-      const publicUrl = S3Service.getPublicUrl(fileKey);
+      const signedUrl = await getSignedUploadUrl(fileKey, contentType);
+      const publicUrl = getPublicUrl(fileKey);
 
       return response.json({
         success: true,
@@ -35,7 +35,7 @@ class S3Controller {
           signedUrl,
           publicUrl,
           fileKey,
-          bucket: S3Service.getBucket(),
+          bucket: process.env.WASABI_BUCKET,
           expiresIn: 3600, // 1 hour
         },
       });
@@ -70,14 +70,14 @@ class S3Controller {
         });
       }
 
-      const publicUrl = S3Service.getPublicUrl(fileKey);
+      const publicUrl = getPublicUrl(fileKey);
 
       return response.json({
         success: true,
         data: {
           publicUrl,
           fileKey,
-          bucket: S3Service.getBucket(),
+          bucket: process.env.WASABI_BUCKET,
         },
       });
     } catch (error) {
@@ -100,7 +100,7 @@ class S3Controller {
         success: true,
         message: "S3 service is healthy",
         data: {
-          bucket: S3Service.getBucket(),
+          bucket: process.env.WASABI_BUCKET,
           endpoint: process.env.WASABI_ENDPOINT,
           region: process.env.WASABI_REGION,
         },

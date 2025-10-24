@@ -1,9 +1,9 @@
 import { uuidv7 } from "uuidv7";
 import { Response, Request } from "../../type";
 import fs from "fs";
-import sharp from "sharp"; 
-import S3 from "../services/S3";
+import sharp from "sharp";  
 import DB from "../services/DB";
+import { getPublicUrl, uploadBuffer } from "app/services/S3";
 
 
 
@@ -58,11 +58,12 @@ class Controller {
                                 .toBuffer();
 
                             // Upload directly to S3/Wasabi
-                            const s3Key = `/assets/${fileName}`;
-                            await S3.uploadBuffer(processedBuffer, s3Key, 'image/webp');
+                            const s3Key = `/assets/${fileName}`; 
+
+                             await uploadBuffer(s3Key, processedBuffer, 'image/webp', 'public, max-age=31536000');
 
                             // Get public URL from S3 service
-                            const publicUrl = S3.getPublicUrl(s3Key);
+                            const publicUrl = getPublicUrl(s3Key);
 
                             // Save to assets table with S3 URL
                             const result = {
