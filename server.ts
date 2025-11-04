@@ -25,7 +25,8 @@ const option = {
 };
 
 // Enable HTTPS when PROTOCOL='https' using local dev certificates
-if(process.env.PROTOCOL === 'https') {
+// Enable HTTPS when HAS_CERTIFICATE='true' using local dev certificates
+if(process.env.HAS_CERTIFICATE === 'true') {
   option.key_file_name = path.join(process.cwd(), 'localhost+1-key.pem'); // private key
   option.cert_file_name = path.join(process.cwd(), 'localhost+1.pem');     // certificate
 }
