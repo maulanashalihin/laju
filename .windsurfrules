@@ -73,14 +73,7 @@ npm run build
 
 # Run database migrations
 npx knex migrate:latest
-
-# Rollback last migration
-npx knex migrate:rollback
-
-# Create new migration
-rm dev.sqlite3
-
-
+ 
 
 ## Best Practices
 
@@ -93,4 +86,56 @@ rm dev.sqlite3
 7. Gunakan Squirrelly sebagai template engine untuk server side rendering HTML
 
  
- 
+## Controller & Routes Concept 
+
+```typescript
+import { Request, Response } from "../../type";
+import DB from "../services/DB";
+
+class Controller {
+  public async index(request: Request, response: Response) {
+    const posts = await DB.from("posts");
+    return response.inertia("posts/index", { posts });
+  }
+
+  public async create(request: Request, response: Response) {
+    return response.inertia("posts/create");
+  }
+
+  public async store(request: Request, response: Response) {
+    const { title, content } = await request.json();
+    await DB.table("posts").insert({
+      title,
+      content,
+      created_at: Date.now(),
+      updated_at: Date.now()
+    });
+    return response.redirect("/posts");
+  }
+
+  public async edit(request: Request, response: Response) {
+     
+  }
+
+  public async update(request: Request, response: Response) {
+     
+  }
+
+  public async destroy(request: Request, response: Response) {
+     
+  }
+}
+
+export default new Controller();
+```
+
+Add routes in `routes/web.ts`:
+
+```typescript
+import PostController from "../app/controllers/PostController";
+
+Route.get("/posts", PostController.index);
+Route.get("/posts/create", PostController.create);
+Route.post("/posts", PostController.store);
+```
+
