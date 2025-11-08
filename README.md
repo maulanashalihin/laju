@@ -1102,23 +1102,19 @@ Work through the `TODOLIST.md` sequentially. For each task:
 2. **Paste it into the AI prompt** and ask the AI to implement it
 3. **Review the changes** the AI makes
 4. **Test the implementation** (run dev server, check functionality)
-5. **Mark the task as done** in `TODOLIST.md` by changing `[ ]` to `[x]`
+5. **Ask the AI to update** `TODOLIST.md` by marking the task as done (changing `[ ]` to `[x]`) to track progress
 
-**Example prompt for a single task:**
+**Example prompts:**
 ```
-Task: Create users table migration
-
-Please create a Knex migration for the users table with these fields:
-- id (primary key)
-- email (unique, not null)
-- name (not null)
-- avatar (nullable)
-- google_id (unique, nullable)
-- created_at (timestamp)
-- updated_at (timestamp)
+Based on TODOLIST.md, what should we work on now?
 ```
 
-The AI will generate the migration file, and you simply review and approve it.
+Or be more direct:
+```
+Implement the user registration feature with email verification. After done, update TODOLIST.md.
+```
+
+The AI will implement the task and update the progress in `TODOLIST.md`.
 
 #### 5. Iterate and Refine
 
@@ -1138,18 +1134,6 @@ As you complete tasks:
 - **Version control**: Commit after completing each task or feature
 - **Ask questions**: If the AI's implementation is unclear, ask for explanations
 
-### Common Prompts
-
-- "Create a controller for [resource] with CRUD operations"
-- "Add a migration to create [table] with [fields]"
-- "Build an Inertia page for [feature] with [components]"
-- "Add validation for [form] with [rules]"
-- "Implement [integration] using [service]"
-- "Fix the bug where [description]"
-- "Refactor [code] to follow [pattern]"
-- "Add tests for [feature]"
-
-This workflow enables you to build production-ready applications by focusing on requirements and architecture while the AI handles all implementation details.
 
 ## Contributing
 
