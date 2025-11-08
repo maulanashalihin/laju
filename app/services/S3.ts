@@ -94,7 +94,7 @@ export async function getSignedUploadUrl(key: string, contentType: string, expir
 
 export function getPublicUrl(key: string): string {
   if (cdnUrl) {
-    return `${cdnUrl.replace(/\/$/, "")}/${key}`;
+    return `${cdnUrl.replace(/\/$/, "")}/${bucket}/${key}`;
   }
   if (endpoint) {
     const base = endpoint.replace(/\/$/, "");

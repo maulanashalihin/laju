@@ -22,6 +22,7 @@ Visit [https://laju.dev](https://laju.dev)
 - [CLI Commands](#cli-commands)
 - [Tutorial: Building Your First App](#tutorial-building-your-first-app)
 - [Squirrelly Quick Guide](#squirrelly-quick-guide)
+- [Tutorial: S3 Upload (Presigned URL)](#tutorial-s3-upload-presigned-url)
 - [Backup & Restore Database](#backup--restore-database)
 - [Best Practices](#best-practices)
 - [AI-Driven Development: 100% No-Code Workflow](#ai-driven-development-100-no-code-workflow)
@@ -603,104 +604,6 @@ Create `resources/js/Pages/posts/create.svelte`:
 - Visit `http://localhost:5555/posts`
 - Create a new post and verify listing on index page
 
-## Tutorial: Upload ke S3 (Presigned URL)
-
-Pendekatan prioritas di Laju: generate pre-signed URL di server, lalu lakukan upload langsung dari browser/klien ke URL tersebut dengan metode `PUT`. Ini mengurangi beban server dan tetap aman.
-
-### Prasyarat
-- Siapkan kredensial Wasabi/S3 di `.env` (lihat `.env.example`):
-  - `WASABI_ACCESS_KEY`, `WASABI_SECRET_KEY`
-  - `WASABI_BUCKET` (default: `laju-dev`)
-  - `WASABI_REGION` (contoh: `ap-southeast-1`)
-  - `WASABI_ENDPOINT` (contoh: `https://s3.ap-southeast-1.wasabisys.com`)
-  - `CDN_URL` (opsional; jika pakai CDN seperti Bunny, public URL akan mengarah ke CDN)
-- Pastikan bucket policy/akses publik disesuaikan jika ingin file bisa diakses via `publicUrl` (atau gunakan CDN di depan bucket).
-
-### Endpoint Server (Signed URL)
-- Path: `POST /api/s3/signed-url` (dilindungi middleware Auth)
-- Body:
-  ```json
-  {
-    "filename": "1699999999999-photo.jpg",
-    "contentType": "image/jpeg"
-  }
-  ```
-- Respon contoh:
-  ```json
-  {
-    "success": true,
-    "data": {
-      "signedUrl": "https://...presigned-url...",
-      "publicUrl": "https://cdn-or-endpoint/bucket/assets/1699999999999-photo.jpg",
-      "fileKey": "assets/1699999999999-photo.jpg",
-      "bucket": "laju-dev",
-      "expiresIn": 3600
-    }
-  }
-  ```
- 
-
-### Alur Upload dari Browser
-Contoh JavaScript murni:
-```js
-async function uploadToS3(file) {
-  const filename = `${Date.now()}-${file.name}`;
-  const payload = { filename, contentType: file.type };
-
-  // 1) Minta signed URL dari server (perlu cookie sesi, gunakan credentials)
-  const res = await fetch('/api/s3/signed-url', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' }, 
-    body: JSON.stringify(payload)
-  });
-  if (!res.ok) throw new Error('Gagal mendapatkan signed URL');
-  const { data } = await res.json();
-
-  // 2) Upload langsung ke S3/Wasabi via PUT
-  const put = await fetch(data.signedUrl, {
-    method: 'PUT',
-    headers: { 'Content-Type': file.type },
-    body: file
-  });
-  if (!put.ok) throw new Error('Upload gagal'); // biasanya 200 OK
-
-  // 3) Gunakan publicUrl (simpan ke DB atau tampilkan)
-  return { publicUrl: data.publicUrl, fileKey: data.fileKey, bucket: data.bucket };
-}
-```
-
-Contoh di Svelte (Inertia):
-```svelte
-<script>
-  async function handleFile(file) {
-    if (!file) return;
-    try {
-      const { publicUrl } = await uploadToS3(file);
-      // TODO: simpan publicUrl ke server/DB sesuai kebutuhan
-      console.log('Uploaded:', publicUrl);
-    } catch (e) {
-      alert(e.message);
-    }
-  }
-</script>
-
-<input type="file" on:change={(e) => handleFile(e.target.files?.[0])} />
-```
-
-### Mendapatkan Public URL dari FileKey
-Jika Anda menyimpan `fileKey`, Anda bisa minta public URL dari server:
-- Path: `GET /api/s3/public-url/:fileKey`
-- Contoh: `GET /api/s3/public-url/assets/1699999999999-photo.jpg`
-
-### Health Check
-- Path: `GET /api/s3/health`
-- Mengembalikan info bucket, endpoint, dan region untuk verifikasi konfigurasi.
-
-### Catatan Penting
-- `expiresIn` untuk signed URL default 3600 detik (1 jam).
-- Upload via signed URL tidak mengatur ACL di request; pastikan bucket/CDN Anda mengizinkan pembacaan publik jika ingin langsung diakses.
-- `publicUrl` dibangun dari `CDN_URL` (jika diset) atau langsung dari `WASABI_ENDPOINT` + `bucket` + `key`.
-
 ## Squirrelly Quick Guide
 
 Squirrelly is a lightweight and fast template engine used for server-side HTML rendering. Laju provides a `View` service that automatically loads all files from `resources/views` (development) or `dist/views` (production), supports partials, and adjusts asset paths during development.
@@ -768,71 +671,171 @@ Notes:
 Reference: `https://squirrelly.js.org`
 
 
+## Tutorial: S3 Upload (Presigned URL)
+
+Priority approach in Laju: generate a pre-signed URL on the server, then perform direct upload from browser/client to that URL using `PUT` method. This reduces server load while maintaining security.
+
+### Prerequisites
+- Set up Wasabi/S3 credentials in `.env` (see `.env.example`):
+  - `WASABI_ACCESS_KEY`, `WASABI_SECRET_KEY`
+  - `WASABI_BUCKET` (default: `laju-dev`)
+  - `WASABI_REGION` (example: `ap-southeast-1`)
+  - `WASABI_ENDPOINT` (example: `https://s3.ap-southeast-1.wasabisys.com`)
+  - `CDN_URL` (optional; if using CDN like Bunny, public URL will point to CDN)
+- Ensure bucket policy/public access is configured if you want files to be accessible via `publicUrl` (or use CDN in front of bucket).
+
+### Server Endpoint (Signed URL)
+- Path: `POST /api/s3/signed-url` (protected by Auth middleware)
+- Body:
+  ```json
+  {
+    "filename": "1699999999999-photo.jpg",
+    "contentType": "image/jpeg"
+  }
+  ```
+- Response example:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "signedUrl": "https://...presigned-url...",
+      "publicUrl": "https://cdn-or-endpoint/bucket/assets/1699999999999-photo.jpg",
+      "fileKey": "assets/1699999999999-photo.jpg",
+      "bucket": "laju-dev",
+      "expiresIn": 3600
+    }
+  }
+  ```
+ 
+
+### Upload Flow from Browser
+Vanilla JavaScript example:
+```js
+async function uploadToS3(file) {
+  const filename = `${Date.now()}-${file.name}`;
+  const payload = { filename, contentType: file.type };
+
+  // 1) Request signed URL from server (requires session cookie, use credentials)
+  const res = await fetch('/api/s3/signed-url', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' }, 
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error('Failed to get signed URL');
+  const { data } = await res.json();
+
+  // 2) Upload directly to S3/Wasabi via PUT
+  const put = await fetch(data.signedUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': file.type },
+    body: file
+  });
+  if (!put.ok) throw new Error('Upload failed'); // usually 200 OK
+
+  // 3) Use publicUrl (save to DB or display)
+  return { publicUrl: data.publicUrl, fileKey: data.fileKey, bucket: data.bucket };
+}
+```
+
+Svelte (Inertia) example:
+```svelte
+<script>
+  async function handleFile(file) {
+    if (!file) return;
+    try {
+      const { publicUrl } = await uploadToS3(file);
+      // TODO: save publicUrl to server/DB as needed
+      console.log('Uploaded:', publicUrl);
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+</script>
+
+<input type="file" on:change={(e) => handleFile(e.target.files?.[0])} />
+```
+
+### Getting Public URL from FileKey
+If you store the `fileKey`, you can request the public URL from server:
+- Path: `GET /api/s3/public-url/:fileKey`
+- Example: `GET /api/s3/public-url/assets/1699999999999-photo.jpg`
+
+### Health Check
+- Path: `GET /api/s3/health`
+- Returns bucket, endpoint, and region info for configuration verification.
+
+### Important Notes
+- `expiresIn` for signed URL defaults to 3600 seconds (1 hour).
+- Upload via signed URL does not set ACL in the request; ensure your bucket/CDN allows public read access if you want direct access.
+- `publicUrl` is built from `CDN_URL` (if set) or directly from `WASABI_ENDPOINT` + `bucket` + `key`.
+
+
+
 ## Backup & Restore Database
 
-Dokumentasi untuk tiga skrip utilitas:
-- `backup.ts` — membuat backup SQLite, kompres Gzip, enkripsi AES‑256‑GCM, upload ke Wasabi/S3, simpan metadata ke tabel `backup_files`.
-- `restore.ts` — mengunduh backup terenkripsi dari S3, dekripsi dengan `BACKUP_ENCRYPTION_KEY`, dekompres Gzip, lalu tulis file `.db` hasil restore.
-- `clean-backup.ts` — menghapus backup lama di S3 berdasarkan retensi dan menandai metadata sebagai `deleted_at`.
+Documentation for three utility scripts:
+- `backup.ts` — creates SQLite backup, compresses with Gzip, encrypts with AES-256-GCM, uploads to Wasabi/S3, and saves metadata to `backup_files` table.
+- `restore.ts` — downloads encrypted backup from S3, decrypts with `BACKUP_ENCRYPTION_KEY`, decompresses Gzip, then writes the restored `.db` file.
+- `clean-backup.ts` — removes old backups from S3 based on retention policy and marks metadata as `deleted_at`.
 
-### Prasyarat
-- Kredensial Wasabi/S3 sudah dikonfigurasi di `.env` (lihat bagian Upload ke S3 atau `.env.example`).
-- `BACKUP_ENCRYPTION_KEY` wajib 32 byte (base64/hex/utf8). Contoh:
+### Prerequisites
+- Wasabi/S3 credentials must be configured in `.env` (see S3 Upload section or `.env.example`).
+- `BACKUP_ENCRYPTION_KEY` must be 32 bytes (base64/hex/utf8). Examples:
   - Base64: `BACKUP_ENCRYPTION_KEY=3q2+7wAAAAAAAAAAAAAAAAAAAA==`
   - Hex: `BACKUP_ENCRYPTION_KEY=00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff`
-- Opsional: `BACKUP_RETENTION_DAYS` (default 30 hari) untuk `clean-backup.ts`.
-- Tabel `backup_files` tersedia (skema contoh ada di bawah).
+- Optional: `BACKUP_RETENTION_DAYS` (default 30 days) for `clean-backup.ts`.
+- `backup_files` table must exist (example schema below).
 
-### Penggunaan
-1) Build dahulu agar skrip siap dijalankan sebagai JS:
+### Usage
+1) Build first so scripts are ready to run as JS:
 ```bash
 npm run build
 ```
 
-2) Jalankan backup:
+2) Run backup:
 ```bash
 node build/backup.js
 ```
-- Output file lokal berada di `build/backups/` hanya sementara; setelah upload, file lokal dibersihkan.
-- Metadata yang disimpan: `key`, `file_name`, `file_size`, `compression`, `storage`, `checksum`, `uploaded_at`, `encryption`, `enc_iv`, `enc_tag`.
+- Local output files are stored in `build/backups/` temporarily; after upload, local files are cleaned up.
+- Metadata saved: `key`, `file_name`, `file_size`, `compression`, `storage`, `checksum`, `uploaded_at`, `encryption`, `enc_iv`, `enc_tag`.
 
-3) Restore (ambil backup terbaru yang belum dihapus):
+3) Restore (fetch latest non-deleted backup):
 ```bash
 node build/restore.js
 ```
-Atau restore berdasarkan `key` spesifik:
+Or restore by specific `key`:
 ```bash
 node build/restore.js --key backups/2025-01-10T23:33-<uuid>.db.gz.enc
 ```
-- File hasil restore akan ditulis ke: `build/backups/restored-YYYY-MM-DDTHH:mm.db`.
-- Untuk mengaktifkan restore: hentikan aplikasi dan ganti file SQLite aktif dengan file hasil restore.
-- Jika DB tidak bisa diakses saat restore, skrip akan membaca `iv/tag` dari metadata objek S3.
+- Restored file will be written to: `build/backups/restored-YYYY-MM-DDTHH:mm.db`.
+- To activate restore: stop the application and replace the active SQLite file with the restored file.
+- If DB is inaccessible during restore, the script will read `iv/tag` from S3 object metadata.
 
-4) Clean backup (hapus yang lebih tua dari retensi):
+4) Clean backup (remove older than retention):
 ```bash
 node build/clean-backup.js
 ```
-- Menandai kolom `deleted_at` pada `backup_files` dan menghapus objek di S3 jika ada.
+- Marks `deleted_at` column in `backup_files` and deletes objects from S3 if present.
 
-### Cron Contoh
-- Backup harian pukul 01:00:
+### Cron Examples
+- Daily backup at 01:00:
 ```
 0 1 * * * cd /path/to/app/build && node backup.js >> /var/log/laju-backup.log 2>&1
 ```
-- Clean backup mingguan hari Minggu pukul 02:00:
+- Weekly cleanup on Sunday at 02:00:
 ```
 0 2 * * 0 cd /path/to/app/build && node clean-backup.js >> /var/log/laju-clean-backup.log 2>&1
 ```
 
-### Skema Tabel `backup_files` (Knex)
-Contoh migration untuk membuat tabel metadata backup:
+### `backup_files` Table Schema (Knex)
+Example migration to create backup metadata table:
 ```ts
 import { Knex } from "knex";
 
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable("backup_files", (table) => {
     table.string("id").primary(); // uuid
-    table.string("key").notNullable().unique(); // path di S3, mis. backups/<file>.db.gz.enc
+    table.string("key").notNullable().unique(); // S3 path, e.g. backups/<file>.db.gz.enc
     table.string("file_name").notNullable();
     table.bigInteger("file_size").notNullable();
     table.string("compression").notNullable(); // 'gzip'
@@ -851,10 +854,10 @@ export async function down(knex: Knex): Promise<void> {
 }
 ```
 
-### Catatan
-- Kunci enkripsi harus konsisten antara backup dan restore.
-- Metadata S3 menyimpan `iv`/`tag` sehingga restore tetap memungkinkan jika DB sementara tidak dapat diakses.
-- Pastikan kebijakan bucket/endpoint S3 (Wasabi) sesuai, termasuk ukuran upload dan metadata custom.
+### Notes
+- Encryption key must be consistent between backup and restore.
+- S3 metadata stores `iv`/`tag` so restore is still possible if DB is temporarily inaccessible.
+- Ensure S3 bucket/endpoint policy (Wasabi) is properly configured, including upload size limits and custom metadata.
 
 
 ## Best Practices
