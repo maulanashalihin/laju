@@ -15,6 +15,7 @@ Visit [https://laju.dev](https://laju.dev)
 - [Environment Setup (Google OAuth)](#manual-installation)
 - [Development](#development)
 - [Build for Production](#build-for-production)
+- [Deployment](#deployment)
 - [Project Structure](#project-structure)
 - [Key Dependencies](#key-dependencies)
 - [Scripts](#scripts)
@@ -292,6 +293,83 @@ npm run build
 - Builds frontend assets with Vite
 - Compiles TypeScript files
 - Copies required files to the build directory
+
+## Deployment
+
+Follow these steps to deploy your Laju application to a production server:
+
+### 1. Install Node.js 22
+
+```bash
+# Using nvm (recommended)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+source ~/.bashrc
+nvm install 22
+nvm use 22
+
+# Or download from nodejs.org
+# https://nodejs.org/
+```
+
+### 2. Navigate to Build Directory
+
+```bash
+cd your-app/build
+```
+
+### 3. Install Dependencies
+
+```bash
+npm i
+```
+
+### 4. Setup Environment Variables
+
+```bash
+cp ../.env.example .
+```
+
+Edit the `.env` file with your production configuration (database, API keys, etc.).
+
+### 5. Run Database Migrations
+
+```bash
+npx knex migrate:latest --env production
+```
+
+### 6. Install PM2
+
+```bash
+npm install -g pm2
+```
+
+### 7. Start Application with PM2
+
+```bash
+pm2 start server.js --name your-app
+```
+
+### Additional PM2 Commands
+
+```bash
+# View logs
+pm2 logs your-app
+
+# Restart application
+pm2 restart your-app
+
+# Stop application
+pm2 stop your-app
+
+# View status
+pm2 status
+
+# Save PM2 configuration
+pm2 save
+
+# Setup PM2 to start on system boot
+pm2 startup
+```
 
 ## Absolute Imports
 
