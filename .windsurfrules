@@ -71,6 +71,16 @@ npm run dev
 # Build for production
 npm run build
 
+# Run database migrations
+npx knex migrate:latest
+
+# Rollback last migration
+npx knex migrate:rollback
+
+# Create new migration
+rm dev.sqlite3
+
+
 
 ## Best Practices
 

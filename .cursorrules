@@ -71,6 +71,9 @@ npm run dev
 # Build for production
 npm run build
 
+# Run database migrations
+npx knex migrate:latest
+ 
 
 ## Best Practices
 

@@ -823,6 +823,8 @@ I want to build a task management application for small teams.
 
 Target users: 5-20 person teams who need simple project tracking
 
+Project name: TaskEase
+
 Core features: 
 - Create/edit/delete projects
 - Add tasks to projects with status (todo, in-progress, done)
@@ -857,252 +859,148 @@ Notes:
 The AI will generate a structured task list like:
 
 ```markdown
-# TODOLIST - Task Management Application
+# TODOLIST - Laju Task Management Application
 
-> **Branding Color**: Orange (#f97316)
+> **Branding Color**: Orange (#f97316, #ea580c, #c2410c)
 > **Theme Support**: Dark Mode & Light Mode
 > **Mobile-First**: All pages must be responsive and optimized for mobile devices
 
 ## Phase 1: Database Setup
+
 - [ ] Create `projects` table migration
-  - id, name, description, color, user_id, created_at, updated_at
-- [ ] Create `tasks` table migration
-  - id, project_id, title, description, status (todo/in-progress/done), assigned_to, due_date, created_at, updated_at
-- [ ] Create `task_comments` table migration
-  - id, task_id, user_id, comment, created_at
-- [ ] Create `task_attachments` table migration
-  - id, task_id, file_name, file_url, file_key, file_size, uploaded_by, created_at
-- [ ] Create `notifications` table migration
-  - id, user_id, type, title, message, read_at, created_at
-- [ ] Create `activity_logs` table migration
-  - id, user_id, action, entity_type, entity_id, metadata (JSON), created_at
-- [ ] Run all migrations: `npx knex migrate:latest`
+  - id (primary key)
+  - name (string, not null)
+  - description (text, nullable)
+  - color (string, default orange)
+  - owner_id (foreign key to users)
+  - created_at (timestamp)
+  - updated_at (timestamp) 
 
-## Phase 2: Backend - Controllers & Services
-- [ ] Create `ProjectController.ts` with CRUD methods
-  - index() - list all projects
-  - show() - get single project with tasks
+- [ ] Run all migrations
+  ```bash
+  npx knex migrate:latest
+  ```
+
+## Phase 2: Backend - Controllers
+
+- [ ] Create `ProjectController.ts`
+  - index() - list all projects for authenticated user
+  - show(id) - get single project with tasks and members
   - store() - create new project
-  - update() - update project
-  - destroy() - delete project
-- [ ] Create `TaskController.ts` with CRUD methods
-  - index() - list tasks by project
-  - show() - get single task with comments
-  - store() - create new task
-  - update() - update task (including status change)
-  - destroy() - delete task
-  - assign() - assign task to team member
-- [ ] Create `CommentController.ts`
-  - store() - add comment to task
-  - destroy() - delete comment
-- [ ] Create `AttachmentController.ts`
-  - store() - upload file to S3 and save metadata
-  - destroy() - delete file from S3 and metadata
-- [ ] Create `NotificationController.ts`
-  - index() - get user notifications
-  - markAsRead() - mark notification as read
-  - markAllAsRead() - mark all as read
-- [ ] Create `ActivityController.ts`
-  - index() - get activity timeline for project
-- [ ] Update `app/services/Mailer.ts` to add email templates
-  - taskAssignedEmail() - notify user when task assigned
-  - taskStatusChangedEmail() - notify when task status changes
-  - taskCommentEmail() - notify when someone comments
+  - update(id) - update project details
+  - destroy(id) - delete project
+  - addMember(projectId, userId) - add team member to project
+  - removeMember(projectId, userId) - remove team member
+  - exportPDF(id) - generate PDF report 
 
-## Phase 3: Backend - Routes
-- [ ] Add project routes in `routes/web.ts`
-  - GET /projects - ProjectController.index
-  - GET /projects/:id - ProjectController.show
-  - POST /projects - ProjectController.store
-  - PUT /projects/:id - ProjectController.update
-  - DELETE /projects/:id - ProjectController.destroy
-- [ ] Add task routes
-  - GET /projects/:projectId/tasks - TaskController.index
-  - GET /tasks/:id - TaskController.show
-  - POST /projects/:projectId/tasks - TaskController.store
-  - PUT /tasks/:id - TaskController.update
-  - DELETE /tasks/:id - TaskController.destroy
-  - POST /tasks/:id/assign - TaskController.assign
-- [ ] Add comment routes
-  - POST /tasks/:taskId/comments - CommentController.store
-  - DELETE /comments/:id - CommentController.destroy
-- [ ] Add attachment routes
-  - POST /tasks/:taskId/attachments - AttachmentController.store
-  - DELETE /attachments/:id - AttachmentController.destroy
-- [ ] Add notification routes
-  - GET /notifications - NotificationController.index
-  - POST /notifications/:id/read - NotificationController.markAsRead
-  - POST /notifications/read-all - NotificationController.markAllAsRead
-- [ ] Add activity routes
-  - GET /projects/:projectId/activity - ActivityController.index
+## Phase 3: Backend - Services
+ 
 
-## Phase 4: Frontend - Components
-- [ ] Create `ThemeToggle.svelte` component
-  - Toggle between light/dark mode
+## Phase 4: Backend - Routes
+
+- [ ] Add project routes in `routes/web.ts` 
+
+## Phase 5: Frontend - Theme & Global Styles
+
+- [ ] Configure TailwindCSS with orange as primary color
+  - Update `tailwind.config.js`
+  - Add orange color palette (#f97316, #ea580c, #c2410c)
+  - Configure dark mode class strategy 
+
+## Phase 6: Frontend - Reusable Components
+
+- [ ] Create `ThemeToggle.svelte`
+  - Toggle button with sun/moon icon
+  - Switch between light/dark mode
   - Save preference to localStorage
-  - Apply theme class to document root
-- [ ] Create `ProjectCard.svelte` component
-  - Display project name, description, color
-  - Show task count and progress
-  - Mobile-responsive card layout
-- [ ] Create `TaskCard.svelte` component
-  - Display task title, status, assigned user
-  - Drag-and-drop support for status change
-  - Mobile-friendly touch interactions
-- [ ] Create `TaskForm.svelte` component
-  - Form for creating/editing tasks
-  - Fields: title, description, assigned_to, due_date
-  - Mobile-optimized form layout
-- [ ] Create `CommentList.svelte` component
-  - Display comments with user avatar and timestamp
-  - Add new comment form
-  - Mobile-responsive list
-- [ ] Create `FileUpload.svelte` component
-  - Drag-and-drop file upload
-  - Progress indicator
-  - Preview for images
-  - Mobile-friendly file picker
-- [ ] Create `NotificationBell.svelte` component
-  - Bell icon with unread count badge
-  - Dropdown list of notifications
-  - Mark as read functionality
-- [ ] Create `ActivityTimeline.svelte` component
-  - Display activity logs with icons
-  - Group by date
-  - Mobile-responsive timeline
-- [ ] Create `StatusBadge.svelte` component
-  - Color-coded badges for task status
-  - Orange theme integration
-- [ ] Create `UserAvatar.svelte` component
-  - Display user avatar or initials
-  - Support for different sizes
+  - Smooth transition animation 
 
-## Phase 5: Frontend - Pages
+## Phase 7: Frontend - Project Components
+
+- [ ] Create `ProjectCard.svelte`
+  - Display project name, description, color
+  - Show task count and progress bar
+  - Team member avatars
+  - Actions menu (edit, delete, export)
+  - Mobile-responsive card layout
+  - Dark mode support
+  - Orange accents 
+
+## Phase 12: Frontend - Pages
+
 - [ ] Create `resources/js/Pages/projects/index.svelte`
   - List all projects in grid layout
-  - Search and filter projects
-  - Create new project button
-  - Mobile: Stack cards vertically
-  - Dark mode support with orange accents
-- [ ] Create `resources/js/Pages/projects/show.svelte`
-  - Project header with name, description, color
-  - Kanban board with 3 columns: Todo, In Progress, Done
-  - Drag-and-drop tasks between columns
-  - Add new task button
-  - Activity timeline sidebar
-  - Mobile: Swipeable columns, collapsible sidebar
-  - Dark mode support
-- [ ] Create `resources/js/Pages/projects/create.svelte`
-  - Form to create new project
-  - Fields: name, description, color picker (default orange)
-  - Mobile-optimized form
-  - Dark mode support
-- [ ] Create `resources/js/Pages/tasks/show.svelte`
-  - Task detail view
-  - Edit task inline
-  - Comments section
-  - Attachments list with upload
-  - Activity log
-  - Mobile: Full-screen modal, bottom sheet for actions
-  - Dark mode support
-- [ ] Create `resources/js/Pages/notifications/index.svelte`
-  - List all notifications
-  - Filter by read/unread
-  - Mark all as read button
-  - Mobile-responsive list
-  - Dark mode support
-
-## Phase 6: Styling & Theme
-- [ ] Configure TailwindCSS with orange as primary color
-  - Update `tailwind.config.js` with orange color palette
-  - Add dark mode configuration
-- [ ] Create global CSS variables for theme
-  - Light mode colors
-  - Dark mode colors
-  - Orange accent colors (#f97316, #ea580c, #c2410c)
-- [ ] Add dark mode styles to all components
-  - Use `dark:` prefix for dark mode variants
-  - Ensure proper contrast in dark mode
-- [ ] Ensure mobile-first responsive design
-  - Test all pages on mobile viewport (375px)
-  - Use responsive breakpoints: sm, md, lg, xl
-  - Touch-friendly button sizes (min 44px)
-- [ ] Add loading states and transitions
-  - Skeleton loaders for data fetching
-  - Smooth transitions for theme toggle
-  - Drag-and-drop visual feedback
-
-## Phase 7: Features & Integration
-- [ ] Implement drag-and-drop for task status
-  - Use Svelte's drag events or library like dnd-kit
-  - Update task status on drop
-  - Optimistic UI updates
-- [ ] Add real-time notifications (optional)
-  - WebSocket or polling for new notifications
-  - Toast notifications for task assignments
-- [ ] Implement file upload to S3/Wasabi
-  - Use presigned URL approach from README
-  - Show upload progress
-  - Handle errors gracefully
-- [ ] Add email notifications
-  - Send email when task assigned
-  - Send email when task status changes
-  - Include unsubscribe link
-- [ ] Export project to PDF (optional)
-  - Generate PDF with project details and tasks
-  - Download button on project page
-- [ ] Add search functionality
   - Search projects by name
-  - Search tasks by title
-  - Debounced search input
+  - Filter by status/members
+  - Sort options
+  - Create new project button (opens modal)
+  - Empty state when no projects
+  - Mobile: Stack cards vertically
+  - Dark mode support
+  - Orange accents 
 
-## Phase 8: Testing & Polish
+## Phase 21: Performance Optimization
+
+- [ ] Optimize frontend bundle
+  - Code splitting by route
+  - Lazy load components
+  - Optimize images 
+
+## Phase 22: Accessibility
+
+- [ ] Keyboard navigation
+  - Tab through interactive elements
+  - Enter/Space to activate buttons
+  - Escape to close modals
+  - Arrow keys for dropdowns 
+
+## Phase 23: Testing
+
 - [ ] Test all CRUD operations
-  - Create, read, update, delete for projects
-  - Create, read, update, delete for tasks
-  - Add/delete comments and attachments
-- [ ] Test mobile responsiveness
-  - Test on real mobile devices (iOS/Android)
-  - Test touch interactions
-  - Test landscape orientation
-- [ ] Test dark mode
-  - Toggle between light/dark mode
-  - Check all pages for proper contrast
-  - Verify orange accents are visible
-- [ ] Test file upload
-  - Upload different file types
-  - Test large files
-  - Test error handling
-- [ ] Test email notifications
-  - Verify emails are sent
-  - Check email templates
-  - Test unsubscribe link
-- [ ] Performance optimization
-  - Lazy load images
-  - Optimize bundle size
-  - Add caching where appropriate
-- [ ] Accessibility audit
-  - Keyboard navigation
-  - Screen reader support
-  - ARIA labels
+  - Create, read, update, delete projects
+  - Create, read, update, delete tasks
+  - Add/edit/delete comments
+  - Upload/delete attachments
+  - Add/remove project members 
 
-## Phase 9: Deployment
-- [ ] Build for production: `npm run build`
-- [ ] Run migrations on production DB
-- [ ] Configure environment variables
-- [ ] Deploy to server with PM2
-- [ ] Test production deployment
-- [ ] Set up backup cron jobs
-- [ ] Monitor logs and errors
+## Phase 24: Documentation
+
+- [ ] Update README.md
+  - Add screenshots
+  - Update installation steps
+  - Document environment variables
+  - Add troubleshooting section 
 
 ---
 
-**Notes:**
+## Progress Tracking
+
+**Total Tasks**: 200+
+**Completed**: 0
+**In Progress**: 0
+**Remaining**: 200+
+
+**Current Phase**: Phase 1 - Database Setup
+
+---
+
+## Notes
+
 - Work through tasks sequentially, one at a time
 - Test each feature after implementation
 - Mark tasks as `[x]` when completed
 - Add new tasks as requirements evolve
 - Keep README.md updated with decisions
+- Commit frequently with meaningful messages
+- Focus on mobile-first responsive design
+- Ensure dark mode support for all components
+- Use orange (#f97316) as primary branding color
+- Prioritize user experience and accessibility
+
+---
+
+**Last Updated**: 2025-01-08
+
 ```
 
 #### 4. Execute Tasks One by One
