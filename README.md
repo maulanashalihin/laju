@@ -968,9 +968,9 @@ The AI will generate a structured task list like:
   - updated_at (timestamp) 
 
 - [ ] Run all migrations
-  ```bash
+ 
   npx knex migrate:latest
-  ```
+ 
 
 ## Phase 2: Backend - Controllers
 
