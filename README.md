@@ -810,34 +810,27 @@ Delete all existing content from `README.md` and start fresh. In your AI editor'
 
 - What problem does it solve?
 - Who are the target users?
-- What are the core features?
-- What is the data model?
+- What are the core features? 
 - What are the user flows?
 - What integrations are needed?
 - What are the technical requirements?
 
 **Example prompt:**
 ```
+Write new README.md base on this project description:
+
 I want to build a task management application for small teams.
 
 Target users: 5-20 person teams who need simple project tracking
 
-Core features:
-- User authentication with Google OAuth
+Core features: 
 - Create/edit/delete projects
 - Add tasks to projects with status (todo, in-progress, done)
 - Assign tasks to team members
 - Real-time notifications
 - File attachments for tasks (S3/Wasabi)
 - Activity timeline
-
-Data model:
-- Users (id, email, name, avatar)
-- Projects (id, name, description, owner_id)
-- Tasks (id, project_id, title, description, status, assignee_id, due_date)
-- Comments (id, task_id, user_id, content)
-- Attachments (id, task_id, file_key, file_url)
-
+ 
 Technical requirements:
 - Mobile-responsive UI
 - Email notifications for task assignments
