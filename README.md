@@ -956,6 +956,7 @@ The AI will generate a structured task list like:
 > **Mobile-First**: All pages must be responsive and optimized for mobile devices
 ```
 
+```markdown
 ## Phase 1: Database Setup
 
 - [ ] Create `projects` table migration
@@ -1072,7 +1073,7 @@ The AI will generate a structured task list like:
 **Remaining**: 200+
 
 **Current Phase**: Phase 1 - Database Setup
-
+```
 ---
 
 ## Notes
