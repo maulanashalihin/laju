@@ -5,27 +5,27 @@ A high-performance TypeScript web framework combining HyperExpress, Svelte 5, an
 Visit `https://laju.dev`
 
 ## Table of Contents
-- Overview
-- Features
-- Performance Benchmark
-- Database Performance
-- Prerequisites
-- Quick Start
-- Manual Installation
-- Environment Setup (Google OAuth)
-- Development
-- Build for Production
-- Project Structure
-- Key Dependencies
-- Scripts
-- CLI Commands
-- Tutorial: Building Your First App
-- Squirrelly Quick Guide
-- Backup & Restore Database
-- Best Practices
-- AI-Driven Development: 100% No-Code Workflow
-- Contributing
-- License
+- [Overview](#laju)
+- [Features](#features)
+- [Performance Benchmark](#performance-benchmark)
+- [Database Performance](#database-performance)
+- [Prerequisites](#prerequisites)
+- [Quick Start](#quick-start)
+- [Manual Installation](#manual-installation)
+- [Environment Setup (Google OAuth)](#manual-installation)
+- [Development](#development)
+- [Build for Production](#build-for-production)
+- [Project Structure](#project-structure)
+- [Key Dependencies](#key-dependencies)
+- [Scripts](#scripts)
+- [CLI Commands](#cli-commands)
+- [Tutorial: Building Your First App](#tutorial-building-your-first-app)
+- [Squirrelly Quick Guide](#squirrelly-quick-guide)
+- [Backup & Restore Database](#backup--restore-database)
+- [Best Practices](#best-practices)
+- [AI-Driven Development: 100% No-Code Workflow](#ai-driven-development-100-no-code-workflow)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Features
 
