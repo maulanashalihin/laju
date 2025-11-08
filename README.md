@@ -1072,7 +1072,7 @@ The AI will generate a structured task list like:
 **Remaining**: 200+
 
 **Current Phase**: Phase 1 - Database Setup
-```
+
 ---
 
 ## Notes
