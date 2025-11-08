@@ -941,7 +941,7 @@ Once your `README.md` is finalized, ask the AI to create a `TODOLIST.md` based o
 
 **Example prompt:**
 ```
-Based on @README.md, we created TODOLIST.md. Focusing on the todolist for creating the migrations and pages needed for this project. Update progress of TODOLIST.md after each task is completed.
+Based on @README.md, create a TODOLIST.md file focusing on the tasks required to build the migrations and pages for this project. Update the progress in TODOLIST.md after completing each task.
 
 Notes:
 > **Branding Color**: Orange
