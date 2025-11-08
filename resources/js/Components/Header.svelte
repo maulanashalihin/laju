@@ -2,8 +2,7 @@
   import { fly } from 'svelte/transition';
   import { page, router, inertia } from '@inertiajs/svelte';
   import { clickOutside } from '../Components/helper';
-  import DarkModeToggle from './DarkModeToggle.svelte';
-    import LajuIcon from './LajuIcon.svelte';
+  import DarkModeToggle from './DarkModeToggle.svelte'; 
 
   let user = $page.props.user;
  
