@@ -954,7 +954,7 @@ The AI will generate a structured task list like:
 > **Branding Color**: Orange (#f97316, #ea580c, #c2410c)
 > **Theme Support**: Dark Mode & Light Mode
 > **Mobile-First**: All pages must be responsive and optimized for mobile devices
-```
+
  
 ## Phase 1: Database Setup
 
@@ -1072,7 +1072,7 @@ The AI will generate a structured task list like:
 **Remaining**: 200+
 
 **Current Phase**: Phase 1 - Database Setup
-
+```
 ---
 
 ## Notes
