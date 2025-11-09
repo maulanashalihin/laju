@@ -47,8 +47,36 @@
             transform: translateY(-8px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
         }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(16, 185, 129, 0.8); }
+        }
+        
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes speed-lines {
+            0% { transform: translateX(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%); opacity: 0; }
+        }
+        
+        .speed-line {
+            animation: speed-lines 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes count-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .count-up {
+            animation: count-up 0.8s ease-out;
+        }
     </style>
-  <link rel="stylesheet" crossorigin href="/assets/index-Dqioq6bC.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-MkEwjDdX.css">
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
@@ -59,12 +87,15 @@
         <div class="max-w-7xl mx-auto">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div class="space-y-6">
-                    <h1 class="text-5xl md:text-6xl font-bold leading-tight">
+                    <div class="inline-block px-4 py-2 bg-emerald-500/20 rounded-full border border-emerald-300 mb-4 pulse-glow">
+                        <span class="text-sm font-semibold">⚡ BLAZINGLY FAST</span>
+                    </div>
+                    <h1 class="text-5xl md:text-7xl font-bold leading-tight">
                         Build Fast.<br/>
-                        <span class="text-emerald-200">Ship Faster.</span>
+                        <span class="text-emerald-200">Ship Faster.</span><br/> 
                     </h1>
                     <p class="text-xl text-emerald-50 leading-relaxed">
-                        A high-performance TypeScript web framework combining HyperExpress, Svelte 5, and Inertia.js for building modern full-stack applications.
+                       A high-performance TypeScript web framework combining HyperExpress, Svelte 5, and Inertia.js for building modern full-stack applications.
                     </p>
                     <div class="flex flex-wrap gap-4">
                         <a href="#get-started" class="bg-white text-emerald-600 px-8 py-3 rounded-lg font-semibold hover:bg-emerald-50 transition hover-lift">
@@ -74,20 +105,22 @@
                             View on GitHub
                         </a>
                     </div>
-                    <div class="flex items-center space-x-6 pt-4">
-                        <div class="text-center">
-                            <div class="text-3xl font-bold">2.08x</div>
-                            <div class="text-sm text-emerald-200">Faster than Node.js</div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
+                        <div class="text-center bg-white/10 rounded-lg p-4 backdrop-blur count-up">
+                            <div class="text-4xl font-bold text-yellow-300">258K</div>
+                            <div class="text-xs text-emerald-200">Requests/sec</div>
                         </div>
-                        <div class="h-12 w-px bg-emerald-300"></div>
-                        <div class="text-center">
-                            <div class="text-3xl font-bold">258K</div>
-                            <div class="text-sm text-emerald-200">Requests/sec</div>
+                        <div class="text-center bg-white/10 rounded-lg p-4 backdrop-blur count-up" style="animation-delay: 0.1s">
+                            <div class="text-4xl font-bold text-yellow-300">1.52ms</div>
+                            <div class="text-xs text-emerald-200">Avg Latency</div>
                         </div>
-                        <div class="h-12 w-px bg-emerald-300"></div>
-                        <div class="text-center">
-                            <div class="text-3xl font-bold">1.52ms</div>
-                            <div class="text-sm text-emerald-200">Avg Latency</div>
+                        <div class="text-center bg-white/10 rounded-lg p-4 backdrop-blur count-up" style="animation-delay: 0.2s">
+                            <div class="text-4xl font-bold text-red-300">328x</div>
+                            <div class="text-xs text-emerald-200">vs PHP</div>
+                        </div>
+                        <div class="text-center bg-white/10 rounded-lg p-4 backdrop-blur count-up" style="animation-delay: 0.3s">
+                            <div class="text-4xl font-bold text-red-300">3,232x</div>
+                            <div class="text-xs text-emerald-200">vs Laravel</div>
                         </div>
                     </div>
                 </div>
@@ -125,8 +158,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold mb-2 text-gray-900">Lightning Fast</h3>
-                    <p class="text-gray-600">Built on HyperExpress for exceptional performance. 2.08x faster than pure Node.js with 58% lower latency.</p>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-900">⚡ Lightning Fast</h3>
+                    <p class="text-gray-600">Built on HyperExpress for exceptional performance. <strong>258,611 req/s</strong> - outperforms Express.js by <strong>11.45x</strong> and Laravel by <strong>3,232x</strong>.</p>
                 </div>
 
                 <div class="p-6 rounded-xl border border-gray-200 hover-lift bg-white">
@@ -185,72 +218,136 @@
     <!-- Performance Section -->
     <section id="performance" class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">Exceptional Performance</h2>
-                <p class="text-xl text-gray-600">Benchmarked on Mac M4 with wrk (12 threads, 400 connections, 30s)</p>
+            <div class="text-center mb-20">
+                <div class="inline-flex items-center gap-2 px-5 py-2 bg-emerald-50 border border-emerald-200 rounded-full mb-6">
+                    <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                    <span class="text-sm font-semibold text-emerald-700">Performance Champion</span>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">Exceptionally Fast</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">Real-world benchmarks on Mac M4 with wrk (12 threads, 400 connections, 30s)</p>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-8 mb-12">
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-6">HTTP Performance</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-gray-600">Requests/sec</span>
-                                <span class="font-bold text-emerald-600">2.08x faster</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-3">
-                                <div class="bg-emerald-600 h-3 rounded-full" style="width: 100%"></div>
-                            </div>
-                            <div class="flex justify-between text-sm text-gray-500 mt-1">
-                                <span>Laju: 258,611</span>
-                                <span>Node.js: 124,024</span>
-                            </div>
+            <!-- Performance Comparison Table -->
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mb-12">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Framework</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-900">Requests/sec</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-900">Avg Latency</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-900">Total Requests (30s)</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-900">vs Laju.dev</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr class="bg-emerald-50/50 hover:bg-emerald-50 transition-colors">
+                                <td class="px-6 py-4 text-sm font-semibold text-gray-900">Laju.dev (HyperExpress)</td>
+                                <td class="px-6 py-4 text-sm font-bold text-emerald-600 text-right">258,611</td>
+                                <td class="px-6 py-4 text-sm font-bold text-emerald-600 text-right">1.52ms</td>
+                                <td class="px-6 py-4 text-sm font-bold text-emerald-600 text-right">7,759,334</td>
+                                <td class="px-6 py-4 text-sm font-semibold text-gray-900 text-right">Baseline</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 text-sm text-gray-900">Pure Node.js</td>
+                                <td class="px-6 py-4 text-sm text-gray-600 text-right">124,024</td>
+                                <td class="px-6 py-4 text-sm text-gray-600 text-right">3.62ms</td>
+                                <td class="px-6 py-4 text-sm text-gray-600 text-right">3,733,218</td>
+                                <td class="px-6 py-4 text-sm text-gray-600 text-right">2.08× slower</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 text-sm text-gray-900">Express.js</td>
+                                <td class="px-6 py-4 text-sm text-gray-600 text-right">22,590</td>
+                                <td class="px-6 py-4 text-sm text-gray-600 text-right">26.36ms</td>
+                                <td class="px-6 py-4 text-sm text-gray-600 text-right">679,206</td>
+                                <td class="px-6 py-4 text-sm text-orange-600 font-medium text-right">11.45× slower</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 text-sm text-gray-900">Pure PHP</td>
+                                <td class="px-6 py-4 text-sm text-gray-600 text-right">787</td>
+                                <td class="px-6 py-4 text-sm text-gray-600 text-right">471.03µs</td>
+                                <td class="px-6 py-4 text-sm text-gray-600 text-right">23,699</td>
+                                <td class="px-6 py-4 text-sm text-rose-600 font-semibold text-right">328× slower</td>
+                            </tr>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 text-sm text-gray-900">Laravel</td>
+                                <td class="px-6 py-4 text-sm text-gray-600 text-right">80</td>
+                                <td class="px-6 py-4 text-sm text-gray-600 text-right">128.72ms</td>
+                                <td class="px-6 py-4 text-sm text-gray-600 text-right">2,418</td>
+                                <td class="px-6 py-4 text-sm text-rose-600 font-bold text-right">3,232× slower</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Key Insights -->
+            <div class="grid md:grid-cols-2 gap-6 mb-12">
+                <div class="bg-gradient-to-br from-emerald-50 to-white p-8 rounded-2xl border border-emerald-100">
+                    <div class="flex items-start gap-3 mb-4">
+                        <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
                         </div>
                         <div>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-gray-600">Avg Latency</span>
-                                <span class="font-bold text-emerald-600">58% lower</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-3">
-                                <div class="bg-emerald-600 h-3 rounded-full" style="width: 42%"></div>
-                            </div>
-                            <div class="flex justify-between text-sm text-gray-500 mt-1">
-                                <span>Laju: 1.52ms</span>
-                                <span>Node.js: 3.62ms</span>
-                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">vs JavaScript Frameworks</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>2.08× faster</strong> than Pure Node.js with 58% lower latency</li>
+                                <li>• <strong>11.45× faster</strong> than Express.js, the most popular Node.js framework</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Database Performance</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-gray-600">Single Insert (WAL)</span>
-                                <span class="font-bold text-purple-600">19.9x faster</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-3">
-                                <div class="bg-purple-600 h-3 rounded-full" style="width: 100%"></div>
-                            </div>
-                            <div class="flex justify-between text-sm text-gray-500 mt-1">
-                                <span>WAL: 93,287 ops/s</span>
-                                <span>Default: 4,678 ops/s</span>
-                            </div>
+                <div class="bg-gradient-to-br from-rose-50 to-white p-8 rounded-2xl border border-rose-100">
+                    <div class="flex items-start gap-3 mb-4">
+                        <div class="w-10 h-10 bg-rose-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path>
+                            </svg>
                         </div>
                         <div>
-                            <div class="flex justify-between mb-2">
-                                <span class="text-gray-600">Select By ID (Native)</span>
-                                <span class="font-bold text-purple-600">385% faster</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-3">
-                                <div class="bg-purple-600 h-3 rounded-full" style="width: 100%"></div>
-                            </div>
-                            <div class="flex justify-between text-sm text-gray-500 mt-1">
-                                <span>Native: 290,020 ops/s</span>
-                                <span>Knex: 59,816 ops/s</span>
-                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">vs PHP Frameworks</h3>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li>• <strong>328× faster</strong> than Pure PHP (single-threaded blocking I/O)</li>
+                                <li>• <strong>3,232× faster</strong> than Laravel (framework overhead bottleneck)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Performance -->
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+                <h3 class="text-xl font-semibold text-gray-900 mb-8">Database Performance</h3>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <div class="flex justify-between items-baseline mb-3">
+                            <span class="text-sm font-medium text-gray-600">Single Insert (WAL)</span>
+                            <span class="text-sm font-semibold text-purple-600">19.9× faster</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                            <div class="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-2">
+                            <span class="font-medium">WAL: 93,287 ops/s</span>
+                            <span>Default: 4,678 ops/s</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-baseline mb-3">
+                            <span class="text-sm font-medium text-gray-600">Select By ID (Native)</span>
+                            <span class="text-sm font-semibold text-purple-600">385% faster</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                            <div class="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500 mt-2">
+                            <span class="font-medium">Native: 290,020 ops/s</span>
+                            <span>Knex: 59,816 ops/s</span>
                         </div>
                     </div>
                 </div>
@@ -331,6 +428,125 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI-Driven Development Section -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center gap-2 px-5 py-2 bg-indigo-50 border border-indigo-200 rounded-full mb-6">
+                    <svg class="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13 7H7v6h6V7z"/>
+                        <path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-sm font-semibold text-indigo-700">AI-Powered Development</span>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">Ship MVP in 1 Day</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">Build complete applications using AI coding assistants. 100% no-code workflow with Windsurf, Cursor, or Trae.ai</p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-12 items-center mb-16">
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                            <span class="text-xl">🤖</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">AI-First Architecture</h3>
+                            <p class="text-gray-600">Laju is designed for AI coding assistants. Clear structure, consistent patterns, and comprehensive documentation make it perfect for AI-driven development.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                            <span class="text-xl">⚡</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Rapid Prototyping</h3>
+                            <p class="text-gray-600">From idea to MVP in a single day. Describe your requirements, let AI handle the implementation, and iterate until perfect.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                            <span class="text-xl">🎯</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">Production Ready</h3>
+                            <p class="text-gray-600">AI-generated code follows best practices, includes proper error handling, and is optimized for performance out of the box.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900 rounded-2xl p-8 shadow-2xl">
+                    <div class="flex items-center gap-2 mb-6">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        <span class="ml-4 text-sm text-gray-400">AI Workflow</span>
+                    </div>
+                    <div class="space-y-4 text-sm">
+                        <div class="flex items-start gap-3">
+                            <span class="text-indigo-400 font-mono">1.</span>
+                            <div>
+                                <p class="text-gray-300 mb-1"><span class="text-indigo-400">Initialize:</span> npx create-laju-app my-project</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="text-indigo-400 font-mono">2.</span>
+                            <div>
+                                <p class="text-gray-300 mb-1"><span class="text-indigo-400">Describe:</span> Write requirements in README.md</p>
+                                <p class="text-gray-500 text-xs">Target users, features, tech requirements</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="text-indigo-400 font-mono">3.</span>
+                            <div>
+                                <p class="text-gray-300 mb-1"><span class="text-indigo-400">Generate:</span> AI creates TODOLIST.md</p>
+                                <p class="text-gray-500 text-xs">Migrations, pages, components, logic</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="text-indigo-400 font-mono">4.</span>
+                            <div>
+                                <p class="text-gray-300 mb-1"><span class="text-indigo-400">Build:</span> AI implements features step by step</p>
+                                <p class="text-gray-500 text-xs">Controllers, views, database, auth</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <span class="text-indigo-400 font-mono">5.</span>
+                            <div>
+                                <p class="text-gray-300 mb-1"><span class="text-indigo-400">Ship:</span> MVP ready in hours, not weeks</p>
+                                <p class="text-gray-500 text-xs">Production-ready code with best practices</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-8 md:p-12 border border-indigo-100">
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div>
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">1 Day</div>
+                        <div class="text-sm text-gray-600">From Idea to MVP</div>
+                    </div>
+                    <div>
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">100%</div>
+                        <div class="text-sm text-gray-600">AI-Generated Code</div>
+                    </div>
+                    <div>
+                        <div class="text-4xl font-bold text-indigo-600 mb-2">0</div>
+                        <div class="text-sm text-gray-600">Manual Coding Required</div>
+                    </div>
+                </div>
+                <div class="mt-8 text-center">
+                    <a href="https://github.com/maulanashalihin/laju?tab=readme-ov-file#ai-driven-development-100-no-code-workflow" target="_blank" class="inline-flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+                        <span>Learn AI Workflow</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
                 </div>
             </div>
         </div>

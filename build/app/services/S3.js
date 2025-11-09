@@ -88,7 +88,7 @@ async function getSignedUploadUrl(key, contentType, expiresIn = 3600) {
 }
 function getPublicUrl(key) {
     if (cdnUrl) {
-        return `${cdnUrl.replace(/\/$/, "")}/${key}`;
+        return `${cdnUrl.replace(/\/$/, "")}/${bucket}/${key}`;
     }
     if (endpoint) {
         const base = endpoint.replace(/\/$/, "");

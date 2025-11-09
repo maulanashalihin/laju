@@ -20,7 +20,7 @@
     "concurrently": "^9.0.1",
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.4.5", 
     "googleapis": "^144.0.0",
     "hashids": "^2.3.0",
     "hyper-express": "^6.17.2",

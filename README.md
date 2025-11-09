@@ -83,16 +83,70 @@ Requests/sec: 124024.65
 Transfer/sec:     18.92MB
 ```
 
+#### Express.js
+```bash
+wrk -t12 -c400 -d30s http://127.0.0.1:3005
+
+Running 30s test @ http://127.0.0.1:3005
+  12 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency    26.36ms   80.32ms   1.56s    98.19%
+    Req/Sec     1.90k   334.29     8.29k    93.17%
+  679206 requests in 30.07s, 154.16MB read
+Requests/sec:  22590.84
+Transfer/sec:      5.13MB
+```
+
+#### Laravel
+```bash
+wrk -t12 -c400 -d30s http://localhost:8000
+
+Running 30s test @ http://localhost:8000
+  12 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   128.72ms  113.14ms 467.29ms   63.69%
+    Req/Sec    30.20     35.13   202.00     86.14%
+  2418 requests in 30.10s, 2.55MB read
+  Socket errors: connect 0, read 3259, write 0, timeout 0
+Requests/sec:     80.33
+Transfer/sec:     86.76KB
+```
+
+#### Pure PHP (stream_socket_server)
+```bash
+wrk -t12 -c400 -d30s http://localhost:3008
+
+Running 30s test @ http://localhost:3008
+  12 threads and 400 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   471.03us    1.07ms  47.72ms   99.74%
+    Req/Sec     0.89k     1.33k    6.01k    81.68%
+  23699 requests in 30.10s, 1.70MB read
+  Socket errors: connect 0, read 24851, write 0, timeout 0
+Requests/sec:    787.28
+Transfer/sec:     57.66KB
+```
+
 ### Performance Comparison
 
-| Metric | Laju.dev | Pure Node.js | Improvement |
-|--------|----------|--------------|-------------|
-| **Requests/sec** | 258,611 | 124,024 | **2.08x faster** |
-| **Avg Latency** | 1.52ms | 3.62ms | **58% lower** |
-| **Total Requests** | 7,759,334 | 3,733,218 | **2.08x more** |
-| **Transfer/sec** | 18.99MB | 18.92MB | **0.4% higher** |
+| Framework | Requests/sec | Avg Latency | Total Requests (30s) | vs Laju.dev |
+|-----------|--------------|-------------|----------------------|-------------|
+| **Laju.dev (HyperExpress)** | **258,611** | **1.52ms** | **7,759,334** | **Baseline** |
+| Pure Node.js | 124,024 | 3.62ms | 3,733,218 | 2.08x slower |
+| Express.js | 22,590 | 26.36ms | 679,206 | 11.45x slower |
+| Pure PHP | 787 | 471.03µs | 23,699 | 328x slower |
+| Laravel | 80 | 128.72ms | 2,418 | 3,232x slower |
 
-Laju.dev achieves **2.08x more requests per second** with **58% lower latency** compared to pure Node.js, making it ideal for high-performance applications.
+**Key Insights:**
+- **vs Pure Node.js**: Laju.dev achieves **2.08x more requests per second** with **58% lower latency**
+- **vs Express.js**: Laju.dev is **11.45x faster** than the most popular Node.js framework
+- **vs Pure PHP**: Laju.dev handles **328x more requests per second** (258,611 vs 787 req/s)
+  - Pure PHP struggles with concurrent connections, resulting in 24,851 socket read errors
+  - Single-threaded blocking I/O makes PHP unsuitable for high-concurrency scenarios
+- **vs Laravel**: Laju.dev is **3,232x faster** (258,611 vs 80 req/s)
+  - Laravel's full-stack framework overhead adds significant latency (128.72ms vs 1.52ms)
+  - Laravel processed only 2,418 requests in 30 seconds with 3,259 socket errors
+  - Framework layers (routing, middleware, service container, ORM) create massive performance bottlenecks
 
 ### Run HTTP Benchmarks Yourself
 
@@ -102,15 +156,10 @@ Want to test HTTP performance on your own machine? Use the benchmark scripts in 
 # Start Laju.dev test server (port 3006)
 node benchmark/laju-test.js
 
-# In another terminal, start Node.js test server (port 3007)
-node benchmark/node-test.js
-
 # In another terminal, run benchmarks with wrk
 # Test Laju.dev
 wrk -t12 -c400 -d30s http://localhost:3006
-
-# Test Pure Node.js
-wrk -t12 -c400 -d30s http://localhost:3007
+ 
 ```
 
 **Requirements:**
