@@ -27,10 +27,10 @@ Visit [https://laju.dev](https://laju.dev)
 - [Best Practices](#best-practices)
 - [AI-Driven Development: 100% No-Code Workflow](#ai-driven-development-100-no-code-workflow)
 - [Contributing](#contributing)
-- [License](#license)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
 - [Support](#support)
+- [License](#license)
 
 ## Features
 
@@ -1190,7 +1190,7 @@ As you complete tasks:
 - **Ask questions**: If the AI's implementation is unclear, ask for explanations
 
 
-## 👨‍💻 Author
+## Author
 
 **Maulana Shalihin** - Full Stack Developer
 
@@ -1231,13 +1231,13 @@ I'm very open to feedback! If you have suggestions, bug reports, or feature requ
 - Open an issue on [GitHub](https://github.com/maulanashalihin/laju/issues)
 - Or contribute directly via Pull Request
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with modern web technologies and best practices
 - Inspired by the need for high-performance TypeScript frameworks
 - Thanks to all open-source contributors and the community
 
-## 📮 Support
+## Support
 
 If you have any questions or need help, please:
 - Open an issue on [GitHub](https://github.com/maulanashalihin/laju/issues)
