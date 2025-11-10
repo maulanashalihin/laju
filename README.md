@@ -1187,6 +1187,62 @@ As you complete tasks:
 - **Ask questions**: If the AI's implementation is unclear, ask for explanations
 
 
+## 👨‍💻 Author
+
+**Maulana Shalihin** - Full Stack Developer
+
+With over 15 years of experience in software development, I specialize in building modern SaaS applications and scalable web platforms. My work includes:
+
+- **[tapsite.ai](https://tapsite.ai)** - AI-powered website builder
+- **[dripsender.id](https://dripsender.id)** - Email marketing automation platform
+- **[Laju.dev](https://laju.dev)** - Modern full-stack TypeScript framework
+- **[antre.in](https://antre.in)** - Link in bio untuk antrean yang rapi
+- **[slugpost.com](https://slugpost.com)** - Open Source app untuk Publish & Share Markdown Instantly
+- **[klikaja.app](https://klikaja.app)** - Smart Link Shortener
+
+### Need Help Building Your Application?
+
+I'm available for consulting and custom development projects. Whether you need:
+- 🚀 SaaS application development
+- 💼 Full-stack web applications
+- 🔧 API development and integration
+- 📱 Modern responsive interfaces
+- ⚡ Performance optimization
+
+Feel free to reach out at **maulana@drip.id**
+
+### Support This Project
+
+If you find Laju useful, consider supporting its development:
+
+- ⭐ **Star this repository** on GitHub
+- 💖 **[Become a Sponsor](https://github.com/sponsors/maulanashalihin)** - Support ongoing development and maintenance
+- 🐛 **Report bugs** and suggest features
+- 🔧 **Contribute code** via Pull Requests
+
+Your support helps keep this project free and actively maintained!
+
+### Feedback & Contributions
+
+I'm very open to feedback! If you have suggestions, bug reports, or feature requests, feel free to:
+- Open an issue on [GitHub](https://github.com/maulanashalihin/laju/issues)
+- Or contribute directly via Pull Request
+
+## 🙏 Acknowledgments
+
+- Built with modern web technologies and best practices
+- Inspired by the need for high-performance TypeScript frameworks
+- Thanks to all open-source contributors and the community
+
+## 📮 Support
+
+If you have any questions or need help, please:
+- Open an issue on [GitHub](https://github.com/maulanashalihin/laju/issues)
+- Star the repository if you find it useful ⭐
+- Share it with others who might benefit from it
+
+---
+
 ## Contributing
 
 1. Fork the repository
