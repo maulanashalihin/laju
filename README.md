@@ -28,9 +28,9 @@ Visit [https://laju.dev](https://laju.dev)
 - [AI-Driven Development: 100% No-Code Workflow](#ai-driven-development-100-no-code-workflow)
 - [Contributing](#contributing)
 - [License](#license)
-- [Author](#-author)
-- [Acknowledgments](#-acknowledgments)
-- [Support](#-support)
+- [Author](#author)
+- [Acknowledgments](#acknowledgments)
+- [Support](#support)
 
 ## Features
 
