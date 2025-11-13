@@ -17,7 +17,7 @@
   }
 
   body::-webkit-scrollbar-thumb {
-    background-color: theme('colors.blue.500');
+    background-color: theme('colors.primary.500');
     border-radius: 3px;
   }
 }
@@ -78,7 +78,7 @@
   }
 
   .side-menu::-webkit-scrollbar-thumb {
-    background-color: theme('colors.blue.500');
+    background-color: theme('colors.primary.500');
     border-radius: 3px;
   }
 

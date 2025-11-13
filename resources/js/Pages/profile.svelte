@@ -91,7 +91,7 @@
         <div class="flex items-center space-x-4">
           <div class="relative group">
             <div
-              class="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900 overflow-hidden"
+              class="w-20 h-20 rounded-full bg-primary-100 dark:bg-primary-900 overflow-hidden"
             >
               {#if previewUrl}
                 <img
@@ -102,7 +102,7 @@
               {:else}
                 <div class="w-full h-full flex items-center justify-center">
                   <span
-                    class="text-2xl font-bold text-emerald-600 dark:text-emerald-400"
+                    class="text-2xl font-bold text-primary-600 dark:text-primary-400"
                   >
                     {user.name.charAt(0).toUpperCase()}
                   </span>
@@ -110,7 +110,7 @@
               {/if}
             </div>
             <label
-              class="absolute bottom-0 right-0 bg-emerald-500 text-white p-1.5 rounded-full cursor-pointer hover:bg-emerald-600 transition-colors"
+              class="absolute bottom-0 right-0 bg-primary-500 text-white p-1.5 rounded-full cursor-pointer hover:bg-primary-600 transition-colors"
             >
               <svg
                 class="w-4 h-4"
@@ -168,7 +168,7 @@
                 bind:value={user.name}
                 type="text"
                 id="name"
-                class="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-gray-600 focus:border-blue-500 dark:focus:outline-none dark:focus:border-gray-600 dark:text-white transition duration-200 ease-in-out"
+                class="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-gray-600 focus:border-primary-500 dark:focus:outline-none dark:focus:border-gray-600 dark:text-white transition duration-200 ease-in-out"
                 placeholder="Your full name"
               />
             </div>
@@ -183,7 +183,7 @@
                 bind:value={user.email}
                 type="email"
                 id="email"
-                class="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-gray-600 focus:border-blue-500 dark:focus:outline-none dark:focus:border-gray-600 dark:text-white transition duration-200 ease-in-out"
+                class="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-gray-600 focus:border-primary-500 dark:focus:outline-none dark:focus:border-gray-600 dark:text-white transition duration-200 ease-in-out"
                 placeholder="you@example.com"
               />
             </div>
@@ -200,7 +200,7 @@
                 bind:value={user.phone}
                 type="text"
                 id="phone"
-                class="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-gray-600 focus:border-blue-500 dark:focus:outline-none dark:focus:border-gray-600 dark:text-white transition duration-200 ease-in-out"
+                class="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-gray-600 focus:border-primary-500 dark:focus:outline-none dark:focus:border-gray-600 dark:text-white transition duration-200 ease-in-out"
                 placeholder="Your phone number"
               />
             </div>
@@ -210,7 +210,7 @@
             <button
               type="submit"
               disabled={isLoading}
-              class="inline-flex items-center px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium shadow-sm hover:shadow-md transition duration-200 ease-in-out dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="inline-flex items-center px-4 py-2 rounded-lg bg-primary-500 hover:bg-primary-600 text-white font-medium shadow-sm hover:shadow-md transition duration-200 ease-in-out dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {#if isLoading}
                 <svg
@@ -259,7 +259,7 @@
                 bind:value={current_password}
                 type="password"
                 id="current_password"
-                class="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-gray-600 focus:border-blue-500 dark:focus:outline-none dark:focus:border-gray-600 dark:text-white transition duration-200 ease-in-out"
+                class="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-gray-600 focus:border-primary-500 dark:focus:outline-none dark:focus:border-gray-600 dark:text-white transition duration-200 ease-in-out"
               />
             </div>
 
@@ -273,7 +273,7 @@
                 bind:value={new_password}
                 type="password"
                 id="new_password"
-                class="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-gray-600 focus:border-blue-500 dark:focus:outline-none dark:focus:border-gray-600 dark:text-white transition duration-200 ease-in-out"
+                class="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-gray-600 focus:border-primary-500 dark:focus:outline-none dark:focus:border-gray-600 dark:text-white transition duration-200 ease-in-out"
               />
             </div>
 
@@ -287,7 +287,7 @@
                 bind:value={confirm_password}
                 type="password"
                 id="confirm_password"
-                class="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-gray-600 focus:border-blue-500 dark:focus:outline-none dark:focus:border-gray-600 dark:text-white transition duration-200 ease-in-out"
+                class="w-full px-4 py-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary-500/20 dark:focus:ring-gray-600 focus:border-primary-500 dark:focus:outline-none dark:focus:border-gray-600 dark:text-white transition duration-200 ease-in-out"
               />
             </div>
           </div>
@@ -296,7 +296,7 @@
             <button
               type="submit"
               disabled={isLoading}
-              class="inline-flex items-center px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium shadow-sm hover:shadow-md transition duration-200 ease-in-out dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="inline-flex items-center px-4 py-2 rounded-lg bg-primary-500 hover:bg-primary-600 text-white font-medium shadow-sm hover:shadow-md transition duration-200 ease-in-out dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {#if isLoading}
                 <svg

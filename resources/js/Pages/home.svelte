@@ -31,7 +31,7 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16">
     <div class="text-center" in:fly={{ y: 20, duration: 800, delay: 200 }}>
       <h1 class="text-4xl sm:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-        Welcome to <span class="text-blue-600 dark:text-blue-400">Laju</span>
+        Welcome to <span class="text-primary-600 dark:text-primary-400">Laju</span>
       </h1>
       <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8">
         A high-performance TypeScript web framework for building modern full-stack applications with speed and elegance.
@@ -40,7 +40,7 @@
         <a
           href="/docs"
           use:inertia
-          class="px-6 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors"
+          class="px-6 py-3 text-white bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition-colors"
         >
           Get Started
         </a>
@@ -65,14 +65,14 @@
           class="p-6 rounded-xl bg-gray-50 dark:bg-gray-800 hover:shadow-lg transition-shadow duration-300"
           in:fly={{ y: 20, duration: 800, delay: 200 + (i * 100) }}
         >
-          <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
+          <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center mb-4">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               stroke-width="1.5"
               stroke="currentColor"
-              class="w-6 h-6 text-blue-600 dark:text-blue-400"
+              class="w-6 h-6 text-primary-600 dark:text-primary-400"
             >
               {@html feature.icon}
             </svg>
@@ -102,7 +102,7 @@
       <a
         href="/register"
         use:inertia
-        class="inline-flex items-center px-6 py-3 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors"
+        class="inline-flex items-center px-6 py-3 text-white bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition-colors"
       >
         Create Account
         <svg
