@@ -81,7 +81,7 @@
 
                     <button
                         type="submit"
-                        class="w-full text-white bg-emerald-600 hover:bg-emerald-700 focus:ring-4 focus:outline-none focus:ring-emerald-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-emerald-600 dark:hover:bg-emerald-700 dark:focus:ring-emerald-800"
+                        class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                     >
                         Kirim Link Reset Password
                     </button>
@@ -90,7 +90,7 @@
                         Ingat password Anda? <a
                             href="/login"
                             use:inertia
-                            class="font-medium text-emerald-600 hover:underline dark:text-emerald-400"
+                            class="font-medium text-primary-600 hover:underline dark:text-primary-400"
                             >Login disini</a
                         >
                     </p>
