@@ -155,7 +155,7 @@ class Controller {
         ];
 
         // Clean and construct the file path
-        const path = "public/" + request.path.replace("/", "").replaceAll("%20", " ");
+        const path =  request.path.replace("/", "").replaceAll("%20", " ");
 
         // Check if the path has any extension
         if (!path.includes('.')) {

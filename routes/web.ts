@@ -112,6 +112,6 @@ Route.get("/assets/:file", AssetController.distFolder);
  * - /documents/terms.pdf
  * - /fonts/roboto.woff2
  */
-Route.get("/*", AssetController.publicFolder);
+Route.get("/public/*", AssetController.publicFolder);
 
 export default Route;
