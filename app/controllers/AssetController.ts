@@ -58,7 +58,7 @@ class Controller {
                                 .toBuffer();
 
                             // Upload directly to S3/Wasabi
-                            const s3Key = `/assets/${fileName}`; 
+                            const s3Key = `assets/${fileName}`; 
 
                              await uploadBuffer(s3Key, processedBuffer, 'image/webp', 'public, max-age=31536000');
 
