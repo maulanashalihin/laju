@@ -4,6 +4,12 @@ A high-performance TypeScript web framework combining HyperExpress, Svelte 5, an
 
 Visit [https://laju.dev](https://laju.dev)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-20--22-brightgreen)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![GitHub stars](https://img.shields.io/github/stars/maulanashalihin/laju?style=social)](https://github.com/maulanashalihin/laju)
+[![Website](https://img.shields.io/badge/Website-laju.dev-orange)](https://laju.dev)
+[![Sponsor](https://img.shields.io/badge/Sponsor-❤-ff69b4)](https://github.com/sponsors/maulanashalihin)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/maulanashalihin/laju)
 
 ## Table of Contents
@@ -1258,4 +1264,4 @@ If you have any questions or need help, please:
 
 ## License
 
-ISC License
+MIT License - see the [LICENSE](LICENSE) file for details

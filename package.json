@@ -8,7 +8,7 @@
     "build": "mkdir dist && mkdir dist/views && cp -rf resources/views/* dist/views && vite build && tsc && tsc-alias -p tsconfig.json && cp -rf dist build && cp -rf public build && cp -rf resources/views/partials build/dist/views"
   },
   "author": "Maulana Shalihin",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.906.0",
     "@aws-sdk/s3-request-presigner": "^3.906.0",
