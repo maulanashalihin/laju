@@ -17,6 +17,7 @@
    - Enable creative responsive design patterns
    - Support advanced theming systems
    - Encourage CSS art and creative visuals
+      - selalu focus:outline-none pada form input
 </frontend_generation_rules>
  
 
