@@ -4,6 +4,8 @@ A high-performance TypeScript web framework combining HyperExpress, Svelte 5, an
 
 Visit [https://laju.dev](https://laju.dev)
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/maulanashalihin/laju)
+
 ## Table of Contents
 - [Overview](#laju)
 - [Features](#features)
