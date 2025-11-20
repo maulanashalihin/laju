@@ -74,3 +74,13 @@ export default transporter;
  * USER_MAILER=your.email@gmail.com
  * PASS_MAILER=your-16-digit-app-password
  */
+
+export async function MailTo({to,subject,text}: {to:string,subject:string,text:string })
+{
+    await transporter.sendMail({
+            from: 'Laju Notification <hello@laju.dev>',
+            to: to,
+            subject: subject,
+            text: text,
+         });
+}

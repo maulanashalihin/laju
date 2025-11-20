@@ -150,7 +150,7 @@ class Controller {
         const allowedExtensions = [
             '.ico', '.png', '.jpeg', '.jpg', '.gif', '.svg',
             '.txt', '.pdf', '.css', '.js',
-            '.woff', '.woff2', '.ttf', '.eot',
+            '.woff', '.woff2', '.ttf', '.eot','.webp',
             '.mp4', '.webm', '.mp3', '.wav'
         ];
 

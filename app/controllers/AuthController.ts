@@ -60,7 +60,7 @@ import Authenticate from "../services/Authenticate";
 import { redirectParamsURL } from "../services/GoogleAuth";
 import axios from "axios"; 
 import dayjs from "dayjs";
-import Mailer from "../services/Mailer";
+import { MailTo } from "../services/Resend";
 import { Response, Request } from "../../type"; 
 import { randomUUID } from "crypto";
 
@@ -246,8 +246,7 @@ class AuthController {
       });
 
       try {
-         await Mailer.sendMail({
-            from: process.env.USER_MAILER,
+         await MailTo({ 
             to: email,
             subject: "Reset Password",
             text: `You have requested a password reset. If this was you, please click the following link:
@@ -414,8 +413,7 @@ This link will expire in 24 hours.
       });
 
       try {
-         await Mailer.sendMail({
-            from: process.env.USER_MAILER,
+         await MailTo({ 
             to: request.user.email,
             subject: "Verifikasi Akun",
             text: `Klik link berikut untuk verifikasi email anda:
