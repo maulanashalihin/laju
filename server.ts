@@ -16,6 +16,8 @@ import cors from 'cors';
 
 // Node.js path utilities (used to resolve HTTPS certificate paths)
 import path from 'path';
+
+import { Response, Request } from "./type"; 
  
 // Base server options: request body limit and TLS placeholders
 const option = {
@@ -53,16 +55,17 @@ webserver.use(Web);
 const PORT = parseInt(process.env.PORT) || 5555;
  
 // Global error handler (runs for unhandled errors in requests)
-webserver.set_error_handler((req, res, error: any) => {
+webserver.set_error_handler((request : Request, response : Response, error: any) => {
+   
    console.log(error); // Log error for visibility
 
    // Example: handle SQLite-specific errors with 500 status
    if (error.code == "SQLITE_ERROR") {
-      res.status(500);
+      response.status(500);
    }
 
    // Return error details in JSON (useful during development)
-   res.json(error);
+   response.json(error);
 });
 
 // Start the server and log the local URL

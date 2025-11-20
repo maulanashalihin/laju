@@ -5,6 +5,15 @@ import AssetController from "../app/controllers/AssetController";
 import S3Controller from "../app/controllers/S3Controller";
 import HyperExpress from 'hyper-express';
 
+// Rate limiting middleware
+import { 
+  authRateLimit, 
+  apiRateLimit,
+  passwordResetRateLimit,
+  createAccountRateLimit,
+  uploadRateLimit
+} from "../app/middlewares/rateLimit";
+
 const Route = new HyperExpress.Router();
 
 /**
@@ -24,9 +33,9 @@ Route.get("/", HomeController.index);
  * GET  /api/s3/public-url/:fileKey - Get public URL for existing file
  * GET  /api/s3/health - S3 service health check
  */
-Route.post("/api/s3/signed-url", [Auth], S3Controller.getSignedUrl); 
-Route.get("/api/s3/public-url/:fileKey", S3Controller.getPublicUrl);
-Route.get("/api/s3/health", S3Controller.health);
+Route.post("/api/s3/signed-url", [Auth, uploadRateLimit], S3Controller.getSignedUrl); 
+Route.get("/api/s3/public-url/:fileKey", [apiRateLimit], S3Controller.getPublicUrl);
+Route.get("/api/s3/health", [apiRateLimit], S3Controller.health);
 /**
  * Authentication Routes
  * Routes for handling user authentication
@@ -40,9 +49,9 @@ Route.get("/api/s3/health", S3Controller.health);
  * GET   /google/callback - Google OAuth callback
  */
 Route.get("/login", AuthController.loginPage);
-Route.post("/login", AuthController.processLogin);
+Route.post("/login", [authRateLimit], AuthController.processLogin);
 Route.get("/register", AuthController.registerPage);
-Route.post("/register", AuthController.processRegister);
+Route.post("/register", [createAccountRateLimit], AuthController.processRegister);
 Route.post("/logout", AuthController.logout);
 Route.get("/google/redirect", AuthController.redirect);
 Route.get("/google/callback", AuthController.googleCallback);
@@ -57,9 +66,9 @@ Route.get("/google/callback", AuthController.googleCallback);
  * POST  /reset-password - Process password reset
  */
 Route.get("/forgot-password", AuthController.forgotPasswordPage);
-Route.post("/forgot-password", AuthController.sendResetPassword);
+Route.post("/forgot-password", [passwordResetRateLimit], AuthController.sendResetPassword);
 Route.get("/reset-password/:id", AuthController.resetPasswordPage);
-Route.post("/reset-password", AuthController.resetPassword);
+Route.post("/reset-password", [authRateLimit], AuthController.resetPassword);
 
 /**
  * Protected Routes

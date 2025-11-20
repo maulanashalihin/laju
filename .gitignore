@@ -3,3 +3,12 @@ node_modules
 .env 
 production.sqlite3
 dev.sqlite3
+data/*
+
+# Testing
+coverage/
+.vitest/
+
+# Logs
+logs/
+*.log

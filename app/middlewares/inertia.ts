@@ -1,24 +1,24 @@
- 
-import { view } from "../services/View"; 
 
-let pkg = {version : "1.0.0"};
- 
+import { view } from "../services/View";
+import { Request, Response } from "../../type";
+
+let pkg = { version: "1.0.0" };
+
 
 const inertia = () => {
-   return (req, res, next) => { 
-      res.inertia = async (component, inertiaProps = {}, viewProps = {}) => {
-         
-         const url = `//${req.get("host")}${req.originalUrl}`;
+   return (request: Request, response: Response, next: Function) => {
+      response.inertia = async (component, inertiaProps = {}, viewProps = {}) => {
 
-         let props = { user : req.user || {}, ...inertiaProps, ...viewProps, error : null  } as any;
+         const url = `//${request.get("host")}${request.originalUrl}`;
 
-         
+         let props = { user: request.user || {}, ...inertiaProps, ...viewProps, error: null } as any;
 
-         if(req.cookies.error)
-         {
-            props.error = req.cookies.error; 
-            res
-               .cookie("error","",0)
+
+
+         if (request.cookies.error) {
+            props.error = request.cookies.error;
+            response
+               .cookie("error", "", 0)
          }
 
          const inertiaObject = {
@@ -28,20 +28,20 @@ const inertia = () => {
             version: pkg.version,
          };
 
-         if (!req.header("X-Inertia")) {
+         if (!request.header("X-Inertia")) {
             const html = await view("inertia.html", {
                page: JSON.stringify(inertiaObject),
-               title:  process.env.TITLE ||  "LAJU - Ship Your Next Project Faster",
+               title: process.env.TITLE || "LAJU - Ship Your Next Project Faster",
             });
 
-            return res.type("html").send(html);
+            return response.type("html").send(html);
          }
 
-         res.setHeader("Vary", "Accept");
-         res.setHeader("X-Inertia", "true");
-         res.setHeader("X-Inertia-Version", pkg.version);
+         response.setHeader("Vary", "Accept");
+         response.setHeader("X-Inertia", "true");
+         response.setHeader("X-Inertia-Version", pkg.version);
 
-         return res.json(inertiaObject);
+         return response.json(inertiaObject);
       };
 
       next();

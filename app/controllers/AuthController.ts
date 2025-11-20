@@ -263,7 +263,7 @@ class AuthController {
       try {
          if (user.phone)
             await axios.post("https://api.dripsender.id/send", {
-               api_key: "DRIPSENDER_API_KEY",
+               api_key: process.env.DRIPSENDER_API_KEY,
                phone: user.phone,
                text: `You have requested a password reset. If this was you, please click the following link:
       

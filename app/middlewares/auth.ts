@@ -1,19 +1,24 @@
  
-import DB
-from "../services/DB";
+import SQLite from "../services/SQLite";
 import { Request, Response } from "../../type";
 
 export default async (request : Request,response : Response) => {
      
    if(request.cookies.auth_id)
    { 
-       const session = await DB.from("sessions").where("id",request.cookies.auth_id).first();
+       const user = SQLite.get(`
+            SELECT u.id, u.name, u.email, u.phone, u.is_admin, u.is_verified 
+            FROM sessions s
+            JOIN users u ON s.user_id = u.id
+            WHERE s.id = ?
+       `, [request.cookies.auth_id]);
 
-       if(session)
+       if(user)
        {
-           const user = await DB.from("users").where("id",session.user_id).select(["id","name","email","phone","is_admin","is_verified"]).first();
-            
-           
+           // Convert SQLite 0/1 to boolean
+           user.is_admin = !!user.is_admin;
+           user.is_verified = !!user.is_verified;
+
            request.user = user;
 
            request.share = {

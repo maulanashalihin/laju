@@ -1,16 +1,15 @@
 /**
- * Email Service using Nodemailer
- * This service provides email functionality using Gmail's SMTP server.
- * It supports both default and custom SMTP configurations.
+ * SMTP Email Service
+ * 
+ * This service handles transactional email delivery using Nodemailer via SMTP (specifically configured for Gmail).
+ * It shares the same interface as the Resend service, allowing for easy swapping between providers.
+ * 
+ * Requirements:
+ * - USER_MAILER: Gmail address
+ * - PASS_MAILER: Gmail App Password (not your login password)
  */
 
 const nodemailer = require("nodemailer");
-
-/**
- * Cache object to store multiple mailer instances
- * Used to prevent creating duplicate transporter instances for the same credentials
- */
-const instace = {};
 
 /**
  * Default mail transporter instance
@@ -28,59 +27,61 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-/**
- * Creates or retrieves a cached mail transporter with custom credentials
- * @param {Object} config - The configuration object
- * @param {string} config.user - Gmail account username
- * @param {string} config.pass - Gmail account password or app-specific password
- * @returns {Object} Configured nodemailer transporter instance
- */
-transporter.config = ({ user, pass }) => {
-  if(instace[user]) {
-    return instace[user];
-  } else {
-    instace[user] = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: user,
-        pass: pass
-      }
-    });
-  }
-
-  return instace[user];
+interface MailOptions {
+  to: string;
+  subject: string;
+  text: string;
 }
 
-export default transporter;
-
 /**
- * Here's how to set up Gmail SMTP for your application:
+ * Sends an email using the configured SMTP transporter (Nodemailer).
  * 
- * 1. Enable 2-Step Verification:
- * - Go to your Google Account settings
- * - Navigate to Security
- * - Enable 2-Step Verification if not already enabled
- * 2. Create an App Password:
- * - Go to your Google Account settings
- * - Navigate to Security
- * - Under "2-Step Verification", click on "App passwords"
- * - Select "Mail" as the app and your device
- * - Click "Generate"
- * - Google will generate a 16-character password
- * 3. Set up Environment Variables: Create or update your .env file with these variables:
+ * This function maintains the same signature as the Resend service's MailTo,
+ * enabling "drop-in" replacement in Controllers without code changes.
  * 
- * USER_MAILER=your.email@gmail.com
- * PASS_MAILER=your-16-digit-app-password
+ * @param {MailOptions} options - Email options containing recipient, subject, and body text
+ * @returns {Promise<void>} Resolves when the handshake and transmission are complete
+ * 
+ * @example
+ * await MailTo({
+ *   to: "user@example.com",
+ *   subject: "Password Reset",
+ *   text: "Click here to reset..."
+ * });
  */
-
-export async function MailTo({to,subject,text}: {to:string,subject:string,text:string })
+export async function MailTo({to,subject,text}: MailOptions)
 {
-    await transporter.sendMail({
-            from: 'Laju Notification <hello@laju.dev>',
+    if (!process.env.USER_MAILER || !process.env.PASS_MAILER) {
+        console.warn("⚠️ SMTP credentials (USER_MAILER/PASS_MAILER) not found. Email not sent.");
+        return;
+    }
+
+    try {
+        await transporter.sendMail({
+            from: process.env.MAIL_FROM_NAME ? `${process.env.MAIL_FROM_NAME} <${process.env.MAIL_FROM_ADDRESS}>` : 'Laju Notification <hello@laju.dev>',
             to: to,
             subject: subject,
             text: text,
-         });
+            replyTo: process.env.MAIL_FROM_ADDRESS || 'hello@laju.dev'
+        });
+    } catch (error) {
+        console.error("❌ Failed to send email via SMTP:", error);
+        throw error;
+    }
 }
+
+/**
+ * Gmail SMTP Setup Guide:
+ * 
+ * 1. Enable 2-Step Verification:
+ *    - Google Account Settings -> Security -> 2-Step Verification (Turn ON)
+ * 
+ * 2. Create an App Password:
+ *    - Google Account Settings -> Security -> 2-Step Verification -> App passwords
+ *    - Select "Mail" and your device
+ *    - Generate and copy the 16-character password
+ * 
+ * 3. Configure .env:
+ *    USER_MAILER=your.email@gmail.com
+ *    PASS_MAILER=your-16-digit-app-password
+ */
