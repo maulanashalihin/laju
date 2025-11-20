@@ -31,10 +31,10 @@ export function rateLimit(options: RateLimitOptions = {}) {
     handler: options.handler
   };
 
-  return async (request: Request, response: Response, next?: Function) => {
+  return async (request: Request, response: Response) => {
     // Skip if condition met
     if (config.skip(request)) {
-      if (next) next();
+     
       return;
     }
 
@@ -81,9 +81,7 @@ export function rateLimit(options: RateLimitOptions = {}) {
         }
       });
     }
-
-    // Continue to next middleware
-    if (next) next();
+ 
   };
 }
 
