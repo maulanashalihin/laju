@@ -33,15 +33,31 @@
 
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 relative z-10">
     <div class="text-center" in:fly={{ y: 20, duration: 800, delay: 200 }}>
-      <h1 class="text-4xl sm:text-6xl font-bold text-slate-900 dark:text-white mb-6">
-        Welcome to <span class="text-brand-600 dark:text-brand-400">Laju</span>
+      <h1 class="flex justify-center">
+          <div class="flex items-center gap-2 mb-4">
+                        <svg width="40" height="40" viewBox="0 0 100 100" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M30 10 H65 L55 50 H20 Z" fill="url(#grad1)" />
+                            <path d="M20 58 H85 L75 90 H10 Z" fill="url(#grad1)" />
+                            <rect x="70" y="58" width="20" height="32" transform="skewX(-14)" fill="white"
+                                fill-opacity="0.1" />
+                        </svg>
+                        <div class="text-4xl font-black tracking-tighter italic">Laju<span
+                                class="text-brand-500">.dev</span></div>
+                    </div>
       </h1>
       <p class="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-8">
         A high-performance TypeScript web framework for building modern full-stack applications with speed and elegance.
       </p>
       <div class="flex justify-center gap-4">
         <a
-          href="https://github.com/maulanashalihin/laju"
+          href="https://github.com/maulanashalihin/laju/tree/main/docs"
            target="_blank"
           class="px-6 py-3 text-white bg-brand-600 hover:bg-brand-700 rounded-xl font-medium transition-all shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40"
         >

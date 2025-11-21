@@ -21,7 +21,7 @@
 
   function submitForm() {
     if(form.password != form.password_confirmation) {
-      alert("Password dan konfirmasi password harus sama")
+      alert("Password and password confirmation must match")
       return false;
     }
 
@@ -51,7 +51,7 @@
 
         <form class="space-y-4 md:space-y-6" on:submit|preventDefault={submitForm}>
           <div>
-            <label for="password" class="block mb-2 text-sm font-medium text-slate-900 dark:text-white">Password Baru</label>
+            <label for="password" class="block mb-2 text-sm font-medium text-slate-900 dark:text-white">New Password</label>
             <input 
               bind:value={form.password}
               type="password" 
@@ -64,7 +64,7 @@
             <button type="button" on:click={generatePassword} class="text-xs text-slate-500 dark:text-slate-400 mt-1">Generate Password</button>
           </div>
           <div>
-            <label for="confirm-password" class="block mb-2 text-sm font-medium text-slate-900 dark:text-white">Konfirmasi Password</label>
+            <label for="confirm-password" class="block mb-2 text-sm font-medium text-slate-900 dark:text-white">Confirm Password</label>
             <input 
               bind:value={form.password_confirmation}
               type="password" 
@@ -84,7 +84,7 @@
           </button>
 
           <p class="text-sm font-light text-slate-500 dark:text-slate-400">
-            Ingat password Anda? <a href="/login" use:inertia class="font-medium text-primary-600 hover:underline dark:text-primary-400">Login disini</a>
+            Remember your password? <a href="/login" use:inertia class="font-medium text-primary-600 hover:underline dark:text-primary-400">Login here</a>
           </p>
         </form>
       </div>

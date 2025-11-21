@@ -56,8 +56,7 @@
                         class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-green-900 dark:text-green-400"
                         role="alert"
                     >
-                        Link reset password telah dikirim ke email atau nomor
-                        telepon Anda.
+                        Password reset link has been sent to your email or phone number.
                     </div>
                 {/if}
 
@@ -69,7 +68,7 @@
                         <label
                             for="email"
                             class="block mb-2 text-sm font-medium text-slate-900 dark:text-white"
-                            >Email atau Nomor Telepon</label
+                            >Email or Phone Number</label
                         >
                         <input
                             bind:value={form.email}
@@ -77,7 +76,7 @@
                             name="email"
                             id="email"
                             class="bg-slate-50 border border-slate-300 text-slate-900 sm:text-sm rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-600 focus:outline-none block w-full py-2.5 px-3 dark:bg-slate-800 dark:border-slate-700 dark:placeholder-slate-400 dark:text-white"
-                            placeholder="email@example.com atau 08xxxxxxxxxx"
+                            placeholder="email@example.com or 08xxxxxxxxxx"
                             required
                         />
                     </div>
@@ -86,15 +85,15 @@
                         type="submit"
                         class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                     >
-                        Kirim Link Reset Password
+                        Send Password Reset Link
                     </button>
 
                     <p class="text-sm font-light text-slate-500 dark:text-slate-400">
-                        Ingat password Anda? <a
+                        Remember your password? <a
                             href="/login"
                             use:inertia
                             class="font-medium text-primary-600 hover:underline dark:text-primary-400"
-                            >Login disini</a
+                            >Login here</a
                         >
                     </p>
                 </form>

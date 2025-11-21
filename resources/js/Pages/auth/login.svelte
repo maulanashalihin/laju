@@ -70,11 +70,11 @@
                         <input bind:value={form.password} required type="password" name="password" id="password" placeholder="••••••••" class="bg-slate-50 border border-slate-300 text-slate-900 sm:text-sm rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-600 focus:outline-none block w-full py-2.5 px-3 dark:bg-slate-800 dark:border-slate-700 dark:placeholder-slate-400 dark:text-white" >
                     </div>  
                     <div class="flex items-center justify-end">
-                        <a href="/forgot-password" use:inertia class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-400">Lupa Password?</a>
+                        <a href="/forgot-password" use:inertia class="text-sm font-medium text-primary-600 hover:underline dark:text-primary-400">Forgot Password?</a>
                     </div>
                     <button type="submit" class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Login</button>
                     <p class="text-sm font-light text-slate-500 dark:text-slate-400">
-                        Belum punya akun?   <a href="/register" use:inertia class="font-medium text-primary-600 hover:underline dark:text-primary-400">Buat disini</a>
+                        Don't have an account yet?   <a href="/register" use:inertia class="font-medium text-primary-600 hover:underline dark:text-primary-400">Create one here</a>
                     </p>
                     
                 </form>

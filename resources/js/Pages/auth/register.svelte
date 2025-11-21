@@ -16,7 +16,7 @@
   {
     if(form.password != form.password_confirmation)
     {
-      alert("Password and konfirmasi password haru sama")
+      alert("Password and password confirmation must match")
       return false;
     }
  
@@ -46,7 +46,7 @@
       <div class="w-full bg-white rounded-lg shadow dark:border dark:bg-slate-900 dark:border-slate-800 md:mt-0 sm:max-w-md xl:p-0">
           <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
               <h1 class="text-xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white md:text-2xl">
-                  Create and account
+                  Create an account
               </h1>
               
               {#if error}
@@ -78,7 +78,7 @@
 </div>
               <form class="space-y-4 md:space-y-6" on:submit|preventDefault={submitForm}>
                   <div>
-                    <label for="name" class="block mb-2 text-sm font-medium text-slate-900 dark:text-white">Nama</label>
+                    <label for="name" class="block mb-2 text-sm font-medium text-slate-900 dark:text-white">Name</label>
                     <input bind:value={form.name} required type="text" name="name" id="name" class="bg-gray-50 border border-slate-300 text-slate-900 sm:text-sm rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-600 focus:outline-none block w-full py-2.5 px-3 dark:bg-slate-800 dark:border-slate-700 dark:placeholder-slate-400 dark:text-white" placeholder="Maulana Ibrahim" >
                 </div>
                 
@@ -90,16 +90,16 @@
                   <div>
                       <label for="password" class="block mb-2 text-sm font-medium text-slate-900 dark:text-white">Password</label>
                       <input bind:value={form.password} required type="password" name="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-slate-300 text-slate-900 sm:text-sm rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-600 focus:outline-none block w-full py-2.5 px-3 dark:bg-slate-800 dark:border-slate-700 dark:placeholder-slate-400 dark:text-white" >
-                      <button type="button" on:click="{generatePassword}" class="text-xs text-slate-500 dark:text-slate-400">Buat Password</button>
+                      <button type="button" on:click="{generatePassword}" class="text-xs text-slate-500 dark:text-slate-400">Generate Password</button>
                     </div>
                   <div>
-                      <label for="confirm-password" class="block mb-2 text-sm font-medium text-slate-900 dark:text-white">Konfirmasi password</label>
+                      <label for="confirm-password" class="block mb-2 text-sm font-medium text-slate-900 dark:text-white">Confirm Password</label>
                       <input bind:value={form.password_confirmation} type="password" name="confirm-password" id="confirm-password" placeholder="••••••••" class="bg-gray-50 border border-slate-300 text-slate-900 sm:text-sm rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-600 focus:outline-none block w-full py-2.5 px-3 dark:bg-slate-800 dark:border-slate-700 dark:placeholder-slate-400 dark:text-white" >
                   </div>
                
-                  <button type="submit" class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Buat Akun Baru</button>
+                  <button type="submit" class="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Create New Account</button>
                   <p class="text-sm font-light text-slate-500 dark:text-slate-400">
-                      Sudah punya akun? <a href="/login" use:inertia class="font-medium text-primary-600 hover:underline dark:text-primary-400">Login disini</a>
+                      Already have an account? <a href="/login" use:inertia class="font-medium text-primary-600 hover:underline dark:text-primary-400">Login here</a>
                   </p>
               </form>
           </div>
