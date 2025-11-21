@@ -3,6 +3,7 @@
 A high-performance TypeScript web framework combining HyperExpress, Svelte 5, and Inertia.js for building modern full-stack applications. It features fast server-side rendering, modern frontend tooling, and seamless client–server state management.
 
 Visit [https://laju.dev](https://laju.dev)
+
 Documentation [https://github.com/maulanashalihin/laju/tree/main/docs](https://github.com/maulanashalihin/laju/tree/main/docs)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
