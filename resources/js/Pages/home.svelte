@@ -27,27 +27,30 @@
 <Header group="home" />
 
 <!-- Hero Section -->
-<div class="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16">
+<div class="relative min-h-screen overflow-hidden bg-white dark:bg-slate-950">
+  <div class="absolute top-0 -left-4 w-72 h-72 bg-brand-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob dark:mix-blend-normal dark:opacity-10"></div>
+  <div class="absolute top-0 -right-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000 dark:mix-blend-normal dark:opacity-10"></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 relative z-10">
     <div class="text-center" in:fly={{ y: 20, duration: 800, delay: 200 }}>
-      <h1 class="text-4xl sm:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-        Welcome to <span class="text-primary-600 dark:text-primary-400">Laju</span>
+      <h1 class="text-4xl sm:text-6xl font-bold text-slate-900 dark:text-white mb-6">
+        Welcome to <span class="text-brand-600 dark:text-brand-400">Laju</span>
       </h1>
-      <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8">
+      <p class="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-8">
         A high-performance TypeScript web framework for building modern full-stack applications with speed and elegance.
       </p>
       <div class="flex justify-center gap-4">
         <a
           href="https://github.com/maulanashalihin/laju"
            target="_blank"
-          class="px-6 py-3 text-white bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition-colors"
+          class="px-6 py-3 text-white bg-brand-600 hover:bg-brand-700 rounded-xl font-medium transition-all shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40"
         >
           Get Started
         </a>
         <a
           href="https://deepwiki.com/maulanashalihin/laju"
            target="_blank"
-          class="px-6 py-3 text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg font-medium transition-colors"
+          class="px-6 py-3 text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600 rounded-xl font-medium transition-colors"
         >
           Learn More
         </a>
@@ -57,30 +60,30 @@
 </div>
 
 <!-- Features Section -->
-<div class="py-24 bg-white dark:bg-gray-900">
+<div class="py-24 bg-white dark:bg-slate-950">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid md:grid-cols-3 gap-8">
       {#each features as feature, i}
         <div 
-          class="p-6 rounded-xl bg-gray-50 dark:bg-gray-800 hover:shadow-lg transition-shadow duration-300"
+          class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-brand-500/50 dark:hover:border-brand-500/50 hover:shadow-lg transition-all duration-300 group"
           in:fly={{ y: 20, duration: 800, delay: 200 + (i * 100) }}
         >
-          <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-lg flex items-center justify-center mb-4">
+          <div class="w-12 h-12 bg-brand-100 dark:bg-brand-900/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               stroke-width="1.5"
               stroke="currentColor"
-              class="w-6 h-6 text-primary-600 dark:text-primary-400"
+              class="w-6 h-6 text-brand-600 dark:text-brand-400"
             >
               {@html feature.icon}
             </svg>
           </div>
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2">
             {feature.title}
           </h3>
-          <p class="text-gray-600 dark:text-gray-300">
+          <p class="text-slate-600 dark:text-slate-400">
             {feature.description}
           </p>
         </div>
@@ -90,19 +93,19 @@
 </div>
 
 <!-- CTA Section -->
-<div class="py-24 bg-gray-50 dark:bg-gray-800">
+<div class="py-24 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
     <div in:fly={{ y: 20, duration: 800 }}>
-      <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+      <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">
         Ready to Get Started?
       </h2>
-      <p class="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
+      <p class="text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-2xl mx-auto">
         Join us and experience the next generation of development tools.
       </p>
       <a
         href="/register"
         use:inertia
-        class="inline-flex items-center px-6 py-3 text-white bg-primary-600 hover:bg-primary-700 rounded-lg font-medium transition-colors"
+        class="inline-flex items-center px-8 py-4 text-white bg-brand-600 hover:bg-brand-700 rounded-xl font-bold transition-all shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40"
       >
         Create Account
         <svg

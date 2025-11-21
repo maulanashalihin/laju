@@ -9,7 +9,7 @@
   }
 
   body::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
   }
 
   body::-webkit-scrollbar-track {
@@ -17,72 +17,68 @@
   }
 
   body::-webkit-scrollbar-thumb {
-    background-color: theme('colors.primary.500');
+    background-color: theme('colors.brand.500');
     border-radius: 3px;
   }
 }
 
 @layer components {
- 
-  
-  .card-hover {
-    @apply transition-all duration-300 hover:shadow-soft hover:-translate-y-1;
+  /* Modern Glassmorphism */
+  .glass {
+    @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/20 dark:border-slate-800 shadow-2xl;
   }
   
+  .glass-panel {
+    @apply bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50;
+  }
+
+  .input-modern {
+    @apply w-full px-5 py-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 
+           focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-brand-500/20 focus:border-brand-500 dark:focus:border-brand-500 
+           transition-all duration-300 outline-none dark:text-white placeholder-slate-400 text-sm font-medium;
+  }
+
   .nav-link {
-    @apply px-4 py-2 text-gray-600 dark:text-gray-200 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-300;
+    @apply px-4 py-2 text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-slate-800/50 rounded-xl transition-all duration-300 font-medium;
   }
 
   .nav-link.active {
-    @apply bg-primary-50 dark:bg-gray-800 text-primary-600;
+    @apply bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400;
   }
  
   .gradient-text {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-600 via-brand-500 to-purple-600;
   }
   
   .mobile-nav-link {
-    @apply block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50;
+    @apply block px-4 py-3 rounded-xl text-base font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800;
   }
   
   .mobile-nav-link.active {
-    @apply text-primary-600 font-semibold;
+    @apply bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400;
   }
 
   .btn-primary {
-    @apply bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 
-           transition-all duration-300 active:bg-primary-800 
-           disabled:opacity-50 disabled:cursor-not-allowed
-           focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply bg-gradient-to-r from-brand-600 to-brand-500 text-white px-6 py-2.5 rounded-xl 
+           hover:shadow-lg hover:shadow-brand-500/20 hover:-translate-y-0.5
+           transition-all duration-300 active:scale-95 
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none
+           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 font-semibold tracking-wide text-sm;
   }
 
   .btn-secondary {
-    @apply bg-white text-gray-900 px-4 py-2 rounded-lg border border-gray-300
-           hover:bg-gray-50 transition-all duration-300 active:bg-gray-100
+    @apply bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 px-6 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700
+           hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600
+           transition-all duration-300 active:scale-95
            disabled:opacity-50 disabled:cursor-not-allowed
-           focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2;
+           focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700 focus:ring-offset-2 dark:focus:ring-offset-slate-900 font-medium text-sm;
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-soft p-6 transition-all duration-300
-           shadow-lg hover:shadow-xl hover:-translate-y-0.5;
+    @apply bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 p-8 transition-all duration-300;
   }
-
-  /* Custom scrollbar for side menu */
-  .side-menu::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  .side-menu::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .side-menu::-webkit-scrollbar-thumb {
-    background-color: theme('colors.primary.500');
-    border-radius: 3px;
-  }
-
-  .dark .side-menu {
-    border-color: theme('colors.gray.700');
+  
+  .card-hover {
+    @apply hover:border-brand-500/30 dark:hover:border-brand-500/30 hover:shadow-brand-500/10 hover:-translate-y-1;
   }
 }

@@ -27,7 +27,7 @@
   }
 </script>
 
-<header class="bg-white/80 dark:bg-gray-900 dark:border-b dark:border-gray-700  backdrop-blur-md fixed w-full z-50 shadow-sm" 
+<header class="bg-white/80 dark:bg-slate-950/80 dark:border-b dark:border-slate-800 backdrop-blur-md fixed w-full z-50 shadow-sm" 
   in:fly={{ y: -20, duration: 1000, delay: 200 }}>
   <nav
     class=" mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between"
@@ -44,7 +44,7 @@
         <a 
           use:inertia 
           href={item.href} 
-          class="nav-link dark:text-gray-200 dark:hover:dark:text-gray-100 dark:hover:bg-gray-800 {item.group === group ? 'active dark:bg-gray-800' : ''}"
+          class="nav-link dark:text-slate-200 dark:hover:text-white dark:hover:bg-slate-800 {item.group === group ? 'active dark:bg-slate-800' : ''}"
         >
           {item.label}
         </a>
@@ -58,15 +58,15 @@
       </div>
       
       <!-- Auth Buttons -->
-      <div class="hidden sm:flex items-center space-x-3 dark:text-gray-300">
+      <div class="hidden sm:flex items-center space-x-3 dark:text-slate-300">
         {#if user && user.id}
           <div class="relative" use:clickOutside on:click_outside={() => isUserMenuOpen = false}>
             <button 
-              class="flex items-center space-x-2 hover:bg-gray-100 p-2 rounded-lg dark:hover:bg-gray-800"
+              class="flex items-center space-x-2 hover:bg-slate-100 p-2 rounded-lg dark:hover:bg-slate-800"
               on:click={() => isUserMenuOpen = !isUserMenuOpen}
             >
-              <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                <span class="text-primary-700 font-medium">{user.name[0].toUpperCase()}</span>
+              <div class="w-8 h-8 bg-brand-100 dark:bg-brand-900/30 rounded-full flex items-center justify-center">
+                <span class="text-brand-700 dark:text-brand-400 font-medium">{user.name[0].toUpperCase()}</span>
               </div>
               <span class="font-medium">{user.name}</span>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
@@ -76,16 +76,16 @@
 
             {#if isUserMenuOpen}
               <div 
-                class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 dark:bg-gray-800 dark:text-gray-300"
+                class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 dark:bg-slate-900 border dark:border-slate-800 dark:text-slate-300 ring-1 ring-black ring-opacity-5 focus:outline-none"
                 transition:fly={{ y: -10, duration: 200 }}
               >
-              <a href="/profile/{user.username}" use:inertia class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Profile</a>
-               
-                <a href="/profile" use:inertia class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Edit Profile</a>
-                <a href="/settings" use:inertia class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700">Settings</a>
+             
+                <a href="/profile" use:inertia class="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Edit Profile</a>
+                <a href="/settings" use:inertia class="block px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">Settings</a>
+                <div class="border-t border-slate-100 dark:border-slate-800 my-1"></div>
                 <button 
                   on:click={handleLogout}
-                  class="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                 >
                   Logout
                 </button>
@@ -100,7 +100,7 @@
       
       <!-- Mobile Menu Button -->
       <button
-        class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-400"
+        class="md:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-400"
         on:click={() => isMenuOpen = !isMenuOpen}
         aria-label="Menu"
       >
@@ -140,24 +140,24 @@
     on:click={() => (isMenuOpen = false)}
   >
     <div
-      class="absolute right-0 top-0 h-screen w-64 bg-white dark:bg-gray-800 shadow-lg"
+      class="absolute right-0 top-0 h-screen w-64 bg-white dark:bg-slate-900 shadow-lg"
       on:click|stopPropagation
     >
       <div class="flex flex-col p-4 space-y-4">
         {#each menuLinks.filter((item) => item.show) as item}
           <a 
             href={item.href} 
-            class="mobile-nav-link dark:text-gray-200 dark:hover:bg-gray-700 dark:hover:text-white {item.group === group ? 'active' : ''}"
+            class="mobile-nav-link dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white {item.group === group ? 'active' : ''}"
           >
             {item.label}
           </a>
         {/each}
       </div>
-      <div class="px-4 py-3 border-t dark:border-gray-700 border-gray-200">
+      <div class="px-4 py-3 border-t dark:border-slate-800 border-slate-200">
         <div class="flex items-center space-x-3">
           {#if user}
             <button 
-              class="flex-1 btn-secondary dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 dark:hover:text-white dark:text-gray-400 text-sm py-2"
+              class="flex-1 btn-secondary dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 dark:hover:text-white dark:text-slate-400 text-sm py-2"
               on:click={handleLogout}
             >
               Logout
