@@ -37,7 +37,11 @@ if(process.env.HAS_CERTIFICATE === 'true') {
 const webserver = new HyperExpress.Server(option);
  
 // Load environment variables from .env into process.env
-require("dotenv").config();
+// In production (build folder), load .env from parent directory (root repository)
+const envPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, '..', '.env') 
+  : undefined;
+require("dotenv").config({ path: envPath });
 
 // Register view engine & template rendering (side-effect import)
 // This module sets up HTML/Inertia view rendering globally.
