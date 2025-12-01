@@ -18,7 +18,10 @@ if (process.env.HAS_CERTIFICATE === 'true') {
     option.cert_file_name = path_1.default.join(process.cwd(), 'localhost+1.pem');
 }
 const webserver = new hyper_express_1.default.Server(option);
-require("dotenv").config();
+const envPath = process.env.NODE_ENV === 'production'
+    ? path_1.default.join(__dirname, '..', '.env')
+    : undefined;
+require("dotenv").config({ path: envPath });
 require("./app/services/View");
 webserver.use((0, cors_1.default)());
 webserver.use((0, inertia_1.default)());

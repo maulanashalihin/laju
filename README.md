@@ -359,79 +359,60 @@ npm run build
 
 ## Deployment
 
-Follow these steps to deploy your Laju application to a production server:
+### Quick Start (First Time Deploy)
 
-### 1. Install Node.js 22
+Build di server, bukan di local. Cukup push source code ke GitHub.
 
 ```bash
-# Using nvm (recommended)
+# 1. SSH ke server
+ssh root@your-server-ip
+
+# 2. Install Node.js via NVM
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 source ~/.bashrc
 nvm install 22
-nvm use 22
 
-# Or download from nodejs.org
-# https://nodejs.org/
-```
-
-### 2. Navigate to Build Directory
-
-```bash
-cd your-app/build
-```
-
-### 3. Install Dependencies
-
-```bash
-npm i
-```
-
-### 4. Setup Environment Variables
-
-```bash
-cp ../.env.example .
-```
-
-Edit the `.env` file with your production configuration (database, API keys, etc.).
-
-### 5. Run Database Migrations
-
-```bash
-npx knex migrate:latest --env production
-```
-
-### 6. Install PM2
-
-```bash
+# 3. Install PM2
 npm install -g pm2
-```
 
-### 7. Start Application with PM2
+# 4. Clone repository & build
+cd /root
+git clone https://github.com/yourusername/your-app.git laju
+cd laju
+npm install
+npm run build
 
-```bash
-pm2 start server.js --name your-app
-```
+# 5. Setup environment (.env di root folder)
+cp .env.example .env
+nano .env  # Edit sesuai kebutuhan
 
-### Additional PM2 Commands
-
-```bash
-# View logs
-pm2 logs your-app
-
-# Restart application
-pm2 restart your-app
-
-# Stop application
-pm2 stop your-app
-
-# View status
-pm2 status
-
-# Save PM2 configuration
+# 6. Run migrations & start PM2
+cd build
+npx knex migrate:latest --env production
+pm2 start server.js --name laju
 pm2 save
-
-# Setup PM2 to start on system boot
 pm2 startup
+```
+
+### Auto Deploy dengan GitHub Actions
+
+Setelah setup pertama, gunakan GitHub Actions untuk auto-deploy. Setiap push ke `main` akan otomatis deploy.
+
+1. Copy workflow: `cp -r github-workflow-sample/workflows .github/`
+2. Setup GitHub Secrets: `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY`
+3. Push ke GitHub - deployment otomatis!
+
+Panduan lengkap: [docs/07-GITHUB-ACTIONS-DEPLOY.md](docs/07-GITHUB-ACTIONS-DEPLOY.md)
+
+### PM2 Commands
+
+```bash
+pm2 logs laju        # View logs
+pm2 restart laju     # Restart application
+pm2 stop laju        # Stop application
+pm2 status           # View status
+pm2 save             # Save PM2 configuration
+pm2 startup          # Setup PM2 to start on system boot
 ```
 
 ## Absolute Imports

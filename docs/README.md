@@ -67,13 +67,20 @@ Complete documentation for the Laju high-performance TypeScript web framework.
    - Middleware functions
    - Helper utilities
 
-8. **[Deployment Guide](08-DEPLOYMENT.md)** *(Coming Soon)*
+8. **[Deployment Guide](05-DEPLOYMENT.md)**
    - Production build
    - Server setup
    - Environment configuration
    - PM2 process management
    - HTTPS/SSL setup
    - Performance optimization
+
+9. **[GitHub Actions Auto Deploy](07-GITHUB-ACTIONS-DEPLOY.md)**
+   - Setup GitHub Secrets
+   - Generate SSH Key
+   - Server configuration
+   - Workflow customization
+   - Troubleshooting
 
 9. **[Testing](09-TESTING.md)** *(Coming Soon)*
    - Unit testing
@@ -132,9 +139,11 @@ docs/
 ├── 05-DATABASE.md                 # Database guide (coming soon)
 ├── 06-AUTHENTICATION.md           # Auth system (coming soon)
 ├── 07-API-REFERENCE.md            # API docs (coming soon)
-├── 08-DEPLOYMENT.md               # Deployment guide (coming soon)
-├── 09-TESTING.md                  # Testing guide (coming soon)
-└── 10-BEST-PRACTICES.md           # Best practices (coming soon)
+├── 05-DEPLOYMENT.md               # Deployment guide
+├── 06-BEST-PRACTICES.md           # Best practices
+├── 07-GITHUB-ACTIONS-DEPLOY.md    # GitHub Actions auto deploy
+├── 08-TESTING.md                  # Testing guide (coming soon)
+└── 09-API-REFERENCE.md            # API docs (coming soon)
 ```
 
 ## 🎯 Learning Path

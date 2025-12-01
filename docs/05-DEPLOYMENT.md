@@ -4,16 +4,61 @@ Complete guide for deploying Laju applications to production.
 
 ## Table of Contents
 
-1. [Prerequisites](#prerequisites)
-2. [Build Process](#build-process)
-3. [Server Setup](#server-setup)
-4. [Environment Configuration](#environment-configuration)
-5. [Database Setup](#database-setup)
-6. [PM2 Process Management](#pm2-process-management)
-7. [HTTPS/SSL Setup](#httpsssl-setup)
-8. [Performance Optimization](#performance-optimization)
-9. [Monitoring & Logging](#monitoring--logging)
-10. [Backup Strategy](#backup-strategy)
+1. [Quick Start - First Time Deploy](#quick-start---first-time-deploy)
+2. [Prerequisites](#prerequisites)
+3. [Build Process](#build-process)
+4. [Server Setup](#server-setup)
+5. [Environment Configuration](#environment-configuration)
+6. [Database Setup](#database-setup)
+7. [PM2 Process Management](#pm2-process-management)
+8. [HTTPS/SSL Setup](#httpsssl-setup)
+9. [Performance Optimization](#performance-optimization)
+10. [Monitoring & Logging](#monitoring--logging)
+11. [Backup Strategy](#backup-strategy)
+12. [CI/CD dengan GitHub Actions](#cicd-dengan-github-actions-recommended)
+
+---
+
+## Quick Start - First Time Deploy
+
+Untuk deployment pertama kali, ikuti langkah-langkah berikut di server:
+
+```bash
+# 1. SSH ke server
+ssh root@your-server-ip
+
+# 2. Install Node.js via NVM
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+source ~/.bashrc
+nvm install 22
+
+# 3. Install PM2
+npm install -g pm2
+
+# 4. Clone repository
+cd /root
+git clone https://github.com/yourusername/your-app.git laju
+cd laju
+
+# 5. Install dependencies & build
+npm install
+npm run build
+
+# 6. Setup environment (.env di root, bukan di build/)
+cp .env.example .env
+nano .env  # Edit sesuai kebutuhan
+
+# 7. Run migrations & start PM2 (dari folder build/)
+cd build
+npx knex migrate:latest --env production
+
+# 8. Start dengan PM2
+pm2 start server.js --name laju
+pm2 save
+pm2 startup
+```
+
+**Setelah setup pertama selesai**, Anda bisa setup [GitHub Actions](#cicd-dengan-github-actions-recommended) untuk auto-deploy. Setiap push ke `main` akan otomatis deploy tanpa perlu SSH manual.
 
 ---
 
@@ -102,7 +147,7 @@ build/
 
 ## Server Setup
 
-### 1. Create Deployment User
+### 1. Create Deployment User (Optional)
 
 ```bash
 # Create dedicated user for the app
@@ -113,38 +158,79 @@ sudo usermod -aG sudo laju
 su - laju
 ```
 
-### 2. Upload Build Files
+> **Note:** Anda juga bisa menggunakan user `root` langsung untuk setup yang lebih sederhana.
+
+### 2. Clone Repository & Build di Server (Recommended)
+
+Dengan pendekatan baru, Anda **tidak perlu build di local**. Clone repository dan build langsung di server:
+
+```bash
+# SSH ke server
+ssh root@your-server-ip
+
+# Clone repository
+cd /root  # atau direktori pilihan Anda
+git clone https://github.com/yourusername/your-app.git laju
+cd laju
+
+# Install dependencies
+npm install
+
+# Build aplikasi
+npm run build
+
+# Pindah ke folder build
+cd build
+
+# Install production dependencies
+npm install --production
+```
+
+**Struktur setelah build:**
+
+```
+/root/laju/              # Source code (git repository)
+├── app/
+├── resources/
+├── node_modules/
+├── build/               # Production build
+│   ├── server.js
+│   ├── dist/
+│   ├── public/
+│   └── node_modules/
+└── ...
+```
+
+### 3. Alternative: Upload Build dari Local
+
+Jika Anda prefer build di local, gunakan salah satu metode berikut:
 
 **Option A: Using SCP**
 
 ```bash
-# From local machine
-scp -r build/ laju@your-server:/home/laju/app/
-```
-
-**Option B: Using Git**
-
-```bash
-# On server
-cd /home/laju
-git clone https://github.com/yourusername/your-app.git app
-cd app
+# Build di local dulu
 npm run build
+
+# Upload ke server
+scp -r build/ root@your-server:/root/laju/
 ```
 
-**Option C: Using rsync**
+**Option B: Using rsync**
 
 ```bash
-# From local machine
-rsync -avz --exclude 'node_modules' --exclude '.git' \
-  build/ laju@your-server:/home/laju/app/
+# Build di local dulu
+npm run build
+
+# Sync ke server
+rsync -avz --exclude 'node_modules' \
+  build/ root@your-server:/root/laju/build/
 ```
 
-### 3. Install Production Dependencies
+### 4. Install Production Dependencies
 
 ```bash
-# On server, in build directory
-cd /home/laju/app/build
+# Di server, masuk ke folder build
+cd /root/laju/build
 npm install --production
 ```
 
@@ -154,8 +240,10 @@ npm install --production
 
 ### 1. Create Production .env
 
+File `.env` disimpan di **root folder** (bukan di `build/`):
+
 ```bash
-cd /home/laju/app/build
+cd /root/laju
 nano .env
 ```
 
@@ -217,7 +305,6 @@ REDIS_PASSWORD=your_redis_password
 ```bash
 # Set proper permissions
 chmod 600 .env
-chown laju:laju .env
 ```
 
 ---
@@ -227,7 +314,7 @@ chown laju:laju .env
 ### 1. Create Data Directory
 
 ```bash
-cd /home/laju/app/build
+cd /root/laju/build
 mkdir -p data
 ```
 
@@ -247,7 +334,6 @@ ls -lh data/
 ```bash
 # Set proper permissions
 chmod 644 data/production.sqlite3
-chown laju:laju data/production.sqlite3
 ```
 
 ### 4. Verify WAL Mode
@@ -264,10 +350,10 @@ sqlite3 data/production.sqlite3 "PRAGMA journal_mode;"
 ### 1. Start Application
 
 ```bash
-cd /home/laju/app/build
+cd /root/laju/build
 
 # Start with PM2
-pm2 start server.js --name your-app
+pm2 start server.js --name laju
 
 # View logs
 pm2 logs your-app
@@ -742,8 +828,45 @@ sudo nginx -t
 
 ---
 
+---
+
+## CI/CD dengan GitHub Actions (Recommended)
+
+Laju menyediakan template GitHub Actions untuk auto-deployment. Setiap push ke branch `main` akan otomatis deploy ke server produksi.
+
+**Keuntungan:**
+- **Tidak perlu build di local** - cukup push source code
+- Server yang melakukan build, install, dan deploy
+- Konsisten environment antara build dan runtime
+- Workflow development lebih cepat
+
+### Quick Setup
+
+1. Copy workflow file:
+   ```bash
+   cp -r github-workflow-sample/workflows .github/
+   ```
+
+2. Setup GitHub Secrets:
+   - `SSH_HOST` - IP server
+   - `SSH_USER` - Username SSH
+   - `SSH_PRIVATE_KEY` - Private key SSH
+
+3. Push ke GitHub - deployment otomatis berjalan!
+
+```bash
+git add .
+git commit -m "Update feature"
+git push origin main
+# Server otomatis: pull → install → build → migrate → reload
+```
+
+**Panduan lengkap:** [GitHub Actions Auto Deploy](07-GITHUB-ACTIONS-DEPLOY.md)
+
+---
+
 ## Next Steps
 
+- [GitHub Actions Auto Deploy](07-GITHUB-ACTIONS-DEPLOY.md) - Setup CI/CD
 - [Best Practices](06-BEST-PRACTICES.md)
-- [Testing Guide](09-TESTING.md)
 - [API Reference](04-API-REFERENCE.md)

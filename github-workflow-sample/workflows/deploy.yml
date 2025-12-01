@@ -1,0 +1,128 @@
+# ============================================================================
+# LAJU FRAMEWORK - GITHUB ACTIONS AUTO DEPLOY WORKFLOW
+# ============================================================================
+#
+# PANDUAN PENGGUNAAN:
+# -------------------
+# File ini adalah template GitHub Actions untuk auto-deploy aplikasi Laju
+# ke server produksi Anda. Workflow ini akan berjalan otomatis setiap kali
+# ada push ke branch 'main'.
+#
+# FLOW DEPLOYMENT:
+# ----------------
+# Push code → GitHub Actions → SSH ke server → Pull → Install → Build → Migrate → Reload
+#
+# Dengan flow ini, Anda TIDAK PERLU build di local sebelum push.
+# Cukup push source code, server yang akan melakukan build.
+#
+# CARA SETUP:
+# -----------
+# 1. Copy folder 'workflows' ke root project Anda dan rename menjadi '.github'
+#    Struktur akhir: .github/workflows/deploy.yml
+#
+# 2. Setup GitHub Secrets di repository Anda:
+#    - Buka repository GitHub > Settings > Secrets and variables > Actions
+#    - Tambahkan secrets berikut:
+#
+#    SSH_HOST        : IP address atau domain server Anda (contoh: 123.45.67.89)
+#    SSH_USER        : Username SSH server (contoh: root, ubuntu, atau user lain)
+#    SSH_PRIVATE_KEY : Private key SSH untuk autentikasi (isi lengkap termasuk 
+#                      -----BEGIN OPENSSH PRIVATE KEY----- dan -----END...)
+#
+# 3. Pastikan server sudah di-setup:
+#    - Node.js terinstall (via NVM recommended)
+#    - PM2 terinstall global: npm install -g pm2
+#    - Git terinstall dan repository sudah di-clone
+#    - PM2 process sudah dibuat dengan nama yang sesuai (default: 'laju')
+#
+# 4. Sesuaikan konfigurasi di bawah:
+#    - Ganti path '/root/laju' dengan path project di server Anda
+#    - Ganti 'pm2 reload laju' dengan nama PM2 process Anda
+#    - Ganti branch 'main' jika menggunakan branch lain
+#
+# CARA GENERATE SSH KEY:
+# ----------------------
+# Di local machine:
+#   ssh-keygen -t ed25519 -C "github-actions-deploy"
+#
+# Copy public key ke server:
+#   ssh-copy-id -i ~/.ssh/id_ed25519.pub user@server-ip
+#
+# Copy private key untuk GitHub Secret:
+#   cat ~/.ssh/id_ed25519
+#
+# TROUBLESHOOTING:
+# ----------------
+# - Jika NVM tidak ditemukan, pastikan path NVM_DIR sesuai dengan instalasi
+# - Jika PM2 tidak ditemukan, tambahkan: export PATH="$PATH:$(npm bin -g)"
+# - Cek logs di GitHub Actions tab untuk melihat error detail
+#
+# ============================================================================
+
+name: Deploy to Production
+
+# Pemicu: Jalankan workflow ini setiap kali ada push ke branch 'main'
+on:
+  push:
+    branches:
+      - main  # Ganti 'main' jika Anda menggunakan branch lain (misal: 'production')
+
+# Pekerjaan yang harus dilakukan
+jobs:
+  deploy:
+    # Menggunakan OS runner terbaru dari GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+    # Langkah 1: Checkout kode (tidak wajib jika Anda hanya ssh)
+    # - name: Checkout code
+    #   uses: actions/checkout@v3
+
+    # Langkah 2: SSH ke server dan jalankan perintah deploy
+    - name: SSH and run deploy commands
+      uses: appleboy/ssh-action@master # Menggunakan Action populer untuk SSH
+      with:
+        host: ${{ secrets.SSH_HOST }}         # Ambil IP/host dari GitHub Secrets
+        username: ${{ secrets.SSH_USER }}     # Ambil username dari GitHub Secrets
+        key: ${{ secrets.SSH_PRIVATE_KEY }}   # Ambil kunci privat SSH dari GitHub Secrets
+        script: |
+          # ================================================================
+          # DEPLOYMENT SCRIPT
+          # Sesuaikan perintah di bawah dengan kebutuhan project Anda
+          # ================================================================
+          
+          echo "🚀 Starting deployment..."
+          
+          # [SESUAIKAN] Ganti dengan path ke direktori proyek Anda
+          cd /root/laju
+          
+          echo "📥 Pulling code from GitHub..."
+          git pull origin main
+
+          # Load NVM (diperlukan karena SSH non-interactive shell)
+          # Mengasumsikan NVM diinstal di lokasi default (~/.nvm)
+          echo "⚙️ Loading NVM..."
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+          
+          # (Opsional) Gunakan versi Node tertentu
+          # nvm use 22
+
+          echo "📦 Installing dependencies..."
+          npm install 
+
+          echo "🔨 Building application..."
+          npm run build
+
+          # Pindah ke folder build untuk menjalankan migration
+          cd /root/laju/build
+
+          echo "🗄️ Running database migrations..."
+          npx knex migrate:latest --env production
+        
+          # [SESUAIKAN] Ganti 'laju' dengan nama PM2 process Anda
+          echo "🔄 Reloading PM2 process..."
+          pm2 reload laju
+          
+          echo "✅ Deployment finished!"

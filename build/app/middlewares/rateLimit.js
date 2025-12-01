@@ -7,13 +7,16 @@ exports.customRateLimit = exports.userRateLimit = exports.createAccountRateLimit
 exports.rateLimit = rateLimit;
 const RateLimiter_1 = __importDefault(require("../services/RateLimiter"));
 const Logger_1 = require("../services/Logger");
+function getClientIP(request) {
+    return request.headers['cf-connecting-ip'] || request.ip || 'unknown';
+}
 function rateLimit(options = {}) {
     const config = {
         windowMs: options.windowMs || 15 * 60 * 1000,
         maxRequests: options.maxRequests || 100,
         message: options.message || 'Too many requests, please try again later',
         statusCode: options.statusCode || 429,
-        keyGenerator: options.keyGenerator || ((req) => req.ip || 'unknown'),
+        keyGenerator: options.keyGenerator || ((request) => getClientIP(request)),
         skip: options.skip || (() => false),
         handler: options.handler
     };
@@ -72,18 +75,14 @@ exports.generalRateLimit = rateLimit({
 exports.passwordResetRateLimit = rateLimit({
     windowMs: 60 * 60 * 1000,
     maxRequests: 3,
-    message: 'Too many password reset attempts, please try again later',
-    keyGenerator: (req) => {
-        const email = req.body?.email || req.ip;
-        return `password-reset:${email}`;
-    }
+    message: 'Too many password reset attempts, please try again later'
 });
 exports.emailRateLimit = rateLimit({
     windowMs: 60 * 60 * 1000,
     maxRequests: 10,
     message: 'Too many emails sent, please try again later',
-    keyGenerator: (req) => {
-        const userId = req.user?.id || req.ip;
+    keyGenerator: (request) => {
+        const userId = request.user?.id || getClientIP(request);
         return `email:${userId}`;
     }
 });
@@ -91,8 +90,8 @@ exports.uploadRateLimit = rateLimit({
     windowMs: 60 * 60 * 1000,
     maxRequests: 50,
     message: 'Too many file uploads, please try again later',
-    keyGenerator: (req) => {
-        const userId = req.user?.id || req.ip;
+    keyGenerator: (request) => {
+        const userId = request.user?.id || getClientIP(request);
         return `upload:${userId}`;
     }
 });
@@ -105,11 +104,11 @@ const userRateLimit = (maxRequests = 100, windowMs = 15 * 60 * 1000) => {
     return rateLimit({
         windowMs,
         maxRequests,
-        keyGenerator: (req) => {
-            const userId = req.user?.id || req.ip;
+        keyGenerator: (request) => {
+            const userId = request.user?.id || getClientIP(request);
             return `user:${userId}`;
         },
-        skip: (req) => !req.user
+        skip: (request) => !request.user
     });
 };
 exports.userRateLimit = userRateLimit;
