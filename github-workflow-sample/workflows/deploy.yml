@@ -114,9 +114,7 @@ jobs:
 
           echo "🔨 Building application..."
           npm run build
-
-          # Pindah ke folder build untuk menjalankan migration
-          cd /root/laju/build
+ 
 
           echo "🗄️ Running database migrations..."
           npx knex migrate:latest --env production

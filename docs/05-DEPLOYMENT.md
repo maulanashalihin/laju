@@ -49,11 +49,10 @@ cp .env.example .env
 nano .env  # Edit sesuai kebutuhan
 
 # 7. Run migrations & start PM2 (dari folder build/)
-cd build
 npx knex migrate:latest --env production
 
 # 8. Start dengan PM2
-pm2 start server.js --name laju
+pm2 start build/server.js --name laju
 pm2 save
 pm2 startup
 ```
