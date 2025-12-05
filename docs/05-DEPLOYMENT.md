@@ -182,7 +182,7 @@ npm run build
 cd build
 
 # Install production dependencies
-npm install --production
+npm install 
 ```
 
 **Struktur setelah build:**
@@ -349,10 +349,10 @@ sqlite3 data/production.sqlite3 "PRAGMA journal_mode;"
 ### 1. Start Application
 
 ```bash
-cd /root/laju/build
+cd /root/laju
 
 # Start with PM2
-pm2 start server.js --name laju
+pm2 start build/server.js --name laju
 
 # View logs
 pm2 logs your-app
@@ -369,7 +369,7 @@ Create `ecosystem.config.js`:
 module.exports = {
   apps: [{
     name: 'your-app',
-    script: './server.js',
+    script: './build/server.js',
     instances: 'max',  // Use all CPU cores
     exec_mode: 'cluster',
     env: {
