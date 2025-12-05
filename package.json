@@ -5,7 +5,7 @@
   "main": "server.ts",
   "scripts": {
     "dev": "clear && rm -rf dist && rm -rf build && npx concurrently 'vite'  'sleep 1 && npx nodemon --legacy-watch'",
-    "build": "vite build && tsc && tsc-alias -p tsconfig.json && cp -rf dist build && cp -rf public build && cp -rf resources/views/partials dist/views",
+       "build": "vite build && tsc && tsc-alias -p tsconfig.json  && cp -rf resources/views/partials dist/views",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage"

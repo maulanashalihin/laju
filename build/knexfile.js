@@ -11,7 +11,7 @@ const config = {
     production: {
         client: "better-sqlite3",
         connection: {
-            filename: "../data/production.sqlite3"
+            filename: "./data/production.sqlite3"
         },
         useNullAsDefault: true
     },
