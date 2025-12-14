@@ -1,40 +1,41 @@
- # Gunakan Node.js LTS sebagai runtime
-FROM node:lts
+# Use Node.js 22 LTS as runtime
+FROM node:22-slim
 
-# Set TERM agar tidak error di terminal
+# Set environment
 ENV TERM=xterm
+ENV NODE_ENV=production
 
-# Jalankan sebagai root untuk setup awal
-USER root
-
-# Install dependensi yang dibutuhkan
+# Install build dependencies
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
     g++ \
-    build-essential
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy semua file ke dalam container
-COPY --chown=www-data:www-data . .
-
-# Install NPM secara global dan yang dibutuhkan
-RUN npm install -g pm2 knex node-gyp
-
-# Install dependensi Node.js
-RUN npm cache clean --force
-RUN npm install
-
-# Set working directory lebih awal
+# Set working directory
 WORKDIR /app
 
-# Set user yang akan digunakan
-USER www-data
+# Copy package files first (for better caching)
+COPY package*.json ./
 
-# Expose port 5173 dan 5555
-EXPOSE 5173 5555
+# Install global packages
+RUN npm install -g pm2
 
-# Jalankan aplikasi menggunakan PM2 (development mode)
-CMD [ "npm", "run", "dev", "--", "--host"] ]
+# Install dependencies
+RUN npm ci
 
-# Jalankan aplikasi menggunakan PM2 (production mode)
-# CMD [ "pm2-runtime", "start", "./build/server.js" ]
+# Copy source files
+COPY . .
+
+# Build application
+RUN npm run build
+
+# Create data directory
+RUN mkdir -p data
+
+# Expose port
+EXPOSE 5555
+
+# Run migrations and start with PM2
+CMD ["sh", "-c", "npx knex migrate:latest --env production && pm2-runtime start build/server.js --name laju"]
