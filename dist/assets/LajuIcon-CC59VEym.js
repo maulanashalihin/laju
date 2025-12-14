@@ -1,1 +1,0 @@
-import{f as n,b as p}from"./inertia-D-S6W8dG.js";var r=n('<span class="flex gap-2 items-center"><img class="h-16" src="/public/new-laju.png" alt=""/></span>');function t(a){var s=r();p(a,s)}export{t as L};

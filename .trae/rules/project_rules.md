@@ -6,7 +6,7 @@
    - Focus on custom-built components over standard libraries 
 
 2. Technology Stack Flexibility:
-   - Prioritize using tailwindcss
+   - Prioritize using tailwindcss versi 4
    - Using Svelte Framework 
    - Incorporate CSS-in-JS solutions 
  
@@ -17,7 +17,8 @@
    - Enable creative responsive design patterns
    - Support advanced theming systems
    - Encourage CSS art and creative visuals
-      - selalu focus:outline-none pada form input
+   - selalu focus:outline-none pada form input
+   - hindari/kurangi pemakaian emoji
 </frontend_generation_rules>
  
 
@@ -68,10 +69,7 @@
 bash
 # Start development server
 npm run dev
-
-# Build for production
-npm run build
-
+ 
 # Run database migrations
 npx knex migrate:latest
  

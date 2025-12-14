@@ -160,7 +160,7 @@ resources/js/
 │   └── helper.js           # Utility functions
 │
 ├── app.js                  # Inertia entry point
-└── index.css               # Global styles (Tailwind)
+└── index.css               # Global styles (TailwindCSS 4)
 ```
 
 ### Views (`resources/views/`)
@@ -284,8 +284,6 @@ laju/
 ├── knexfile.ts             # Database configuration
 ├── vite.config.mjs         # Vite configuration
 ├── tsconfig.json           # TypeScript configuration
-├── tailwind.config.js      # Tailwind configuration
-├── postcss.config.js       # PostCSS configuration
 ├── svelte.config.mjs       # Svelte configuration
 ├── vitest.config.ts        # Vitest test configuration
 ├── package.json            # Dependencies & scripts

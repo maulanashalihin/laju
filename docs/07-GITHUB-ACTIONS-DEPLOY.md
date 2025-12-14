@@ -1,6 +1,6 @@
 # GitHub Actions Auto Deploy
 
-Panduan lengkap untuk setup auto-deployment menggunakan GitHub Actions pada aplikasi Laju.
+Complete guide for setting up auto-deployment using GitHub Actions for Laju applications.
 
 ## Table of Contents
 
@@ -18,43 +18,43 @@ Panduan lengkap untuk setup auto-deployment menggunakan GitHub Actions pada apli
 
 ## Overview
 
-Laju menyediakan template GitHub Actions workflow di folder `github-workflow-sample/` untuk memudahkan setup auto-deployment. Dengan workflow ini, setiap kali Anda push ke branch `main`, aplikasi akan otomatis di-deploy ke server produksi.
+Laju provides a GitHub Actions workflow template in the `github-workflow-sample/` folder to simplify auto-deployment setup. With this workflow, every time you push to the `main` branch, the application will automatically deploy to your production server.
 
-**Alur Deployment:**
+**Deployment Flow:**
 
 ```
-Push ke GitHub → GitHub Actions triggered → SSH ke server → Pull code → Install deps → Build di server → Migrate → Reload PM2
+Push to GitHub → GitHub Actions triggered → SSH to server → Pull code → Install deps → Build on server → Migrate → Reload PM2
 ```
 
-**Keuntungan Build di Server:**
-- Tidak perlu build di local sebelum push
-- Cukup push source code, server yang build
-- Konsisten environment antara build dan runtime
-- Lebih cepat untuk development workflow
+**Benefits of Building on Server:**
+- No need to build locally before pushing
+- Just push source code, server handles the build
+- Consistent environment between build and runtime
+- Faster development workflow
 
 ---
 
 ## Prerequisites
 
-### Di Server Produksi
+### On Production Server
 
-- **Node.js** terinstall (via NVM recommended)
-- **PM2** terinstall global
-- **Git** terinstall
-- Repository sudah di-clone ke server
-- SSH access sudah dikonfigurasi
-- **Cukup RAM** untuk build (minimal 1GB, recommended 2GB+)
+- **Node.js** installed (via NVM recommended)
+- **PM2** installed globally
+- **Git** installed
+- Repository already cloned to server
+- SSH access configured
+- **Sufficient RAM** for build (minimum 1GB, recommended 2GB+)
 
-### Di GitHub
+### On GitHub
 
-- Repository sudah di-push ke GitHub
-- Akses ke Settings repository (untuk setup Secrets)
+- Repository already pushed to GitHub
+- Access to repository Settings (for Secrets setup)
 
-### Di Local (Development)
+### On Local (Development)
 
-- Tidak perlu build sebelum push
-- Cukup push source code ke GitHub
-- Server yang akan melakukan build
+- No need to build before pushing
+- Just push source code to GitHub
+- Server will handle the build
 
 ---
 
@@ -62,14 +62,14 @@ Push ke GitHub → GitHub Actions triggered → SSH ke server → Pull code → 
 
 ### 1. Copy Workflow File
 
-Copy folder `workflows` dari `github-workflow-sample` ke root project dan rename menjadi `.github`:
+Copy the `workflows` folder from `github-workflow-sample` to your project root and rename it to `.github`:
 
 ```bash
-# Dari root project
+# From project root
 cp -r github-workflow-sample/workflows .github/
 ```
 
-Struktur akhir:
+Final structure:
 
 ```
 your-project/
@@ -83,31 +83,31 @@ your-project/
 
 ### 2. Setup GitHub Secrets
 
-Buka repository GitHub Anda:
+Open your GitHub repository:
 
-1. Pergi ke **Settings** → **Secrets and variables** → **Actions**
-2. Klik **New repository secret**
-3. Tambahkan 3 secrets berikut:
+1. Go to **Settings** → **Secrets and variables** → **Actions**
+2. Click **New repository secret**
+3. Add the following 3 secrets:
 
 | Secret Name       | Value                                      |
 | ----------------- | ------------------------------------------ |
-| `SSH_HOST`        | IP address atau domain server              |
-| `SSH_USER`        | Username SSH (contoh: `root`, `ubuntu`)    |
-| `SSH_PRIVATE_KEY` | Isi lengkap private key SSH                |
+| `SSH_HOST`        | Server IP address or domain                |
+| `SSH_USER`        | SSH username (e.g., `root`, `ubuntu`)      |
+| `SSH_PRIVATE_KEY` | Complete SSH private key content           |
 
-### 3. Sesuaikan Konfigurasi
+### 3. Customize Configuration
 
 Edit `.github/workflows/deploy.yml`:
 
 ```yaml
-# Ganti path project
-cd /root/laju  # → Ganti dengan path project Anda
+# Change project path
+cd /root/laju  # → Change to your project path
 
-# Ganti nama PM2 process
-pm2 reload laju  # → Ganti dengan nama PM2 process Anda
+# Change PM2 process name
+pm2 reload laju  # → Change to your PM2 process name
 ```
 
-### 4. Push dan Deploy
+### 4. Push and Deploy
 
 ```bash
 git add .
@@ -115,31 +115,31 @@ git commit -m "Add GitHub Actions workflow"
 git push origin main
 ```
 
-Workflow akan otomatis berjalan. Cek progress di tab **Actions** di repository GitHub.
+The workflow will run automatically. Check progress in the **Actions** tab in your GitHub repository.
 
-> **Note:** Anda tidak perlu menjalankan `npm run build` di local. Cukup push source code, server yang akan melakukan build.
+> **Note:** You don't need to run `npm run build` locally. Just push source code, the server will handle the build.
 
 ---
 
 ## Setup GitHub Secrets
 
-### Langkah Detail
+### Detailed Steps
 
-1. **Buka Repository GitHub**
+1. **Open GitHub Repository**
    
-   Pergi ke `https://github.com/username/repository`
+   Go to `https://github.com/username/repository`
 
-2. **Masuk ke Settings**
+2. **Go to Settings**
    
-   Klik tab **Settings** di bagian atas repository
+   Click the **Settings** tab at the top of the repository
 
-3. **Navigasi ke Secrets**
+3. **Navigate to Secrets**
    
-   Di sidebar kiri, klik **Secrets and variables** → **Actions**
+   In the left sidebar, click **Secrets and variables** → **Actions**
 
-4. **Tambahkan Secrets**
+4. **Add Secrets**
 
-   Klik **New repository secret** untuk setiap secret:
+   Click **New repository secret** for each secret:
 
    **SSH_HOST:**
    ```
@@ -156,17 +156,17 @@ Workflow akan otomatis berjalan. Cek progress di tab **Actions** di repository G
    **SSH_PRIVATE_KEY:**
    ```
    Name: SSH_PRIVATE_KEY
-   Secret: [paste seluruh isi private key]
+   Secret: [paste entire private key content]
    ```
 
-### Format SSH Private Key
+### SSH Private Key Format
 
-Private key harus di-paste lengkap termasuk header dan footer:
+The private key must be pasted completely including header and footer:
 
 ```
 -----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-... (baris-baris key) ...
+... (key lines) ...
 QyMDI0MDEwMQAAAAtzc2gtZWQyNTUxOQAAACBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 -----END OPENSSH PRIVATE KEY-----
 ```
@@ -175,52 +175,52 @@ QyMDI0MDEwMQAAAAtzc2gtZWQyNTUxOQAAACBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ## Generate SSH Key
 
-### Di Local Machine
+### On Local Machine
 
 ```bash
-# Generate key baru khusus untuk GitHub Actions
+# Generate a new key specifically for GitHub Actions
 ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/github_actions
 
-# Akan menghasilkan 2 file:
-# ~/.ssh/github_actions       (private key - untuk GitHub Secret)
-# ~/.ssh/github_actions.pub   (public key - untuk server)
+# This will generate 2 files:
+# ~/.ssh/github_actions       (private key - for GitHub Secret)
+# ~/.ssh/github_actions.pub   (public key - for server)
 ```
 
-### Copy Public Key ke Server
+### Copy Public Key to Server
 
 ```bash
-# Metode 1: Menggunakan ssh-copy-id
+# Method 1: Using ssh-copy-id
 ssh-copy-id -i ~/.ssh/github_actions.pub user@server-ip
 
-# Metode 2: Manual
+# Method 2: Manual
 cat ~/.ssh/github_actions.pub
-# Copy output, lalu di server:
+# Copy output, then on server:
 # nano ~/.ssh/authorized_keys
-# Paste di baris baru
+# Paste on a new line
 ```
 
-### Copy Private Key untuk GitHub Secret
+### Copy Private Key for GitHub Secret
 
 ```bash
 cat ~/.ssh/github_actions
-# Copy SELURUH output (termasuk -----BEGIN dan -----END)
-# Paste ke GitHub Secret SSH_PRIVATE_KEY
+# Copy the ENTIRE output (including -----BEGIN and -----END)
+# Paste into GitHub Secret SSH_PRIVATE_KEY
 ```
 
-### Verifikasi Koneksi
+### Verify Connection
 
 ```bash
-# Test SSH dengan key baru
+# Test SSH with the new key
 ssh -i ~/.ssh/github_actions user@server-ip
 
-# Jika berhasil, Anda akan masuk ke server
+# If successful, you will be logged into the server
 ```
 
 ---
 
 ## Server Configuration
 
-### 1. Setup Awal Server
+### 1. Initial Server Setup
 
 ```bash
 # Install NVM
@@ -235,11 +235,11 @@ nvm use 22
 npm install -g pm2
 
 # Clone repository
-cd /root  # atau direktori pilihan Anda
+cd /root  # or your preferred directory
 git clone https://github.com/username/repository.git laju
 cd laju
 
-# Install dependencies & build pertama kali
+# Install dependencies & first build
 npm install
 npm run build
 
@@ -250,18 +250,18 @@ pm2 save
 pm2 startup
 ```
 
-### 2. Konfigurasi Git di Server
+### 2. Git Configuration on Server
 
 ```bash
-# Set git config (opsional tapi recommended)
+# Set git config (optional but recommended)
 git config --global user.email "deploy@server"
 git config --global user.name "Deploy Bot"
 
-# Pastikan bisa pull tanpa password
-# (gunakan SSH key atau token)
+# Make sure you can pull without password
+# (use SSH key or token)
 ```
 
-### 3. Struktur Direktori di Server
+### 3. Directory Structure on Server
 
 ```
 /root/laju/           # Source code (git repository)
@@ -278,13 +278,13 @@ git config --global user.name "Deploy Bot"
 
 ## Customization
 
-### Ganti Branch Target
+### Change Target Branch
 
 ```yaml
 on:
   push:
     branches:
-      - production  # Ganti dari 'main' ke branch lain
+      - production  # Change from 'main' to another branch
 ```
 
 ### Multiple Environments
@@ -313,7 +313,7 @@ jobs:
           # ... rest of commands
 ```
 
-### Tambah Notifikasi Slack
+### Add Slack Notification
 
 ```yaml
     - name: Notify Slack
@@ -328,7 +328,7 @@ jobs:
 
 ### Skip Deployment
 
-Tambahkan `[skip ci]` di commit message untuk skip deployment:
+Add `[skip ci]` to your commit message to skip deployment:
 
 ```bash
 git commit -m "Update README [skip ci]"
@@ -340,23 +340,23 @@ git commit -m "Update README [skip ci]"
 
 ### Error: "Permission denied (publickey)"
 
-**Penyebab:** SSH key tidak valid atau tidak terdaftar di server.
+**Cause:** SSH key is invalid or not registered on the server.
 
-**Solusi:**
+**Solution:**
 ```bash
-# Verifikasi public key sudah ada di server
+# Verify public key exists on server
 cat ~/.ssh/authorized_keys
 
-# Pastikan permission benar
+# Make sure permissions are correct
 chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
 
 ### Error: "npm: command not found"
 
-**Penyebab:** NVM tidak ter-load di non-interactive shell.
+**Cause:** NVM is not loaded in non-interactive shell.
 
-**Solusi:** Pastikan script memuat NVM:
+**Solution:** Make sure the script loads NVM:
 ```yaml
 script: |
   export NVM_DIR="$HOME/.nvm"
@@ -366,9 +366,9 @@ script: |
 
 ### Error: "pm2: command not found"
 
-**Penyebab:** PM2 tidak ada di PATH.
+**Cause:** PM2 is not in PATH.
 
-**Solusi:**
+**Solution:**
 ```yaml
 script: |
   export PATH="$PATH:$(npm bin -g)"
@@ -377,9 +377,9 @@ script: |
 
 ### Error: "Host key verification failed"
 
-**Penyebab:** Server belum ada di known_hosts.
+**Cause:** Server is not in known_hosts.
 
-**Solusi:** Tambahkan parameter di workflow:
+**Solution:** Add parameter to workflow:
 ```yaml
 - name: SSH and deploy
   uses: appleboy/ssh-action@master
@@ -392,17 +392,17 @@ script: |
       # commands
 ```
 
-### Deployment Berhasil tapi Aplikasi Error
+### Deployment Succeeded but Application Error
 
-**Langkah Debug:**
+**Debug Steps:**
 ```bash
-# Di server, cek logs PM2
+# On server, check PM2 logs
 pm2 logs laju --lines 100
 
-# Cek status
+# Check status
 pm2 status
 
-# Restart manual jika perlu
+# Manual restart if needed
 pm2 restart laju
 ```
 
@@ -428,7 +428,7 @@ jobs:
           ${{ runner.os }}-node-
 ```
 
-### Health Check Setelah Deploy
+### Health Check After Deploy
 
 ```yaml
     - name: Health Check
@@ -437,7 +437,7 @@ jobs:
         curl -f https://yourdomain.com/health || exit 1
 ```
 
-### Rollback Otomatis
+### Automatic Rollback
 
 ```yaml
     - name: Deploy with Rollback
@@ -500,31 +500,31 @@ jobs:
 
 ## Security Best Practices
 
-1. **Gunakan SSH Key Dedicated**
-   - Buat SSH key khusus untuk GitHub Actions
-   - Jangan gunakan key personal
+1. **Use Dedicated SSH Key**
+   - Create a dedicated SSH key for GitHub Actions
+   - Don't use personal keys
 
-2. **Batasi Akses SSH Key**
-   - Di server, batasi command yang bisa dijalankan:
+2. **Limit SSH Key Access**
+   - On server, limit commands that can be executed:
    ```bash
-   # Di ~/.ssh/authorized_keys
+   # In ~/.ssh/authorized_keys
    command="/root/deploy.sh",no-port-forwarding,no-X11-forwarding ssh-ed25519 AAAA...
    ```
 
-3. **Rotate Secrets Secara Berkala**
-   - Ganti SSH key setiap 6-12 bulan
+3. **Rotate Secrets Regularly**
+   - Change SSH key every 6-12 months
 
-4. **Gunakan Environment Protection**
-   - Di GitHub: Settings → Environments → Add protection rules
+4. **Use Environment Protection**
+   - On GitHub: Settings → Environments → Add protection rules
 
 5. **Audit Logs**
-   - Cek GitHub Actions logs secara berkala
-   - Monitor akses SSH di server (`/var/log/auth.log`)
+   - Check GitHub Actions logs regularly
+   - Monitor SSH access on server (`/var/log/auth.log`)
 
 ---
 
 ## Next Steps
 
-- [Deployment Guide](05-DEPLOYMENT.md) - Panduan deployment manual
-- [Best Practices](06-BEST-PRACTICES.md) - Best practices development
-- [API Reference](04-API-REFERENCE.md) - Dokumentasi API
+- [Deployment Guide](05-DEPLOYMENT.md) - Manual deployment guide
+- [Best Practices](06-BEST-PRACTICES.md) - Development best practices
+- [API Reference](04-API-REFERENCE.md) - API documentation

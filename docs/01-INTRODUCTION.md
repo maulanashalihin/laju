@@ -16,7 +16,7 @@
 - **Inertia.js** - Seamless client-server communication
 - **BetterSQLite3** - High-performance embedded database with WAL mode
 - **TypeScript** - Type-safe development experience
-- **TailwindCSS** - Utility-first CSS framework
+- **TailwindCSS 4** - Utility-first CSS framework (with Vite plugin)
 - **Vite** - Lightning-fast build tool
 
 ### Key Features
@@ -30,7 +30,7 @@
 - Svelte 5 with runes API
 - TypeScript for type safety
 - Vite for instant HMR
-- TailwindCSS for rapid styling
+- TailwindCSS 4 for rapid styling
 
 ✅ **Built-in Authentication**
 - PBKDF2 password hashing (100,000 iterations)
@@ -118,7 +118,7 @@ Visit `http://localhost:5555` to see your app running!
 ```
 ┌─────────────────────────────────────────┐
 │         CLIENT (Browser)                 │
-│  Svelte 5 + Inertia.js + TailwindCSS    │
+│  Svelte 5 + Inertia.js + TailwindCSS 4  │
 └─────────────────────────────────────────┘
                   ↕ HTTP/JSON
 ┌─────────────────────────────────────────┐
