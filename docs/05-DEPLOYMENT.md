@@ -208,6 +208,73 @@ export NVM_DIR="$HOME/.nvm"
 
 ---
 
+## Docker Deployment
+
+Laju includes a production-ready `Dockerfile` for containerized deployment.
+
+### Build & Run
+
+```bash
+# Build image
+docker build -t laju-app .
+
+# Run container with environment file
+docker run -d \
+  -p 5555:5555 \
+  -v $(pwd)/.env:/app/.env \
+  -v $(pwd)/data:/app/data \
+  --name laju \
+  laju-app
+
+# View logs
+docker logs -f laju
+
+# Stop container
+docker stop laju
+
+# Remove container
+docker rm laju
+```
+
+### Docker Compose (Optional)
+
+Create `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+services:
+  laju:
+    build: .
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./.env:/app/.env
+      - ./data:/app/data
+    restart: unless-stopped
+```
+
+```bash
+# Start
+docker-compose up -d
+
+# Stop
+docker-compose down
+
+# View logs
+docker-compose logs -f
+```
+
+### What the Dockerfile Does
+
+1. Uses `node:22-slim` base image
+2. Installs build dependencies
+3. Runs `npm ci` for deterministic installs
+4. Builds application with `npm run build`
+5. Runs migrations on container start
+6. Starts app with PM2
+
+---
+
 ## Next Steps
 
 - [GitHub Actions Deploy Details](07-GITHUB-ACTIONS-DEPLOY.md)
