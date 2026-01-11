@@ -98,35 +98,26 @@ resources/views/
 
 ### Default Values
 
-Squirrelly doesn't support `||` operator directly. Use conditionals instead:
+Squirrelly doesn't support `||` operator. Use ternary instead:
 
 ```html
-<!-- Default with conditional -->
-{{@if(it.title)}}
-  <h1>{{it.title}}</h1>
-{{#else}}
-  <h1>Untitled</h1>
-{{/if}}
+<!-- NOT supported -->
+<h1>{{it.title || "Untitled"}}</h1>
 
-<!-- Or handle defaults in controller -->
+<!-- Use ternary instead -->
+<h1>{{it.title ? it.title : "Untitled"}}</h1>
+<p>{{it.description ? it.description : "No description"}}</p>
+<img src="{{it.avatar ? it.avatar : '/default.png'}}" />
 ```
 
-**Best Practice:** Set defaults in controller before passing to template:
+**Alternative:** Set defaults in controller:
 
 ```typescript
 // Controller
 const html = view("page.html", {
   title: data.title || "Untitled",
-  description: data.description || "No description available",
-  email: user?.email || "No email"
+  description: data.description || "No description available"
 });
-```
-
-```html
-<!-- Template - simple output -->
-<h1>{{it.title}}</h1>
-<p>{{it.description}}</p>
-<p>{{it.email}}</p>
 ```
 
 ### Expressions
@@ -139,11 +130,20 @@ const html = view("page.html", {
 <!-- String concatenation -->
 <p>{{it.firstName + " " + it.lastName}}</p>
 
-<!-- Ternary operator -->
+<!-- Ternary operator (supported) -->
 <span>{{it.isActive ? "Active" : "Inactive"}}</span>
 
-<!-- Boolean check -->
+<!-- Boolean check with ternary -->
 <p>Status: {{it.count > 0 ? "Has items" : "Empty"}}</p>
+```
+
+**Note:** `||` operator is NOT supported. Use ternary or handle in controller:
+
+```html
+<!-- NOT supported: {{it.title || "Default"}} -->
+
+<!-- Use ternary instead -->
+<h1>{{it.title ? it.title : "Default"}}</h1>
 ```
 
 ### Method Calls
@@ -801,18 +801,10 @@ const html = view("page.html", {
 
 ### 4. Provide Default Values
 
-```typescript
-// Handle undefined in controller
-const html = view("page.html", {
-  title: data.title || "Untitled",
-  avatar: user?.avatar || "/images/default-avatar.png"
-});
-```
-
 ```html
-<!-- Template receives clean data -->
-<h1>{{it.title}}</h1>
-<img src="{{it.avatar}}" alt="Avatar">
+<!-- Use ternary for defaults (|| not supported) -->
+<h1>{{it.title ? it.title : "Untitled"}}</h1>
+<img src="{{it.avatar ? it.avatar : '/images/default-avatar.png'}}" alt="Avatar">
 ```
 
 ### 5. Organize Partials Logically
