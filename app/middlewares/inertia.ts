@@ -9,7 +9,7 @@ const inertia = () => {
    return (request: Request, response: Response, next: Function) => {
       response.inertia = async (component, inertiaProps = {}, viewProps = {}) => {
 
-         const url = `//${request.get("host")}${request.originalUrl}`;
+         const url = `${request.originalUrl}`;
 
          let props = { user: request.user || {}, ...inertiaProps, ...viewProps, error: null } as any;
 

@@ -1,6 +1,8 @@
 @import url('https://rsms.me/inter/inter.css');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @source "../**/*.{svelte,html,js,ts}";
 
 @theme {
