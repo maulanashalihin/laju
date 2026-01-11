@@ -98,15 +98,35 @@ resources/views/
 
 ### Default Values
 
+Squirrelly doesn't support `||` operator directly. Use conditionals instead:
+
 ```html
-<!-- Default if undefined -->
-<h1>{{it.title || "Untitled"}}</h1>
+<!-- Default with conditional -->
+{{@if(it.title)}}
+  <h1>{{it.title}}</h1>
+{{#else}}
+  <h1>Untitled</h1>
+{{/if}}
 
-<!-- Default for empty string -->
-<p>{{it.description || "No description available"}}</p>
+<!-- Or handle defaults in controller -->
+```
 
-<!-- Nested with default -->
-<p>{{it.user?.email || "No email"}}</p>
+**Best Practice:** Set defaults in controller before passing to template:
+
+```typescript
+// Controller
+const html = view("page.html", {
+  title: data.title || "Untitled",
+  description: data.description || "No description available",
+  email: user?.email || "No email"
+});
+```
+
+```html
+<!-- Template - simple output -->
+<h1>{{it.title}}</h1>
+<p>{{it.description}}</p>
+<p>{{it.email}}</p>
 ```
 
 ### Expressions
@@ -183,10 +203,12 @@ resources/views/
   <p>Verified user</p>
 {{/if}}
 
-<!-- OR -->
-{{@if(it.isAdmin || it.isModerator)}}
+<!-- OR (use in controller or with && check) -->
+{{@if(it.canAccessAdmin)}}
   <a href="/admin">Admin Panel</a>
 {{/if}}
+
+<!-- In controller: canAccessAdmin = user.isAdmin || user.isModerator -->
 
 <!-- NOT -->
 {{@if(!it.isBlocked)}}
@@ -342,7 +364,7 @@ Partials automatically have access to the parent's `it` context.
 <!-- resources/views/partials/header.html -->
 <header class="bg-white shadow">
   <nav class="max-w-7xl mx-auto px-4">
-    <a href="/" class="font-bold">{{it.siteName || "Laju"}}</a>
+    <a href="/" class="font-bold">{{it.siteName}}</a>
     
     {{@if(it.user)}}
       <span>Welcome, {{it.user.name}}</span>
@@ -364,14 +386,14 @@ Partials automatically have access to the parent's `it` context.
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{it.title || "Laju App"}}</title>
-  <meta name="description" content="{{it.description || ''}}">
+  <title>{{it.title}}</title>
+  <meta name="description" content="{{it.description}}">
   
   {{@include("partials/meta.html") /}}
   
   <link rel="stylesheet" href="/assets/style.css">
 </head>
-<body class="{{it.bodyClass || ''}}">
+<body class="{{it.bodyClass}}">
   {{@include("partials/header.html") /}}
   
   <main class="container mx-auto px-4 py-8">
@@ -414,7 +436,7 @@ public async about(request: Request, response: Response) {
 
 ```html
 <!-- resources/views/partials/card.html -->
-<div class="bg-white rounded-lg shadow p-6 {{it.cardClass || ''}}">
+<div class="bg-white rounded-lg shadow p-6 {{it.cardClass}}">
   {{@if(it.cardTitle)}}
     <h3 class="text-lg font-semibold mb-4">{{it.cardTitle}}</h3>
   {{/if}}
@@ -676,8 +698,8 @@ public async submitContact(request: Request, response: Response) {
       <input 
         type="text" 
         name="name" 
-        value="{{it.formData?.name || ''}}"
-        class="w-full border rounded px-3 py-2 {{it.errors?.name ? 'border-red-500' : ''}}"
+        value="{{it.formData.name}}"
+        class="w-full border rounded px-3 py-2"
       >
       {{@if(it.errors?.name)}}
         <p class="text-red-500 text-sm mt-1">{{it.errors.name}}</p>
@@ -689,8 +711,8 @@ public async submitContact(request: Request, response: Response) {
       <input 
         type="email" 
         name="email"
-        value="{{it.formData?.email || ''}}"
-        class="w-full border rounded px-3 py-2 {{it.errors?.email ? 'border-red-500' : ''}}"
+        value="{{it.formData.email}}"
+        class="w-full border rounded px-3 py-2"
       >
       {{@if(it.errors?.email)}}
         <p class="text-red-500 text-sm mt-1">{{it.errors.email}}</p>
@@ -702,8 +724,8 @@ public async submitContact(request: Request, response: Response) {
       <textarea 
         name="message"
         rows="5"
-        class="w-full border rounded px-3 py-2 {{it.errors?.message ? 'border-red-500' : ''}}"
-      >{{it.formData?.message || ''}}</textarea>
+        class="w-full border rounded px-3 py-2"
+      >{{it.formData.message}}</textarea>
       {{@if(it.errors?.message)}}
         <p class="text-red-500 text-sm mt-1">{{it.errors.message}}</p>
       {{/if}}
@@ -779,10 +801,18 @@ const html = view("page.html", {
 
 ### 4. Provide Default Values
 
+```typescript
+// Handle undefined in controller
+const html = view("page.html", {
+  title: data.title || "Untitled",
+  avatar: user?.avatar || "/images/default-avatar.png"
+});
+```
+
 ```html
-<!-- Handle undefined gracefully -->
-<h1>{{it.title || "Untitled"}}</h1>
-<img src="{{it.user?.avatar || '/images/default-avatar.png'}}" alt="Avatar">
+<!-- Template receives clean data -->
+<h1>{{it.title}}</h1>
+<img src="{{it.avatar}}" alt="Avatar">
 ```
 
 ### 5. Organize Partials Logically
