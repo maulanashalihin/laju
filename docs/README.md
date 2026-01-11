@@ -33,6 +33,7 @@ Complete documentation for the Laju high-performance TypeScript web framework.
 
 12. **[Testing Guide](12-TESTING.md)** - Unit tests, Integration tests, Vitest
 13. **[Svelte 5 Patterns](13-SVELTE5-PATTERNS.md)** - Runes, State, Forms, Inertia
+14. **[Squirrelly Templates](14-SQUIRRELLY.md)** - SSR, Partials, Filters, Helpers
 
 ## Quick Start
 
