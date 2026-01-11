@@ -1,0 +1,828 @@
+# Middleware Guide
+
+Complete guide to understanding and creating middleware in Laju Framework.
+
+## Table of Contents
+
+1. [Introduction](#introduction)
+2. [HyperExpress vs Express.js](#hyperexpress-vs-expressjs)
+3. [Middleware Execution Flow](#middleware-execution-flow)
+4. [Built-in Middleware](#built-in-middleware)
+5. [Creating Custom Middleware](#creating-custom-middleware)
+6. [Common Patterns](#common-patterns)
+7. [Error Handling](#error-handling)
+8. [Best Practices](#best-practices)
+
+---
+
+## Introduction
+
+Middleware functions are functions that have access to the request and response objects. They can execute code, modify request/response objects, and control the flow of the request-response cycle.
+
+### What Middleware Can Do
+
+- Execute any code
+- Modify request and response objects
+- End the request-response cycle
+- Validate input data
+- Check authentication/authorization
+- Log requests
+- Rate limiting
+- Transform data
+
+---
+
+## HyperExpress vs Express.js
+
+### ⚠️ CRITICAL DIFFERENCE
+
+**HyperExpress does NOT use `next()` function!**
+
+```typescript
+// ❌ Express.js style (DON'T USE)
+app.use((req, res, next) => {
+  console.log('Middleware');
+  next(); // ❌ This doesn't exist in HyperExpress
+});
+
+// ✅ HyperExpress style (CORRECT)
+app.use((request, response) => {
+  console.log('Middleware');
+  // No return = continue to next handler
+});
+```
+
+### Execution Rules
+
+| Action | Result |
+|--------|--------|
+| No return | Continue to next middleware/handler |
+| `return response.xxx()` | Stop execution, send response |
+| `return` (empty) | Stop execution, no response |
+
+### Examples
+
+```typescript
+// ✅ Continue to next handler
+export default async (request: Request, response: Response) => {
+  request.startTime = Date.now();
+  // No return = continues
+}
+
+// ✅ Stop execution and redirect
+export default async (request: Request, response: Response) => {
+  if (!request.user) {
+    return response.redirect("/login"); // Stops here
+  }
+  // Continues if user exists
+}
+
+// ✅ Stop execution and send JSON
+export default async (request: Request, response: Response) => {
+  if (!request.headers.authorization) {
+    return response.status(401).json({ error: "Unauthorized" });
+  }
+  // Continues if authorized
+}
+```
+
+---
+
+## Middleware Execution Flow
+
+### Route Definition
+
+```typescript
+// Single middleware
+Route.get("/profile", [Auth], ProfileController.show);
+
+// Multiple middleware (executed in order)
+Route.post("/upload", [Auth, uploadRateLimit, validateFile], UploadController.store);
+
+// Global middleware (applies to all routes)
+webserver.use(inertia());
+```
+
+### Execution Order
+
+```typescript
+Route.post("/posts", [middleware1, middleware2, middleware3], Controller.store);
+
+// Flow:
+// 1. middleware1 executes
+//    - If returns response → STOP
+//    - If no return → continue to #2
+// 2. middleware2 executes
+//    - If returns response → STOP
+//    - If no return → continue to #3
+// 3. middleware3 executes
+//    - If returns response → STOP
+//    - If no return → continue to Controller.store
+// 4. Controller.store executes
+```
+
+---
+
+## Built-in Middleware
+
+### 1. Auth Middleware
+
+Protects routes requiring authentication.
+
+**Location:** `app/middlewares/auth.ts`
+
+```typescript
+import Auth from "app/middlewares/auth";
+
+// Protect single route
+Route.get("/dashboard", [Auth], DashboardController.index);
+
+// Protect multiple routes
+Route.get("/profile", [Auth], ProfileController.show);
+Route.post("/profile", [Auth], ProfileController.update);
+```
+
+**How it works:**
+
+```typescript
+export default async (request: Request, response: Response) => {
+  if (request.cookies.auth_id) {
+    const user = SQLite.get(`
+      SELECT u.id, u.name, u.email, u.is_admin, u.is_verified 
+      FROM sessions s
+      JOIN users u ON s.user_id = u.id
+      WHERE s.id = ?
+    `, [request.cookies.auth_id]);
+
+    if (user) {
+      // Convert SQLite 0/1 to boolean
+      user.is_admin = !!user.is_admin;
+      user.is_verified = !!user.is_verified;
+
+      request.user = user;
+      request.share = { user: request.user };
+      // No return = continue to handler
+    } else {
+      return response.cookie("auth_id", "", 0).redirect("/login");
+    }
+  } else {
+    return response.cookie("auth_id", "", 0).redirect("/login");
+  }
+}
+```
+
+**Access user in controller:**
+
+```typescript
+public async show(request: Request, response: Response) {
+  const userId = request.user.id; // Available after Auth middleware
+  const user = await DB.from("users").where("id", userId).first();
+  return response.json({ user });
+}
+```
+
+---
+
+### 2. Rate Limit Middleware
+
+Prevents abuse by limiting requests per time window.
+
+**Location:** `app/middlewares/rateLimit.ts`
+
+#### Preset Rate Limiters
+
+```typescript
+import { 
+  authRateLimit,           // 5 requests per 15 min
+  apiRateLimit,            // 100 requests per 15 min
+  generalRateLimit,        // 1000 requests per 15 min
+  passwordResetRateLimit,  // 3 requests per hour
+  emailRateLimit,          // 10 requests per hour
+  uploadRateLimit,         // 50 requests per hour
+  createAccountRateLimit   // 3 requests per hour
+} from "app/middlewares/rateLimit";
+
+// Usage
+Route.post("/login", [authRateLimit], AuthController.processLogin);
+Route.post("/register", [createAccountRateLimit], AuthController.processRegister);
+Route.post("/api/upload", [Auth, uploadRateLimit], UploadController.store);
+```
+
+#### Custom Rate Limiter
+
+```typescript
+import { rateLimit } from "app/middlewares/rateLimit";
+
+const customLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,  // 1 hour
+  maxRequests: 100,           // 100 requests
+  message: "Too many requests",
+  statusCode: 429,
+  keyGenerator: (request) => request.ip,  // Rate limit by IP
+  skip: (request) => request.user?.is_admin  // Skip for admins
+});
+
+Route.post("/api/data", [customLimit], DataController.store);
+```
+
+#### Rate Limit by User ID
+
+```typescript
+import { userRateLimit } from "app/middlewares/rateLimit";
+
+// 50 requests per 15 minutes per user
+const userLimit = userRateLimit(50, 15 * 60 * 1000);
+
+Route.post("/api/posts", [Auth, userLimit], PostController.store);
+```
+
+---
+
+### 3. Inertia Middleware
+
+Handles Inertia.js responses for SPA-like experience.
+
+**Location:** `app/middlewares/inertia.ts`
+
+```typescript
+import inertia from "app/middlewares/inertia";
+
+// Apply globally in server.ts
+webserver.use(inertia());
+
+// Now you can use response.inertia() in controllers
+public async index(request: Request, response: Response) {
+  const posts = await DB.from("posts");
+  return response.inertia("posts/index", { posts });
+}
+```
+
+---
+
+## Creating Custom Middleware
+
+### Basic Middleware Template
+
+```typescript
+// app/middlewares/myMiddleware.ts
+import { Request, Response } from "../../type";
+
+export default async (request: Request, response: Response) => {
+  // Your logic here
+  
+  // Option 1: Continue to next handler (no return)
+  request.customData = "some value";
+  
+  // Option 2: Stop and send response
+  // return response.status(400).json({ error: "Bad request" });
+}
+```
+
+### Example 1: Request Logger
+
+```typescript
+// app/middlewares/requestLogger.ts
+import { Request, Response } from "../../type";
+import { logInfo } from "../services/Logger";
+
+export default async (request: Request, response: Response) => {
+  const startTime = Date.now();
+  
+  logInfo("Request received", {
+    method: request.method,
+    url: request.url,
+    ip: request.ip,
+    userAgent: request.headers['user-agent']
+  });
+  
+  // Continue to next handler
+  request.startTime = startTime;
+}
+```
+
+**Usage:**
+
+```typescript
+import requestLogger from "../app/middlewares/requestLogger";
+
+// Apply to specific routes
+Route.get("/api/data", [requestLogger], DataController.index);
+
+// Or globally
+webserver.use(requestLogger);
+```
+
+---
+
+### Example 2: API Key Validation
+
+```typescript
+// app/middlewares/apiKey.ts
+import { Request, Response } from "../../type";
+
+export default async (request: Request, response: Response) => {
+  const apiKey = request.headers['x-api-key'] as string;
+  
+  if (!apiKey) {
+    return response.status(401).json({
+      error: "API key is required",
+      code: "MISSING_API_KEY"
+    });
+  }
+  
+  if (apiKey !== process.env.API_KEY) {
+    return response.status(403).json({
+      error: "Invalid API key",
+      code: "INVALID_API_KEY"
+    });
+  }
+  
+  // Valid API key, continue
+}
+```
+
+**Usage:**
+
+```typescript
+import apiKey from "../app/middlewares/apiKey";
+
+Route.get("/api/external/data", [apiKey], ExternalController.getData);
+```
+
+---
+
+### Example 3: Role-Based Access Control
+
+```typescript
+// app/middlewares/requireAdmin.ts
+import { Request, Response } from "../../type";
+
+export default async (request: Request, response: Response) => {
+  // Assumes Auth middleware ran first
+  if (!request.user) {
+    return response.status(401).json({ error: "Unauthorized" });
+  }
+  
+  if (!request.user.is_admin) {
+    return response.status(403).json({ 
+      error: "Admin access required" 
+    });
+  }
+  
+  // User is admin, continue
+}
+```
+
+**Usage:**
+
+```typescript
+import Auth from "../app/middlewares/auth";
+import requireAdmin from "../app/middlewares/requireAdmin";
+
+// Both middleware must pass
+Route.get("/admin/users", [Auth, requireAdmin], AdminController.users);
+Route.delete("/admin/users/:id", [Auth, requireAdmin], AdminController.deleteUser);
+```
+
+---
+
+### Example 4: Request Validation
+
+```typescript
+// app/middlewares/validatePost.ts
+import { Request, Response } from "../../type";
+
+export default async (request: Request, response: Response) => {
+  const { title, content } = await request.json();
+  
+  const errors: any = {};
+  
+  if (!title || title.trim().length === 0) {
+    errors.title = "Title is required";
+  }
+  
+  if (!content || content.trim().length < 10) {
+    errors.content = "Content must be at least 10 characters";
+  }
+  
+  if (Object.keys(errors).length > 0) {
+    return response.status(422).json({
+      error: "Validation failed",
+      details: errors
+    });
+  }
+  
+  // Validation passed, continue
+}
+```
+
+**Usage:**
+
+```typescript
+import validatePost from "../app/middlewares/validatePost";
+
+Route.post("/posts", [Auth, validatePost], PostController.store);
+```
+
+---
+
+### Example 5: CORS Middleware
+
+```typescript
+// app/middlewares/cors.ts
+import { Request, Response } from "../../type";
+
+export default async (request: Request, response: Response) => {
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['*'];
+  const origin = request.headers.origin as string;
+  
+  if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    response.setHeader('Access-Control-Allow-Origin', origin || '*');
+  }
+  
+  response.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  response.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  response.setHeader('Access-Control-Allow-Credentials', 'true');
+  
+  // Handle preflight
+  if (request.method === 'OPTIONS') {
+    return response.status(204).send('');
+  }
+  
+  // Continue for other methods
+}
+```
+
+---
+
+### Example 6: Request Timing
+
+```typescript
+// app/middlewares/timing.ts
+import { Request, Response } from "../../type";
+import { logInfo } from "../services/Logger";
+
+export default async (request: Request, response: Response) => {
+  const startTime = Date.now();
+  
+  // Store original send method
+  const originalSend = response.send;
+  
+  // Override send to log timing
+  response.send = function(body: any) {
+    const duration = Date.now() - startTime;
+    
+    logInfo("Request completed", {
+      method: request.method,
+      url: request.url,
+      duration: `${duration}ms`,
+      status: response.statusCode
+    });
+    
+    return originalSend.call(this, body);
+  };
+  
+  // Continue
+}
+```
+
+---
+
+## Common Patterns
+
+### Pattern 1: Conditional Middleware
+
+```typescript
+// app/middlewares/conditionalAuth.ts
+import { Request, Response } from "../../type";
+import SQLite from "../services/SQLite";
+
+export default async (request: Request, response: Response) => {
+  // Only check auth for non-public routes
+  const publicRoutes = ['/login', '/register', '/'];
+  
+  if (publicRoutes.includes(request.path)) {
+    return; // Skip auth check
+  }
+  
+  // Check authentication for other routes
+  if (!request.cookies.auth_id) {
+    return response.redirect("/login");
+  }
+  
+  const user = SQLite.get("SELECT * FROM users WHERE id = ?", [request.cookies.auth_id]);
+  
+  if (!user) {
+    return response.redirect("/login");
+  }
+  
+  request.user = user;
+}
+```
+
+---
+
+### Pattern 2: Middleware Factory
+
+```typescript
+// app/middlewares/requireRole.ts
+import { Request, Response } from "../../type";
+
+export function requireRole(role: string) {
+  return async (request: Request, response: Response) => {
+    if (!request.user) {
+      return response.status(401).json({ error: "Unauthorized" });
+    }
+    
+    if (request.user.role !== role) {
+      return response.status(403).json({ 
+        error: `${role} access required` 
+      });
+    }
+    
+    // User has required role
+  };
+}
+
+// Usage
+import { requireRole } from "../app/middlewares/requireRole";
+
+Route.get("/admin/dashboard", [Auth, requireRole('admin')], AdminController.dashboard);
+Route.get("/moderator/reports", [Auth, requireRole('moderator')], ModeratorController.reports);
+```
+
+---
+
+### Pattern 3: Async Data Loading
+
+```typescript
+// app/middlewares/loadPost.ts
+import { Request, Response } from "../../type";
+import DB from "../services/DB";
+
+export default async (request: Request, response: Response) => {
+  const { id } = request.params;
+  
+  const post = await DB.from("posts").where("id", id).first();
+  
+  if (!post) {
+    return response.status(404).json({ error: "Post not found" });
+  }
+  
+  // Attach to request
+  request.post = post;
+  
+  // Continue to handler
+}
+
+// Usage in controller
+public async show(request: Request, response: Response) {
+  // Post already loaded by middleware
+  return response.json({ post: request.post });
+}
+```
+
+---
+
+### Pattern 4: Multiple Validators
+
+```typescript
+// app/middlewares/validators.ts
+import { Request, Response } from "../../type";
+
+export function validateEmail() {
+  return async (request: Request, response: Response) => {
+    const { email } = await request.json();
+    
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return response.status(422).json({ 
+        error: "Valid email is required" 
+      });
+    }
+  };
+}
+
+export function validatePassword() {
+  return async (request: Request, response: Response) => {
+    const { password } = await request.json();
+    
+    if (!password || password.length < 8) {
+      return response.status(422).json({ 
+        error: "Password must be at least 8 characters" 
+      });
+    }
+  };
+}
+
+// Usage
+import { validateEmail, validatePassword } from "../app/middlewares/validators";
+
+Route.post("/register", [
+  validateEmail(),
+  validatePassword()
+], AuthController.processRegister);
+```
+
+---
+
+## Error Handling
+
+### Try-Catch in Middleware
+
+```typescript
+// app/middlewares/safeMiddleware.ts
+import { Request, Response } from "../../type";
+import { logError } from "../services/Logger";
+
+export default async (request: Request, response: Response) => {
+  try {
+    // Your middleware logic
+    const data = await someAsyncOperation();
+    request.data = data;
+    
+  } catch (error) {
+    logError("Middleware error", { 
+      error: error.message,
+      stack: error.stack,
+      url: request.url
+    });
+    
+    return response.status(500).json({ 
+      error: "Internal server error" 
+    });
+  }
+}
+```
+
+---
+
+### Global Error Handler
+
+```typescript
+// server.ts
+webserver.set_error_handler((request, response, error) => {
+  logError("Unhandled error", {
+    error: error.message,
+    stack: error.stack,
+    url: request.url,
+    method: request.method
+  });
+  
+  // Don't expose internal errors in production
+  const message = process.env.NODE_ENV === 'production'
+    ? 'Internal server error'
+    : error.message;
+  
+  return response.status(500).json({ error: message });
+});
+```
+
+---
+
+## Best Practices
+
+### ✅ DO
+
+**1. Keep middleware focused**
+```typescript
+// ✅ Good - Single responsibility
+export default async (request: Request, response: Response) => {
+  if (!request.user) {
+    return response.redirect("/login");
+  }
+}
+```
+
+**2. Use descriptive names**
+```typescript
+// ✅ Good
+import requireAdmin from "../app/middlewares/requireAdmin";
+import validatePost from "../app/middlewares/validatePost";
+```
+
+**3. Order middleware correctly**
+```typescript
+// ✅ Good - Auth before authorization
+Route.post("/admin/users", [Auth, requireAdmin], AdminController.createUser);
+
+// ✅ Good - Validation before processing
+Route.post("/posts", [Auth, validatePost, uploadRateLimit], PostController.store);
+```
+
+**4. Return response to stop execution**
+```typescript
+// ✅ Good
+if (!isValid) {
+  return response.status(400).json({ error: "Invalid" });
+}
+```
+
+**5. Use TypeScript types**
+```typescript
+// ✅ Good
+import { Request, Response } from "../../type";
+
+export default async (request: Request, response: Response) => {
+  // Fully typed
+}
+```
+
+---
+
+### ❌ DON'T
+
+**1. Don't use next()**
+```typescript
+// ❌ Bad - HyperExpress doesn't have next()
+export default async (request, response, next) => {
+  console.log("Middleware");
+  next(); // ❌ This doesn't exist
+}
+```
+
+**2. Don't forget to return when stopping**
+```typescript
+// ❌ Bad - Missing return
+if (!request.user) {
+  response.redirect("/login"); // ❌ Will continue execution!
+}
+
+// ✅ Good
+if (!request.user) {
+  return response.redirect("/login");
+}
+```
+
+**3. Don't put business logic in middleware**
+```typescript
+// ❌ Bad - Too much logic
+export default async (request: Request, response: Response) => {
+  const data = await request.json();
+  const processed = await processData(data);
+  const saved = await saveToDatabase(processed);
+  request.result = saved;
+}
+
+// ✅ Good - Delegate to service
+export default async (request: Request, response: Response) => {
+  const data = await request.json();
+  if (!isValid(data)) {
+    return response.status(400).json({ error: "Invalid" });
+  }
+}
+```
+
+**4. Don't modify response after sending**
+```typescript
+// ❌ Bad
+return response.json({ success: true });
+response.setHeader('X-Custom', 'value'); // ❌ Too late!
+
+// ✅ Good
+response.setHeader('X-Custom', 'value');
+return response.json({ success: true });
+```
+
+---
+
+## Summary
+
+### Key Takeaways
+
+1. **No `next()` function** - Return response to stop, no return to continue
+2. **Order matters** - Middleware executes in array order
+3. **Return to stop** - Always return when sending response
+4. **Keep focused** - One responsibility per middleware
+5. **Use built-in** - Auth, rate limiting, Inertia already available
+
+### Quick Reference
+
+```typescript
+// Continue to next handler
+export default async (request: Request, response: Response) => {
+  request.data = "value";
+  // No return
+}
+
+// Stop and send response
+export default async (request: Request, response: Response) => {
+  return response.json({ error: "Error" });
+}
+
+// Conditional execution
+export default async (request: Request, response: Response) => {
+  if (condition) {
+    return response.redirect("/login");
+  }
+  // Continues if condition is false
+}
+```
+
+---
+
+## Next Steps
+
+- [Authentication Guide](04-AUTHENTICATION.md) - Session management
+- [API Reference](07-API-REFERENCE.md) - Request/Response methods
+- [Best Practices](09-BEST-PRACTICES.md) - Code organization
+- [Security Guide](09a-SECURITY.md) - Input validation, XSS, CSRF

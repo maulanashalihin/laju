@@ -9,7 +9,8 @@ laju/
 ├── app/                          # Backend application code
 │   ├── controllers/              # Request handlers
 │   ├── middlewares/              # Custom middleware
-│   └── services/                 # Business logic layer
+│   ├── services/                 # Business logic layer
+│   └── validators/               # Input validation schemas
 ├── resources/                    # Frontend resources
 │   ├── js/                       # JavaScript/Svelte code
 │   └── views/                    # HTML templates
@@ -25,6 +26,29 @@ laju/
 ```
 
 ## Backend Structure (`app/`)
+
+### Validators (`app/validators/`)
+
+Zod validation schemas for input validation.
+
+```
+app/validators/
+├── AuthValidator.ts        # Authentication validation
+│   ├── loginSchema         # Login form validation
+│   ├── registerSchema      # Registration validation
+│   └── passwordSchema      # Password validation
+│
+├── ProfileValidator.ts     # Profile validation
+│   └── updateProfileSchema # Profile update validation
+│
+├── CommonValidator.ts      # Common validation rules
+│   ├── emailSchema         # Email validation
+│   ├── passwordSchema      # Password rules
+│   └── phoneSchema         # Phone number validation
+│
+└── S3Validator.ts          # S3 upload validation
+    └── uploadSchema        # File upload validation
+```
 
 ### Controllers (`app/controllers/`)
 
@@ -86,17 +110,25 @@ app/middlewares/
 │   └── Loads user data
 │   └── Redirects if not authenticated
 │
+├── csrf.ts                 # CSRF protection middleware
+│   └── Token generation and validation
+│   └── Protects POST/PUT/DELETE requests
+│
 ├── inertia.ts              # Inertia.js integration
 │   └── response.inertia()  # Render Inertia pages
 │   └── Handles X-Inertia header
 │   └── Manages error flash messages
 │
 └── rateLimit.ts            # Rate limiting
-    ├── authRateLimit       # Login/auth endpoints (5 req/min)
-    ├── apiRateLimit        # General API (60 req/min)
-    ├── passwordResetRateLimit # Password reset (3 req/15min)
+    ├── authRateLimit       # Login/auth endpoints (5 req/15min)
+    ├── apiRateLimit        # General API (100 req/15min)
+    ├── generalRateLimit    # General routes (1000 req/15min)
+    ├── passwordResetRateLimit # Password reset (3 req/hour)
+    ├── emailRateLimit      # Email sending (10 req/hour)
+    ├── uploadRateLimit     # File uploads (50 req/hour)
     ├── createAccountRateLimit # Registration (3 req/hour)
-    └── uploadRateLimit     # File uploads (10 req/min)
+    ├── userRateLimit()     # Rate limit by user ID
+    └── customRateLimit()   # Custom rate limiter
 ```
 
 ### Services (`app/services/`)
@@ -129,26 +161,57 @@ app/services/
 │   └── deleteObject()      # Delete file
 │
 ├── Mailer.ts               # SMTP email (Nodemailer)
-│   └── MailTo()            # Send email via Gmail
+│   └── send()              # Send email via SMTP
 │
 ├── Resend.ts               # Resend email API
-│   └── MailTo()            # Send email via Resend
+│   └── send()              # Send email via Resend
 │
 ├── View.ts                 # Template rendering
 │   └── view()              # Render Squirrelly template
 │
-├── Logger.ts               # Winston logging
-│   ├── info()              # Info logs
-│   ├── error()             # Error logs
-│   └── warn()              # Warning logs
+├── Logger.ts               # Logging service
+│   ├── logInfo()           # Info logs
+│   ├── logError()          # Error logs
+│   ├── logWarn()           # Warning logs
+│   └── logDebug()          # Debug logs
 │
 ├── RateLimiter.ts          # Rate limiting logic
+│   ├── check()             # Check rate limit
 │   └── Memory-based rate limiter
 │
-└── Redis.ts                # Redis caching (optional)
-    ├── get()               # Get cached value
-    ├── set()               # Set cache value
-    └── del()               # Delete cache key
+├── Redis.ts                # Redis caching (optional)
+│   ├── get()               # Get cached value
+│   ├── set()               # Set cache value
+│   └── del()               # Delete cache key
+│
+├── CacheService.ts         # Database caching layer
+│   ├── get()               # Get from cache
+│   ├── set()               # Set cache value
+│   └── invalidate()        # Clear cache
+│
+├── CSRF.ts                 # CSRF token management
+│   ├── generateToken()     # Generate CSRF token
+│   └── validateToken()     # Validate CSRF token
+│
+├── Translation.ts          # i18n translation service
+│   ├── t()                 # Translate key
+│   ├── setLocale()         # Set language
+│   └── getLocale()         # Get current language
+│
+├── Validator.ts            # Validation service
+│   └── Zod schema validation helpers
+│
+└── languages/              # Translation files
+    ├── en.json             # English
+    ├── id.json             # Indonesian
+    ├── ar.json             # Arabic
+    ├── de.json             # German
+    ├── fr.json             # French
+    ├── fa.json             # Persian
+    ├── ps.json             # Pashto
+    ├── sw.json             # Swahili
+    ├── tr.json             # Turkish
+    └── ur.json             # Urdu
 ```
 
 ## Frontend Structure (`resources/`)
@@ -357,7 +420,8 @@ Configured in `tsconfig.json`:
 
 ## Next Steps
 
-- [Backend Services Guide](03-BACKEND-SERVICES.md)
-- [Frontend Development](04-FRONTEND-DEVELOPMENT.md)
-- [Database Management](05-DATABASE.md)
-- [Authentication System](06-AUTHENTICATION.md)
+- [Database Guide](03-DATABASE.md) - Learn database operations
+- [Routing & Controllers](04-ROUTING-CONTROLLERS.md) - Handle HTTP requests
+- [Frontend (Svelte 5)](05-FRONTEND-SVELTE.md) - Build reactive UI
+- [Authentication](06-AUTHENTICATION.md) - User authentication
+- [Middleware Guide](07-MIDDLEWARE.md) - Custom middleware patterns

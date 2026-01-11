@@ -2,46 +2,79 @@
 
 Complete documentation for the Laju high-performance TypeScript web framework.
 
-## Documentation Index
+**Organized for progressive learning from beginner to advanced topics.**
 
-### Getting Started
+---
+
+## 📚 Learning Path
+
+### **Phase 1: Getting Started** (01-03)
+
+Start here if you're new to Laju. Learn the basics and set up your first project.
 
 1. **[Introduction](01-INTRODUCTION.md)** - Framework overview, tech stack, quick start
 2. **[Project Structure](02-PROJECT-STRUCTURE.md)** - Directory layout, conventions, imports
-
-### Core Services
-
 3. **[Database Guide](03-DATABASE.md)** - Knex.js, Native SQLite, Migrations, Performance
-4. **[Authentication Guide](04-AUTHENTICATION.md)** - Auth, Sessions, OAuth, Password Reset
-5. **[Storage Guide](05-STORAGE.md)** - S3, Presigned URLs, File Uploads
-6. **[Email Guide](06-EMAIL.md)** - Nodemailer, Resend, Email Templates
-7. **[API Reference](07-API-REFERENCE.md)** - Request/Response types, middleware
 
-### Deployment & Best Practices
+---
 
-8. **[Deployment Guide](08-DEPLOYMENT.md)** - Production build, server setup, PM2
-9. **[Best Practices](09-BEST-PRACTICES.md)** - Code organization, patterns
-   - **[Security Guide](09a-SECURITY.md)** - Authentication, Validation, XSS, CSRF
-   - **[Performance Guide](09b-PERFORMANCE.md)** - Database, Caching, Optimization
-10. **[GitHub Actions](10-GITHUB-ACTIONS.md)** - Auto deploy setup
+### **Phase 2: Core Features** (04-09)
 
-### Tutorials & Guides
+Build your first features with routing, frontend, and authentication.
 
-11. **[Tutorials](11-TUTORIALS.md)** - CRUD, File Upload, Protected Routes, CLI
-12. **[Backup & Restore](12-BACKUP-RESTORE.md)** - Database backup automation
-13. **[AI Development](13-AI-DEVELOPMENT.md)** - Build apps with AI assistants
+4. **[Routing & Controllers](04-ROUTING-CONTROLLERS.md)** - Routes, controllers, request/response
+5. **[Frontend (Svelte 5)](05-FRONTEND-SVELTE.md)** - Runes, State, Forms, Inertia.js
+6. **[Authentication](06-AUTHENTICATION.md)** - Sessions, OAuth, Password Reset, Email Verification
+7. **[Middleware](07-MIDDLEWARE.md)** - Auth, Rate limiting, Custom middleware, Patterns
+8. **[Validation](08-VALIDATION.md)** - Zod schemas, Input validation, Type-safe forms
+9. **[Email](09-EMAIL.md)** - Nodemailer, Resend, Email Templates
 
-### Advanced Topics
+---
 
-14. **[Testing Guide](14-TESTING.md)** - Unit tests, Integration tests, Vitest
-15. **[Svelte 5 Patterns](15-SVELTE5-PATTERNS.md)** - Runes, State, Forms, Inertia
-16. **[Squirrelly Templates](16-SQUIRRELLY.md)** - SSR, Partials, Filters, Helpers
-17. **[Caching Guide](17-CACHING.md)** - Database Cache vs Redis, Strategies
-18. **[Validation Guide](18-VALIDATION.md)** - Zod schemas, Input validation, Type-safe forms
-19. **[CSRF Protection](19-CSRF.md)** - Token generation, Form protection, AJAX requests
-20. **[Translation](20-TRANSLATION.md)** - Multi-language, Interpolation, Nested keys
+### **Phase 3: Advanced Features** (10-15)
 
-## Quick Start
+Add file uploads, caching, background jobs, and internationalization.
+
+10. **[Storage (S3)](10-STORAGE.md)** - S3/Wasabi, Presigned URLs, File Uploads
+11. **[Caching](11-CACHING.md)** - Database Cache vs Redis, Strategies, Performance
+12. **[Background Jobs](12-BACKGROUND-JOBS.md)** - Cron jobs, Task scheduling, Commands
+13. **[CSRF Protection](13-CSRF.md)** - Token generation, Form protection, AJAX requests
+14. **[Translation (i18n)](14-TRANSLATION.md)** - Multi-language, Interpolation, Nested keys
+15. **[Squirrelly Templates](15-SQUIRRELLY.md)** - SSR, Partials, Filters, Helpers
+
+---
+
+### **Phase 4: Best Practices** (16-18)
+
+Learn production-ready patterns, security, and performance optimization.
+
+16. **[Best Practices](16-BEST-PRACTICES.md)** - Code organization, patterns, conventions
+    - **[Security Guide](17-SECURITY.md)** - Authentication, Validation, XSS, CSRF, SQL Injection
+    - **[Performance Guide](18-PERFORMANCE.md)** - Database, Caching, File Uploads, Monitoring
+
+---
+
+### **Phase 5: Testing & Deployment** (19-21)
+
+Test your application and deploy to production.
+
+19. **[Testing Guide](19-TESTING.md)** - Unit tests, Integration tests, Vitest, Best practices
+20. **[Deployment Guide](20-DEPLOYMENT.md)** - Production build, server setup, PM2, HTTPS
+21. **[GitHub Actions](21-GITHUB-ACTIONS.md)** - CI/CD, Auto deploy, Testing automation
+
+---
+
+### **Phase 6: Advanced Topics** (22-24)
+
+Deep dive into advanced features and API reference.
+
+22. **[Backup & Restore](22-BACKUP-RESTORE.md)** - Database backup automation, S3 storage
+23. **[AI Development](23-AI-DEVELOPMENT.md)** - Build apps with AI assistants
+24. **[API Reference](24-API-REFERENCE.md)** - Complete API documentation, Types, Methods
+
+---
+
+## 🚀 Quick Start
 
 ```bash
 npx create-laju-app my-project
@@ -54,35 +87,90 @@ npm run dev
 
 Visit `http://localhost:5555`
 
-## Quick Reference
+---
 
-### Create Feature
+## 📖 Recommended Learning Order
 
-```bash
-npx knex migrate:make create_posts_table  # Migration
-node laju make:controller PostController   # Controller
-# Create: resources/js/Pages/posts/index.svelte
-```
+### **For Complete Beginners:**
+1. Read [Introduction](01-INTRODUCTION.md)
+2. Understand [Project Structure](02-PROJECT-STRUCTURE.md)
+3. Learn [Database Basics](03-DATABASE.md)
+4. Build your first feature with [Routing & Controllers](04-ROUTING-CONTROLLERS.md)
+5. Create UI with [Frontend (Svelte 5)](05-FRONTEND-SVELTE.md)
+6. Add [Authentication](06-AUTHENTICATION.md)
+7. Protect routes with [Middleware](07-MIDDLEWARE.md)
 
-### Database
+### **For Experienced Developers:**
+1. Skim [Introduction](01-INTRODUCTION.md) and [Project Structure](02-PROJECT-STRUCTURE.md)
+2. Jump to specific topics you need
+3. Reference [API Reference](24-API-REFERENCE.md) as needed
+4. Check [Best Practices](16-BEST-PRACTICES.md) before production
 
-```typescript
-// Knex.js
-const posts = await DB.from("posts");
+### **For Production Deployment:**
+1. Review [Security Guide](17-SECURITY.md)
+2. Optimize with [Performance Guide](18-PERFORMANCE.md)
+3. Set up [Testing](19-TESTING.md)
+4. Follow [Deployment Guide](20-DEPLOYMENT.md)
+5. Automate with [GitHub Actions](21-GITHUB-ACTIONS.md)
 
-// Native SQLite (faster reads)
-const post = SQLite.get("SELECT * FROM posts WHERE id = ?", [id]);
-```
+---
 
-### Authentication
+## 🎯 Quick Reference by Topic
 
-```typescript
-const hashed = await Authenticate.hash(password);
-const valid = await Authenticate.compare(password, hashed);
-await Authenticate.process(user, request, response);
-```
+### **Building Features**
+- [Routing & Controllers](04-ROUTING-CONTROLLERS.md) - Handle HTTP requests
+- [Frontend (Svelte 5)](05-FRONTEND-SVELTE.md) - Build reactive UI
+- [Database](03-DATABASE.md) - Store and query data
+- [Validation](08-VALIDATION.md) - Validate user input
+- [Email](09-EMAIL.md) - Send emails
 
-## Resources
+### **User Management**
+- [Authentication](06-AUTHENTICATION.md) - Login, register, OAuth
+- [Middleware](07-MIDDLEWARE.md) - Protect routes
+- [CSRF Protection](13-CSRF.md) - Prevent CSRF attacks
+
+### **File & Data Management**
+- [Storage (S3)](10-STORAGE.md) - Upload files
+- [Caching](11-CACHING.md) - Speed up queries
+- [Background Jobs](12-BACKGROUND-JOBS.md) - Run scheduled tasks
+- [Backup & Restore](22-BACKUP-RESTORE.md) - Backup database
+
+### **Internationalization**
+- [Translation](14-TRANSLATION.md) - Multi-language support
+- [Squirrelly Templates](15-SQUIRRELLY.md) - Server-side rendering
+
+### **Production Ready**
+- [Best Practices](16-BEST-PRACTICES.md) - Code quality
+- [Security Guide](17-SECURITY.md) - Secure your app
+- [Performance Guide](18-PERFORMANCE.md) - Optimize speed
+- [Testing](19-TESTING.md) - Test your code
+- [Deployment](20-DEPLOYMENT.md) - Deploy to production
+
+---
+
+## 💡 Common Tasks
+
+### Create a CRUD Feature
+1. [Create migration](03-DATABASE.md#migrations) - `npx knex migrate:make create_posts`
+2. [Create controller](04-ROUTING-CONTROLLERS.md#creating-a-controller) - `node laju make:controller PostController`
+3. [Define routes](04-ROUTING-CONTROLLERS.md#restful-routes)
+4. [Create Svelte pages](05-FRONTEND-SVELTE.md)
+
+### Add Authentication
+1. [Set up auth routes](06-AUTHENTICATION.md#basic-authentication)
+2. [Protect routes with middleware](07-MIDDLEWARE.md#auth-middleware)
+3. [Add rate limiting](07-MIDDLEWARE.md#rate-limit-middleware)
+
+### Deploy to Production
+1. [Build for production](20-DEPLOYMENT.md#building-for-production)
+2. [Set up server](20-DEPLOYMENT.md#server-setup)
+3. [Configure PM2](20-DEPLOYMENT.md#pm2-process-manager)
+4. [Set up HTTPS](20-DEPLOYMENT.md#https-setup)
+5. [Automate with GitHub Actions](21-GITHUB-ACTIONS.md)
+
+---
+
+## 📦 Resources
 
 - **Website:** [laju.dev](https://laju.dev)
 - **GitHub:** [github.com/maulanashalihin/laju](https://github.com/maulanashalihin/laju)
