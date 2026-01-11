@@ -35,6 +35,7 @@ const nativeDb = new Database(connectionConfig.filename);
 nativeDb.pragma('journal_mode = WAL');
 nativeDb.pragma('synchronous = NORMAL');
 nativeDb.pragma('foreign_keys = ON');
+nativeDb.pragma('busy_timeout = 5000'); // Wait 5s before throwing SQLITE_BUSY error
 
 // Statement cache to reuse prepared statements
 const statementCache: Record<string, BetterSqlite3.Statement<any[], any>> = {};

@@ -1,210 +1,72 @@
 <frontend_generation_rules>
-1. Design Principles:
-   - Prioritize unique and creative UI/UX solutions 
-   - Support experimental CSS features and animations
-   - Encourage use of creative micro-interactions
-   - Focus on custom-built components over standard libraries 
-
-2. Technology Stack:
-   - TailwindCSS v4 with Vite plugin
-   - Svelte 5 Framework with runes
-   - CSS-in-JS when needed
-
-3. Styling Approach:
-   - Prefer custom design systems
-   - Support modern CSS features (Container Queries, CSS Grid, etc)
-   - Enable creative responsive design patterns
-   - Support advanced theming systems
-   - Always use focus:outline-none on form inputs
-   - Avoid/minimize emoji usage
+- TailwindCSS v4, Svelte 5 (runes), CSS-in-JS
+- Custom components over libraries, creative UI/UX
+- Modern CSS (Container Queries, Grid), focus:outline-none
+- Minimal emoji usage
 </frontend_generation_rules>
 
-# Laju Project Guide
+# Laju Framework - Complete Reference
 
 ## Tech Stack
+- **Backend**: HyperExpress, Knex, BetterSQLite3 (WAL mode), Squirrelly, Redis (optional)
+- **Frontend**: Svelte 5 (runes), Inertia.js, TailwindCSS 4, Vite
 
-### Backend
-- **HyperExpress** - High-performance web server (11x faster than Express)
-- **Knex** - SQL query builder (for complex queries)
-- **BetterSQLite3** - Database with WAL mode
-- **Squirrelly** - Fast template engine
+## CRITICAL: HyperExpress Middleware
 
-### Frontend
-- **Svelte 5** - UI framework with runes
-- **Inertia.js** - SPA without client-side routing
-- **TailwindCSS 4** - Utility-first CSS
-- **Vite** - Build tool and dev server
-
-## Project Structure
-
-```
-app/
-├── controllers/     # Request handlers (split by domain)
-├── middlewares/     # Auth, rate limiting
-└── services/        # DB, Mailer, Storage
-
-resources/
-├── js/
-│   ├── Pages/       # Svelte/Inertia pages
-│   ├── Components/  # Reusable components
-│   ├── app.js       # Entry point
-│   └── index.css    # TailwindCSS
-└── views/           # Squirrelly templates
-
-routes/              # Route definitions
-migrations/          # Database migrations
-```
-
-## Development Commands
-
-```bash
-npm run dev                    # Start development server
-npm run build                  # Production build
-npx knex migrate:latest        # Run migrations
-npx knex migrate:make <name>   # Create migration
-node laju make:controller Name # Generate controller
-```
-
-## Middleware Pattern (HyperExpress)
-
-**IMPORTANT**: HyperExpress does NOT use `next()` like Express.js
+**NO `next()` - Different from Express.js!**
+- No return = continue to next handler
+- `return response.xxx()` = stop execution
 
 ```typescript
-// Correct pattern - no next() needed
 export default async (request: Request, response: Response) => {
-   if (authenticated) {
-      request.user = user;
-      // No return = continue to handler
-   } else {
-      return response.redirect("/login"); // Return = stop here
-   }
+   if (!authenticated) return response.redirect("/login");
+   request.user = user; // continues to handler
 }
 ```
 
-## Database Access
+## Database
 
-Use **DB (Knex)** for complex queries:
-```typescript
-const users = await DB.from("users").where("active", true).orderBy("name");
-```
-
-Use **SQLite (native)** for performance-critical reads:
-```typescript
-const user = SQLite.get("SELECT * FROM users WHERE id = ?", [id]);
-```
-
-## Controller Pattern
+- **Knex**: complex queries, joins, transactions
+- **Native SQLite**: simple reads (385% faster)
 
 ```typescript
-import { Request, Response } from "../../type";
-import DB from "../services/DB";
-
-class PostController {
-  public async index(request: Request, response: Response) {
-    const posts = await DB.from("posts");
-    return response.inertia("posts/index", { posts });
-  }
-
-  public async store(request: Request, response: Response) {
-    const { title, content } = await request.json();
-    await DB.table("posts").insert({
-      title,
-      content,
-      created_at: Date.now(),
-      updated_at: Date.now()
-    });
-    return response.redirect("/posts");
-  }
-
-  public async destroy(request: Request, response: Response) {
-    const { id } = request.params;
-    await DB.from("posts").where("id", id).delete();
-    return response.json({ success: true });
-  }
-}
-
-export default new PostController();
+const users = await DB.from("users").where("active", true); // Knex
+const user = SQLite.get("SELECT * FROM users WHERE id = ?", [id]); // Native
 ```
 
-## Routes
+## Svelte 5 Runes
 
-```typescript
-import PostController from "../app/controllers/PostController";
-import Auth from "../app/middlewares/auth";
-
-Route.get("/posts", PostController.index);
-Route.post("/posts", [Auth], PostController.store);
-Route.delete("/posts/:id", [Auth], PostController.destroy);
+```svelte
+let count = $state(0);                    // State
+let total = $derived(a + b);              // Computed
+let { title } = $props();                 // Props
+let { value = $bindable('') } = $props(); // Two-way binding
+$effect(() => { /* side effects */ });    // Effects
 ```
 
-## SSR with Squirrelly
+## Security
 
-For pure SSR pages (without Inertia/Svelte), use Squirrelly templates.
+- **Input validation**: Always validate before processing
+- **SQL**: Use parameterized queries only (`?` placeholders)
+- **Password**: `Authenticate.hash()` / `Authenticate.compare()`
+- **Rate limiting**: Apply to auth/API routes
 
-### Template Location
-Templates are stored in `resources/views/` with `.html` extension.
+## Error Handling
 
-### Template Syntax
+Always wrap in try-catch, validate input, return appropriate status codes.
 
-```html
-<!-- resources/views/landing.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>{{it.title}}</title>
-    <link rel="stylesheet" href="/assets/style.css">
-</head>
-<body>
-    <h1>{{it.heading}}</h1>
-    
-    <!-- Loop -->
-    {{@each(it.items) => item}}
-        <div class="item">{{item.name}}</div>
-    {{/each}}
-    
-    <!-- Conditional -->
-    {{@if(it.user)}}
-        <p>Welcome, {{it.user.name}}</p>
-    {{#else}}
-        <a href="/login">Login</a>
-    {{/if}}
-    
-    <!-- Include partial -->
-    {{@include("partials/footer.html") /}}
-</body>
-</html>
-```
+## SSR vs Inertia
 
-### Controller for SSR
+- **Squirrelly SSR**: Landing pages, SEO, emails
+- **Inertia + Svelte**: Dashboard, interactive apps
 
-```typescript
-import { Request, Response } from "../../type";
-import { view } from "../services/View";
-import DB from "../services/DB";
+**Squirrelly**: NO `||` operator! Use ternary `? :` or set defaults in controller.
 
-class LandingController {
-  public async index(request: Request, response: Response) {
-    const items = await DB.from("products").limit(10);
-    
-    const html = view("landing.html", {
-      title: "Welcome",
-      heading: "Our Products",
-      items: items,
-      user: request.user || null
-    });
-    
-    return response.type("html").send(html);
-  }
-}
+## Avoid
 
-export default new LandingController();
-```
-
-### When to Use SSR vs Inertia
-
-| Use Case | Approach |
-|----------|----------|
-| Landing pages, SEO-critical | **Squirrelly SSR** |
-| Dashboard, interactive apps | **Inertia + Svelte** |
-| Email templates | **Squirrelly** |
-| Static pages | **Squirrelly SSR** |
+- `next()` in middleware → double execution
+- SQL string concatenation → injection
+- No input validation
+- Knex for simple reads → use native SQLite
+- Missing try-catch
+- Not returning response in middleware

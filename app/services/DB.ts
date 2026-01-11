@@ -51,6 +51,7 @@ function applySQLitePragmas(instance: Knex) {
       instance.raw('PRAGMA journal_mode = WAL');
       instance.raw('PRAGMA synchronous = NORMAL');
       instance.raw('PRAGMA foreign_keys = ON');
+      instance.raw('PRAGMA busy_timeout = 5000'); // Wait 5s before throwing SQLITE_BUSY error
     } catch (err) {
       // Non-fatal: continue even if PRAGMA fails
       console.warn('Failed to apply SQLite PRAGMA:', err);

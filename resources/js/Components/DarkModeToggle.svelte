@@ -1,9 +1,9 @@
 <script>
 import { onMount } from 'svelte';
 
-let darkMode = false;
-let mounted = false;
-export let onchange = (mode) => {};
+let darkMode = $state(false);
+let mounted = $state(false);
+let { onchange = (mode) => {} } = $props();
 
 onMount(() => {
     // Check system preference
@@ -50,7 +50,7 @@ function toggleDarkMode() {
 </script>
 
 <button 
-    on:click={toggleDarkMode}
+    onclick={toggleDarkMode}
     class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700"
     aria-label="Toggle dark mode"
 >
