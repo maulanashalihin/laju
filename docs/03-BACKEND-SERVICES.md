@@ -2,7 +2,19 @@
 
 Complete reference for all backend services in Laju framework.
 
-## Table of Contents
+## Detailed Guides
+
+For in-depth documentation, see these focused guides:
+
+- **[Database Guide](03a-DATABASE.md)** - Knex.js, Native SQLite, Migrations, Performance
+- **[Authentication Guide](03b-AUTHENTICATION.md)** - Auth, Sessions, OAuth, Password Reset
+- **[Storage & Email Guide](03c-STORAGE-EMAIL.md)** - S3, Email, Templates, Redis
+
+---
+
+## Quick Reference
+
+### Table of Contents
 
 1. [Database Services](#database-services)
 2. [Authentication Service](#authentication-service)

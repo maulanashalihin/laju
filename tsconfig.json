@@ -17,7 +17,7 @@
     /* Remove comments in output */
     "removeComments": true,
     /* Enable all strict type checking options */
-    "strict": false,     
+    "strict": true,     
     /* Raise error on expressions and declarations with an implied any type */
     "noImplicitAny": false,
     /* Enable strict null checks */

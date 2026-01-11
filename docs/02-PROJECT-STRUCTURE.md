@@ -28,26 +28,39 @@ laju/
 
 ### Controllers (`app/controllers/`)
 
-Request handlers that coordinate between routes and services.
+Request handlers that coordinate between routes and services. Controllers are split by domain for better maintainability.
 
 ```
 app/controllers/
-├── AuthController.ts       # Authentication logic
+├── LoginController.ts      # Login/logout logic
 │   ├── loginPage()         # Display login form
 │   ├── processLogin()      # Handle login submission
+│   └── logout()            # End user session
+│
+├── RegisterController.ts   # Registration logic
 │   ├── registerPage()      # Display registration form
-│   ├── processRegister()   # Handle registration
-│   ├── logout()            # End user session
-│   ├── homePage()          # User dashboard
-│   ├── profilePage()       # User profile
-│   ├── changeProfile()     # Update profile
-│   ├── changePassword()    # Change password
+│   └── processRegister()   # Handle registration
+│
+├── PasswordController.ts   # Password management
 │   ├── forgotPasswordPage() # Password reset form
 │   ├── sendResetPassword() # Send reset email
 │   ├── resetPasswordPage() # Reset password form
 │   ├── resetPassword()     # Process password reset
+│   └── changePassword()    # Change password
+│
+├── ProfileController.ts    # User profile logic
+│   ├── homePage()          # User dashboard
+│   ├── profilePage()       # User profile
+│   ├── changeProfile()     # Update profile
+│   └── deleteUsers()       # Admin: bulk delete users
+│
+├── OAuthController.ts      # OAuth providers
 │   ├── redirect()          # Google OAuth redirect
 │   └── googleCallback()    # Google OAuth callback
+│
+├── VerificationController.ts # Email verification
+│   ├── verify()            # Send verification email
+│   └── verifyPage()        # Process verification
 │
 ├── HomeController.ts       # Home page logic
 │   └── index()             # Landing page

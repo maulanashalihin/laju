@@ -1,4 +1,9 @@
-import AuthController from "../app/controllers/AuthController"; 
+import LoginController from "../app/controllers/LoginController";
+import RegisterController from "../app/controllers/RegisterController";
+import PasswordController from "../app/controllers/PasswordController";
+import ProfileController from "../app/controllers/ProfileController";
+import OAuthController from "../app/controllers/OAuthController";
+import VerificationController from "../app/controllers/VerificationController";
 import Auth from "../app/middlewares/auth"
 import HomeController from "../app/controllers/HomeController";
 import AssetController from "../app/controllers/AssetController";
@@ -48,13 +53,13 @@ Route.get("/api/s3/health", [apiRateLimit], S3Controller.health);
  * GET   /google/redirect - Google OAuth redirect
  * GET   /google/callback - Google OAuth callback
  */
-Route.get("/login", AuthController.loginPage);
-Route.post("/login", [authRateLimit], AuthController.processLogin);
-Route.get("/register", AuthController.registerPage);
-Route.post("/register", [createAccountRateLimit], AuthController.processRegister);
-Route.post("/logout", AuthController.logout);
-Route.get("/google/redirect", AuthController.redirect);
-Route.get("/google/callback", AuthController.googleCallback);
+Route.get("/login", LoginController.loginPage);
+Route.post("/login", [authRateLimit], LoginController.processLogin);
+Route.get("/register", RegisterController.registerPage);
+Route.post("/register", [createAccountRateLimit], RegisterController.processRegister);
+Route.post("/logout", LoginController.logout);
+Route.get("/google/redirect", OAuthController.redirect);
+Route.get("/google/callback", OAuthController.googleCallback);
 
 /**
  * Password Reset Routes
@@ -65,10 +70,10 @@ Route.get("/google/callback", AuthController.googleCallback);
  * GET   /reset-password/:id - Reset password page
  * POST  /reset-password - Process password reset
  */
-Route.get("/forgot-password", AuthController.forgotPasswordPage);
-Route.post("/forgot-password", [passwordResetRateLimit], AuthController.sendResetPassword);
-Route.get("/reset-password/:id", AuthController.resetPasswordPage);
-Route.post("/reset-password", [authRateLimit], AuthController.resetPassword);
+Route.get("/forgot-password", PasswordController.forgotPasswordPage);
+Route.post("/forgot-password", [passwordResetRateLimit], PasswordController.sendResetPassword);
+Route.get("/reset-password/:id", PasswordController.resetPasswordPage);
+Route.post("/reset-password", [authRateLimit], PasswordController.resetPassword);
 
 /**
  * Protected Routes
@@ -80,11 +85,11 @@ Route.post("/reset-password", [authRateLimit], AuthController.resetPassword);
  * POST  /change-password - Change password
  * DELETE /users - Delete users (admin only)
  */
-Route.get("/home", [Auth], AuthController.homePage);
-Route.get("/profile", [Auth], AuthController.profilePage);
-Route.post("/change-profile", [Auth], AuthController.changeProfile);
-Route.post("/change-password", [Auth], AuthController.changePassword);
-Route.delete("/users", [Auth], AuthController.deleteUsers);
+Route.get("/home", [Auth], ProfileController.homePage);
+Route.get("/profile", [Auth], ProfileController.profilePage);
+Route.post("/change-profile", [Auth], ProfileController.changeProfile);
+Route.post("/change-password", [Auth], PasswordController.changePassword);
+Route.delete("/users", [Auth], ProfileController.deleteUsers);
 
 /**
  * Static Asset Handling Routes

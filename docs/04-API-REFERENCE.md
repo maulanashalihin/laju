@@ -506,6 +506,39 @@ Redis.ttl(key: string): Promise<number>
 
 ## Middleware Functions
 
+### HyperExpress Middleware Pattern
+
+**IMPORTANT**: HyperExpress middleware works differently from Express.js. Do NOT use `next()`.
+
+```typescript
+// ❌ WRONG - Express.js pattern (causes double execution)
+export default async (request: Request, response: Response, next: Function) => {
+   if (authenticated) {
+      request.user = user;
+      next(); // DON'T DO THIS - causes request to run twice
+   } else {
+      response.redirect("/login");
+   }
+}
+
+// ✅ CORRECT - HyperExpress pattern
+export default async (request: Request, response: Response) => {
+   if (authenticated) {
+      request.user = user;
+      // No return = automatically continues to handler
+   } else {
+      return response.redirect("/login"); // Return = stops here
+   }
+}
+```
+
+**Key Rules:**
+- **No `next()` needed** - HyperExpress auto-continues if no response is sent
+- **Always `return`** when sending a response (redirect, json, send)
+- **No return** = request continues to the next handler
+
+---
+
 ### Auth Middleware
 
 ```typescript

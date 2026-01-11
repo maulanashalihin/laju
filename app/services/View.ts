@@ -4,10 +4,10 @@
  * It uses Squirrelly as the templating engine and supports hot reloading in development.
  */
 
-import { readFileSync, readdirSync, statSync } from "fs";
+import { readFileSync, readdirSync, statSync, watch } from "fs";
 import * as Sqrl from 'squirrelly' 
 import path from "path";
-require("dotenv").config();
+import "dotenv/config";
 
 /**
  * Cache object to store compiled HTML templates
@@ -20,20 +20,14 @@ let html_files = {} as {
 // Set views directory based on environment
 let directory = process.env.NODE_ENV == 'development' ?    "resources/views" : "dist/views";
 
-// Set up file watcher for hot reloading in development
-if(process.env.NODE_ENV == 'development')
-   {
-      const chokidar = require("chokidar");
-
-      var watcher = chokidar.watch('resources/views', { ignored: /^\./, persistent: true });
-
-      watcher 
-      .on('change', (path) => {
-
+// Set up file watcher for hot reloading in development using native fs.watch
+if (process.env.NODE_ENV === 'development') {
+   watch('resources/views', { recursive: true }, (eventType, filename) => {
+      if (filename && eventType === 'change') {
          importFiles(directory);
-         
-      })
-   }
+      }
+   });
+}
 
 /**
  * Recursively imports and compiles template files from the views directory
@@ -65,10 +59,11 @@ function importFiles( nextDirectory = "resources/views") {
          }
       }
    } catch (error) {
-      if (error.code === 'ENOENT') {
+      const err = error as NodeJS.ErrnoException;
+      if (err.code === 'ENOENT') {
          throw new Error(`Views directory not found: ${nextDirectory}. Please make sure the directory exists.`);
       }
-      throw error; // Re-throw other errors
+      throw error;
    }
 }
 

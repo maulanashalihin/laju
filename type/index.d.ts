@@ -1,6 +1,12 @@
 import { Request, Response } from "hyper-express";
 
- 
+ interface User {
+  id: string;
+  name: string;
+  email: string;
+  is_admin: boolean;
+  is_verified: boolean;
+}
 
 export interface Response extends Response {
     view(view : string,data? : any) : void,
@@ -10,6 +16,6 @@ export interface Response extends Response {
 
 
 export interface Request extends Request {
-    user : any,
+    user : User,
     share : any,
 }

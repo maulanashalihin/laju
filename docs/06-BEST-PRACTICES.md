@@ -2,6 +2,15 @@
 
 Guidelines and best practices for building production-ready Laju applications.
 
+## Detailed Guides
+
+For in-depth documentation, see these focused guides:
+
+- **[Security Guide](06a-SECURITY.md)** - Authentication, Validation, SQL Injection, XSS, CSRF
+- **[Performance Guide](06b-PERFORMANCE.md)** - Database, Caching, File Uploads, Monitoring
+
+---
+
 ## Table of Contents
 
 1. [Code Organization](#code-organization)

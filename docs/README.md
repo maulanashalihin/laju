@@ -8,21 +8,31 @@ Complete documentation for the Laju high-performance TypeScript web framework.
 
 1. **[Introduction](01-INTRODUCTION.md)** - Framework overview, tech stack, quick start
 2. **[Project Structure](02-PROJECT-STRUCTURE.md)** - Directory layout, conventions, imports
-3. **[Backend Services](03-BACKEND-SERVICES.md)** - Database, Auth, Storage, Email, Cache
+3. **[Backend Services](03-BACKEND-SERVICES.md)** - Overview of all services
+   - **[Database Guide](03a-DATABASE.md)** - Knex.js, Native SQLite, Migrations
+   - **[Authentication Guide](03b-AUTHENTICATION.md)** - Auth, Sessions, OAuth
+   - **[Storage & Email Guide](03c-STORAGE-EMAIL.md)** - S3, Email, Templates
 4. **[API Reference](04-API-REFERENCE.md)** - Request/Response types, middleware
 
-### Deployment
+### Deployment & Best Practices
 
 5. **[Deployment Guide](05-DEPLOYMENT.md)** - Production build, server setup, PM2
-6. **[Best Practices](06-BEST-PRACTICES.md)** - Code organization, security, performance
+6. **[Best Practices](06-BEST-PRACTICES.md)** - Code organization, patterns
+   - **[Security Guide](06a-SECURITY.md)** - Authentication, Validation, XSS, CSRF
+   - **[Performance Guide](06b-PERFORMANCE.md)** - Database, Caching, Optimization
 7. **[GitHub Actions Deploy](07-GITHUB-ACTIONS-DEPLOY.md)** - Auto deploy setup
 
 ### Tutorials & Guides
 
-8. **[Tutorials](08-TUTORIALS.md)** - Build your first app, Squirrelly templates, CLI
+8. **[Tutorials](08-TUTORIALS.md)** - CRUD, File Upload, Protected Routes, CLI
 9. **[S3 Storage](09-S3-STORAGE.md)** - File uploads with presigned URLs
 10. **[Backup & Restore](10-BACKUP-RESTORE.md)** - Database backup automation
 11. **[AI Development](11-AI-DEVELOPMENT.md)** - Build apps with AI assistants
+
+### Advanced Topics
+
+12. **[Testing Guide](12-TESTING.md)** - Unit tests, Integration tests, Vitest
+13. **[Svelte 5 Patterns](13-SVELTE5-PATTERNS.md)** - Runes, State, Forms, Inertia
 
 ## Quick Start
 

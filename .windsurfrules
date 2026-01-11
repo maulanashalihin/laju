@@ -5,100 +5,104 @@
    - Encourage use of creative micro-interactions
    - Focus on custom-built components over standard libraries 
 
-2. Technology Stack Flexibility:
-   - Prioritize using tailwindcss versi 4
-   - Using Svelte Framework 
-   - Incorporate CSS-in-JS solutions 
- 
+2. Technology Stack:
+   - TailwindCSS v4 with Vite plugin
+   - Svelte 5 Framework with runes
+   - CSS-in-JS when needed
 
 3. Styling Approach:
    - Prefer custom design systems
    - Support modern CSS features (Container Queries, CSS Grid, etc)
    - Enable creative responsive design patterns
    - Support advanced theming systems
-   - Encourage CSS art and creative visuals
-   - selalu focus:outline-none pada form input
-   - hindari/kurangi pemakaian emoji
+   - Always use focus:outline-none on form inputs
+   - Avoid/minimize emoji usage
 </frontend_generation_rules>
- 
 
-# Studio Project Guide
+# Laju Project Guide
 
-## Tech Stack Overview
+## Tech Stack
 
 ### Backend
-- [HyperExpress](https://github.com/kartikk221/hyper-express) - High-performance web server
-- [Knex](https://knexjs.org) - SQL query builder
-- [BetterSQLite3](https://github.com/WiseLibs/better-sqlite3) - Database
-- [Nodemailer](https://nodemailer.com/) - Email sending
-- [Redis](https://redis.io/) - Caching (optional)
-- [Squirrelly](https://squirrelly.js.org/) - Fast template engine
+- **HyperExpress** - High-performance web server (11x faster than Express)
+- **Knex** - SQL query builder (for complex queries)
+- **BetterSQLite3** - Database with WAL mode
+- **Squirrelly** - Fast template engine
 
 ### Frontend
-- [Svelte 5](https://svelte.dev) - UI framework
-- [Inertia.js](https://inertiajs.com) - Client-server communication
-- [TailwindCSS](https://tailwindcss.com) - Utility-first CSS framework
-- [Vite](https://vitejs.dev) - Build tool and dev server
- 
+- **Svelte 5** - UI framework with runes
+- **Inertia.js** - SPA without client-side routing
+- **TailwindCSS 4** - Utility-first CSS
+- **Vite** - Build tool and dev server
+
 ## Project Structure
 
-- `/app` - Core application files
-  - `/middlewares` - Custom middleware functions
-  - `/services` - Service layer implementations
-  - `/controllers` - Application controllers
-- `/resources` - Frontend resources
-  - `/views` - Template HTML menggunakan Squirrelly
-    - `/Users/maulanashalihin/Project/laju/resources/views/index.html`
-    - `/Users/maulanashalihin/Project/laju/resources/views/inertia.html`
-  - `/js` - JavaScript assets and modules
-    - `Pages/` - Halaman Svelte/Inertia
-    - `Components/` - Komponen UI reusable
-    - `app.js` - Entry point aplikasi (Inertia/Svelte via Vite)
-    - `index.css` - Styles utama (TailwindCSS)
-- `/routes` - Route definitions
-- `/commands` - Custom CLI commands
-- `/migrations` - Database migrations
-- `/public` - Static files
-- `/dist` - Compiled assets (generated)
-- `/build` - Production build output
+```
+app/
+├── controllers/     # Request handlers (split by domain)
+├── middlewares/     # Auth, rate limiting
+└── services/        # DB, Mailer, Storage
 
- 
+resources/
+├── js/
+│   ├── Pages/       # Svelte/Inertia pages
+│   ├── Components/  # Reusable components
+│   ├── app.js       # Entry point
+│   └── index.css    # TailwindCSS
+└── views/           # Squirrelly templates
+
+routes/              # Route definitions
+migrations/          # Database migrations
+```
 
 ## Development Commands
 
-bash
-# Start development server
-npm run dev
- 
-# Run database migrations
-npx knex migrate:latest
- 
+```bash
+npm run dev                    # Start development server
+npm run build                  # Production build
+npx knex migrate:latest        # Run migrations
+npx knex migrate:make <name>   # Create migration
+node laju make:controller Name # Generate controller
+```
 
-## Best Practices
+## Middleware Pattern (HyperExpress)
 
-1. Menggunakan arsitektur MVC untuk organisasi kode
-2. Pemisahan concerns antara controllers dan services
-3. Type safety dengan TypeScript
-4. Modern frontend dengan Svelte dan Tailwind
-5. Database migrations untuk version control schema
-6. Environment configuration (.env)
-7. Gunakan Squirrelly sebagai template engine untuk server side rendering HTML
+**IMPORTANT**: HyperExpress does NOT use `next()` like Express.js
 
- 
-## Controller & Routes Concept 
+```typescript
+// Correct pattern - no next() needed
+export default async (request: Request, response: Response) => {
+   if (authenticated) {
+      request.user = user;
+      // No return = continue to handler
+   } else {
+      return response.redirect("/login"); // Return = stop here
+   }
+}
+```
+
+## Database Access
+
+Use **DB (Knex)** for complex queries:
+```typescript
+const users = await DB.from("users").where("active", true).orderBy("name");
+```
+
+Use **SQLite (native)** for performance-critical reads:
+```typescript
+const user = SQLite.get("SELECT * FROM users WHERE id = ?", [id]);
+```
+
+## Controller Pattern
 
 ```typescript
 import { Request, Response } from "../../type";
 import DB from "../services/DB";
 
-class Controller {
+class PostController {
   public async index(request: Request, response: Response) {
     const posts = await DB.from("posts");
     return response.inertia("posts/index", { posts });
-  }
-
-  public async create(request: Request, response: Response) {
-    return response.inertia("posts/create");
   }
 
   public async store(request: Request, response: Response) {
@@ -112,29 +116,95 @@ class Controller {
     return response.redirect("/posts");
   }
 
-  public async edit(request: Request, response: Response) {
-     
-  }
-
-  public async update(request: Request, response: Response) {
-     
-  }
-
   public async destroy(request: Request, response: Response) {
-     
+    const { id } = request.params;
+    await DB.from("posts").where("id", id).delete();
+    return response.json({ success: true });
   }
 }
 
-export default new Controller();
+export default new PostController();
 ```
 
-Add routes in `routes/web.ts`:
+## Routes
 
 ```typescript
 import PostController from "../app/controllers/PostController";
+import Auth from "../app/middlewares/auth";
 
 Route.get("/posts", PostController.index);
-Route.get("/posts/create", PostController.create);
-Route.post("/posts", PostController.store);
+Route.post("/posts", [Auth], PostController.store);
+Route.delete("/posts/:id", [Auth], PostController.destroy);
 ```
 
+## SSR with Squirrelly
+
+For pure SSR pages (without Inertia/Svelte), use Squirrelly templates.
+
+### Template Location
+Templates are stored in `resources/views/` with `.html` extension.
+
+### Template Syntax
+
+```html
+<!-- resources/views/landing.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{{it.title}}</title>
+    <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+    <h1>{{it.heading}}</h1>
+    
+    <!-- Loop -->
+    {{@each(it.items) => item}}
+        <div class="item">{{item.name}}</div>
+    {{/each}}
+    
+    <!-- Conditional -->
+    {{@if(it.user)}}
+        <p>Welcome, {{it.user.name}}</p>
+    {{#else}}
+        <a href="/login">Login</a>
+    {{/if}}
+    
+    <!-- Include partial -->
+    {{@include("partials/footer.html") /}}
+</body>
+</html>
+```
+
+### Controller for SSR
+
+```typescript
+import { Request, Response } from "../../type";
+import { view } from "../services/View";
+import DB from "../services/DB";
+
+class LandingController {
+  public async index(request: Request, response: Response) {
+    const items = await DB.from("products").limit(10);
+    
+    const html = view("landing.html", {
+      title: "Welcome",
+      heading: "Our Products",
+      items: items,
+      user: request.user || null
+    });
+    
+    return response.type("html").send(html);
+  }
+}
+
+export default new LandingController();
+```
+
+### When to Use SSR vs Inertia
+
+| Use Case | Approach |
+|----------|----------|
+| Landing pages, SEO-critical | **Squirrelly SSR** |
+| Dashboard, interactive apps | **Inertia + Svelte** |
+| Email templates | **Squirrelly** |
+| Static pages | **Squirrelly SSR** |
