@@ -400,6 +400,6 @@ webserver.use(cors(corsOptions));
 
 ## Next Steps
 
-- [Performance Guide](06b-PERFORMANCE.md)
-- [Best Practices](06-BEST-PRACTICES.md)
-- [Deployment Guide](05-DEPLOYMENT.md)
+- [Performance Guide](09b-PERFORMANCE.md)
+- [Best Practices](09-BEST-PRACTICES.md)
+- [Deployment Guide](08-DEPLOYMENT.md)

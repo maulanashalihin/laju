@@ -473,6 +473,6 @@ setInterval(() => {
 
 ## Next Steps
 
-- [Security Guide](06a-SECURITY.md)
-- [Deployment Guide](05-DEPLOYMENT.md)
-- [Best Practices](06-BEST-PRACTICES.md)
+- [Security Guide](09a-SECURITY.md)
+- [Deployment Guide](08-DEPLOYMENT.md)
+- [Best Practices](09-BEST-PRACTICES.md)

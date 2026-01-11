@@ -1,57 +1,82 @@
 # Laju
 
-A high-performance TypeScript web framework combining HyperExpress, Svelte 5, and Inertia.js for building modern full-stack applications.
+⚡ **High-performance TypeScript web framework** - 11x faster than Express.js
+
+Build modern full-stack applications with HyperExpress, Svelte 5, and Inertia.js.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-20--22-brightgreen)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![GitHub stars](https://img.shields.io/github/stars/maulanashalihin/laju?style=social)](https://github.com/maulanashalihin/laju)
-[![Website](https://img.shields.io/badge/Website-laju.dev-orange)](https://laju.dev)
 
-## Quick Start
+## 🚀 Quick Start
 
 ```bash
+# Create new project
 npx create-laju-app my-project
 cd my-project
+
+# Setup database
+cp .env.example .env
+npx knex migrate:latest
+
+# Start development
 npm run dev
 ```
 
 Visit `http://localhost:5555`
 
-## Features
+## ✨ Features
 
-- **HyperExpress** - 258,611 req/sec (11x faster than Express)
-- **Svelte 5** - Modern reactive UI with runes
-- **Inertia.js** - SPA without client-side routing complexity
-- **BetterSQLite3** - WAL mode enabled (19.9x faster writes)
-- **TailwindCSS 4** - Utility-first CSS with Vite plugin
+### Performance First
+- **258,611 req/sec** - HyperExpress server (11x faster than Express)
+- **19.9x faster writes** - SQLite with WAL mode
+- **Zero-config caching** - Database cache included (optional Redis)
+
+### Modern Stack
+- **Svelte 5** - Reactive UI with runes
+- **Inertia.js** - SPA without client-side routing
+- **TailwindCSS 4** - Utility-first CSS with Vite
 - **TypeScript** - Full type safety
-- **Built-in Auth** - Session, Google OAuth, password reset
-- **S3 Storage** - Presigned URL uploads
-- **Email** - Nodemailer & Resend support
 
-## Performance
+### Built-in Services
+- **Authentication** - Sessions, OAuth (Google), password reset
+- **Storage** - S3/Wasabi with presigned URLs
+- **Email** - Nodemailer (SMTP) or Resend (API)
+- **Caching** - Database cache or Redis
+- **Templates** - Squirrelly for SSR
 
-| Framework | Requests/sec | vs Laju |
-|-----------|--------------|---------|
-| **Laju.dev** | **258,611** | Baseline |
+## 📊 Performance
+
+| Framework | Requests/sec | Comparison |
+|-----------|--------------|------------|
+| **Laju** | **258,611** | Baseline |
 | Pure Node.js | 124,024 | 2x slower |
 | Express.js | 22,590 | 11x slower |
 | Laravel | 80 | 3,232x slower |
 
-## Documentation
+*Benchmark: Simple JSON response on same hardware*
 
-Full documentation available at [docs/](docs/README.md):
+## 📚 Documentation
 
-- [Introduction](docs/01-INTRODUCTION.md) - Overview & quick start
+**[Complete Documentation →](docs/README.md)**
+
+### Getting Started
+- [Introduction](docs/01-INTRODUCTION.md) - Framework overview
 - [Project Structure](docs/02-PROJECT-STRUCTURE.md) - Directory layout
-- [Backend Services](docs/03-BACKEND-SERVICES.md) - Database, Auth, Storage
-- [API Reference](docs/04-API-REFERENCE.md) - Request/Response types
-- [Deployment](docs/05-DEPLOYMENT.md) - Production setup
-- [Tutorials](docs/08-TUTORIALS.md) - Build your first app
-- [S3 Storage](docs/09-S3-STORAGE.md) - File uploads
-- [Backup & Restore](docs/10-BACKUP-RESTORE.md) - Database backups
-- [AI Development](docs/11-AI-DEVELOPMENT.md) - Build with AI assistants
+
+### Core Services
+- [Database](docs/03-DATABASE.md) - Knex.js + SQLite
+- [Authentication](docs/04-AUTHENTICATION.md) - Sessions + OAuth
+- [Storage](docs/05-STORAGE.md) - S3 file uploads
+- [Email](docs/06-EMAIL.md) - Nodemailer + Resend
+- [Caching](docs/17-CACHING.md) - Database vs Redis
+
+### Guides
+- [Deployment](docs/08-DEPLOYMENT.md) - Production setup
+- [Tutorials](docs/11-TUTORIALS.md) - CRUD, Auth, File Upload
+- [Testing](docs/14-TESTING.md) - Unit + Integration tests
+- [Svelte 5 Patterns](docs/15-SVELTE5-PATTERNS.md) - Runes + State
 
 ## Project Structure
 

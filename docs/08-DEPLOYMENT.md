@@ -29,8 +29,7 @@ npm run build
 cp .env.example .env
 nano .env  # Edit as needed
 
-# 6. Create data directory & run migrations
-mkdir -p data
+# 6. Run migrations (data folder already exists with .gitkeep)
 npx knex migrate:latest --env production
 
 # 7. Start with PM2
@@ -277,6 +276,6 @@ docker-compose logs -f
 
 ## Next Steps
 
-- [GitHub Actions Deploy Details](07-GITHUB-ACTIONS-DEPLOY.md)
-- [Backup & Restore](10-BACKUP-RESTORE.md)
-- [Best Practices](06-BEST-PRACTICES.md)
+- [GitHub Actions Deploy Details](10-GITHUB-ACTIONS.md)
+- [Backup & Restore](12-BACKUP-RESTORE.md)
+- [Best Practices](09-BEST-PRACTICES.md)

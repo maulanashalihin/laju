@@ -631,6 +631,6 @@ Svelte 5 introduces runes - a new reactive primitive system:
 
 ## Next Steps
 
-- [Tutorials](08-TUTORIALS.md)
-- [Best Practices](06-BEST-PRACTICES.md)
-- [API Reference](04-API-REFERENCE.md)
+- [Tutorials](11-TUTORIALS.md)
+- [Best Practices](09-BEST-PRACTICES.md)
+- [API Reference](07-API-REFERENCE.md)

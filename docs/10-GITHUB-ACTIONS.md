@@ -525,6 +525,6 @@ jobs:
 
 ## Next Steps
 
-- [Deployment Guide](05-DEPLOYMENT.md) - Manual deployment guide
-- [Best Practices](06-BEST-PRACTICES.md) - Development best practices
-- [API Reference](04-API-REFERENCE.md) - API documentation
+- [Deployment Guide](08-DEPLOYMENT.md) - Manual deployment guide
+- [Best Practices](09-BEST-PRACTICES.md) - Development best practices
+- [API Reference](07-API-REFERENCE.md) - API documentation

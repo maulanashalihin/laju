@@ -506,6 +506,6 @@ it('should update user profile', async () => {
 
 ## Next Steps
 
-- [Best Practices](06-BEST-PRACTICES.md)
-- [API Reference](04-API-REFERENCE.md)
-- [Tutorials](08-TUTORIALS.md)
+- [Best Practices](09-BEST-PRACTICES.md)
+- [API Reference](07-API-REFERENCE.md)
+- [Tutorials](11-TUTORIALS.md)

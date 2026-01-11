@@ -31,7 +31,9 @@ Both use **BetterSQLite3** with WAL mode enabled by default.
 
 ```typescript
 // knexfile.ts
-const config = {
+import type { Knex } from "knex"; 
+
+const config: { [key: string]: Knex.Config } = {
   development: {
     client: "better-sqlite3",
     connection: {
@@ -39,14 +41,28 @@ const config = {
     },
     useNullAsDefault: true
   },
+
   production: {
     client: "better-sqlite3",
     connection: {
       filename: "./data/production.sqlite3"
     },
     useNullAsDefault: true
+  },
+
+  test: {
+    client: "better-sqlite3",
+    connection: {
+      filename: "./data/test.sqlite3"
+    },
+    useNullAsDefault: true,
+    migrations: {
+      directory: './migrations'
+    }
   }
 };
+
+export default config;
 ```
 
 ### Basic Queries
@@ -398,6 +414,6 @@ const users = await DB.from("users").select("*");
 
 ## Next Steps
 
-- [Authentication Guide](03b-AUTHENTICATION.md)
-- [Storage & Email Guide](03c-STORAGE-EMAIL.md)
-- [API Reference](04-API-REFERENCE.md)
+- [Authentication Guide](04-AUTHENTICATION.md)
+- [Storage & Email Guide](05-STORAGE.md)
+- [API Reference](07-API-REFERENCE.md)

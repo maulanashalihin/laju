@@ -73,12 +73,12 @@ resources/views/
 <p>{{it.content}}</p>
 <!-- Output: &lt;script&gt;alert('xss')&lt;/script&gt; -->
 
-<!-- Unescaped (careful!) -->
-<p>{{it.content | safe}}</p>
+<!-- Unescaped/Raw HTML (careful!) -->
+<p>{{* it.content}}</p>
 <!-- Output: <script>alert('xss')</script> -->
 
 <!-- Use for trusted HTML only -->
-<div class="prose">{{it.articleHtml | safe}}</div>
+<div class="prose">{{* it.articleHtml}}</div>
 ```
 
 ### Comments
@@ -397,7 +397,7 @@ Partials automatically have access to the parent's `it` context.
   {{@include("partials/header.html") /}}
   
   <main class="container mx-auto px-4 py-8">
-    {{it.content | safe}}
+    {{* it.content}}
   </main>
   
   {{@include("partials/footer.html") /}}
@@ -442,7 +442,7 @@ public async about(request: Request, response: Response) {
   {{/if}}
   
   <div class="card-content">
-    {{it.cardContent | safe}}
+    {{* it.cardContent}}
   </div>
 </div>
 ```
@@ -454,8 +454,8 @@ public async about(request: Request, response: Response) {
 ### Built-in Filters
 
 ```html
-<!-- Safe (unescaped HTML) -->
-<div>{{it.htmlContent | safe}}</div>
+<!-- Raw/Unescaped HTML -->
+<div>{{* it.htmlContent}}</div>
 
 <!-- Trim whitespace -->
 <p>{{it.text | trim}}</p>
@@ -795,8 +795,8 @@ const html = view("page.html", {
 <!-- Always escape user input (default) -->
 <p>{{it.userComment}}</p>
 
-<!-- Only use safe for trusted HTML -->
-<div>{{it.adminGeneratedHtml | safe}}</div>
+<!-- Only use raw HTML for trusted content -->
+<div>{{* it.adminGeneratedHtml}}</div>
 ```
 
 ### 4. Provide Default Values
@@ -918,6 +918,6 @@ partials/
 
 ## Next Steps
 
-- [Tutorials](08-TUTORIALS.md)
-- [Backend Services](03-BACKEND-SERVICES.md)
-- [Best Practices](06-BEST-PRACTICES.md)
+- [Tutorials](11-TUTORIALS.md)
+- [Storage & Email](05-STORAGE.md)
+- [Best Practices](09-BEST-PRACTICES.md)
