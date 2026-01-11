@@ -1,5 +1,7 @@
 import DB from "../services/DB";
 import Authenticate from "../services/Authenticate";
+import Validator from "../services/Validator";
+import { forgotPasswordSchema, resetPasswordSchema, changePasswordSchema } from "../validators/AuthValidator";
 import { MailTo } from "../services/Resend";
 import { Response, Request } from "../../type";
 import { randomUUID } from "crypto";
@@ -27,7 +29,12 @@ class PasswordController {
    }
 
    public async resetPassword(request: Request, response: Response) {
-      const { id, password } = await request.json();
+      const body = await request.json();
+      
+      const validated = Validator.validateOrFail(resetPasswordSchema, body, response);
+      if (!validated) return;
+      
+      const { id, password } = validated;
 
       const token = await DB.from("password_reset_tokens")
          .where("token", id)
@@ -54,7 +61,12 @@ class PasswordController {
    }
 
    public async sendResetPassword(request: Request, response: Response) {
-      const { email, phone } = await request.json();
+      const body = await request.json();
+      
+      const validated = Validator.validateOrFail(forgotPasswordSchema, body, response);
+      if (!validated) return;
+      
+      const { email, phone } = validated;
 
       let user;
 
@@ -111,14 +123,17 @@ This link will expire in 24 hours.
    }
 
    public async changePassword(request: Request, response: Response) {
-      const data = await request.json();
+      const body = await request.json();
+      
+      const validated = Validator.validateOrFail(changePasswordSchema, body, response);
+      if (!validated) return;
 
       const user = await DB.from("users")
          .where("id", request.user.id)
          .first();
 
       const password_match = await Authenticate.compare(
-         data.current_password,
+         validated.current_password,
          user.password
       );
 
@@ -126,7 +141,7 @@ This link will expire in 24 hours.
          await DB.from("users")
             .where("id", request.user.id)
             .update({
-               password: await Authenticate.hash(data.new_password),
+               password: await Authenticate.hash(validated.new_password),
             });
          return response.json({ message: "Password berhasil diubah" });
       } else {

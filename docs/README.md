@@ -37,6 +37,9 @@ Complete documentation for the Laju high-performance TypeScript web framework.
 15. **[Svelte 5 Patterns](15-SVELTE5-PATTERNS.md)** - Runes, State, Forms, Inertia
 16. **[Squirrelly Templates](16-SQUIRRELLY.md)** - SSR, Partials, Filters, Helpers
 17. **[Caching Guide](17-CACHING.md)** - Database Cache vs Redis, Strategies
+18. **[Validation Guide](18-VALIDATION.md)** - Zod schemas, Input validation, Type-safe forms
+19. **[CSRF Protection](19-CSRF.md)** - Token generation, Form protection, AJAX requests
+20. **[Translation](20-TRANSLATION.md)** - Multi-language, Interpolation, Nested keys
 
 ## Quick Start
 

@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "clear && rm -rf dist && rm -rf build && npx concurrently 'vite'  'sleep 1 && npx nodemon --legacy-watch'",
     "build": "vite build && tsc && tsc-alias -p tsconfig.json  && cp -rf resources/views/partials dist/views",
-    "refresh" : "rm -rf data && npx knex migrate:latest",
-    "test:ui": "vitest --ui", 
+    "refresh": "rm -rf data && npx knex migrate:latest",
+    "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage"
   },
@@ -37,7 +37,8 @@
     "squirrelly": "^9.1.0",
     "uuid": "^13.0.0",
     "uuidv7": "^1.0.2",
-    "winston": "^3.18.3"
+    "winston": "^3.18.3",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^4.0.0",
@@ -47,7 +48,7 @@
     "@types/node": "^22.7.9",
     "@types/supertest": "^6.0.3",
     "@vitest/ui": "^4.0.10",
-        "happy-dom": "^20.0.10",
+    "happy-dom": "^20.0.10",
     "nodemon": "^3.1.7",
     "supertest": "^7.1.4",
     "svelte": "^5.41.3",

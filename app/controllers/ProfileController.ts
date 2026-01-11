@@ -1,4 +1,6 @@
 import DB from "../services/DB";
+import Validator from "../services/Validator";
+import { updateProfileSchema, deleteUsersSchema } from "../validators/ProfileValidator";
 import { Response, Request } from "../../type";
 
 class ProfileController {
@@ -7,12 +9,15 @@ class ProfileController {
    }
 
    public async changeProfile(request: Request, response: Response) {
-      const data = await request.json();
+      const body = await request.json();
+      
+      const validated = Validator.validateOrFail(updateProfileSchema, body, response);
+      if (!validated) return;
 
       await DB.from("users").where("id", request.user.id).update({
-         name: data.name,
-         email: data.email.toLowerCase(),
-         phone: data.phone,
+         name: validated.name,
+         email: validated.email,
+         phone: validated.phone || null,
       });
 
       return response.json({ message: "Your profile has been updated" });
@@ -23,17 +28,16 @@ class ProfileController {
    }
 
    public async deleteUsers(request: Request, response: Response) {
-      const { ids } = request.body;
-
-      if (!Array.isArray(ids)) {
-         return response.status(400).json({ error: "Invalid request format" });
-      }
+      const body = await request.json();
+      
+      const validated = Validator.validateOrFail(deleteUsersSchema, body, response);
+      if (!validated) return;
 
       if (!request.user.is_admin) {
          return response.status(403).json({ error: "Unauthorized" });
       }
 
-      await DB.from("users").whereIn("id", ids).delete();
+      await DB.from("users").whereIn("id", validated.ids).delete();
 
       return response.redirect("/home");
    }

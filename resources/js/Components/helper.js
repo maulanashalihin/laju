@@ -128,6 +128,39 @@ export function convertToCSV(objArray, delimiter = ',') {
 }
 
 /**
+ * Get CSRF token from cookie
+ * @returns {string|null} CSRF token or null if not found
+ */
+export function getCsrfToken() {
+    const match = document.cookie.match(/csrf_token=([^;]+)/);
+    return match ? match[1] : null;
+}
+
+/**
+ * Fetch wrapper with automatic CSRF token injection
+ * @param {string} url - The URL to fetch
+ * @param {Object} options - Fetch options
+ * @returns {Promise} Fetch promise
+ */
+export async function fetchWithCsrf(url, options = {}) {
+    const csrfToken = getCsrfToken();
+    
+    const headers = {
+        ...options.headers,
+    };
+
+    if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+    }
+
+    return fetch(url, {
+        ...options,
+        headers,
+        credentials: 'same-origin'
+    });
+}
+
+/**
  * Displays a toast notification message
  * @param {string} text - The message to display
  * @param {string} type - Toast type: 'success', 'error', 'warning', or 'info' (default: "success")

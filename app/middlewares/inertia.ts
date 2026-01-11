@@ -6,7 +6,7 @@ let pkg = { version: "1.0.0" };
 
 
 const inertia = () => {
-   return (request: Request, response: Response, next: Function) => {
+   return (request: Request, response: Response) => {
       response.inertia = async (component, inertiaProps = {}, viewProps = {}) => {
 
          const url = `${request.originalUrl}`;
@@ -43,8 +43,7 @@ const inertia = () => {
 
          return response.json(inertiaObject);
       };
-
-      next();
+ 
    };
 };
 

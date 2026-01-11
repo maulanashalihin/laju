@@ -25,12 +25,12 @@ export default async (request : Request,response : Response) => {
                "user" : request.user,
            }
        }else{ 
-           response.cookie("auth_id","",0).redirect("/login");
+           return response.cookie("auth_id","",0).redirect("/login");
        }
       
    }
    else
    { 
-       response.cookie("auth_id","",0).redirect("/login");
+       return response.cookie("auth_id","",0).redirect("/login");
    }
 }

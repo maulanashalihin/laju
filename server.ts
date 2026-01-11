@@ -5,6 +5,9 @@
 // Inertia middleware: integrates Inertia.js responses for SSR-like pages
 import inertia from "./app/middlewares/inertia";
 
+// CSRF protection middleware
+import csrf from "./app/middlewares/csrf";
+
 // Application routes definition (all app endpoints)
 import Web from "./routes/web";
 
@@ -51,6 +54,8 @@ import "app/services/View";
 webserver.use(cors()); // Enable CORS for cross-origin requests
 
 webserver.use(inertia()); // Enable Inertia middleware for SSR-like responses
+
+webserver.use(csrf()); // Enable CSRF protection for state-changing requests
 
 // Mount application routes
 webserver.use(Web); 

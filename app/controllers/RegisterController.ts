@@ -1,5 +1,7 @@
 import DB from "../services/DB";
 import Authenticate from "../services/Authenticate";
+import Validator from "../services/Validator";
+import { registerSchema } from "../validators/AuthValidator";
 import { Response, Request } from "../../type";
 import { randomUUID } from "crypto";
 
@@ -12,13 +14,16 @@ class RegisterController {
    }
 
    public async processRegister(request: Request, response: Response) {
-      let { email, password, name } = await request.json();
-
-      email = email.toLowerCase();
+      const body = await request.json();
+      
+      const validated = Validator.validateOrFail(registerSchema, body, response);
+      if (!validated) return;
+      
+      const { email, password, name } = validated;
 
       try {
          const user = {
-            email: email,
+            email,
             id: randomUUID(),
             name,
             password: await Authenticate.hash(password),

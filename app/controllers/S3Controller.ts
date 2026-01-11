@@ -1,4 +1,6 @@
 import { getPublicUrl, getSignedUploadUrl } from "app/services/S3";
+import Validator from "../services/Validator";
+import { signedUrlSchema } from "../validators/S3Validator";
 import { Request, Response } from "../../type"; 
 
 class S3Controller {
@@ -8,15 +10,12 @@ class S3Controller {
    */
   public async getSignedUrl(request: Request, response: Response) {
     try {
-      const { filename, contentType } = await request.json();
-
-      // Validate required fields
-      if (!filename || !contentType) {
-        return response.status(400).json({
-          success: false,
-          message: "Filename and content type are required",
-        });
-      }
+      const body = await request.json();
+      
+      const validated = Validator.validateOrFail(signedUrlSchema, body, response);
+      if (!validated) return;
+      
+      const { filename, contentType } = validated;
  
      
 

@@ -1,5 +1,7 @@
 import DB from "../services/DB";
 import Authenticate from "../services/Authenticate";
+import Validator from "../services/Validator";
+import { loginSchema } from "../validators/AuthValidator";
 import { Response, Request } from "../../type";
 
 class LoginController {
@@ -12,7 +14,11 @@ class LoginController {
 
    public async processLogin(request: Request, response: Response) {
       const body = await request.json();
-      const { email, password, phone } = body;
+      
+      const validated = Validator.validateOrFail(loginSchema, body, response);
+      if (!validated) return;
+      
+      const { email, password, phone } = validated;
 
       let user;
 
