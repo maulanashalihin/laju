@@ -65,7 +65,19 @@ let { title } = $props();
 
 ## Inertia.js
 
-### Page Visits
+### Navigation
+```svelte
+<script>
+import { inertia } from '@inertiajs/svelte';
+</script>
+
+<a href="/path" use:inertia>Link</a>
+
+<!-- With data -->
+<a href="/path" use:inertia={{ data: { key: 'value' } }}>Link</a>
+```
+
+### Programmatic Navigation
 ```svelte
 <script>
 import { router } from '@inertiajs/svelte';
