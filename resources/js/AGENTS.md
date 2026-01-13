@@ -102,7 +102,7 @@ function submit() {
 <script>
 import { page } from '@inertiajs/svelte';
 
-$: user = page.props.user;
+let user = $derived(page.props.user);
 </script>
 ```
 
@@ -118,22 +118,7 @@ $: user = page.props.user;
 - Use `focus:outline-none` for interactive elements
 - Use modern CSS features (Container Queries, Grid)
 - Minimal emoji usage
-
-### Common Patterns
-```svelte
-<!-- Button -->
-<button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-   Click me
-</button>
-
-<!-- Input -->
-<input class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
-
-<!-- Card -->
-<div class="p-6 bg-white rounded-lg shadow-md">
-   <h2 class="text-xl font-bold">Title</h2>
-</div>
-```
+- Use responsive prefixes (md:, lg:, xl:)
 
 ## File Organization
 
@@ -173,9 +158,8 @@ resources/js/
 3. **Type safety**: Use TypeScript for better type checking
 4. **Performance**: Use $derived for computed values
 5. **Accessibility**: Add proper ARIA labels and keyboard navigation
-6. **Responsive**: Use Tailwind's responsive prefixes (md:, lg:, xl:)
-7. **Creative**: Prioritize unique UI/UX over generic designs
-8. **Modern**: Leverage experimental CSS features and animations
+6. **Creative**: Prioritize unique UI/UX over generic designs
+7. **Modern**: Leverage experimental CSS features and animations
 
 ## Avoid
 
