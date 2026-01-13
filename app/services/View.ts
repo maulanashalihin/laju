@@ -9,18 +9,18 @@ import { Eta } from 'eta'
 import path from "path";
 import "dotenv/config";
 
+// Set views directory based on environment
+let directory = process.env.NODE_ENV == 'development' ?    "resources/views" : "dist/views";
+
 // Configure Eta instance
 const eta = new Eta({
-   views: path.join(process.cwd(), "resources/views"),
+   views: path.join(process.cwd(), directory),
    cache: process.env.NODE_ENV !== 'development',
    autoEscape: true
 });
 
 // Cache for JS files in development mode
 let jsFilesCache: string[] = [];
-
-// Set views directory based on environment
-let directory = process.env.NODE_ENV == 'development' ?    "resources/views" : "dist/views";
 
 // Debounce timer for file watcher
 let reloadTimeout: NodeJS.Timeout | null = null;
