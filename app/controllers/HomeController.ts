@@ -13,6 +13,10 @@ class Controller {
             return response.status(500).send("Internal Server Error");
         }
     }
+
+    public async test (request : Request,response : Response) {
+        return response.send("test");
+    }
 }
 
 export default new Controller()

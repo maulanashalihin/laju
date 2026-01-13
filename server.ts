@@ -52,11 +52,11 @@ require("dotenv").config({ path: envPath });
 import "app/services/View";
 
 // Global middlewares
-webserver.use(securityHeaders()); // Add security headers to all responses
+// webserver.use(securityHeaders()); // Add security headers to all responses
 
 webserver.use(inertia()); // Enable Inertia middleware for SSR-like responses
 
-webserver.use(csrf()); // Enable CSRF protection for state-changing requests
+// webserver.use(csrf()); // Enable CSRF protection for state-changing requests
 
 // Mount application routes
 webserver.use(Web);
