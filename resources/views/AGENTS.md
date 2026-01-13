@@ -81,6 +81,10 @@ For Inertia pages, use the `inertia.html` shell:
 - Templates are cached in production
 - Use Eta's built-in caching
 - Avoid heavy computations in templates
+- Inline critical CSS for above-the-fold content
+- Lazy load images and non-critical resources
+- Use font-display: swap and preload critical fonts
+- Defer non-critical JavaScript
 
 ## Landing Page Design
 
@@ -94,7 +98,7 @@ For Inertia pages, use the `inertia.html` shell:
 ### Feature Showcase
 - Grid layout (2-3 columns on desktop, 1 on mobile)
 - Icon + title + description pattern
-- Use consistent spacing and alignment
+- Consistent spacing and alignment
 - Hover effects for interactivity
 
 ### Social Proof
@@ -111,72 +115,20 @@ For Inertia pages, use the `inertia.html` shell:
 ## SEO Guidelines
 
 ### Meta Tags
-```html
-<head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title><%= title %></title>
-   <meta name="description" content="<%= description %>">
-   <meta name="keywords" content="<%= keywords %>">
-</head>
-```
+Include meta charset, viewport, title, description, and keywords in `<head>`.
 
-### Open Graph Tags
-```html
-<meta property="og:title" content="<%= title %>">
-<meta property="og:description" content="<%= description %>">
-<meta property="og:image" content="<%= ogImage %>">
-<meta property="og:url" content="<%= canonicalUrl %>">
-<meta property="og:type" content="website">
-```
+### Open Graph & Twitter Cards
+Add og:title, og:description, og:image, og:url, og:type for social sharing.
+Add twitter:card, twitter:title, twitter:description, twitter:image for Twitter.
 
-### Twitter Card Tags
-```html
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="<%= title %>">
-<meta name="twitter:description" content="<%= description %>">
-<meta name="twitter:image" content="<%= ogImage %>">
-```
-
-### Structured Data (JSON-LD)
-```html
-<script type="application/ld+json">
-{
-   "@context": "https://schema.org",
-   "@type": "WebSite",
-   "name": "<%= title %>",
-   "url": "<%= canonicalUrl %>"
-}
-</script>
-```
+### Structured Data
+Use JSON-LD for structured data (WebSite, Organization, etc.).
 
 ### Semantic HTML
 - Use proper heading hierarchy (h1 → h2 → h3)
 - Use semantic elements (header, nav, main, article, section, footer)
 - Add alt text to all images
 - Use descriptive link text
-
-## Performance Optimization
-
-### Critical CSS
-- Inline critical CSS for above-the-fold content
-- Lazy load non-critical CSS
-- Use TailwindCSS v4's built-in optimization
-
-### Lazy Loading
-```html
-<img src="placeholder.jpg" data-src="actual.jpg" loading="lazy" alt="Description">
-```
-
-### Font Optimization
-- Use font-display: swap
-- Preload critical fonts
-- Subset fonts to reduce file size
-
-### Minimize Render-Blocking
-- Defer non-critical JavaScript
-- Use async for third-party scripts
-- Minimize HTTP requests
 
 ## Public Page Design Principles
 
