@@ -109,21 +109,27 @@ const posts = await DB.from("posts")
 ### Pagination
 
 ```typescript
+import Cache from "../services/CacheService";
+
 const page = Number(request.query.page) || 1;
 const limit = 20;
 const offset = (page - 1) * limit;
 
-const [items, total] = await Promise.all([
-   DB.from("items").limit(limit).offset(offset),
-   DB.from("items").count("* as count").first()
-]);
+const cacheKey = `items:page:${page}:limit:${limit}`;
+
+const [items, total] = await Cache.remember(cacheKey, 5, async () => {
+   return await Promise.all([
+      DB.from("items").limit(limit).offset(offset),
+      DB.from("items").count("* as count").first()
+   ]);
+});
 
 return response.json({
-   data: items,
+   data: items[0],
    pagination: {
       page,
       limit,
-      total: total.count
+      total: items[1].count
    }
 });
 ```
