@@ -17,9 +17,6 @@ import Web from "./routes/web";
 // HyperExpress: high-performance HTTP server framework
 import HyperExpress from "hyper-express";
 
-// CORS middleware to allow cross-origin requests
-import cors from 'cors';
-
 // Node.js path utilities (used to resolve HTTPS certificate paths)
 import path from 'path';
 
@@ -55,8 +52,6 @@ require("dotenv").config({ path: envPath });
 import "app/services/View";
 
 // Global middlewares
-webserver.use(cors()); // Enable CORS for cross-origin requests
-
 webserver.use(securityHeaders()); // Add security headers to all responses
 
 webserver.use(inertia()); // Enable Inertia middleware for SSR-like responses

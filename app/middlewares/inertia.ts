@@ -6,7 +6,8 @@ let pkg = { version: "1.0.0" };
 
 
 const inertia = () => {
-   return (request: Request, response: Response) => {
+   return async (request: Request, response: Response) => {
+      // Set up the inertia method on response
       response.inertia = async (component, inertiaProps = {}, viewProps = {}) => {
 
          const url = `${request.originalUrl}`;
@@ -43,7 +44,9 @@ const inertia = () => {
 
          return response.json(inertiaObject);
       };
- 
+
+      // CRITICAL: Must not call anything here to let request pass through to route handlers
+      // The inertia method is just attached to response for use by controllers
    };
 };
 

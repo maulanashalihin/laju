@@ -109,24 +109,39 @@ export const logHttp = (message: string, meta?: any) => {
 
 // Request logging helper
 export const logRequest = (req: any, meta?: any) => {
-  logger.http('HTTP Request', {
-    method: req.method,
-    url: req.url,
-    ip: req.ip,
-    userAgent: req.headers['user-agent'],
-    ...meta
-  });
+  try {
+    logger.http('HTTP Request', {
+      method: req.method,
+      url: req.url,
+      ip: req.ip, // Safely access - may throw if response already sent
+      userAgent: req.headers?.['user-agent'],
+      ...meta
+    });
+  } catch (error) {
+    // Ignore errors from accessing request properties after response is sent
+    // This can happen with HyperExpress/uWS when response is already completed
+    logger.debug('HTTP Request (partial)', {
+      ...meta
+    });
+  }
 };
 
 // Response logging helper
 export const logResponse = (req: any, res: any, duration: number) => {
-  logger.http('HTTP Response', {
-    method: req.method,
-    url: req.url,
-    statusCode: res.statusCode,
-    duration: `${duration}ms`,
-    ip: req.ip
-  });
+  try {
+    logger.http('HTTP Response', {
+      method: req.method,
+      url: req.url,
+      statusCode: res.statusCode,
+      duration: `${duration}ms`,
+      ip: req.ip // Safely access - may throw if response already sent
+    });
+  } catch (error) {
+    // Ignore errors from accessing request properties after response is sent
+    logger.debug('HTTP Response (partial)', {
+      duration: `${duration}ms`
+    });
+  }
 };
 
 // Database query logging helper

@@ -27,6 +27,7 @@ const Route = new HyperExpress.Router();
  * GET  / - Home page
  */
 Route.get("/", HomeController.index);
+ 
 
 /**
  * S3 Routes

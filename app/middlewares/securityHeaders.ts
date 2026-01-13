@@ -24,12 +24,16 @@ export interface SecurityHeadersOptions {
  */
 const defaultHeaders: SecurityHeadersOptions = {
   // Content Security Policy - Prevent XSS attacks
-  contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self';",
+  // In development: Allow all external resources for convenience
+  // In production: Strict policy for security
+  contentSecurityPolicy: process.env.NODE_ENV === 'production'
+    ? "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https:; frame-ancestors 'self';"
+    : `default-src 'self' http: https: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' http: https: http://localhost:${process.env.VITE_PORT || 5173}; style-src 'self' 'unsafe-inline' http: https: http://localhost:${process.env.VITE_PORT || 5173}; img-src 'self' data: blob: http: https: http://localhost:${process.env.VITE_PORT || 5173}; font-src 'self' data: http: https: http://localhost:${process.env.VITE_PORT || 5173}; connect-src 'self' http: https: ws: wss: http://localhost:${process.env.VITE_PORT || 5173} ws://localhost:${process.env.VITE_PORT || 5173}; frame-ancestors 'self';`,
 
   // HTTP Strict Transport Security - Force HTTPS in production
   strictTransportSecurity: process.env.NODE_ENV === 'production' ? 'max-age=31536000; includeSubDomains' : false,
 
-  // X-Frame-Options - Prevent clickjacking
+  // X-Frame-Options - Prevent clickjacking (can be relaxed in dev if needed)
   xFrameOptions: 'DENY',
 
   // X-Content-Type-Options - Prevent MIME sniffing
