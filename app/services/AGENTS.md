@@ -14,85 +14,56 @@ class MyService {
 export default new MyService();
 ```
 
-## Database Services
+## When to Create a Service
 
-### DB Service (Knex)
-Use for complex queries, joins, transactions:
+Create a service for:
+- Business logic that's reused across multiple controllers
+- External API integrations
+- Complex computations or transformations
+- Stateful operations (caching, sessions)
 
-```typescript
-import DB from "./DB";
+**Note**: Database operations should be done directly in controllers using `DB` or `SQLite`.
 
-// Complex query with join
-const result = await DB.from("users")
-   .join("sessions", "users.id", "sessions.user_id")
-   .where("users.active", true)
-   .select("users.*", "sessions.id as session_id");
-
-// Transaction
-await DB.transaction(async (trx) => {
-   await trx.from("users").insert(user);
-   await trx.from("sessions").insert(session);
-});
-```
-
-### SQLite Service
-Use for simple reads (385% faster):
+## Service Structure
 
 ```typescript
-import SQLite from "./SQLite";
+class MyService {
+   // Public methods are the interface
+   public async getData(id: number): Promise<Data> {
+      try {
+         const data = SQLite.get("SELECT * FROM table WHERE id = ?", [id]);
+         return data;
+      } catch (error) {
+         console.error("MyService.getData error:", error);
+         throw error;
+      }
+   }
 
-const user = SQLite.get("SELECT * FROM users WHERE id = ?", [id]);
+   // Private methods are internal helpers
+   private validateInput(input: any): boolean {
+      return input && typeof input === "object";
+   }
+}
+
+export default new MyService();
 ```
 
-## Authentication Service
+## Using Other Services
 
-```typescript
-import Authenticate from "./Authenticate";
-
-// Hash password
-const hashed = await Authenticate.hash(password);
-
-// Compare password
-const match = await Authenticate.compare(password, hashed);
-
-// Create session
-await Authenticate.process(user, request, response);
-
-// Logout
-await Authenticate.logout(request, response);
-
-// Invalidate all user sessions
-await Authenticate.invalidateUserSessions(userId);
-```
-
-## Cache Service
+Services can use other services:
 
 ```typescript
 import Cache from "./CacheService";
 
-// Get from cache
-const data = await Cache.get<MyType>("key");
+class ProductService {
+   public async getProducts() {
+      return await Cache.remember("products", 60, async () => {
+         return SQLite.all("SELECT * FROM products");
+      });
+   }
+}
 
-// Put in cache (expires in minutes)
-await Cache.put("key", value, 60);
-
-// Remember pattern (get or compute)
-const data = await Cache.remember("key", 60, async () => {
-   return await expensiveOperation();
-});
-
-// Forget (delete)
-await Cache.forget("key");
-```
-
-## Validation Service
-
-```typescript
-import Validator from "./Validator";
-import { mySchema } from "../validators/MyValidator";
-
-const validated = Validator.validateOrFail(mySchema, body, response);
-if (!validated) return;
+export default new ProductService();
 ```
 
 ## Error Handling
@@ -119,5 +90,23 @@ All service methods should be async when dealing with I/O:
 ```typescript
 public async myMethod(): Promise<Result> {
    // async operations
+}
+```
+
+## Type Safety
+
+Use TypeScript interfaces for return types:
+
+```typescript
+interface User {
+   id: number;
+   name: string;
+   email: string;
+}
+
+class UserService {
+   public async findById(id: number): Promise<User | undefined> {
+      return SQLite.get("SELECT * FROM users WHERE id = ?", [id]);
+   }
 }
 ```

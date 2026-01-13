@@ -60,9 +60,76 @@ if (!validated) return;
 
 ## Database Operations
 
-- Use `DB` from `../services/DB` for database operations
-- Use Knex for complex queries, joins, transactions
-- Use native SQLite for simple reads (via `SQLite` service)
+### When to use DB vs SQLite
+
+- **DB (Knex)**: Complex queries, joins, transactions, inserts/updates
+- **SQLite**: Simple reads (385% faster) - single table, simple WHERE
+
+### Loading Single Record
+
+```typescript
+import SQLite from "../services/SQLite";
+import DB from "../services/DB";
+
+// SQLite - simple reads (faster)
+const user = SQLite.get("SELECT * FROM users WHERE id = ?", [id]);
+
+// DB - when you need query builder
+const user = await DB.from("users").where("id", id).first();
+```
+
+### Loading Multiple Records
+
+```typescript
+// SQLite - simple list
+const users = SQLite.all("SELECT * FROM users WHERE active = ?", [1]);
+
+// DB - with ordering, limit
+const users = await DB.from("users")
+   .where("active", true)
+   .orderBy("created_at", "desc")
+   .limit(10);
+```
+
+### With Joins (DB only)
+
+```typescript
+const posts = await DB.from("posts")
+   .join("users", "posts.user_id", "users.id")
+   .select("posts.*", "users.name as author_name")
+   .where("posts.published", true);
+```
+
+### Pagination
+
+```typescript
+const page = Number(request.query.page) || 1;
+const limit = 20;
+const offset = (page - 1) * limit;
+
+const [items, total] = await Promise.all([
+   DB.from("items").limit(limit).offset(offset),
+   DB.from("items").count("* as count").first()
+]);
+
+return response.json({
+   data: items,
+   pagination: {
+      page,
+      limit,
+      total: total.count
+   }
+});
+```
+
+### Transactions (DB only)
+
+```typescript
+await DB.transaction(async (trx) => {
+   const [userId] = await trx.from("users").insert(user).returning("id");
+   await trx.from("profiles").insert({ user_id: userId, ...profile });
+});
+```
 
 ## User Data Updates
 
