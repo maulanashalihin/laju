@@ -46,10 +46,11 @@ Add file uploads, caching, background jobs, and internationalization.
 
 ### **Phase 4: Best Practices** (16-18)
 
-Learn production-ready patterns, security, and performance optimization.
+Learn production-ready patterns, TypeScript, security, and performance optimization.
 
 16. **[Best Practices](16-BEST-PRACTICES.md)** - Code organization, patterns, conventions
-    - **[Security Guide](17-SECURITY.md)** - Authentication, Validation, XSS, CSRF, SQL Injection
+17. **[TypeScript Guide](25-TYPESCRIPT.md)** - Configuration, Strict mode, Type safety, Custom types
+    - **[Security Guide](17-SECURITY.md)** - Authentication, Validation, XSS, CSRF, CSP, SQL Injection
     - **[Performance Guide](18-PERFORMANCE.md)** - Database, Caching, File Uploads, Monitoring
 
 ---
@@ -64,13 +65,14 @@ Test your application and deploy to production.
 
 ---
 
-### **Phase 6: Advanced Topics** (22-24)
+### **Phase 6: Advanced Topics** (22-25)
 
 Deep dive into advanced features and API reference.
 
 22. **[Backup & Restore](22-BACKUP-RESTORE.md)** - Database backup automation, S3 storage
 23. **[AI Development](23-AI-DEVELOPMENT.md)** - Build apps with AI assistants
 24. **[API Reference](24-API-REFERENCE.md)** - Complete API documentation, Types, Methods
+25. **[TypeScript Guide](25-TYPESCRIPT.md)** - TypeScript configuration, Strict mode, Type safety
 
 ---
 
@@ -94,17 +96,19 @@ Visit `http://localhost:5555`
 ### **For Complete Beginners:**
 1. Read [Introduction](01-INTRODUCTION.md)
 2. Understand [Project Structure](02-PROJECT-STRUCTURE.md)
-3. Learn [Database Basics](03-DATABASE.md)
-4. Build your first feature with [Routing & Controllers](04-ROUTING-CONTROLLERS.md)
-5. Create UI with [Frontend (Svelte 5)](05-FRONTEND-SVELTE.md)
-6. Add [Authentication](06-AUTHENTICATION.md)
-7. Protect routes with [Middleware](07-MIDDLEWARE.md)
+3. Learn [TypeScript Guide](25-TYPESCRIPT.md) - Type safety fundamentals
+4. Learn [Database Basics](03-DATABASE.md)
+5. Build your first feature with [Routing & Controllers](04-ROUTING-CONTROLLERS.md)
+6. Create UI with [Frontend (Svelte 5)](05-FRONTEND-SVELTE.md)
+7. Add [Authentication](06-AUTHENTICATION.md)
+8. Protect routes with [Middleware](07-MIDDLEWARE.md)
 
 ### **For Experienced Developers:**
 1. Skim [Introduction](01-INTRODUCTION.md) and [Project Structure](02-PROJECT-STRUCTURE.md)
-2. Jump to specific topics you need
-3. Reference [API Reference](24-API-REFERENCE.md) as needed
-4. Check [Best Practices](16-BEST-PRACTICES.md) before production
+2. Review [TypeScript Guide](25-TYPESCRIPT.md) for strict mode configuration
+3. Jump to specific topics you need
+4. Reference [API Reference](24-API-REFERENCE.md) as needed
+5. Check [Best Practices](16-BEST-PRACTICES.md) before production
 
 ### **For Production Deployment:**
 1. Review [Security Guide](17-SECURITY.md)
@@ -140,8 +144,9 @@ Visit `http://localhost:5555`
 - [Squirrelly Templates](15-SQUIRRELLY.md) - Server-side rendering
 
 ### **Production Ready**
+- [TypeScript Guide](25-TYPESCRIPT.md) - Type safety & configuration
 - [Best Practices](16-BEST-PRACTICES.md) - Code quality
-- [Security Guide](17-SECURITY.md) - Secure your app
+- [Security Guide](17-SECURITY.md) - Secure your app (includes CSP)
 - [Performance Guide](18-PERFORMANCE.md) - Optimize speed
 - [Testing](19-TESTING.md) - Test your code
 - [Deployment](20-DEPLOYMENT.md) - Deploy to production

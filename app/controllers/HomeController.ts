@@ -4,10 +4,9 @@ import { view } from "../services/View";
 class Controller {
 
     public async index (request : Request,response : Response) {
-        console.log("masuk sini")
+       
         try {
-            const html = view("index.html");
-            console.log("view result length:", html?.length);
+            const html = view("index.html"); 
             return response.type("html").send(html);
         } catch (error) {
             console.error("Error in home controller:", error);

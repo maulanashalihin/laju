@@ -238,7 +238,132 @@ Route.post("/api/posts", [Auth, userLimit], PostController.store);
 
 ---
 
-### 3. Inertia Middleware
+### 3. Security Headers Middleware
+
+Adds security-related HTTP headers to all responses.
+
+**Location:** `app/middlewares/securityHeaders.ts`
+
+#### What It Does
+
+Automatically adds security headers to prevent:
+- XSS (Cross-Site Scripting) attacks
+- Clickjacking
+- MIME type sniffing
+- Unauthorized cross-origin requests
+- And other common web vulnerabilities
+
+#### Default Headers
+
+```typescript
+// Development mode - allows external resources
+Content-Security-Policy: default-src 'self' http: https: data: blob:;
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+// Production mode - strict policy
+Content-Security-Policy: default-src 'self'; ...
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+```
+
+#### Usage
+
+Applied globally in `server.ts`:
+
+```typescript
+import { securityHeaders } from "./app/middlewares/securityHeaders";
+
+webserver.use(securityHeaders()); // Add to all responses
+```
+
+#### Custom Configuration
+
+```typescript
+import { securityHeaders, SecurityHeadersOptions } from "app/middlewares/securityHeaders";
+
+// Custom CSP
+const customHeaders: SecurityHeadersOptions = {
+  contentSecurityPolicy: "default-src 'self'; script-src 'self' https://cdn.example.com",
+  strictTransportSecurity: false, // Disable HSTS
+};
+
+webserver.use(securityHeaders(customHeaders));
+```
+
+#### Development vs Production
+
+**Development Mode:**
+- Allows all external resources (`http: https: data: blob:`)
+- Includes Vite dev server (`http://localhost:5132`)
+- Disables HSTS (HTTP Strict Transport Security)
+- Permissive for easier development
+
+**Production Mode:**
+- Strict CSP - only `https:` for external resources
+- Enables HSTS with 1-year max-age
+- All security headers active
+- Maximum security enforcement
+
+#### Content Security Policy (CSP)
+
+The CSP is configured differently for development and production:
+
+**Development:**
+```
+default-src 'self' http: https: data: blob:
+script-src 'self' 'unsafe-inline' 'unsafe-eval' http: https: http://localhost:5132
+style-src 'self' 'unsafe-inline' http: https:
+img-src 'self' data: blob: http: https:
+font-src 'self' data: http: https:
+connect-src 'self' http: https: ws: wss:
+```
+
+**Production:**
+```
+default-src 'self'
+script-src 'self'
+style-src 'self' 'unsafe-inline'
+img-src 'self' data: https:
+font-src 'self' data: https:
+connect-src 'self' https:
+frame-ancestors 'self'
+```
+
+This ensures:
+- ✅ External fonts (Google Fonts, Inter, Fira Code) work in development
+- ✅ Vite HMR works with WebSocket connections
+- ✅ CDN resources can be loaded during development
+- ✅ Production remains secure with strict policies
+
+#### Important Notes
+
+⚠️ **CRITICAL:** The security middleware must NOT return any value:
+
+```typescript
+// ✅ CORRECT
+export function securityHeaders() {
+  return async (request: Request, response: Response) => {
+    // Set headers
+    response.header('X-Frame-Options', 'DENY');
+    // NO RETURN - let request pass through
+  };
+}
+
+// ❌ WRONG - blocks all requests
+export function securityHeaders() {
+  return async (request: Request, response: Response) => {
+    response.header('X-Frame-Options', 'DENY');
+    return; // This stops execution!
+  };
+}
+```
+
+---
+
+### 4. Inertia Middleware
 
 Handles Inertia.js responses for SPA-like experience.
 

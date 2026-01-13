@@ -11,7 +11,7 @@ Comprehensive security guidelines for Laju applications.
 5. [CSRF Protection](#csrf-protection)
 6. [Rate Limiting](#rate-limiting)
 7. [Environment Variables](#environment-variables)
-8. [CORS Configuration](#cors-configuration)
+8. [Security Headers & CSP](#security-headers--csp)
 9. [Security Checklist](#security-checklist)
 
 ---
@@ -348,23 +348,194 @@ for (const key of required) {
 
 ---
 
-## CORS Configuration
+## Security Headers & CSP
 
-### Production Configuration
+Laju includes built-in security headers middleware that automatically adds protection against common web vulnerabilities.
+
+### Automatic Security Headers
+
+The following headers are automatically added to all responses:
+
+#### Content Security Policy (CSP)
+
+**Development Mode** (Permissive):
+```
+default-src 'self' http: https: data: blob:
+script-src 'self' 'unsafe-inline' 'unsafe-eval' http: https: http://localhost:5132
+style-src 'self' 'unsafe-inline' http: https:
+img-src 'self' data: blob: http: https:
+font-src 'self' data: http: https:
+connect-src 'self' http: https: ws: wss:
+```
+
+**Production Mode** (Strict):
+```
+default-src 'self'
+script-src 'self'
+style-src 'self' 'unsafe-inline'
+img-src 'self' data: https:
+font-src 'self' data: https:
+connect-src 'self' https:
+frame-ancestors 'self'
+```
+
+#### Other Security Headers
+
+```typescript
+X-Frame-Options: DENY                    // Prevents clickjacking
+X-Content-Type-Options: nosniff          // Prevents MIME sniffing
+X-XSS-Protection: 1; mode=block          // Enables browser XSS filter
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(), microphone=(), camera=()
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Resource-Policy: same-site
+Strict-Transport-Security: max-age=31536000; includeSubDomains (production only)
+```
+
+### Customizing Security Headers
+
+```typescript
+import { securityHeaders, SecurityHeadersOptions } from "app/middlewares/securityHeaders";
+
+// Custom configuration
+const options: SecurityHeadersOptions = {
+  contentSecurityPolicy: "default-src 'self'; script-src 'self' https://cdn.example.com",
+  strictTransportSecurity: 'max-age=63072000; includeSubDomains; preload',
+  xFrameOptions: 'SAMEORIGIN', // Allow framing from same origin
+};
+
+webserver.use(securityHeaders(options));
+```
+
+### CSP Best Practices
+
+#### 1. Use Nonce for Inline Scripts (Production)
+
+```typescript
+import crypto from 'crypto';
+
+// Generate nonce per request
+webserver.use((request, response) => {
+  const nonce = crypto.randomBytes(16).toString('base64');
+  response.locals.nonce = nonce;
+
+  // Set CSP with nonce
+  response.header('Content-Security-Policy',
+    `default-src 'self'; script-src 'self' 'nonce-${nonce}'`
+  );
+});
+
+// In your template
+<script nonce="<%= nonce %>">
+  // Your inline script
+</script>
+```
+
+#### 2. Report-Only Mode for Testing
+
+```typescript
+// Test CSP without blocking
+const reportOnly = process.env.CSP_REPORT_ONLY === 'true';
+
+response.header(
+  reportOnly
+    ? 'Content-Security-Policy-Report-Only'
+    : 'Content-Security-Policy',
+  cspString
+);
+```
+
+#### 3. Report Violations
+
+```typescript
+const cspWithReporting = `
+  default-src 'self';
+  report-uri /csp-violation-report
+  report-to csp-endpoint
+`;
+
+// Add reporting endpoint
+Route.post('/csp-violation-report', async (request, response) => {
+  const violation = await request.json();
+  // Log violation for monitoring
+  logError('CSP Violation', violation);
+  return response.status(204).send();
+});
+```
+
+### Common CSP Issues
+
+#### Google Fonts Blocked
+
+**Problem:** Fonts not loading from `fonts.googleapis.com`
+
+**Solution:** Add to CSP (already included in development mode):
+```typescript
+font-src 'self' https://fonts.gstatic.com data:
+style-src 'self' 'unsafe-inline' https://fonts.googleapis.com
+```
+
+#### Vite HMR Not Working
+
+**Problem:** Hot Module Replacement fails in development
+
+**Solution:** Ensure WebSocket is allowed (already configured):
+```typescript
+connect-src 'self' http://localhost:5132 ws://localhost:5132
+```
+
+#### External CDN Resources
+
+**Problem:** CDN resources blocked in production
+
+**Solution:** Add specific CDN domains to production CSP:
+```typescript
+const productionCSP = `
+  default-src 'self';
+  script-src 'self' https://cdn.example.com;
+  style-src 'self' 'unsafe-inline' https://cdn.example.com;
+`;
+```
+
+### Monitoring CSP Violations
+
+Track CSP violations to catch issues before production:
+
+```typescript
+// Development: Enable detailed logging
+if (process.env.NODE_ENV === 'development') {
+  console.log('CSP Policy:', cspString);
+}
+
+// Production: Log violations
+webserver.set_error_handler((request, response, error) => {
+  if (error.message?.includes('CSP')) {
+    logError('CSP Violation detected', {
+      url: request.url,
+      error: error.message
+    });
+  }
+});
+```
+
+### Same-Origin Applications
+
+**Note:** Laju is designed for same-origin web applications (no CORS needed). For API-only applications serving multiple origins, you can add CORS middleware:
 
 ```typescript
 import cors from 'cors';
 
-const corsOptions = {
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://yourdomain.com', 'https://www.yourdomain.com']
-    : '*',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Inertia']
-};
+// Add CORS only for API routes
+const apiRouter = new HyperExpress.Router();
 
-webserver.use(cors(corsOptions));
+apiRouter.use(cors({
+  origin: ['https://app1.com', 'https://app2.com'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+}));
+
+// Apply to API routes only
+webserver.use('/api', apiRouter);
 ```
 
 ---
