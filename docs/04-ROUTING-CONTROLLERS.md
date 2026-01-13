@@ -203,6 +203,175 @@ Route.put("/posts/:id", PostController.update);      // Update
 Route.delete("/posts/:id", PostController.destroy);  // Delete
 ```
 
+### ⚠️ Controller Organization & Method Calls
+
+**CRITICAL:** Laju exports controller **instances**, not classes. This affects how you organize controller code.
+
+#### ❌ DON'T: Use `this` for internal methods
+
+```typescript
+// ❌ WRONG - this.method() doesn't work
+class UserController {
+  public async store(request: Request, response: Response) {
+    const body = await request.json();
+
+    // This will fail because 'this' doesn't work with exported instances
+    const validated = this.validateUser(body);
+
+    await DB.table("users").insert(validated);
+    return response.json({ success: true });
+  }
+
+  private validateUser(data: any) {
+    // Validation logic
+    return data;
+  }
+}
+
+export default new UserController();
+```
+
+#### ✅ DO: Use Static Methods
+
+```typescript
+// ✅ CORRECT - Use static methods
+class UserController {
+  public async store(request: Request, response: Response) {
+    const body = await request.json();
+
+    // Call static method
+    const validated = UserController.validateUser(body);
+
+    await DB.table("users").insert(validated);
+    return response.json({ success: true });
+  }
+
+  private static validateUser(data: any) {
+    // Validation logic
+    return data;
+  }
+}
+
+export default new UserController();
+```
+
+#### ✅ DO: Use Separate Utility Functions
+
+```typescript
+// ✅ ALSO CORRECT - Extract to utility function
+import { validateUser } from "../utils/validation";
+
+class UserController {
+  public async store(request: Request, response: Response) {
+    const body = await request.json();
+
+    // Call utility function
+    const validated = validateUser(body);
+
+    await DB.table("users").insert(validated);
+    return response.json({ success: true });
+  }
+}
+
+export default new UserController();
+
+// In utils/validation.ts
+export function validateUser(data: any) {
+  // Validation logic
+  return data;
+}
+```
+
+#### Why This Happens
+
+Laju controllers are exported as **instances**, not classes:
+
+```typescript
+// routes/web.ts
+import UserController from "../app/controllers/UserController";
+
+// UserController is already an instance (new UserController())
+Route.post("/users", UserController.store);
+```
+
+When methods are called, the context (`this`) is lost because methods are referenced by reference:
+
+```typescript
+// The method is extracted as a function reference
+Route.post("/users", UserController.store);
+// Same as: const handler = UserController.store;
+// When called: handler(request, response) → 'this' is undefined
+```
+
+#### Best Practices for Controller Organization
+
+1. **Keep controllers thin** - Move business logic to services
+2. **Use static methods** for helper functions within controllers
+3. **Extract utilities** - Put reusable functions in separate files
+4. **Use services** - Business logic goes in `app/services/`
+
+```typescript
+// Good controller structure
+class UserController {
+  // Main handler - thin, delegates to services
+  public async store(request: Request, response: Response) {
+    const body = await request.json();
+
+    // Validate (static method or utility)
+    const validated = UserController.validateInput(body);
+    if (!validated) {
+      return response.status(400).json({ error: "Invalid input" });
+    }
+
+    // Business logic in service
+    const user = await UserService.create(validated);
+
+    return response.json({ user });
+  }
+
+  // Static validation method
+  private static validateInput(data: any) {
+    return data.email && data.password && data.name;
+  }
+}
+
+export default new UserController();
+```
+
+#### Common Pattern: Service Layer
+
+```typescript
+// app/services/UserService.ts
+class UserService {
+  async create(data: any) {
+    // Business logic
+    const hashedPassword = await Authenticate.hash(data.password);
+    const user = { ...data, password: hashedPassword };
+
+    return await DB.table("users").insert(user);
+  }
+
+  async findByEmail(email: string) {
+    return await DB.table("users").where("email", email).first();
+  }
+}
+
+export default new UserService();
+
+// In controller
+import UserService from "../services/UserService";
+
+class UserController {
+  public async store(request: Request, response: Response) {
+    const body = await request.json();
+    const user = await UserService.create(body);
+    return response.json({ user });
+  }
+}
+
+export default new UserController();
+```
+
 ---
 
 ## Request & Response

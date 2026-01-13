@@ -320,6 +320,51 @@ import { DB } from "../../../services/DB";
 import { DB } from "app/services/DB";
 ```
 
+### 5. Controller Method Calls - No `this` Context
+
+**CRITICAL:** Laju exports controller instances, not classes. This means `this` doesn't work in controller methods.
+
+```typescript
+// ❌ WRONG - Using 'this' will cause runtime error
+class UserController {
+  public async store(request: Request, response: Response) {
+    const validated = this.validateUser(data); // Error: this is undefined
+  }
+
+  private validateUser(data: any) { /* ... */ }
+}
+
+export default new UserController();
+```
+
+```typescript
+// ✅ CORRECT - Use static methods
+class UserController {
+  public async store(request: Request, response: Response) {
+    const validated = UserController.validateUser(data); // Works!
+  }
+
+  private static validateUser(data: any) { /* ... */ }
+}
+
+export default new UserController();
+```
+
+```typescript
+// ✅ ALSO CORRECT - Extract to separate utility function
+import { validateUser } from "utils/validation";
+
+class UserController {
+  public async store(request: Request, response: Response) {
+    const validated = validateUser(data); // Works!
+  }
+}
+
+export default new UserController();
+```
+
+**Why?** Controllers are exported as instances (`new UserController()`), and when methods are passed as function references to routes, the `this` context is lost.
+
 ## Troubleshooting
 
 ### Type Errors After Updates
