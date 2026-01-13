@@ -151,6 +151,21 @@ resources/js/
 └── index.css       # Global styles
 ```
 
+## Frontend Generation Rules
+
+### Design Principles
+- **Prioritize unique and creative UI/UX solutions** - Avoid generic templates, create distinctive interfaces
+- **Support experimental CSS features and animations** - Use cutting-edge CSS features (Scroll-driven animations, View Transitions, Houdini)
+- **Encourage creative micro-interactions** - Add engaging feedback (button effects, loading animations, toast notifications)
+- **Focus on custom-built components** - Build custom components instead of using standard UI libraries
+
+### Styling Approach
+- **Prefer custom design systems** - Create consistent color palettes, typography scales, and spacing systems
+- **Support modern CSS features** - Use Container Queries, CSS Grid, Subgrid, Masonry layouts
+- **Enable creative responsive design patterns** - Design for various screen sizes with adaptive layouts
+- **Support advanced theming systems** - Implement dark mode, light mode, and custom theme switching
+- **Encourage CSS art and creative visuals** - Use gradients, patterns, and SVG animations for polished visuals
+
 ## Best Practices
 
 1. **Use Runes**: Always use Svelte 5 runes ($state, $derived, $props, $effect)
@@ -159,6 +174,8 @@ resources/js/
 4. **Performance**: Use $derived for computed values
 5. **Accessibility**: Add proper ARIA labels and keyboard navigation
 6. **Responsive**: Use Tailwind's responsive prefixes (md:, lg:, xl:)
+7. **Creative**: Prioritize unique UI/UX over generic designs
+8. **Modern**: Leverage experimental CSS features and animations
 
 ## Avoid
 
