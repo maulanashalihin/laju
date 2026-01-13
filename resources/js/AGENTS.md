@@ -109,6 +109,11 @@ function submit() {
 </script>
 ```
 
+**Controller Best Practices:**
+- Always return `response.redirect()` for form submissions
+- Never return `response.json()` - causes white modal issue
+- For PUT/DELETE requests, use 303 redirect: `response.redirect('/path', 303)`
+
 ### Accessing Page Props
 ```svelte
 <script>
