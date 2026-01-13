@@ -192,8 +192,8 @@ const user = SQLite.get(
 ✅ **DO: Sanitize output in templates**
 
 ```html
-<!-- ✅ Good - Squirrelly auto-escapes -->
-<p>{{it.userInput}}</p>
+<!-- ✅ Good - Eta auto-escapes -->
+<p><%= it.userInput %></p>
 
 <!-- Svelte auto-escapes -->
 <p>{userInput}</p>

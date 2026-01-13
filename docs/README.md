@@ -40,7 +40,7 @@ Add file uploads, caching, background jobs, and internationalization.
 12. **[Background Jobs](12-BACKGROUND-JOBS.md)** - Cron jobs, Task scheduling, Commands
 13. **[CSRF Protection](13-CSRF.md)** - Token generation, Form protection, AJAX requests
 14. **[Translation (i18n)](14-TRANSLATION.md)** - Multi-language, Interpolation, Nested keys
-15. **[Squirrelly Templates](15-SQUIRRELLY.md)** - SSR, Partials, Filters, Helpers
+15. **[Eta Templates](15-ETA.md)** - SSR, Partials, Filters, Helpers
 
 ---
 
@@ -141,7 +141,7 @@ Visit `http://localhost:5555`
 
 ### **Internationalization**
 - [Translation](14-TRANSLATION.md) - Multi-language support
-- [Squirrelly Templates](15-SQUIRRELLY.md) - Server-side rendering
+- [Eta Templates](15-ETA.md) - Server-side rendering
 
 ### **Production Ready**
 - [TypeScript Guide](25-TYPESCRIPT.md) - Type safety & configuration

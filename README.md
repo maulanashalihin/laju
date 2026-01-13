@@ -44,7 +44,7 @@ Visit `http://localhost:5555`
 - **Storage** - S3/Wasabi with presigned URLs
 - **Email** - Nodemailer (SMTP) or Resend (API)
 - **Caching** - Database cache or Redis
-- **Templates** - Squirrelly for SSR
+- **Templates** - Eta for SSR
 
 ## 📊 Performance
 
@@ -103,7 +103,7 @@ resources/
 │   ├── Pages/       # Svelte/Inertia pages
 │   ├── Components/  # Reusable components
 │   └── index.css    # TailwindCSS 4
-└── views/           # Squirrelly templates
+└── views/           # Eta templates
 
 routes/              # Route definitions
 migrations/          # Database migrations
@@ -128,7 +128,7 @@ npx knex migrate:latest                  # Run migrations
 | Frontend | Svelte 5 + Inertia.js |
 | Styling | TailwindCSS 4 |
 | Build | Vite |
-| Templates | Squirrelly |
+| Templates | Eta |
 
 ## Author
 

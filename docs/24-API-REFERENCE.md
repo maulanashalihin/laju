@@ -263,7 +263,7 @@ logWarn("Rate limit approaching", { ip: request.ip, count: 95 });
 logDebug("Processing item", { itemId: 123 });
 ```
 
-### View (Squirrelly)
+### View (Eta)
 
 ```typescript
 import { view } from "app/services/View";

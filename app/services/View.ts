@@ -1,13 +1,20 @@
 /**
  * View Service
  * This service handles template rendering and view management for the application.
- * It uses Squirrelly as the templating engine and supports hot reloading in development.
+ * It uses Eta as the templating engine and supports hot reloading in development.
  */
 
 import { readFileSync, readdirSync, statSync, watch } from "fs";
-import * as Sqrl from 'squirrelly' 
+import { Eta } from 'eta'
 import path from "path";
 import "dotenv/config";
+
+// Configure Eta instance
+const eta = new Eta({
+   views: path.join(process.cwd(), "resources/views"),
+   cache: process.env.NODE_ENV !== 'development',
+   autoEscape: true
+});
 
 /**
  * Cache object to store compiled HTML templates
@@ -52,9 +59,9 @@ function importFiles( nextDirectory = "resources/views") {
 
             if(nextDirectory.includes("partials"))
             {
-               const dir = nextDirectory.replace(directory+"/", ""); 
-               Sqrl.templates.define(dir + "/" + filename, Sqrl.compile(html))
-            } 
+               const dir = nextDirectory.replace(directory+"/", "");
+               eta.loadTemplate(dir + "/" + filename, html);
+            }
             html_files[nextDirectory + "/" + filename] = html;
          }
       }
@@ -75,29 +82,24 @@ function importFiles( nextDirectory = "resources/views") {
  * @returns Rendered HTML string
  */
 export function view(filename: string, view_data?: any) {
-    
 
-   const keys = Object.keys(view_data || {}); 
+   const keys = Object.keys(view_data || {});
 
    let html = html_files[directory + "/" + filename];
-   
+
    if(process.env.NODE_ENV == 'development')
    {
-      
+
       const files = readdirSync("resources/js");
 
       for (const filename of files) {
-     
-         
+
          html = html.replace("/js/"+filename, `http://localhost:${process.env.VITE_PORT}/js/${filename}`);
       }
 
-       
    }
- 
-   html = Sqrl.render(html, {
-      ...view_data
-   }); 
+
+   html = eta.renderString(html, view_data || {});
 
    return html;
 }

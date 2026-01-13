@@ -8,7 +8,7 @@
 # Laju Framework - Complete Reference
 
 ## Tech Stack
-- **Backend**: HyperExpress, Knex, BetterSQLite3 (WAL mode), Squirrelly, Redis (optional)
+- **Backend**: HyperExpress, Knex, BetterSQLite3 (WAL mode), Eta, Redis (optional)
 - **Frontend**: Svelte 5 (runes), Inertia.js, TailwindCSS 4, Vite
 
 ## CRITICAL: HyperExpress Middleware
@@ -63,10 +63,10 @@ Always wrap in try-catch, validate input, return appropriate status codes.
 
 ## SSR vs Inertia
 
-- **Squirrelly SSR**: Landing pages, SEO, emails
+- **Eta SSR**: Landing pages, SEO, emails
 - **Inertia + Svelte**: Dashboard, interactive apps
 
-**Squirrelly**: NO `||` operator! Use ternary `? :` or set defaults in controller.
+**Eta**: Use ternary `? :` for default values.
 
 ## Avoid
 

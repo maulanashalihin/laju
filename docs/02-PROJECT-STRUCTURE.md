@@ -167,7 +167,7 @@ app/services/
 │   └── send()              # Send email via Resend
 │
 ├── View.ts                 # Template rendering
-│   └── view()              # Render Squirrelly template
+│   └── view()              # Render Eta template
 │
 ├── Logger.ts               # Logging service
 │   ├── logInfo()           # Info logs
@@ -241,7 +241,7 @@ resources/js/
 
 ### Views (`resources/views/`)
 
-Squirrelly HTML templates for server-side rendering.
+Eta HTML templates for server-side rendering.
 
 ```
 resources/views/
@@ -383,7 +383,7 @@ laju/
 - **Components:** `PascalCase.svelte` (e.g., `Header.svelte`)
 - **Utilities:** `camelCase.js` (e.g., `helper.js`)
 
-### Templates (Squirrelly)
+### Templates (Eta)
 
 - **Views:** `kebab-case.html` (e.g., `forgot-password.html`)
 - **Partials:** `kebab-case.html` in `partials/` folder

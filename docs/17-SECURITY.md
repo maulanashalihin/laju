@@ -198,11 +198,11 @@ const posts = await query.orderBy("created_at", "desc");
 
 ### Template Auto-Escaping
 
-Both Squirrelly and Svelte auto-escape by default:
+Both Eta and Svelte auto-escape by default:
 
 ```html
-<!-- Squirrelly - Auto-escaped -->
-<p>{{it.userInput}}</p>
+<!-- Eta - Auto-escaped -->
+<p><%= it.userInput %></p>
 
 <!-- Svelte - Auto-escaped -->
 <p>{userInput}</p>
