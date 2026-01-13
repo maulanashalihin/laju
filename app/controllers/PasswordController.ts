@@ -90,7 +90,7 @@ class PasswordController {
 
       try {
          await MailTo({
-            to: email,
+            to: user.email,
             subject: "Reset Password",
             text: `You have requested a password reset. If this was you, please click the following link:
       
@@ -123,8 +123,13 @@ This link will expire in 24 hours.
    }
 
    public async changePassword(request: Request, response: Response) {
+      // Check if user is authenticated
+      if (!request.user) {
+         return response.status(401).json({ error: 'Unauthorized' });
+      }
+
       const body = await request.json();
-      
+
       const validated = Validator.validateOrFail(changePasswordSchema, body, response);
       if (!validated) return;
 

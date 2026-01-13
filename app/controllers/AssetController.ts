@@ -19,10 +19,17 @@ class Controller {
      */
 
     public async uploadAsset(request: Request, response: Response) {
-        try { 
+        try {
+            // Check if user is authenticated
+            if (!request.user) {
+                return response.status(401).json({ error: 'Unauthorized' });
+            }
 
-        
+   
      
+
+            // Store user ID to use in callback
+            const userId = request.user.id;
 
             let isValidFile = true;
 
@@ -73,7 +80,7 @@ class Controller {
                                 mime_type: 'image/webp',
                                 name: fileName,
                                 size: processedBuffer.length,
-                                user_id: request.user.id,
+                                user_id: userId,
                                 s3_key: s3Key, // Store S3 key for future reference
                                 created_at: Date.now(),
                                 updated_at: Date.now()

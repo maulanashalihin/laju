@@ -3,7 +3,6 @@ import RegisterController from "../app/controllers/RegisterController";
 import PasswordController from "../app/controllers/PasswordController";
 import ProfileController from "../app/controllers/ProfileController";
 import OAuthController from "../app/controllers/OAuthController";
-import VerificationController from "../app/controllers/VerificationController";
 import Auth from "../app/middlewares/auth"
 import HomeController from "../app/controllers/HomeController";
 import AssetController from "../app/controllers/AssetController";
@@ -11,8 +10,8 @@ import S3Controller from "../app/controllers/S3Controller";
 import HyperExpress from 'hyper-express';
 
 // Rate limiting middleware
-import { 
-  authRateLimit, 
+import {
+  authRateLimit,
   apiRateLimit,
   passwordResetRateLimit,
   createAccountRateLimit,
@@ -38,7 +37,7 @@ Route.get("/", HomeController.index);
  * GET  /api/s3/public-url/:fileKey - Get public URL for existing file
  * GET  /api/s3/health - S3 service health check
  */
-Route.post("/api/s3/signed-url", [Auth, uploadRateLimit], S3Controller.getSignedUrl); 
+Route.post("/api/s3/signed-url", [Auth, uploadRateLimit], S3Controller.getSignedUrl);
 Route.get("/api/s3/public-url/:fileKey", [apiRateLimit], S3Controller.getPublicUrl);
 Route.get("/api/s3/health", [apiRateLimit], S3Controller.health);
 /**
@@ -93,13 +92,13 @@ Route.delete("/users", [Auth], ProfileController.deleteUsers);
 
 /**
  * Static Asset Handling Routes
- * 
+ *
  * 1. Dist Assets (/assets/:file)
  * Serves compiled and bundled assets from the dist/assets directory
  * - Handles JavaScript files (*.js) with proper content type
  * - Handles CSS files (*.css) with proper content type
- * - Implements in-memory caching for better performance
- * - Sets long-term browser cache headers (1 year)
+ * - Implements file caching for better performance
+ * - Sets appropriate cache headers for browser caching
  * Example URLs:
  * - /assets/app.1234abc.js
  * - /assets/main.5678def.css
@@ -113,14 +112,14 @@ Route.get("/assets/:file", AssetController.distFolder);
  * - Only serves files with allowed extensions
  * - Returns 404 for paths without extensions
  * - Implements security checks against unauthorized access
- * 
+ *
  * Allowed file types:
  * - Images: .ico, .png, .jpeg, .jpg, .gif, .svg
  * - Documents: .txt, .pdf
  * - Fonts: .woff, .woff2, .ttf, .eot
  * - Media: .mp4, .webm, .mp3, .wav
  * - Web: .css, .js
- * 
+ *
  * Example URLs:
  * - /images/logo.png
  * - /documents/terms.pdf

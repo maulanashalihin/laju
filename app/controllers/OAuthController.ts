@@ -51,6 +51,7 @@ class OAuthController {
             password: await Authenticate.hash(email),
             name: name,
             is_verified: verified_email,
+            is_admin: false,  // Default to false for OAuth users
             created_at: dayjs().valueOf(),
             updated_at: dayjs().valueOf(),
          };

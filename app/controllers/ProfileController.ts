@@ -9,8 +9,13 @@ class ProfileController {
    }
 
    public async changeProfile(request: Request, response: Response) {
+      // Check if user is authenticated
+      if (!request.user) {
+         return response.status(401).json({ error: 'Unauthorized' });
+      }
+
       const body = await request.json();
-      
+
       const validated = Validator.validateOrFail(updateProfileSchema, body, response);
       if (!validated) return;
 
@@ -28,8 +33,13 @@ class ProfileController {
    }
 
    public async deleteUsers(request: Request, response: Response) {
+      // Check if user is authenticated
+      if (!request.user) {
+         return response.status(401).json({ error: 'Unauthorized' });
+      }
+
       const body = await request.json();
-      
+
       const validated = Validator.validateOrFail(deleteUsersSchema, body, response);
       if (!validated) return;
 

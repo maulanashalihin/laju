@@ -1,21 +1,17 @@
+// Import type augmentation first to extend HyperExpress types
+import './hyper-express';
+
 import { Request, Response } from "hyper-express";
 
- interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   is_admin: boolean;
   is_verified: boolean;
 }
 
-export interface Response extends Response {
-    view(view : string,data? : any) : void,
-    inertia(view : string,data? : any) : void,
-    flash(message : string, data : any) : Response,
-}
-
-
-export interface Request extends Request {
-    user : User,
-    share : any,
-}
+// Re-export Request and Response with our custom types
+// These now include the augmented properties (user, share, view, inertia, flash)
+export type { Request, Response };

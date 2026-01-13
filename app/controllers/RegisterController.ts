@@ -27,6 +27,8 @@ class RegisterController {
             id: randomUUID(),
             name,
             password: await Authenticate.hash(password),
+            is_admin: false,      // Default to false for new users
+            is_verified: false,   // Default to false, requires email verification
          };
 
          await DB.table("users").insert(user);

@@ -4,8 +4,8 @@
  * session management, and login/logout functionality.
  */
 
-import DB from "./DB"; 
-import { Request, Response } from "../../type";
+import DB from "./DB";
+import { Request, Response, User } from "../../type";
 import { randomUUID, pbkdf2Sync, randomBytes } from "crypto";
 
 // PBKDF2 configuration
@@ -53,7 +53,7 @@ class Autenticate {
     * 3. Sets a session cookie
     * 4. Redirects to the home page
     */
-   async process(user, request: Request, response: Response) {
+   async process(user: User, request: Request, response: Response) {
       const token = randomUUID();
 
       await DB.table("sessions").insert({

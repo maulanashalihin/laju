@@ -17,13 +17,13 @@
     /* Remove comments in output */
     "removeComments": true,
     /* Enable all strict type checking options */
-    "strict": true,     
+    "strict": true,
     /* Raise error on expressions and declarations with an implied any type */
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     /* Enable strict null checks */
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     /* Enable strict checking of function types */
-    "strictFunctionTypes": false,
+    "strictFunctionTypes": true,
     /* Raise error on this expressions with an implied any type */
     "noImplicitThis": true,
     /* Report errors on unused locals */
