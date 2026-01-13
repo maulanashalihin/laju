@@ -24,43 +24,12 @@ export default async (request: Request, response: Response) => {
 }
 ```
 
+
 ## CRITICAL: Controller Method Calls
 
 **NO `this` in controllers!** Controllers are exported as instances, not classes.
-
-**❌ WRONG - Using `this` causes runtime error:**
-```typescript
-class UserController {
-  public async store(request: Request, response: Response) {
-    const validated = this.validateUser(data); // ERROR: this is undefined
-  }
-}
-export default new UserController();
-```
-
-**✅ CORRECT - Use static methods or utility functions:**
-```typescript
-// Option 1: Static methods
-class UserController {
-  public async store(request: Request, response: Response) {
-    const validated = UserController.validateUser(data); // Works!
-  }
-  private static validateUser(data: any) { /* ... */ }
-}
-export default new UserController();
-
-// Option 2: Utility functions
-import { validateUser } from "../utils/validation";
-class UserController {
-  public async store(request: Request, response: Response) {
-    const validated = validateUser(data); // Works!
-  }
-}
-export default new UserController();
-```
-
-**Pattern:** Always use `ClassName.methodName()` for internal methods or extract to separate utility files.
-
+- Use `ClassName.methodName()` for internal methods
+- Extract to separate utility functions when possible
 ## Database
 
 - **Knex**: complex queries, joins, transactions

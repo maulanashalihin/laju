@@ -24,6 +24,12 @@ export default async (request: Request, response: Response) => {
 }
 ```
 
+
+## CRITICAL: Controller Method Calls
+
+**NO `this` in controllers!** Controllers are exported as instances, not classes.
+- Use `ClassName.methodName()` for internal methods
+- Extract to separate utility functions when possible
 ## Database
 
 - **Knex**: complex queries, joins, transactions
@@ -65,6 +71,7 @@ Always wrap in try-catch, validate input, return appropriate status codes.
 ## Avoid
 
 - `next()` in middleware → double execution
+- `this.method()` in controllers → use `ClassName.methodName()` or utility functions
 - SQL string concatenation → injection
 - No input validation
 - Knex for simple reads → use native SQLite
