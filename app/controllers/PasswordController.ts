@@ -57,6 +57,8 @@ class PasswordController {
          .where("token", id)
          .delete();
 
+      await Authenticate.invalidateUserSessions(user.id);
+
       return Authenticate.process(user, request, response);
    }
 
@@ -123,7 +125,6 @@ This link will expire in 24 hours.
    }
 
    public async changePassword(request: Request, response: Response) {
-      // Check if user is authenticated
       if (!request.user) {
          return response.status(401).json({ error: 'Unauthorized' });
       }
@@ -148,6 +149,9 @@ This link will expire in 24 hours.
             .update({
                password: await Authenticate.hash(validated.new_password),
             });
+         
+         await Authenticate.invalidateUserSessions(request.user.id);
+         
          return response.json({ message: "Password berhasil diubah" });
       } else {
          return response

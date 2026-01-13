@@ -1,36 +1,36 @@
-
 import { view } from "../services/View";
 import { Request, Response } from "../../type";
+import { readFileSync } from "fs";
+import path from "path";
 
-let pkg = { version: "1.0.0" };
+const pkg = JSON.parse(readFileSync(path.join(process.cwd(), "package.json"), "utf8"));
 
+interface InertiaProps {
+   user?: any;
+   error?: string | null;
+   [key: string]: any;
+}
 
 const inertia = () => {
-   return async (request: Request, response: Response) => {
-      // Set up the inertia method on response
-      response.inertia = async (component, inertiaProps = {}, viewProps = {}) => {
-
-         const url = `${request.originalUrl}`;
-
-         let props = { user: request.user || {}, ...inertiaProps, ...viewProps, error: null } as any;
-
-
+   return (request: Request, response: Response) => {
+      response.inertia = (component: string, inertiaProps: InertiaProps = {}, viewProps: InertiaProps = {}) => {
+         const url = request.originalUrl;
+         const props: InertiaProps = { user: request.user || {}, ...inertiaProps, ...viewProps, error: null };
 
          if (request.cookies.error) {
             props.error = request.cookies.error;
-            response
-               .cookie("error", "", 0)
+            response.cookie("error", "", 0);
          }
 
          const inertiaObject = {
-            component: component,
-            props: props,
-            url: url,
+            component,
+            props,
+            url,
             version: pkg.version,
          };
 
          if (!request.header("X-Inertia")) {
-            const html = await view("inertia.html", {
+            const html = view("inertia.html", {
                page: JSON.stringify(inertiaObject),
                title: process.env.TITLE || "LAJU - Ship Your Next Project Faster",
             });

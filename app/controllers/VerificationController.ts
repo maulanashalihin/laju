@@ -1,4 +1,5 @@
 import DB from "../services/DB";
+import Authenticate from "../services/Authenticate";
 import { MailTo } from "../services/Resend";
 import { Response, Request } from "../../type";
 import { randomUUID } from "crypto";
@@ -6,6 +7,10 @@ import dayjs from "dayjs";
 
 class VerificationController {
    public async verify(request: Request, response: Response) {
+      if (!request.user) {
+         return response.redirect("/login");
+      }
+
       const token = randomUUID();
 
       await DB.from("email_verification_tokens")
@@ -36,6 +41,10 @@ Link ini akan kadaluarsa dalam 24 jam.`,
    }
 
    public async verifyPage(request: Request, response: Response) {
+      if (!request.user) {
+         return response.redirect("/login");
+      }
+
       const { id } = request.params;
 
       const verificationToken = await DB.from("email_verification_tokens")
@@ -54,6 +63,8 @@ Link ini akan kadaluarsa dalam 24 jam.`,
          await DB.from("email_verification_tokens")
             .where("id", verificationToken.id)
             .delete();
+
+         await Authenticate.invalidateUserSessions(request.user.id);
       }
 
       return response.redirect("/home?verified=true");

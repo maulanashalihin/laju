@@ -36,7 +36,7 @@ Middleware functions are functions that have access to the request and response 
 
 ### ⚠️ CRITICAL DIFFERENCE
 
-**HyperExpress does NOT use `next()` function!**
+**HyperExpress supports TWO middleware patterns:**
 
 ```typescript
 // ❌ Express.js style (DON'T USE)
@@ -45,31 +45,38 @@ app.use((req, res, next) => {
   next(); // ❌ This doesn't exist in HyperExpress
 });
 
-// ✅ HyperExpress style (CORRECT)
-app.use((request, response) => {
+// ✅ HyperExpress Style 1: Async (RECOMMENDED)
+app.use(async (request, response) => {
   console.log('Middleware');
-  // No return = continue to next handler
+  // Automatically continues after resolve
+});
+
+// ✅ HyperExpress Style 2: Callback with next
+app.use((request, response, next) => {
+  console.log('Middleware');
+  next(); // Must call next() to continue
 });
 ```
 
 ### Execution Rules
 
-| Action | Result |
-|--------|--------|
-| No return | Continue to next middleware/handler |
-| `return response.xxx()` | Stop execution, send response |
-| `return` (empty) | Stop execution, no response |
+| Pattern | Action | Result |
+|---------|--------|--------|
+| `async (req, res)` | No return | Continue to next middleware/handler |
+| `async (req, res)` | `return response.xxx()` | Stop execution, send response |
+| `(req, res, next)` | `next()` | Continue to next middleware/handler |
+| `(req, res, next)` | `return response.xxx()` | Stop execution, send response |
 
 ### Examples
 
 ```typescript
-// ✅ Continue to next handler
+// ✅ Continue to next handler (async pattern - RECOMMENDED)
 export default async (request: Request, response: Response) => {
   request.startTime = Date.now();
-  // No return = continues
+  // No return = continues automatically
 }
 
-// ✅ Stop execution and redirect
+// ✅ Stop execution and redirect (async pattern)
 export default async (request: Request, response: Response) => {
   if (!request.user) {
     return response.redirect("/login"); // Stops here
@@ -77,12 +84,40 @@ export default async (request: Request, response: Response) => {
   // Continues if user exists
 }
 
-// ✅ Stop execution and send JSON
+// ✅ Stop execution and send JSON (async pattern)
 export default async (request: Request, response: Response) => {
   if (!request.headers.authorization) {
     return response.status(401).json({ error: "Unauthorized" });
   }
   // Continues if authorized
+}
+
+// ✅ Continue with callback pattern
+export default (request: Request, response: Response, next) => {
+  request.startTime = Date.now();
+  next(); // Must call next() to continue
+}
+```
+
+### ⚠️ IMPORTANT
+
+**ALWAYS use `async` for middleware in Laju Framework:**
+
+```typescript
+// ✅ CORRECT - Async middleware
+export function securityHeaders() {
+  return async (request: Request, response: Response) => {
+    response.header('X-Frame-Options', 'DENY');
+    // Automatically continues
+  };
+}
+
+// ❌ WRONG - Non-async without next
+export function securityHeaders() {
+  return (request: Request, response: Response) => {
+    response.header('X-Frame-Options', 'DENY');
+    // Request will hang - no way to continue!
+  };
 }
 ```
 
@@ -340,19 +375,27 @@ This ensures:
 
 #### Important Notes
 
-⚠️ **CRITICAL:** The security middleware must NOT return any value:
+⚠️ **CRITICAL:** The security middleware MUST use `async` pattern:
 
 ```typescript
-// ✅ CORRECT
+// ✅ CORRECT - Async middleware
 export function securityHeaders() {
   return async (request: Request, response: Response) => {
     // Set headers
     response.header('X-Frame-Options', 'DENY');
-    // NO RETURN - let request pass through
+    // NO RETURN - automatically continues
   };
 }
 
-// ❌ WRONG - blocks all requests
+// ❌ WRONG - Non-async without next
+export function securityHeaders() {
+  return (request: Request, response: Response) => {
+    response.header('X-Frame-Options', 'DENY');
+    // Request will hang - no way to continue!
+  };
+}
+
+// ❌ WRONG - Empty return
 export function securityHeaders() {
   return async (request: Request, response: Response) => {
     response.header('X-Frame-Options', 'DENY');

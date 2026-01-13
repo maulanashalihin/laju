@@ -7,24 +7,48 @@ import { randomBytes, createHmac } from 'crypto';
 import { Request, Response } from '../../type';
 
 const CSRF_SECRET = process.env.CSRF_SECRET || randomBytes(32).toString('hex');
-const TOKEN_EXPIRY = 60 * 60 * 1000; // 1 hour
+export const TOKEN_EXPIRY = 60 * 60 * 1000; // 1 hour
 
 interface TokenData {
   token: string;
   timestamp: number;
 }
 
+// Cache for generated tokens to avoid repeated crypto operations
+interface CachedToken {
+  token: string;
+  expiresAt: number;
+}
+
+let tokenCache: CachedToken | null = null;
+
 class CSRFService {
   /**
-   * Generate a CSRF token
+   * Generate a CSRF token (cached)
    * Returns token to be stored in cookie and sent to client
    */
   generate(): string {
-    const timestamp = Date.now();
+    const now = Date.now();
+    
+    // Return cached token if still valid
+    if (tokenCache && tokenCache.expiresAt > now) {
+      return tokenCache.token;
+    }
+    
+    // Generate new token
+    const timestamp = now;
     const randomPart = randomBytes(16).toString('hex');
     const data = `${timestamp}:${randomPart}`;
     const signature = createHmac('sha256', CSRF_SECRET).update(data).digest('hex');
-    return `${data}:${signature}`;
+    const token = `${data}:${signature}`;
+    
+    // Cache the token with expiry
+    tokenCache = {
+      token,
+      expiresAt: now + TOKEN_EXPIRY
+    };
+    
+    return token;
   }
 
   /**
@@ -61,6 +85,26 @@ class CSRFService {
       sameSite: 'strict',
       secure: process.env.NODE_ENV === 'production'
     });
+    return token;
+  }
+  
+  /**
+   * Force regenerate token (for token rotation)
+   */
+  regenerate(): string {
+    const now = Date.now();
+    const timestamp = now;
+    const randomPart = randomBytes(16).toString('hex');
+    const data = `${timestamp}:${randomPart}`;
+    const signature = createHmac('sha256', CSRF_SECRET).update(data).digest('hex');
+    const token = `${data}:${signature}`;
+    
+    // Update cache
+    tokenCache = {
+      token,
+      expiresAt: now + TOKEN_EXPIRY
+    };
+    
     return token;
   }
 

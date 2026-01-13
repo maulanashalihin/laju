@@ -39,24 +39,104 @@ const defaultHeaders: SecurityHeadersOptions = {
   // X-Content-Type-Options - Prevent MIME sniffing
   xContentTypeOptions: true,
 
-  // X-XSS-Protection - Enable browser XSS filter (legacy but still useful)
-  xXSSProtection: '1; mode=block',
-
-  // Referrer-Policy - Control referrer information
-  referrerPolicy: 'strict-origin-when-cross-origin',
-
-  // Permissions-Policy (formerly Feature-Policy) - Control browser features
-  permissionsPolicy: 'geolocation=(), microphone=(), camera=()',
+  // Disabled legacy headers for performance (browser modern sudah punya built-in protection)
+  // xXSSProtection: '1; mode=block',  // Legacy header, browser modern sudah punya built-in XSS protection
+  // referrerPolicy: 'strict-origin-when-cross-origin',  // Opsional untuk privacy
+  // permissionsPolicy: 'geolocation=(), microphone=(), camera=()',  // Opsional
 
   // Cross-Origin Embedder Policy - Require CORP/COEP headers
   crossOriginEmbedderPolicy: false, // Enable only if using COOP/COEP
 
-  // Cross-Origin Opener Policy - Control cross-origin window access
-  crossOriginOpenerPolicy: 'same-origin',
-
-  // Cross-Origin Resource Policy - Control cross-origin resource sharing
-  crossOriginResourcePolicy: 'same-site',
+  // Disabled for performance (hanya perlu jika kontrol cross-origin)
+  // crossOriginOpenerPolicy: 'same-origin',
+  // crossOriginResourcePolicy: 'same-site',
 };
+
+/**
+ * Pre-computed headers cache
+ */
+interface PrecomputedHeaders {
+  'Content-Security-Policy'?: string;
+  'Strict-Transport-Security'?: string;
+  'X-Frame-Options'?: string;
+  'X-Content-Type-Options'?: string;
+  'X-XSS-Protection'?: string;
+  'Referrer-Policy'?: string;
+  'Permissions-Policy'?: string;
+  'Cross-Origin-Embedder-Policy'?: string;
+  'Cross-Origin-Opener-Policy'?: string;
+  'Cross-Origin-Resource-Policy'?: string;
+  'X-DNS-Prefetch-Control'?: string;
+  'X-Download-Options'?: string;
+  'X-Permitted-Cross-Domain-Policies'?: string;
+}
+
+function precomputeHeaders(config: SecurityHeadersOptions): PrecomputedHeaders {
+  const headers: PrecomputedHeaders = {};
+  
+  if (config.contentSecurityPolicy) {
+    headers['Content-Security-Policy'] = typeof config.contentSecurityPolicy === 'string'
+      ? config.contentSecurityPolicy
+      : "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';";
+  }
+  
+  if (config.strictTransportSecurity) {
+    headers['Strict-Transport-Security'] = typeof config.strictTransportSecurity === 'string'
+      ? config.strictTransportSecurity
+      : 'max-age=31536000; includeSubDomains';
+  }
+  
+  if (config.xFrameOptions) {
+    headers['X-Frame-Options'] = typeof config.xFrameOptions === 'string'
+      ? config.xFrameOptions
+      : 'DENY';
+  }
+  
+  if (config.xContentTypeOptions) {
+    headers['X-Content-Type-Options'] = 'nosniff';
+  }
+  
+  if (config.xXSSProtection) {
+    headers['X-XSS-Protection'] = typeof config.xXSSProtection === 'string'
+      ? config.xXSSProtection
+      : '1; mode=block';
+  }
+  
+  if (config.referrerPolicy) {
+    headers['Referrer-Policy'] = typeof config.referrerPolicy === 'string'
+      ? config.referrerPolicy
+      : 'strict-origin-when-cross-origin';
+  }
+  
+  if (config.permissionsPolicy) {
+    headers['Permissions-Policy'] = typeof config.permissionsPolicy === 'string'
+      ? config.permissionsPolicy
+      : 'geolocation=(), microphone=(), camera=()';
+  }
+  
+  if (config.crossOriginEmbedderPolicy) {
+    headers['Cross-Origin-Embedder-Policy'] = 'require-corp';
+  }
+  
+  if (config.crossOriginOpenerPolicy) {
+    headers['Cross-Origin-Opener-Policy'] = typeof config.crossOriginOpenerPolicy === 'string'
+      ? config.crossOriginOpenerPolicy
+      : 'same-origin';
+  }
+  
+  if (config.crossOriginResourcePolicy) {
+    headers['Cross-Origin-Resource-Policy'] = typeof config.crossOriginResourcePolicy === 'string'
+      ? config.crossOriginResourcePolicy
+      : 'same-site';
+  }
+  
+  // Additional security headers
+  headers['X-DNS-Prefetch-Control'] = 'off';
+  headers['X-Download-Options'] = 'noopen';
+  headers['X-Permitted-Cross-Domain-Policies'] = 'none';
+  
+  return headers;
+}
 
 /**
  * Security headers middleware factory
@@ -66,7 +146,6 @@ export function securityHeaders(options: SecurityHeadersOptions = {}) {
   const config = { ...defaultHeaders, ...options };
 
   return async (request: Request, response: Response) => {
-    // Content Security Policy
     if (config.contentSecurityPolicy) {
       const csp = typeof config.contentSecurityPolicy === 'string'
         ? config.contentSecurityPolicy
@@ -74,7 +153,6 @@ export function securityHeaders(options: SecurityHeadersOptions = {}) {
       response.header('Content-Security-Policy', csp);
     }
 
-    // HTTP Strict Transport Security
     if (config.strictTransportSecurity) {
       const hsts = typeof config.strictTransportSecurity === 'string'
         ? config.strictTransportSecurity
@@ -82,7 +160,6 @@ export function securityHeaders(options: SecurityHeadersOptions = {}) {
       response.header('Strict-Transport-Security', hsts);
     }
 
-    // X-Frame-Options
     if (config.xFrameOptions) {
       const frameOptions = typeof config.xFrameOptions === 'string'
         ? config.xFrameOptions
@@ -90,12 +167,10 @@ export function securityHeaders(options: SecurityHeadersOptions = {}) {
       response.header('X-Frame-Options', frameOptions);
     }
 
-    // X-Content-Type-Options
     if (config.xContentTypeOptions) {
       response.header('X-Content-Type-Options', 'nosniff');
     }
 
-    // X-XSS-Protection
     if (config.xXSSProtection) {
       const xssProtection = typeof config.xXSSProtection === 'string'
         ? config.xXSSProtection
@@ -103,7 +178,6 @@ export function securityHeaders(options: SecurityHeadersOptions = {}) {
       response.header('X-XSS-Protection', xssProtection);
     }
 
-    // Referrer-Policy
     if (config.referrerPolicy) {
       const referrer = typeof config.referrerPolicy === 'string'
         ? config.referrerPolicy
@@ -111,7 +185,6 @@ export function securityHeaders(options: SecurityHeadersOptions = {}) {
       response.header('Referrer-Policy', referrer);
     }
 
-    // Permissions-Policy
     if (config.permissionsPolicy) {
       const permissions = typeof config.permissionsPolicy === 'string'
         ? config.permissionsPolicy
@@ -119,12 +192,10 @@ export function securityHeaders(options: SecurityHeadersOptions = {}) {
       response.header('Permissions-Policy', permissions);
     }
 
-    // Cross-Origin-Embedder-Policy
     if (config.crossOriginEmbedderPolicy) {
       response.header('Cross-Origin-Embedder-Policy', 'require-corp');
     }
 
-    // Cross-Origin-Opener-Policy
     if (config.crossOriginOpenerPolicy) {
       const coop = typeof config.crossOriginOpenerPolicy === 'string'
         ? config.crossOriginOpenerPolicy
@@ -132,7 +203,6 @@ export function securityHeaders(options: SecurityHeadersOptions = {}) {
       response.header('Cross-Origin-Opener-Policy', coop);
     }
 
-    // Cross-Origin-Resource-Policy
     if (config.crossOriginResourcePolicy) {
       const corp = typeof config.crossOriginResourcePolicy === 'string'
         ? config.crossOriginResourcePolicy
@@ -140,10 +210,9 @@ export function securityHeaders(options: SecurityHeadersOptions = {}) {
       response.header('Cross-Origin-Resource-Policy', corp);
     }
 
-    // Additional security headers
-    response.header('X-DNS-Prefetch-Control', 'off'); // Disable DNS prefetching
-    response.header('X-Download-Options', 'noopen');  // Prevent opening files directly in IE
-    response.header('X-Permitted-Cross-Domain-Policies', 'none'); // Restrict cross-domain policies
+    response.header('X-DNS-Prefetch-Control', 'off');
+    response.header('X-Download-Options', 'noopen');
+    response.header('X-Permitted-Cross-Domain-Policies', 'none');
   };
 }
 

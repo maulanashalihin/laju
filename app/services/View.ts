@@ -16,24 +16,38 @@ const eta = new Eta({
    autoEscape: true
 });
 
-/**
- * Cache object to store compiled HTML templates
- * Key: template path, Value: compiled HTML content
- */
-let html_files = {} as {
-   [key: string]: string;
-}; 
+// Cache for JS files in development mode
+let jsFilesCache: string[] = [];
 
 // Set views directory based on environment
 let directory = process.env.NODE_ENV == 'development' ?    "resources/views" : "dist/views";
+
+// Debounce timer for file watcher
+let reloadTimeout: NodeJS.Timeout | null = null;
 
 // Set up file watcher for hot reloading in development using native fs.watch
 if (process.env.NODE_ENV === 'development') {
    watch('resources/views', { recursive: true }, (eventType, filename) => {
       if (filename && eventType === 'change') {
-         importFiles(directory);
+         // Debounce reload to prevent multiple rapid re-imports
+         if (reloadTimeout) clearTimeout(reloadTimeout);
+         reloadTimeout = setTimeout(() => {
+            try {
+               importFiles(directory);
+            } catch (error) {
+               console.error('Error reloading views:', error);
+            }
+         }, 100);
       }
    });
+
+   // Cache JS files at startup in development
+   try {
+      jsFilesCache = readdirSync("resources/js");
+   } catch (error) {
+      console.error('Error caching JS files:', error);
+      jsFilesCache = [];
+   }
 }
 
 /**
@@ -62,7 +76,7 @@ function importFiles( nextDirectory = "resources/views") {
                const dir = nextDirectory.replace(directory+"/", "");
                eta.loadTemplate(dir + "/" + filename, html);
             }
-            html_files[nextDirectory + "/" + filename] = html;
+            eta.loadTemplate(nextDirectory + "/" + filename, html);
          }
       }
    } catch (error) {
@@ -82,24 +96,15 @@ function importFiles( nextDirectory = "resources/views") {
  * @returns Rendered HTML string
  */
 export function view(filename: string, view_data?: any) {
-
-   const keys = Object.keys(view_data || {});
-
-   let html = html_files[directory + "/" + filename];
+   let html = eta.render(filename, view_data || {});
 
    if(process.env.NODE_ENV == 'development')
    {
-
-      const files = readdirSync("resources/js");
-
-      for (const filename of files) {
-
-         html = html.replace("/js/"+filename, `http://localhost:${process.env.VITE_PORT}/js/${filename}`);
+      // Use cached JS files list instead of scanning every time
+      for (const jsFile of jsFilesCache) {
+         html = html.replace("/js/"+jsFile, `http://localhost:${process.env.VITE_PORT}/js/${jsFile}`);
       }
-
    }
-
-   html = eta.renderString(html, view_data || {});
 
    return html;
 }

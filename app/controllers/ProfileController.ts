@@ -1,5 +1,6 @@
 import DB from "../services/DB";
 import Validator from "../services/Validator";
+import Authenticate from "../services/Authenticate";
 import { updateProfileSchema, deleteUsersSchema } from "../validators/ProfileValidator";
 import { Response, Request } from "../../type";
 
@@ -9,7 +10,6 @@ class ProfileController {
    }
 
    public async changeProfile(request: Request, response: Response) {
-      // Check if user is authenticated
       if (!request.user) {
          return response.status(401).json({ error: 'Unauthorized' });
       }
@@ -25,6 +25,8 @@ class ProfileController {
          phone: validated.phone || null,
       });
 
+      await Authenticate.invalidateUserSessions(request.user.id);
+
       return response.json({ message: "Your profile has been updated" });
    }
 
@@ -33,7 +35,6 @@ class ProfileController {
    }
 
    public async deleteUsers(request: Request, response: Response) {
-      // Check if user is authenticated
       if (!request.user) {
          return response.status(401).json({ error: 'Unauthorized' });
       }
@@ -47,7 +48,13 @@ class ProfileController {
          return response.status(403).json({ error: "Unauthorized" });
       }
 
-      await DB.from("users").whereIn("id", validated.ids).delete();
+      const userIds = validated.ids;
+      
+      await DB.from("users").whereIn("id", userIds).delete();
+
+      for (const userId of userIds) {
+         await Authenticate.invalidateUserSessions(userId);
+      }
 
       return response.redirect("/home");
    }

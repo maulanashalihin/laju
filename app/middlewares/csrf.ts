@@ -4,7 +4,7 @@
  */
 
 import { Request, Response } from '../../type';
-import CSRF from '../services/CSRF';
+import CSRF, { TOKEN_EXPIRY } from '../services/CSRF';
 
 export interface CSRFOptions {
   excludePaths?: string[];  // Paths to exclude from CSRF check
@@ -17,7 +17,7 @@ export interface CSRFOptions {
  */
 export function csrf(options: CSRFOptions = {}) {
   const config = {
-    excludePaths: options.excludePaths || [],
+    excludePaths: new Set(options.excludePaths || []), // Use Set for O(1) lookup
     excludeAPIs: options.excludeAPIs ?? true  // Default: exclude API routes
   };
 
@@ -34,9 +34,11 @@ export function csrf(options: CSRFOptions = {}) {
       return; // Continue to next handler
     }
 
-    // Skip excluded paths
-    if (config.excludePaths.some(p => path.startsWith(p))) {
-      return;
+    // Skip excluded paths (O(1) with Set)
+    for (const excludedPath of config.excludePaths) {
+      if (path.startsWith(excludedPath)) {
+        return;
+      }
     }
 
     // Skip API routes if configured
@@ -59,7 +61,12 @@ export function csrf(options: CSRFOptions = {}) {
     }
 
     // Token valid, generate new one for next request (token rotation)
-    CSRF.setToken(response);
+    const newToken = CSRF.regenerate();
+    response.cookie('csrf_token', newToken, TOKEN_EXPIRY, {
+      httpOnly: false,
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production'
+    });
   };
 }
 
@@ -82,7 +89,12 @@ export async function csrfCheck(request: Request, response: Response) {
   }
 
   // Rotate token
-  CSRF.setToken(response);
+  const newToken = CSRF.regenerate();
+  response.cookie('csrf_token', newToken, TOKEN_EXPIRY, {
+    httpOnly: false,
+    sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'production'
+  });
 }
 
 export default csrf;

@@ -5,6 +5,7 @@
  */
 
 import DB from "./DB";
+import Cache from "./CacheService";
 import { Request, Response, User } from "../../type";
 import { randomUUID, pbkdf2Sync, randomBytes } from "crypto";
 
@@ -55,11 +56,14 @@ class Autenticate {
     */
    async process(user: User, request: Request, response: Response) {
       const token = randomUUID();
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 60);
 
       await DB.table("sessions").insert({
          id: token,
          user_id: user.id,
          user_agent: request.headers["user-agent"],
+         expires_at: expiresAt.toISOString(),
       });
 
       // Set cookie with 60-day expiration and redirect to home
@@ -75,13 +79,36 @@ class Autenticate {
     * 
     * @description
     * 1. Deletes the session from the database
-    * 2. Clears the session cookie
-    * 3. Redirects to the login page
+    * 2. Clears the session cache
+    * 3. Clears the session cookie
+    * 4. Redirects to the login page
     */
    async logout(request: Request, response: Response) {
       await DB.from("sessions").where("id", request.cookies.auth_id).delete();
+      await Cache.forget(`session:${request.cookies.auth_id}`);
 
       response.cookie("auth_id", "", 0).redirect("/login");
+   }
+
+   /**
+    * Invalidates all session caches for a specific user
+    * Call this when user profile is updated or admin edits user data
+    * @param {string} userId - The user ID whose sessions should be invalidated
+    * 
+    * @description
+    * 1. Queries all session IDs for the given user
+    * 2. Invalidates cache for each session
+    */
+   async invalidateUserSessions(userId: string) {
+      try {
+         const sessions = await DB.from("sessions").where("user_id", userId).select("id");
+
+         for (const session of sessions) {
+            await Cache.forget(`session:${session.id}`);
+         }
+      } catch (error) {
+         console.error(`Error invalidating sessions for user ${userId}:`, error);
+      }
    }
 }
 

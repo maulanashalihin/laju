@@ -15,6 +15,7 @@ class Controller {
     }
 
     public async test (request : Request,response : Response) {
+ 
         return response.send("test");
     }
 }
