@@ -140,10 +140,13 @@ Create ProjectController with index, store, update, destroy methods.
 
 ## Project Rules
 
-For consistent AI behavior, create `.cursorrules` or `.windsurfrules`:
+For consistent AI behavior, use **AGENTS.md** files:
 
-```
-# Project Rules
+### Root AGENTS.md
+Create `AGENTS.md` at project root for global rules:
+
+```markdown
+# Laju Framework - Global Rules
 
 ## Tech Stack
 - Backend: HyperExpress + TypeScript
@@ -163,6 +166,21 @@ For consistent AI behavior, create `.cursorrules` or `.windsurfrules`:
 - Primary color: Orange (#f97316)
 - focus:outline-none on form inputs
 ```
+
+### Directory-Specific AGENTS.md
+Create AGENTS.md files in subdirectories for context-aware rules:
+
+```
+AGENTS.md (global rules)
+├── app/controllers/AGENTS.md
+├── app/middlewares/AGENTS.md
+├── app/services/AGENTS.md
+├── migrations/AGENTS.md
+├── resources/views/AGENTS.md
+└── resources/js/AGENTS.md
+```
+
+Each directory's AGENTS.md provides specific guidelines for that part of the codebase.
 
 ## Example Session
 
