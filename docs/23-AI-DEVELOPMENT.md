@@ -11,6 +11,9 @@ Laju's standardized structure makes it ideal for AI-assisted development. The co
 - **Windsurf** - [codeium.com/windsurf](https://codeium.com/windsurf)
 - **Trae.ai** - [trae.ai](https://trae.ai)
 - **Cursor** - [cursor.sh](https://cursor.sh)
+- **Claude Code** - [anthropic.com/claude](https://anthropic.com/claude)
+- **Open Code** - [openai.com](https://openai.com)
+- **GitHub Copilot** - [github.com/features/copilot](https://github.com/features/copilot)
 
 ## Step-by-Step Workflow
 
@@ -149,22 +152,42 @@ Create `AGENTS.md` at project root for global rules:
 # Laju Framework - Global Rules
 
 ## Tech Stack
-- Backend: HyperExpress + TypeScript
-- Frontend: Svelte 5 + Inertia.js
-- Database: BetterSQLite3 + Knex
-- Styling: TailwindCSS 4
+- **Backend**: HyperExpress, Knex, BetterSQLite3 (WAL mode), Eta
+- **Frontend**: Svelte 5 (runes), Inertia.js, TailwindCSS 4, Vite
 
-## Conventions
-- Controllers in app/controllers/
-- Pages in resources/js/Pages/
-- Components in resources/js/Components/
-- Use $state() and $props() for Svelte 5
+## Architecture Overview
 
-## Style
-- Mobile-first responsive design
-- Dark mode support with dark: variant
-- Primary color: Orange (#f97316)
-- focus:outline-none on form inputs
+Controllers → Services → Database
+Middlewares intercept requests before Controllers
+
+## Critical References
+
+- **Routing**: See `routes/AGENTS.md` (middleware arrays, catch-all order)
+- **Middleware Pattern**: See `app/middlewares/AGENTS.md` (NO `next()`!)
+- **Controller Pattern**: See `app/controllers/AGENTS.md` (NO `this`!)
+- **Database Operations**: See `app/services/AGENTS.md` (Knex vs Native SQLite)
+- **Migrations**: See `migrations/AGENTS.md`
+
+## Cross-Cutting Concerns
+
+### Security
+- Always validate input before processing
+- Use parameterized queries only
+- Apply rate limiting to auth/API routes
+
+### Authentication
+- Use `Authenticate.hash()` / `Authenticate.compare()` for passwords
+- Check `request.user` in protected routes
+
+### SSR vs Inertia
+- **Eta SSR**: Landing pages, SEO, emails
+- **Inertia + Svelte**: Dashboard, interactive apps
+
+## Frontend Guidelines
+- TailwindCSS v4, Svelte 5 (runes), CSS-in-JS
+- Custom components over libraries
+- Modern CSS (Container Queries, Grid), focus:outline-none
+- Minimal emoji usage
 ```
 
 ### Directory-Specific AGENTS.md
@@ -176,6 +199,7 @@ AGENTS.md (global rules)
 ├── app/middlewares/AGENTS.md
 ├── app/services/AGENTS.md
 ├── migrations/AGENTS.md
+├── routes/AGENTS.md
 ├── resources/views/AGENTS.md
 └── resources/js/AGENTS.md
 ```
