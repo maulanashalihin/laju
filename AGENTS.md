@@ -1,7 +1,7 @@
 # Laju Framework - Global Rules
 
 ## Tech Stack
-- **Backend**: HyperExpress, Knex, BetterSQLite3 (WAL mode), Eta, Redis (optional)
+- **Backend**: HyperExpress, Knex, BetterSQLite3 (WAL mode), Eta
 - **Frontend**: Svelte 5 (runes), Inertia.js, TailwindCSS 4, Vite
 
 ## CRITICAL: HyperExpress Middleware
