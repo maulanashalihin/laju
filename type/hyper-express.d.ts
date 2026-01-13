@@ -38,9 +38,10 @@ declare module 'hyper-express' {
     /**
      * Render an Inertia.js page
      * @param component - The Svelte component name
-     * @param data - Optional props to pass to the component
+     * @param inertiaProps - Optional props to pass to the component
+     * @param viewProps - Optional view props to pass to the template
      */
-    inertia(component: string, data?: any): void;
+    inertia(component: string, inertiaProps?: any, viewProps?: any): Promise<any>;
 
     /**
      * Set a flash message for the next request

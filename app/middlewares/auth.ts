@@ -3,6 +3,7 @@ import Cache from "../services/CacheService";
 import { Request, Response } from "../../type";
 
 export default async (request: Request, response: Response) => {
+
    const redirectToLogin = () => response.cookie("auth_id", "", 0).redirect("/login");
 
    if (!request.cookies.auth_id) {

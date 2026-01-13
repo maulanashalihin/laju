@@ -1,3 +1,4 @@
+
 import { view } from "../services/View";
 import { Request, Response } from "../../type";
 import { readFileSync } from "fs";
@@ -5,27 +6,27 @@ import path from "path";
 
 const pkg = JSON.parse(readFileSync(path.join(process.cwd(), "package.json"), "utf8"));
 
-interface InertiaProps {
-   user?: any;
-   error?: string | null;
-   [key: string]: any;
-}
-
 const inertia = () => {
-   return (request: Request, response: Response) => {
-      response.inertia = (component: string, inertiaProps: InertiaProps = {}, viewProps: InertiaProps = {}) => {
-         const url = request.originalUrl;
-         const props: InertiaProps = { user: request.user || {}, ...inertiaProps, ...viewProps, error: null };
+   return async (request: Request, response: Response) => {
+      // Set up the inertia method on response
+      response.inertia = async (component, inertiaProps = {}, viewProps = {}) => {
+
+          const url = request.originalUrl;
+
+         let props = { user: request.user || {}, ...inertiaProps, ...viewProps, error: null } as any;
+
+
 
          if (request.cookies.error) {
             props.error = request.cookies.error;
-            response.cookie("error", "", 0);
+            response
+               .cookie("error", "", 0)
          }
 
          const inertiaObject = {
-            component,
-            props,
-            url,
+            component: component,
+            props: props,
+            url: url,
             version: pkg.version,
          };
 

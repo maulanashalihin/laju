@@ -6,10 +6,10 @@
 import inertia from "./app/middlewares/inertia";
 
 // CSRF protection middleware
-import csrf from "./app/middlewares/csrf";
+// import csrf from "./app/middlewares/csrf";
 
 // Security headers middleware
-import { securityHeaders } from "./app/middlewares/securityHeaders";
+// import { securityHeaders } from "./app/middlewares/securityHeaders";
 
 // Application routes definition (all app endpoints)
 import Web from "./routes/web";
@@ -53,6 +53,7 @@ import "app/services/View";
 
 // Global middlewares
 // webserver.use(securityHeaders()); // Add security headers to all responses
+ 
 
 webserver.use(inertia()); // Enable Inertia middleware for SSR-like responses
 
