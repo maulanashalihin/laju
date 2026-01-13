@@ -11,6 +11,7 @@ let input = {};
 
 for (const filename of files) {
    if(filename.includes("partial")) continue;
+   if(filename.endsWith(".md")) continue;
   input[filename.replace(".html", "")] = resolve(__dirname, `resources/views/${filename}`);
 }
 
