@@ -10,7 +10,7 @@ import path from "path";
 import "dotenv/config";
 
 // Set views directory based on environment
-let directory = process.env.NODE_ENV == 'development' ?    "resources/views" : "dist/views";
+let directory = process.env.NODE_ENV !== 'production' ? "resources/views" : "dist/views";
 
 // Configure Eta instance
 const eta = new Eta({

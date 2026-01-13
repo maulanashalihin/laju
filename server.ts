@@ -45,6 +45,7 @@ const webserver = new HyperExpress.Server(option);
 const envPath = process.env.NODE_ENV === 'production'
   ? path.join(__dirname, '..', '.env')
   : undefined;
+  
 require("dotenv").config({ path: envPath });
 
 // Register view engine & template rendering (side-effect import)
