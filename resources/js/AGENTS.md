@@ -94,6 +94,8 @@ function navigate() {
 ```
 
 ### Form Submissions
+
+**Pattern 1: Inertia Forms (for page navigation)**
 ```svelte
 <script>
 import { useForm } from '@inertiajs/svelte';
@@ -108,11 +110,82 @@ function submit() {
 }
 </script>
 ```
+Controller: `return response.redirect('/path');`
+
+**Pattern 2: Fetch + Toast (for in-place updates)**
+
+**Scenario A: Reload page after update**
+```svelte
+<script>
+import { Toast } from '../Components/helper.js';
+import { router } from '@inertiajs/svelte';
+
+let loading = $state(false);
+
+async function submit() {
+   loading = true;
+   try {
+      const response = await fetch('/update', {
+         method: 'PUT',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ name, email })
+      });
+      
+      if (response.ok) {
+         Toast('Profile updated successfully', 'success');
+         await router.reload(); // Reload to get fresh data
+      } else {
+         Toast('Failed to update profile', 'error');
+      }
+   } catch (error) {
+      Toast('Failed to update profile', 'error');
+   } finally {
+      loading = false;
+   }
+}
+</script>
+```
+Controller: `return response.send();`
+
+**Scenario B: Update local state without reload**
+```svelte
+<script>
+import { Toast } from '../Components/helper.js';
+import { page } from '@inertiajs/svelte';
+
+let loading = $state(false);
+let user = $derived(page.props.user);
+
+async function submit() {
+   loading = true;
+   try {
+      const response = await fetch('/update', {
+         method: 'PUT',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ name, email })
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+         Toast('Profile updated successfully', 'success');
+         user.name = result.data.name; // Update local state
+         user.email = result.data.email;
+      }
+   } catch (error) {
+      Toast('Failed to update profile', 'error');
+   } finally {
+      loading = false;
+   }
+}
+</script>
+```
+Controller: `return response.json({ success: true, data: updatedUser });`
+ 
 
 **Controller Best Practices:**
-- Always return `response.redirect()` for form submissions
-- Never return `response.json()` - causes white modal issue
-- For PUT/DELETE requests, use 303 redirect: `response.redirect('/path', 303)`
+- Pattern 1: Use `response.redirect()` for Inertia forms
+- Pattern 2: Use `response.json()` or `response.send()` for fetch requests
+- Use Toast notifications for user feedback
 
 ### Accessing Page Props
 ```svelte
