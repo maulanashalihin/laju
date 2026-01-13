@@ -62,8 +62,14 @@ if (!validated) return;
 
 ### When to use DB vs SQLite
 
-- **DB (Knex)**: Complex queries, joins, transactions, inserts/updates
-- **SQLite**: Simple reads (385% faster) - single table, simple WHERE
+- **DB (Knex)**: Complex queries, joins, transactions, inserts/updates, or when query builder improves readability
+- **SQLite**: Simple reads with significant performance gain, especially for high-traffic endpoints
+
+**Performance Note**:
+- Native SQLite is 385% faster for `SELECT BY ID` queries
+- Native SQLite is 96% faster for `SELECT ALL` queries
+- Use SQLite for high-traffic endpoints where performance matters
+- Use Knex when readability and maintainability outweigh performance gains
 
 ### Loading Single Record
 
