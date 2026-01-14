@@ -36,18 +36,6 @@ interface ViteManifestEntry {
 
 let viteManifest: Record<string, ViteManifestEntry> ;
 
-// Debounce timer for file watcher
-let reloadTimeout: NodeJS.Timeout | null = null;
-
-// Set up file watcher for hot reloading in development using native fs.watch 
-
-/**
- * Recursively imports and compiles template files from the views directory
- * Handles both regular templates and partials (reusable template components)
- * Also replaces asset paths based on environment
- * @param nextDirectory - Directory to scan for template files
- */ 
- 
 /**
  * Load Vite manifest.json for production asset paths
  */
@@ -79,8 +67,7 @@ if(process.env.NODE_ENV === 'production')
  * @returns Rendered HTML string
  */
 export function view(filename: string, view_data?: any) {
-   view_data = view_data || {};
-   let css = {} as string[] | undefined;
+   view_data = view_data || {}; 
    view_data.asset = function(file: string){
       if(process.env.NODE_ENV === 'production')
       {   
@@ -90,20 +77,7 @@ export function view(filename: string, view_data?: any) {
    }
 
    let rendered = eta.render(filename, view_data || {});
-   
-   // Replace asset paths in production
-   // if (process.env.NODE_ENV !== 'development') {
-   //    if (!viteManifest) {
-   //       loadViteManifest();
-   //    }
-   //    if (viteManifest) {
-   //       return replaceAssetsWithManifest(rendered);
-   //    }
-   // }else{
-   //      for (const jsFile of jsFilesCache) {
-   //                rendered = rendered.replace("/js/"+jsFile, `http://localhost:${process.env.VITE_PORT}/js/${jsFile}`);
-   //             }
-   // }
+    
  
    
    return rendered;
