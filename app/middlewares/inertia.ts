@@ -1,6 +1,6 @@
 
 import { view } from "../services/View";
-import { Request, Response, User } from "../../type";
+import { Request, Response } from "../../type";
 import { readFileSync } from "fs";
 import path from "path";
 
@@ -15,12 +15,12 @@ const inertia = () => {
       };
 
 
-      response.redirect = ((url: string, status?: number) => { 
-         return response.status(status ?? 302).setHeader("Location", url).send();
+      response.redirect = ((url: string, status: number = 302) => { 
+         return response.status(status).setHeader("Location", url).send();
       }) as { (url: string): boolean; (url: string, status?: number): Response };
 
       // Set up the inertia method on response
-      response.inertia = async (component, inertiaProps = {}, viewProps = {}) => {
+      response.inertia = async (component : string, inertiaProps = {}, viewProps = {}) => {
 
           const url = request.originalUrl;
 

@@ -8,7 +8,11 @@
   let form = $state({
     password: '',
     password_confirmation: '',
-    id
+    id: ''
+  })
+
+  $effect(() => {
+    form.id = id
   })
 
   let isLoading = $state(false)
