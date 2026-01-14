@@ -70,12 +70,14 @@ if(process.env.NODE_ENV === 'production')
 export function view(filename: string, view_data?: any) {
    view_data = view_data || {}; 
    view_data.t = t
+   view_data.base_url = process.env.APP_URL; 
+   view_data.current_year = new Date().getFullYear(); 
    view_data.asset = function(file: string){
       if(process.env.NODE_ENV === 'production')
       {
         const entry = viteManifest[file];
         if (!entry) return file;
-        return file.endsWith(".js") ? entry.file : entry.file.endsWith(".css") ? entry.file : entry.css?.[0] || file;
+        return file.endsWith(".js") ? "/"+entry.file : entry.file.endsWith(".css") ? "/"+entry.file : "/"+entry.css?.[0] || "/"+file;
       }
       return `http://localhost:${process.env.VITE_PORT}/${file}`
    }
