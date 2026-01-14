@@ -14,17 +14,22 @@ const inertia = () => {
          return response;
       };
 
-      // Override redirect method to support custom status code 
-      response.redirect = ((url: string, status?: number) => {
-         return response.status(status || 302).setHeader("Location", url).send();
-      }) as any;
+
+      response.redirect = ((url: string, status?: number) => { 
+         return response.status(status ?? 302).setHeader("Location", url).send();
+      }) as { (url: string): boolean; (url: string, status?: number): Response };
 
       // Set up the inertia method on response
       response.inertia = async (component, inertiaProps = {}, viewProps = {}) => {
 
           const url = request.originalUrl;
 
-         let props: Record<string, unknown> = { user: request.user || {}, ...inertiaProps, ...viewProps };
+         // Merge shared props with inertia props
+         let props: Record<string, unknown> = {
+            ...request.share,
+            user: request.user || {},
+            ...inertiaProps
+         };
 
          // Parse all flash messages from cookies
          const flashTypes = ['error', 'success', 'info', 'warning'];
@@ -52,8 +57,7 @@ const inertia = () => {
          if (!request.header("X-Inertia")) {
             const html = view("inertia.html", {
                page: JSON.stringify(inertiaObject),
-               title : "Laju - LAJU - Hyper Performance TypeScript Monolith",
-               ...inertiaProps,
+               title : "Laju - LAJU - Hyper Performance TypeScript Monolith", 
                ...viewProps
             });
 

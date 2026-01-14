@@ -45,11 +45,12 @@ declare module 'hyper-express' {
 
     /**
      * Set a flash message for the next request
-     * @param message - The flash message type/category
-     * @param data - The flash message content
+     * @param type - The flash message type (e.g., 'error', 'success', 'info', 'warning')
+     * @param message - The flash message content
+     * @param ttl - Time to live in milliseconds (default: 3000)
      * @returns The Response object for chaining
      */
-    flash(message: string, data: unknown): Response;
+    flash(type: string, message: string, ttl?: number): Response;
 
     /**
      * Redirect to a URL with optional custom status code
