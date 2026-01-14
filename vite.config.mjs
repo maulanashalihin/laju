@@ -2,18 +2,13 @@ import { defineConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
 import tailwindcss from '@tailwindcss/vite'
 import 'dotenv/config'
-import { resolve } from 'path'
-import { readdirSync } from 'fs';
+import { resolve } from 'path';
 
-const files = readdirSync("resources/views");
-
-let input = {};
-
-for (const filename of files) {
-   if(filename.includes("partial")) continue;
-   if(filename.endsWith(".md")) continue;
-  input[filename.replace(".html", "")] = resolve(__dirname, `resources/views/${filename}`);
-}
+// Vite entry point - only build JS/CSS assets
+const input = {
+  app: resolve(__dirname, 'resources/js/app.js'),
+  index: resolve(__dirname, 'resources/js/index.js'),
+};
 
 // Default port from environment or fallback to 3000
 const PORT = parseInt(process.env.VITE_PORT) || 3000;
@@ -46,6 +41,7 @@ export default defineConfig({
   build: {
     outDir: '../dist',
     emptyOutDir: true,
+    manifest: true,
     rollupOptions: {
       input: input
     }

@@ -33,7 +33,7 @@ const inertia = () => {
          if (!request.header("X-Inertia")) {
             const html = view("inertia.html", {
                page: JSON.stringify(inertiaObject),
-               title: process.env.TITLE || "LAJU - Ship Your Next Project Faster",
+               ...viewProps
             });
 
             return response.type("html").send(html);
