@@ -13,34 +13,48 @@ class LoginController {
    }
 
    public async processLogin(request: Request, response: Response) {
-      const body = await request.json();
-      
-      const validated = Validator.validateOrFail(loginSchema, body, response);
-      if (!validated) return;
-      
-      const { email, password, phone } = validated;
-
-      let user;
-
-      if (email && email.includes("@")) {
-         user = await DB.from("users").where("email", email.toLowerCase()).first();
-      } else if (phone) {
-         user = await DB.from("users").where("phone", phone).first();
-      }
-
-      if (user) {
-         const password_match = await Authenticate.compare(password, user.password);
-
-         if (password_match) {
-            return Authenticate.process(user, request, response);
-         } else {
+      try {
+         const body = await request.json();
+         
+         const validationResult = Validator.validate(loginSchema, body);
+         
+         if (!validationResult.success) {
+            const errors = validationResult.errors || {};
+            const firstError = Object.values(errors)[0]?.[0] || 'Validation error';
             return response
-               .cookie("error", "Maaf, Password salah", 3000)
+               .flash("error", firstError)
                .redirect("/login");
          }
-      } else {
+         
+         const { email, password, phone } = validationResult.data!;
+
+         let user;
+
+         if (email && email.includes("@")) {
+            user = await DB.from("users").where("email", email.toLowerCase()).first();
+         } else if (phone) {
+            user = await DB.from("users").where("phone", phone).first();
+         }
+
+         if (user) {
+            const password_match = await Authenticate.compare(password, user.password);
+
+            if (password_match) {
+               return Authenticate.process(user, request, response);
+            } else {
+               return response
+                  .flash("error", "Incorrect password")
+                  .redirect("/login");
+            }
+         } else {
+            return response
+               .flash("error", "Email/Phone not registered")
+               .redirect("/login");
+         }
+      } catch (error: any) {
+         console.error("Login error:", error);
          return response
-            .cookie("error", "Email/No.HP tidak terdaftar", 3000)
+            .flash("error", "An error occurred during login. Please try again later.")
             .redirect("/login");
       }
    }

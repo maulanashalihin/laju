@@ -10,6 +10,6 @@ import { z } from 'zod';
  * Used by: S3Controller.getSignedUrl
  */
 export const signedUrlSchema = z.object({
-  filename: z.string().min(1, 'Filename wajib diisi'),
-  contentType: z.string().min(1, 'Content type wajib diisi'),
+  filename: z.string().min(1, 'Filename is required'),
+  contentType: z.string().min(1, 'Content type is required'),
 });

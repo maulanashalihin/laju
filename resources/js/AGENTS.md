@@ -95,105 +95,178 @@ function navigate() {
 
 ### Form Submissions
 
-**Pattern 1: Inertia Forms (for page navigation)**
+**Pattern 1: Inertia Forms with Flash Messages (Recommended)**
+
+For all forms (auth, updates, etc.) with error handling:
+```svelte
+<script>
+import { router } from '@inertiajs/svelte';
+
+let form = $state({ email: '', password: '' });
+let isLoading = $state(false);
+let serverError = $state('');
+let { flash } = $props();
+
+function submitForm() {
+  serverError = '';
+  isLoading = true;
+
+  router.post('/login', form, {
+    onFinish: () => isLoading = false,
+    onError: (errors) => {
+      isLoading = false;
+      if (errors.email) serverError = errors.email;
+      else if (errors.password) serverError = errors.password;
+      else serverError = 'Terjadi kesalahan. Silakan periksa input Anda.';
+    }
+  });
+}
+</script>
+
+{#if flash?.error}
+  <div class="text-red-400">{flash.error}</div>
+{/if}
+{#if flash?.success}
+  <div class="text-green-400">{flash.success}</div>
+{/if}
+{#if serverError}
+  <div class="text-red-400">{serverError}</div>
+{/if}
+
+<form onsubmit={(e) => { e.preventDefault(); submitForm(); }}>
+  <!-- form fields -->
+</form>
+```
+
+**Controller:**
+```typescript
+public async update(request: Request, response: Response) {
+  const validationResult = Validator.validate(schema, await request.json());
+  if (!validationResult.success) {
+    const errors = validationResult.errors || {};
+    const firstError = Object.values(errors)[0]?.[0] || 'Terjadi kesalahan validasi';
+    return response.flash("error", firstError).redirect("/profile", 303);
+  }
+
+  await DB.from("users").where("id", id).update(validationResult.data!);
+  return response.flash("success", "Updated!").redirect("/profile", 303);
+}
+```
+
+**Pattern 2: Form with Local State (Best for Edit Forms)**
+
+For forms that need to sync with props data and update without full reload:
+```svelte
+<script>
+import { router } from '@inertiajs/svelte';
+import { page } from '@inertiajs/svelte';
+
+let { user, flash } = $props();
+
+// Local state for form inputs
+let formName = $state('');
+let formEmail = $state('');
+let formPhone = $state('');
+let isLoading = $state(false);
+
+// Sync local state with props
+$effect(() => {
+  if (user?.name !== undefined) formName = user.name;
+  if (user?.email !== undefined) formEmail = user.email;
+  if (user?.phone !== undefined) formPhone = user.phone;
+});
+
+function changeProfile() {
+  router.post('/change-profile', {
+    name: formName,
+    email: formEmail,
+    phone: formPhone
+  }, {
+    onStart: () => isLoading = true,
+    onFinish: () => isLoading = false
+  });
+}
+</script>
+
+<form onsubmit={(e) => { e.preventDefault(); changeProfile(); }}>
+  <input bind:value={formName} type="text" id="name" />
+  <input bind:value={formEmail} type="email" id="email" />
+  <input bind:value={formPhone} type="text" id="phone" />
+  <button type="submit" disabled={isLoading}>
+    {isLoading ? 'Saving...' : 'Save'}
+  </button>
+</form>
+```
+
+**Controller:**
+```typescript
+public async changeProfile(request: Request, response: Response) {
+  if (!request.user) {
+    return response.status(401).json({ error: 'Unauthorized' });
+  }
+
+  const body = await request.json();
+  const validationResult = Validator.validate(schema, body);
+
+  if (!validationResult.success) {
+    const errors = validationResult.errors || {};
+    const firstError = Object.values(errors)[0]?.[0] || 'Terjadi kesalahan validasi';
+    return response.flash("error", firstError).redirect("/profile", 303);
+  }
+
+  const { name, email, phone } = validationResult.data!;
+
+  await DB.from("users").where("id", request.user.id).update({
+    name,
+    email,
+    phone: phone || null,
+  });
+
+  await Authenticate.invalidateUserSessions(request.user.id);
+
+  return response.flash("success", "Profile berhasil diupdate").redirect("/profile", 303);
+}
+```
+
+**Pattern 3: Simple Inertia Forms**
 ```svelte
 <script>
 import { useForm } from '@inertiajs/svelte';
-
-let form = useForm({
-   name: '',
-   email: ''
-});
-
-function submit() {
-   form.post('/submit');
-}
+let form = useForm({ name: '', email: '' });
+function submit() { form.post('/submit'); }
 </script>
 ```
 Controller: `return response.redirect('/path');`
 
-**Pattern 2: Fetch + Toast (for in-place updates)**
+**Important Notes:**
+- Always use `onsubmit={(e) => { e.preventDefault(); handler(); }}` for Svelte 5 to prevent default form submission
+- Use `router.post()` with `onStart` and `onFinish` callbacks for loading states
+- Backend must use `response.redirect("/path", 303)` for POST requests (303 prevents browser from changing HTTP method)
+- Flash messages are automatically parsed from cookies and passed to page props
 
-**Scenario A: Reload page after update**
+### Flash Messages
+
+Flash messages are automatically parsed from cookies and passed to page props.
+
+**Supported types:** `error`, `success`, `info`, `warning`
+
+**Usage:**
 ```svelte
 <script>
-import { Toast } from '../Components/helper.js';
-import { router } from '@inertiajs/svelte';
-
-let loading = $state(false);
-
-async function submit() {
-   loading = true;
-   try {
-      const response = await fetch('/update', {
-         method: 'PUT',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ name, email })
-      });
-      
-      if (response.ok) {
-         Toast('Profile updated successfully', 'success');
-         await router.reload(); // Reload to get fresh data
-      } else {
-         Toast('Failed to update profile', 'error');
-      }
-   } catch (error) {
-      Toast('Failed to update profile', 'error');
-   } finally {
-      loading = false;
-   }
-}
+let { flash } = $props();
 </script>
+
+{#if flash?.error}
+  <div class="text-red-400">{flash.error}</div>
+{/if}
+{#if flash?.success}
+  <div class="text-green-400">{flash.success}</div>
+{/if}
 ```
-Controller: `return response.send();`
 
-**Scenario B: Update local state without reload**
-```svelte
-<script>
-import { Toast } from '../Components/helper.js';
-import { page } from '@inertiajs/svelte';
-
-let loading = $state(false);
-let user = $derived(page.props.user);
-
-async function submit() {
-   loading = true;
-   try {
-      const response = await fetch('/update', {
-         method: 'PUT',
-         headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ name, email })
-      });
-      
-      const result = await response.json();
-      if (result.success) {
-         Toast('Profile updated successfully', 'success');
-         user.name = result.data.name; // Update local state
-         user.email = result.data.email;
-      }
-   } catch (error) {
-      Toast('Failed to update profile', 'error');
-   } finally {
-      loading = false;
-   }
-}
-</script>
-```
-Controller: `return response.json({ success: true, data: updatedUser });`
- 
-
-**Controller Best Practices:**
-- Pattern 1: Use `response.redirect()` for Inertia forms
-- Pattern 2: Use `response.json()` or `response.send()` for fetch requests
-- Use Toast notifications for user feedback
-
-### Accessing Page Props
-```svelte
-<script>
-import { page } from '@inertiajs/svelte';
-
-let user = $derived(page.props.user);
-</script>
+**Controller:**
+```typescript
+return response.flash("error", "Email sudah terdaftar").redirect("/login");
 ```
 
 ## Styling (TailwindCSS v4)
@@ -229,27 +302,25 @@ resources/js/
 ## Frontend Generation Rules
 
 ### Design Principles
-- **Prioritize unique and creative UI/UX solutions** - Avoid generic templates, create distinctive interfaces
-- **Support experimental CSS features and animations** - Use cutting-edge CSS features (Scroll-driven animations, View Transitions, Houdini)
-- **Encourage creative micro-interactions** - Add engaging feedback (button effects, loading animations, toast notifications)
-- **Focus on custom-built components** - Build custom components instead of using standard UI libraries
+- Prioritize unique and creative UI/UX solutions
+- Support experimental CSS features (Scroll-driven animations, View Transitions)
+- Encourage creative micro-interactions
+- Focus on custom-built components
 
 ### Styling Approach
-- **Prefer custom design systems** - Create consistent color palettes, typography scales, and spacing systems
-- **Support modern CSS features** - Use Container Queries, CSS Grid, Subgrid, Masonry layouts
-- **Enable creative responsive design patterns** - Design for various screen sizes with adaptive layouts
-- **Support advanced theming systems** - Implement dark mode, light mode, and custom theme switching
-- **Encourage CSS art and creative visuals** - Use gradients, patterns, and SVG animations for polished visuals
+- Prefer custom design systems
+- Support modern CSS features (Container Queries, Grid, Subgrid)
+- Enable creative responsive patterns
+- Support advanced theming systems
+- Encourage CSS art and creative visuals
 
 ## Best Practices
 
 1. **Use Runes**: Always use Svelte 5 runes ($state, $derived, $props, $effect)
 2. **Component-based**: Extract reusable components to Components/
 3. **Type safety**: Use TypeScript for better type checking
-4. **Performance**: Use $derived for computed values
-5. **Accessibility**: Add proper ARIA labels and keyboard navigation
-6. **Creative**: Prioritize unique UI/UX over generic designs
-7. **Modern**: Leverage experimental CSS features and animations
+4. **Error Handling**: Always handle errors with flash messages for user-facing forms
+5. **Loading States**: Show loading indicators during async operations
 
 ## Avoid
 

@@ -38,7 +38,7 @@
     class:dark:bg-slate-950_80={scrollY > 10}
     class:backdrop-blur-xl={scrollY > 10}
     class:border-b={scrollY > 10}
-    class:border-slate-200_50={scrollY > 10}
+    class:border-slate-100={scrollY > 10}
     class:dark:border-slate-800_50={scrollY > 10}
     class:shadow-sm={scrollY > 10}
     style:opacity={scrollY > 10 ? 1 : 0}
@@ -93,7 +93,7 @@
         {#if user && user.id}
           <div class="relative" use:clickOutside on:click_outside={() => isUserMenuOpen = false}>
             <button 
-              class="flex items-center gap-3 p-1 pr-4 rounded-full border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-white hover:border-primary-200 dark:hover:border-primary-800 transition-all duration-300 group"
+              class="flex items-center gap-3 p-1 pr-4 rounded-full border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 hover:bg-white hover:border-primary-200 dark:hover:bg-slate-800 dark:hover:border-primary-700 transition-all duration-300 group"
               class:ring-2={isUserMenuOpen}
               class:ring-primary-100={isUserMenuOpen}
               class:dark:ring-primary-900={isUserMenuOpen}

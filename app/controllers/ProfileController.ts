@@ -6,7 +6,8 @@ import { Response, Request } from "../../type";
 
 class ProfileController {
    public async profilePage(request: Request, response: Response) {
-      return response.inertia("profile");
+ 
+      return response.inertia("profile", { user: request.user });
    }
 
    public async changeProfile(request: Request, response: Response) {
@@ -15,19 +16,25 @@ class ProfileController {
       }
 
       const body = await request.json();
+      const validationResult = Validator.validate(updateProfileSchema, body);
 
-      const validated = Validator.validateOrFail(updateProfileSchema, body, response);
-      if (!validated) return;
+      if (!validationResult.success) {
+         const errors = validationResult.errors || {};
+         const firstError = Object.values(errors)[0]?.[0] || 'Validation error';
+         return response.flash("error", firstError).redirect("/profile", 303);
+      }
+
+      const { name, email, phone } = validationResult.data!;
 
       await DB.from("users").where("id", request.user.id).update({
-         name: validated.name,
-         email: validated.email,
-         phone: validated.phone || null,
+         name,
+         email,
+         phone: phone || null,
       });
 
       await Authenticate.invalidateUserSessions(request.user.id);
 
-      return response.json({ message: "Your profile has been updated" });
+      return response.flash("success", "Profile updated successfully").redirect("/profile");
    }
 
    public async homePage(request: Request, response: Response) {

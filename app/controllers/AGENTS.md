@@ -29,8 +29,20 @@ return response.json({ success: true, data: result });
 
 ### Redirects
 ```typescript
+// Default 302 (Found) - for GET requests
 return response.redirect("/path");
+
+// 303 (See Other) - for POST/PUT/PATCH form submissions
+return response.redirect("/path", 303);
+
+// 301 (Moved Permanently) - for permanent redirects
+return response.redirect("/new-path", 301);
+
+// 307 (Temporary Redirect) - for method preservation
+return response.redirect("/submit", 307);
 ```
+
+**⚠️ IMPORTANT**: Always use 303 for form submissions (POST, PUT, PATCH) to prevent browsers from changing the HTTP method.
 
 ### Error Responses
 ```typescript
@@ -50,7 +62,26 @@ if (!request.user) {
 
 ## Input Validation
 
-Always validate input before processing:
+### Validation with Flash Messages (Recommended for Inertia Forms)
+
+**⚠️ IMPORTANT**: For Inertia forms, use `validate()` instead of `validateOrFail()` to avoid JSON response modal errors.
+
+```typescript
+const body = await request.json();
+const validationResult = Validator.validate(schema, body);
+
+if (!validationResult.success) {
+   const errors = validationResult.errors || {};
+   const firstError = Object.values(errors)[0]?.[0] || 'Terjadi kesalahan validasi';
+   return response
+      .flash("error", firstError)
+      .redirect("/path");
+}
+
+const { email, password } = validationResult.data!;
+```
+
+### Validation with JSON Response (For API Endpoints)
 
 ```typescript
 const body = await request.json();
@@ -65,83 +96,26 @@ if (!validated) return;
 - **DB (Knex)**: Complex queries, joins, transactions, inserts/updates, or when query builder improves readability
 - **SQLite**: Simple reads with significant performance gain, especially for high-traffic endpoints
 
-**Performance Note**:
-- Native SQLite is 385% faster for `SELECT BY ID` queries
-- Native SQLite is 96% faster for `SELECT ALL` queries
-- Use SQLite for high-traffic endpoints where performance matters
-- Use Knex when readability and maintainability outweigh performance gains
+**Performance**: SQLite is 385% faster for `SELECT BY ID` and 96% faster for `SELECT ALL` queries.
 
-### Loading Single Record
-
+### Loading Records
 ```typescript
-import SQLite from "../services/SQLite";
-import DB from "../services/DB";
-
 // SQLite - simple reads (faster)
 const user = SQLite.get("SELECT * FROM users WHERE id = ?", [id]);
-
-// DB - when you need query builder
-const user = await DB.from("users").where("id", id).first();
-```
-
-### Loading Multiple Records
-
-```typescript
-// SQLite - simple list
 const users = SQLite.all("SELECT * FROM users WHERE active = ?", [1]);
 
-// DB - with ordering, limit
-const users = await DB.from("users")
-   .where("active", true)
-   .orderBy("created_at", "desc")
-   .limit(10);
+// DB - with query builder
+const user = await DB.from("users").where("id", id).first();
+const users = await DB.from("users").where("active", true).orderBy("created_at", "desc").limit(10);
 ```
 
-### With Joins (DB only)
-
+### Joins (DB only)
 ```typescript
 const posts = await DB.from("posts")
    .join("users", "posts.user_id", "users.id")
    .select("posts.*", "users.name as author_name")
    .where("posts.published", true);
-```
-
-### Pagination
-
-```typescript
-import Cache from "../services/CacheService";
-
-const page = Number(request.query.page) || 1;
-const limit = 20;
-const offset = (page - 1) * limit;
-
-const cacheKey = `items:page:${page}:limit:${limit}`;
-
-const [items, total] = await Cache.remember(cacheKey, 5, async () => {
-   return await Promise.all([
-      DB.from("items").limit(limit).offset(offset),
-      DB.from("items").count("* as count").first()
-   ]);
-});
-
-return response.json({
-   data: items[0],
-   pagination: {
-      page,
-      limit,
-      total: items[1].count
-   }
-});
-```
-
-### Transactions (DB only)
-
-```typescript
-await DB.transaction(async (trx) => {
-   const [userId] = await trx.from("users").insert(user).returning("id");
-   await trx.from("profiles").insert({ user_id: userId, ...profile });
-});
-```
+```  
 
 ## User Data Updates
 
@@ -156,8 +130,54 @@ await Authenticate.invalidateUserSessions(userId);
 
 ## Error Handling
 
-Always wrap async operations in try-catch:
+### Flash Messages
 
+Use flash messages for validation and authentication errors:
+
+```typescript
+return response.flash("error", "Email sudah terdaftar").redirect("/path");
+```
+
+Supported types: `error`, `success`, `info`, `warning`
+
+### Error Handling Pattern
+
+```typescript
+public async processRequest(request: Request, response: Response) {
+   try {
+      const body = await request.json();
+      
+      // Validation
+      const validationResult = Validator.validate(schema, body);
+      if (!validationResult.success) {
+         const errors = validationResult.errors || {};
+         const firstError = Object.values(errors)[0]?.[0] || 'Terjadi kesalahan validasi';
+         return response.flash("error", firstError).redirect("/path", 303);
+      }
+      
+      // Business logic
+      const { email } = validationResult.data!;
+      
+      // Database operations
+      const existing = await DB.from("users").where("email", email).first();
+      if (existing) {
+         return response.flash("error", "Email sudah terdaftar").redirect("/path", 303);
+      }
+      
+      // Success
+      return response.flash("success", "Success!").redirect("/path", 303);
+      
+   } catch (error: any) {
+      console.error("Error:", error);
+      if (error.code === 'SQLITE_CONSTRAINT') {
+         return response.flash("error", "Data sudah ada").redirect("/path", 303);
+      }
+      return response.flash("error", "Terjadi kesalahan. Silakan coba lagi nanti.").redirect("/path", 303);
+   }
+}
+```
+
+### JSON Error Responses (For API Endpoints)
 ```typescript
 try {
    // operations

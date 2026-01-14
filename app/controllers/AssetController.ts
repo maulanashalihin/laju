@@ -1,9 +1,10 @@
 import { uuidv7 } from "uuidv7";
 import { Response, Request } from "../../type";
 import fs from "fs";
-import sharp from "sharp";  
+import sharp from "sharp";
 import DB from "../services/DB";
 import { getPublicUrl, uploadBuffer } from "app/services/S3";
+import type { MultipartField } from "hyper-express";
 
 
 
@@ -33,9 +34,10 @@ class Controller {
 
             let isValidFile = true;
 
-            await request.multipart(async (field: any) => {
-                if (field.file) {
-                    if (!field.mime_type.includes("image")) {
+            await request.multipart(async (field: unknown) => {
+                if (field && typeof field === 'object' && 'file' in field && field.file) {
+                    const file = field.file as { stream: NodeJS.ReadableStream; mime_type: string };
+                    if (!file.mime_type.includes("image")) {
                         isValidFile = false;
                         return;
                     }
@@ -45,7 +47,7 @@ class Controller {
 
                     // Create a buffer to store the image data
                     const chunks: Buffer[] = [];
-                    const readable = field.file.stream;
+                    const readable = file.stream;
 
                     readable.on('data', (chunk: Buffer) => {
                         chunks.push(chunk);

@@ -428,6 +428,225 @@ return response.cookie("name", "value", 3600).json({ success: true });
 return response.setHeader("X-Custom", "value").json({ data });
 ```
 
+### HTTP Redirect Status Codes
+
+```typescript
+// Default 302 (Found) - for GET requests
+return response.redirect("/dashboard");
+
+// 303 (See Other) - for POST/PUT/PATCH form submissions
+return response.redirect("/profile", 303);
+
+// 301 (Moved Permanently) - for permanent redirects
+return response.redirect("/new-path", 301);
+
+// 307 (Temporary Redirect) - for method preservation
+return response.redirect("/submit", 307);
+```
+
+**⚠️ IMPORTANT**: Always use 303 for form submissions (POST, PUT, PATCH):
+
+```typescript
+// ✅ CORRECT - Use 303 for form updates
+public async update(request: Request, response: Response) {
+  const body = await request.json();
+  
+  const validationResult = Validator.validate(updateSchema, body);
+  if (!validationResult.success) {
+    const errors = validationResult.errors || {};
+    const firstError = Object.values(errors)[0]?.[0] || 'Terjadi kesalahan validasi';
+    return response.flash("error", firstError).redirect("/profile", 303);
+  }
+  
+  await DB.from("users").where("id", request.user.id).update(body);
+  
+  return response
+    .flash("success", "Profile updated successfully")
+    .redirect("/profile", 303);
+}
+
+// ❌ WRONG - Don't use default 302 for form submissions
+public async update(request: Request, response: Response) {
+  await DB.from("users").where("id", id).update(data);
+  return response.flash("success", "Updated!").redirect("/profile"); // Uses 302
+}
+```
+
+**Why 303 for form submissions?**
+
+- **303 (See Other)**: Prevents browsers from changing the HTTP method (PUT → GET)
+- **302 (Found)**: May cause browsers to change the method to GET, losing form data
+- **Method Preservation**: 303 ensures the form data is not lost during redirect
+- **HTTP Standard**: RFC 7231 recommends 303 for POST/PUT/PATCH redirects
+
+**When to use each status code:**
+
+| Status Code | Name | Use Case |
+|-------------|------|----------|
+| 301 | Moved Permanently | Permanent URL changes (SEO) |
+| 302 | Found | Temporary GET redirects |
+| 303 | See Other | **Form submissions (POST/PUT/PATCH)** |
+| 307 | Temporary Redirect | Method preservation (alternative to 303) |
+| 308 | Permanent Redirect | Permanent method preservation |
+
+---
+
+## Flash Messages & Error Handling
+
+### Flash Messages
+
+Flash messages allow you to send temporary messages (errors, success, info, warnings) to the next request via cookies. They are automatically parsed by the inertia middleware and passed to page props.
+
+#### Supported Types
+
+- `error` - Error messages
+- `success` - Success messages
+- `info` - Information messages
+- `warning` - Warning messages
+
+#### Usage in Controller
+
+```typescript
+// Send error message
+return response
+   .flash("error", "Email sudah terdaftar")
+   .redirect("/register");
+
+// Send success message
+return response
+   .flash("success", "Registrasi berhasil!")
+   .redirect("/login");
+
+// Chain with other methods
+return response
+   .flash("error", "Password salah")
+   .redirect("/login");
+```
+
+#### Flash Messages in Frontend
+
+Flash messages are automatically available as props in your Svelte components:
+
+```svelte
+<script>
+let { flash } = $props();
+</script>
+
+{#if flash?.error}
+  <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-xl">
+    <span class="text-red-400">{flash.error}</span>
+  </div>
+{/if}
+```
+
+---
+
+### Validation with Flash Messages (Recommended for Inertia Forms)
+
+**⚠️ IMPORTANT**: For Inertia forms, use `validate()` instead of `validateOrFail()` to avoid JSON response modal errors.
+
+```typescript
+import Validator from "../services/Validator";
+import { registerSchema } from "../validators/AuthValidator";
+
+public async processRegister(request: Request, response: Response) {
+  try {
+    const body = await request.json();
+    
+    // Validate input
+    const validationResult = Validator.validate(registerSchema, body);
+    
+    if (!validationResult.success) {
+      const errors = validationResult.errors || {};
+      const firstError = Object.values(errors)[0]?.[0] || 'Terjadi kesalahan validasi';
+      return response
+         .flash("error", firstError)
+         .redirect("/register");
+    }
+    
+    const { email, password, name } = validationResult.data!;
+    
+    // Business logic
+    const existingUser = await DB.from("users").where("email", email).first();
+    if (existingUser) {
+      return response
+         .flash("error", "Email sudah terdaftar")
+         .redirect("/register");
+    }
+    
+    // Success
+    return response.redirect("/success");
+    
+  } catch (error: any) {
+    console.error("Error:", error);
+    
+    // Handle specific database errors
+    if (error.code === 'SQLITE_CONSTRAINT') {
+      return response.flash("error", "Data sudah ada").redirect("/path");
+    }
+    
+    // Generic error
+    return response.flash("error", "Terjadi kesalahan. Silakan coba lagi nanti.").redirect("/path");
+  }
+}
+```
+
+---
+
+### Complete Error Handling Pattern
+
+Here's a complete example showing all aspects of error handling:
+
+```typescript
+public async processRequest(request: Request, response: Response) {
+  try {
+    const body = await request.json();
+    
+    // 1. Validation
+    const validationResult = Validator.validate(schema, body);
+    if (!validationResult.success) {
+      const errors = validationResult.errors || {};
+      const firstError = Object.values(errors)[0]?.[0] || 'Terjadi kesalahan validasi';
+      return response.flash("error", firstError).redirect("/path");
+    }
+    
+    // 2. Business logic
+    const { email } = validationResult.data!;
+    
+    // 3. Database operations
+    const existing = await DB.from("users").where("email", email).first();
+    if (existing) {
+      return response.flash("error", "Email sudah terdaftar").redirect("/path");
+    }
+    
+    // 4. Success
+    return response.redirect("/success");
+    
+  } catch (error: any) {
+    console.error("Error:", error);
+    
+    // Handle specific database errors
+    if (error.code === 'SQLITE_CONSTRAINT') {
+      return response.flash("error", "Data sudah ada").redirect("/path");
+    }
+    
+    // Generic error
+    return response.flash("error", "Terjadi kesalahan. Silakan coba lagi nanti.").redirect("/path");
+  }
+}
+```
+
+---
+
+### Validation with JSON Response (For API Endpoints)
+
+For API endpoints (not Inertia forms), use `validateOrFail()`:
+
+```typescript
+const validated = Validator.validateOrFail(schema, body, response);
+if (!validated) return; // Validation failed, response already sent
+```
+
 ---
 
 ## Common Patterns

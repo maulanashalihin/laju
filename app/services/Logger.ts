@@ -82,38 +82,45 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Helper methods for structured logging
-export const logError = (message: string, error?: any, meta?: any) => {
+export const logError = (message: string, error?: Error | unknown, meta?: Record<string, unknown>) => {
   logger.error(message, {
-    error: error?.message || error,
-    stack: error?.stack,
-    code: error?.code,
+    error: error instanceof Error ? error.message : String(error),
+    stack: error instanceof Error ? error.stack : undefined,
+    code: error instanceof Error && 'code' in error ? (error as { code?: string }).code : undefined,
     ...meta
   });
 };
 
-export const logInfo = (message: string, meta?: any) => {
+export const logInfo = (message: string, meta?: Record<string, unknown>) => {
   logger.info(message, meta);
 };
 
-export const logWarn = (message: string, meta?: any) => {
+export const logWarn = (message: string, meta?: Record<string, unknown>) => {
   logger.warn(message, meta);
 };
 
-export const logDebug = (message: string, meta?: any) => {
+export const logDebug = (message: string, meta?: Record<string, unknown>) => {
   logger.debug(message, meta);
 };
 
-export const logHttp = (message: string, meta?: any) => {
+export const logHttp = (message: string, meta?: Record<string, unknown>) => {
   logger.http(message, meta);
 };
 
 // Request logging helper
-export const logRequest = (req: any, meta?: any) => {
+interface HttpRequest {
+  method?: string;
+  url?: string;
+  ip?: string;
+  headers?: Record<string, string | string[] | undefined>;
+}
+
+export const logRequest = (req: HttpRequest, meta?: Record<string, unknown>) => {
   try {
     logger.http('HTTP Request', {
       method: req.method,
       url: req.url,
-      ip: req.ip, // Safely access - may throw if response already sent
+      ip: req.ip,
       userAgent: req.headers?.['user-agent'],
       ...meta
     });
@@ -127,14 +134,18 @@ export const logRequest = (req: any, meta?: any) => {
 };
 
 // Response logging helper
-export const logResponse = (req: any, res: any, duration: number) => {
+interface HttpResponse {
+  statusCode?: number;
+}
+
+export const logResponse = (req: HttpRequest, res: HttpResponse, duration: number) => {
   try {
     logger.http('HTTP Response', {
       method: req.method,
       url: req.url,
       statusCode: res.statusCode,
       duration: `${duration}ms`,
-      ip: req.ip // Safely access - may throw if response already sent
+      ip: req.ip
     });
   } catch (error) {
     // Ignore errors from accessing request properties after response is sent
@@ -145,7 +156,7 @@ export const logResponse = (req: any, res: any, duration: number) => {
 };
 
 // Database query logging helper
-export const logQuery = (query: string, duration?: number, meta?: any) => {
+export const logQuery = (query: string, duration?: number, meta?: Record<string, unknown>) => {
   logger.debug('Database Query', {
     query,
     duration: duration ? `${duration}ms` : undefined,

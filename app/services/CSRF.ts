@@ -117,8 +117,8 @@ class CSRFService {
     if (headerToken) return headerToken;
 
     // Check body (for forms)
-    const body = request.body as any;
-    if (body && body._csrf) return body._csrf;
+    const body = request.body as Record<string, unknown>;
+    if (body && typeof body._csrf === 'string') return body._csrf;
 
     return null;
   }

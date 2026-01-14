@@ -24,7 +24,7 @@ declare module 'hyper-express' {
      * Shared data across middlewares and controllers
      * Used to pass data between request handlers
      */
-    share?: any;
+    share?: Record<string, unknown>;
   }
 
   interface Response {
@@ -33,7 +33,7 @@ declare module 'hyper-express' {
      * @param view - The view/template name
      * @param data - Optional data to pass to the view
      */
-    view(view: string, data?: any): void;
+    view(view: string, data?: Record<string, unknown>): void;
 
     /**
      * Render an Inertia.js page
@@ -41,7 +41,7 @@ declare module 'hyper-express' {
      * @param inertiaProps - Optional props to pass to the component
      * @param viewProps - Optional view props to pass to the template
      */
-    inertia(component: string, inertiaProps?: any, viewProps?: any): Promise<any>;
+    inertia(component: string, inertiaProps?: Record<string, unknown>, viewProps?: Record<string, unknown>): Promise<unknown>;
 
     /**
      * Set a flash message for the next request
@@ -49,7 +49,15 @@ declare module 'hyper-express' {
      * @param data - The flash message content
      * @returns The Response object for chaining
      */
-    flash(message: string, data: any): Response;
+    flash(message: string, data: unknown): Response;
+
+    /**
+     * Redirect to a URL with optional custom status code
+     * @param url - The URL to redirect to
+     * @param status - The HTTP status code (default: 302)
+     * @returns The Response object for chaining
+     */
+    redirect(url: string, status?: number): Response;
   }
 }
 

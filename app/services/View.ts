@@ -67,7 +67,7 @@ if(process.env.NODE_ENV === 'production')
  * @param view_data - Data to be passed to the template
  * @returns Rendered HTML string
  */
-export function view(filename: string, view_data?: any) {
+export function view(filename: string, view_data?: Record<string, unknown>) {
    view_data = view_data || {}; 
    view_data.t = t
    view_data.base_url = process.env.APP_URL; 
@@ -88,6 +88,4 @@ export function view(filename: string, view_data?: any) {
    
    return rendered;
 }
-
-// Initialize by importing all template files
-// export default importFiles(directory);
+ 

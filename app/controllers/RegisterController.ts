@@ -14,30 +14,51 @@ class RegisterController {
    }
 
    public async processRegister(request: Request, response: Response) {
-      const body = await request.json();
-      
-      const validated = Validator.validateOrFail(registerSchema, body, response);
-      if (!validated) return;
-      
-      const { email, password, name } = validated;
-
       try {
+         const body = await request.json();
+         
+         const validationResult = Validator.validate(registerSchema, body);
+         
+         if (!validationResult.success) {
+            const errors = validationResult.errors || {};
+            const firstError = Object.values(errors)[0]?.[0] || 'Terjadi kesalahan validasi';
+            return response
+               .flash("error", firstError)
+               .redirect("/register");
+         }
+         
+         const { email, password, name } = validationResult.data!;
+
+         const existingUser = await DB.from("users").where("email", email).first();
+         if (existingUser) {
+            return response
+               .flash("error", "Email sudah terdaftar. Silakan gunakan email lain atau login.")
+               .redirect("/register");
+         }
+
          const user = {
             email,
             id: randomUUID(),
             name,
             password: await Authenticate.hash(password),
-            is_admin: false,      // Default to false for new users
-            is_verified: false,   // Default to false, requires email verification
+            is_admin: false,
+            is_verified: false,
          };
 
          await DB.table("users").insert(user);
 
          return Authenticate.process(user, request, response);
-      } catch (error) {
-         console.log(error);
+      } catch (error: any) {
+         console.error("Registration error:", error);
+         
+         if (error.code === 'SQLITE_CONSTRAINT') {
+            return response
+               .flash("error", "Email sudah terdaftar. Silakan gunakan email lain atau login.")
+               .redirect("/register");
+         }
+         
          return response
-            .cookie("error", "Maaf, Email sudah terdaftar", 3000)
+            .flash("error", "Terjadi kesalahan saat mendaftar. Silakan coba lagi nanti.")
             .redirect("/register");
       }
    }

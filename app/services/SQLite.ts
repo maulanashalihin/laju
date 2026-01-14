@@ -38,19 +38,30 @@ nativeDb.pragma('foreign_keys = ON');
 nativeDb.pragma('busy_timeout = 5000'); // Wait 5s before throwing SQLITE_BUSY error
 
 // Statement cache to reuse prepared statements
-const statementCache: Record<string, BetterSqlite3.Statement<any[], any>> = {};
+const statementCache: Record<string, BetterSqlite3.Statement> = {};
+
+/**
+ * SQLite Service interface
+ */
+interface SQLiteServiceType {
+  get<T = Record<string, unknown>>(sql: string, params?: unknown[]): T | undefined;
+  all<T = Record<string, unknown>>(sql: string, params?: unknown[]): T[];
+  run(sql: string, params?: unknown[]): BetterSqlite3.RunResult;
+  transaction<T>(fn: (db: SQLiteServiceType) => T): T;
+  getDatabase(): BetterSqlite3.Database;
+}
 
 /**
  * SQLite Service with optimized prepared statements
  */
-const SQLiteService = {
+const SQLiteService: SQLiteServiceType = {
   /**
    * Get a single row from the database
    * @param sql SQL query with ? placeholders
    * @param params Parameters to bind to the query
    * @returns The first row or undefined if not found
    */
-  get(sql: string, params: any = []): any {
+  get<T = Record<string, unknown>>(sql: string, params: unknown[] = []): T | undefined {
     try {
       // Convert object params to array if needed
       const parameters = Array.isArray(params) ? params : Object.values(params);
@@ -63,7 +74,7 @@ const SQLiteService = {
       }
       
       // Execute the statement and return the first row
-      return stmt.get(...parameters);
+      return stmt.get(...parameters) as T | undefined;
     } catch (error) {
       console.error('SQLite get error:', error);
       throw error;
@@ -76,7 +87,7 @@ const SQLiteService = {
    * @param params Parameters to bind to the query
    * @returns Array of rows
    */
-  all(sql: string, params: any = []): any[] {
+  all<T = Record<string, unknown>>(sql: string, params: unknown[] = []): T[] {
     try {
       // Convert object params to array if needed
       const parameters = Array.isArray(params) ? params : Object.values(params);
@@ -89,7 +100,7 @@ const SQLiteService = {
       }
       
       // Execute the statement and return all rows
-      return stmt.all(...parameters);
+      return stmt.all(...parameters) as T[];
     } catch (error) {
       console.error('SQLite all error:', error);
       throw error;
@@ -102,7 +113,7 @@ const SQLiteService = {
    * @param params Parameters to bind to the query
    * @returns Result of the run operation
    */
-  run(sql: string, params: any = []): BetterSqlite3.RunResult {
+  run(sql: string, params: unknown[] = []): BetterSqlite3.RunResult {
     try {
       // Convert object params to array if needed
       const parameters = Array.isArray(params) ? params : Object.values(params);
@@ -127,7 +138,7 @@ const SQLiteService = {
    * @param fn Function containing the transaction logic
    * @returns Result of the transaction
    */
-  transaction<T>(fn: (db: any) => T): T {
+  transaction<T>(fn: (db: typeof SQLiteService) => T): T {
     const transaction = nativeDb.transaction(() => {
       return fn(SQLiteService);
     });

@@ -1,6 +1,6 @@
 
 import { view } from "../services/View";
-import { Request, Response } from "../../type";
+import { Request, Response, User } from "../../type";
 import { readFileSync } from "fs";
 import path from "path";
 
@@ -8,19 +8,38 @@ const pkg = JSON.parse(readFileSync(path.join(process.cwd(), "package.json"), "u
 
 const inertia = () => {
    return async (request: Request, response: Response) => {
+      // Set up the flash method on response
+      response.flash = (type: string, message: string, ttl: number = 3000) => {
+         response.cookie(type, message, ttl);
+         return response;
+      };
+
+      // Override redirect method to support custom status code 
+      response.redirect = ((url: string, status?: number) => {
+         return response.status(status || 302).setHeader("Location", url).send();
+      }) as any;
+
       // Set up the inertia method on response
       response.inertia = async (component, inertiaProps = {}, viewProps = {}) => {
 
           const url = request.originalUrl;
 
-         let props = { user: request.user || {}, ...inertiaProps, ...viewProps, error: null } as any;
+         let props: Record<string, unknown> = { user: request.user || {}, ...inertiaProps, ...viewProps };
 
+         // Parse all flash messages from cookies
+         const flashTypes = ['error', 'success', 'info', 'warning'];
+         const flashMessages: Record<string, string> = {};
 
+         for (const type of flashTypes) {
+            if (request.cookies[type]) {
+               flashMessages[type] = request.cookies[type];
+               response.cookie(type, "", 0);
+            }
+         }
 
-         if (request.cookies.error) {
-            props.error = request.cookies.error;
-            response
-               .cookie("error", "", 0)
+         // Add flash messages to props
+         if (Object.keys(flashMessages).length > 0) {
+            props.flash = flashMessages;
          }
 
          const inertiaObject = {
@@ -33,6 +52,7 @@ const inertia = () => {
          if (!request.header("X-Inertia")) {
             const html = view("inertia.html", {
                page: JSON.stringify(inertiaObject),
+               title : "Laju - LAJU - Hyper Performance TypeScript Monolith",
                ...inertiaProps,
                ...viewProps
             });

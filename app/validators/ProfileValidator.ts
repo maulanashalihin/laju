@@ -13,7 +13,10 @@ import { field } from './CommonValidator';
 export const updateProfileSchema = z.object({
   name: field.name,
   email: field.email,
-  phone: field.phone.optional().or(z.literal('')),
+  phone: z.string().nullish().refine(
+    (val) => !val || /^(\+62|62|0)[0-9]{9,12}$/.test(val),
+    'Invalid phone number format'
+  ),
 });
 
 /**
@@ -21,5 +24,5 @@ export const updateProfileSchema = z.object({
  * Used by: ProfileController.deleteUsers
  */
 export const deleteUsersSchema = z.object({
-  ids: z.array(z.string()).min(1, 'Pilih minimal 1 user'),
+  ids: z.array(z.string()).min(1, 'Select at least 1 user'),
 });

@@ -9,7 +9,25 @@ import ps from './languages/ps.json';
 import fa from './languages/fa.json';
 import sw from './languages/sw.json';
 
-const lang_data = {
+interface TranslationObject {
+    [key: string]: string | TranslationObject;
+}
+
+interface LangData {
+    ar: TranslationObject;
+    id: TranslationObject;
+    en: TranslationObject;
+    fr: TranslationObject;
+    tr: TranslationObject;
+    ur: TranslationObject;
+    de: TranslationObject;
+    ps: TranslationObject;
+    fa: TranslationObject;
+    sw: TranslationObject;
+    [key: string]: TranslationObject;
+}
+
+const lang_data: LangData = {
     "ar" : { ...ar },
     "id" : { ...id },
     "en" : { ...en },
@@ -20,7 +38,7 @@ const lang_data = {
     "ps" : { ...ps },
     "fa" : { ...fa },
     "sw" : { ...sw }
-} as any;
+};
 
 /**
  * Translate a key with optional interpolation and nested key support
@@ -40,16 +58,18 @@ export function t(key: string, lang: string = "en", params?: Record<string, stri
     
     if (key.includes('.')) {
         const keys = key.split('.');
-        let value: any = lang_data[lang];
-        
+        let value: string | TranslationObject = lang_data[lang];
+
         for (const k of keys) {
-            value = value?.[k];
+            if (typeof value !== 'object' || value === null) break;
+            value = value[k];
             if (value === undefined) break;
         }
         
         text = typeof value === 'string' ? value : key;
     } else {
-        text = lang_data[lang]?.[key] || key;
+        const value = lang_data[lang]?.[key];
+        text = typeof value === 'string' ? value : key;
     }
     
     // Apply interpolation if params provided

@@ -629,6 +629,269 @@ Svelte 5 introduces runes - a new reactive primitive system:
 
 ---
 
+## Error Handling with Flash Messages
+
+### Flash Messages Overview
+
+Flash messages are temporary messages sent from the backend to the frontend via cookies. They are automatically parsed by the inertia middleware and passed as props to your Svelte components.
+
+### Supported Flash Types
+
+- `error` - Error messages (red styling)
+- `success` - Success messages (green styling)
+- `info` - Information messages (blue styling)
+- `warning` - Warning messages (yellow styling)
+
+### Basic Flash Message Usage
+
+```svelte
+<script>
+import { router } from '@inertiajs/svelte';
+
+let { flash } = $props();
+</script>
+
+{#if flash?.error}
+  <div class="mb-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
+    <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span class="text-red-400 text-sm">{flash.error}</span>
+  </div>
+{/if}
+
+{#if flash?.success}
+  <div class="mb-4 p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex items-start gap-3">
+    <svg class="w-5 h-5 text-green-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    <span class="text-green-400 text-sm">{flash.success}</span>
+  </div>
+{/if}
+```
+
+---
+
+### Form with Error Handling (Recommended for Auth Forms)
+
+For authentication and registration forms, use this pattern with both flash messages and validation errors:
+
+```svelte
+<script>
+import { router } from '@inertiajs/svelte';
+
+let form = $state({
+  email: '',
+  password: ''
+});
+
+let isLoading = $state(false);
+let serverError = $state('');
+let { flash } = $props();
+
+function submitForm() {
+  serverError = '';
+  isLoading = true;
+  
+  router.post('/login', form, {
+    onFinish: () => isLoading = false,
+    onError: (errors) => {
+      isLoading = false;
+      if (errors.email) {
+        serverError = errors.email;
+      } else if (errors.password) {
+        serverError = errors.password;
+      } else {
+        serverError = 'Terjadi kesalahan. Silakan periksa input Anda.';
+      }
+    }
+  });
+}
+</script>
+
+<!-- Display flash errors from backend -->
+{#if flash?.error}
+  <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
+    <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span class="text-red-400 text-sm">{flash.error}</span>
+  </div>
+{/if}
+
+<!-- Display validation errors from onError callback -->
+{#if serverError}
+  <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
+    <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span class="text-red-400 text-sm">{serverError}</span>
+  </div>
+{/if}
+
+<form onsubmit={(e) => { e.preventDefault(); submitForm(); }} class="space-y-4">
+  <div>
+    <label class="block text-sm font-medium mb-1">Email</label>
+    <input 
+      bind:value={form.email}
+      type="email"
+      class="w-full border rounded px-3 py-2 focus:outline-none"
+    />
+  </div>
+  
+  <div>
+    <label class="block text-sm font-medium mb-1">Password</label>
+    <input 
+      bind:value={form.password}
+      type="password"
+      class="w-full border rounded px-3 py-2 focus:outline-none"
+    />
+  </div>
+  
+  <button 
+    type="submit"
+    disabled={isLoading}
+    class="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+  >
+    {isLoading ? 'Signing in...' : 'Sign in'}
+  </button>
+</form>
+```
+
+---
+
+### Error Handling Best Practices
+
+#### 1. Clear Errors Before Submit
+
+Always clear error states before submitting a new form:
+
+```svelte
+function submitForm() {
+  serverError = '';  // Clear previous errors
+  isLoading = true;
+  router.post('/submit', form, { ... });
+}
+```
+
+#### 2. Show Loading States
+
+Display loading indicators during async operations:
+
+```svelte
+<button 
+  type="submit"
+  disabled={isLoading}
+  class="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+>
+  {isLoading ? 'Processing...' : 'Submit'}
+</button>
+```
+
+#### 3. Handle Multiple Error Types
+
+Display both flash messages (from backend) and validation errors (from onError):
+
+```svelte
+{#if flash?.error}
+  <div class="error-banner">{flash.error}</div>
+{/if}
+
+{#if serverError}
+  <div class="error-banner">{serverError}</div>
+{/if}
+```
+
+#### 4. User-Friendly Error Messages
+
+Backend controllers should send clear, actionable error messages:
+
+```typescript
+// Controller
+return response
+  .flash("error", "Email sudah terdaftar. Silakan gunakan email lain atau login.")
+  .redirect("/register");
+```
+
+---
+
+### Complete Example: Register Form
+
+```svelte
+<script>
+import { router } from '@inertiajs/svelte';
+
+let form = $state({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: ''
+});
+
+let isLoading = $state(false);
+let showPassword = $state(false);
+let passwordError = $state('');
+let serverError = $state('');
+let { flash } = $props();
+
+function submitForm() {
+  if (form.password !== form.password_confirmation) {
+    passwordError = 'Passwords do not match';
+    return;
+  }
+  
+  passwordError = '';
+  serverError = '';
+  isLoading = true;
+  
+  router.post("/register", form, {
+    onFinish: () => isLoading = false,
+    onError: (errors) => {
+      isLoading = false;
+      if (errors.email) {
+        serverError = errors.email;
+      } else if (errors.password) {
+        serverError = errors.password;
+      } else if (errors.name) {
+        serverError = errors.name;
+      } else {
+        serverError = 'Terjadi kesalahan. Silakan periksa input Anda.';
+      }
+    }
+  });
+}
+</script>
+
+{#if flash?.error}
+  <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+    <span class="text-red-400">{flash.error}</span>
+  </div>
+{/if}
+
+{#if serverError}
+  <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+    <span class="text-red-400">{serverError}</span>
+  </div>
+{/if}
+
+<form onsubmit={(e) => { e.preventDefault(); submitForm(); }}>
+  <input bind:value={form.name} placeholder="Name" />
+  <input bind:value={form.email} type="email" placeholder="Email" />
+  <input bind:value={form.password} type="password" placeholder="Password" />
+  <input bind:value={form.password_confirmation} type="password" placeholder="Confirm Password" />
+  
+  {#if passwordError}
+    <p class="text-red-500 text-sm">{passwordError}</p>
+  {/if}
+  
+  <button type="submit" disabled={isLoading}>
+    {isLoading ? 'Creating account...' : 'Create account'}
+  </button>
+</form>
+```
+
+---
+
 ## Next Steps
 
 - [Tutorials](11-TUTORIALS.md)

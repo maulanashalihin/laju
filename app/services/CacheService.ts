@@ -34,7 +34,7 @@ class CacheService {
      * @param value The value to cache
      * @param minutes Expiration time in minutes
      */
-    public async put(key: string, value: any, minutes: number): Promise<void> {
+    public async put<T>(key: string, value: T, minutes: number): Promise<void> {
         try {
             const expiration = Math.floor(Date.now() / 1000) + (minutes * 60);
             const serializedValue = JSON.stringify(value);

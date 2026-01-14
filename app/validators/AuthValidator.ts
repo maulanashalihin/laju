@@ -6,6 +6,11 @@
 import { z } from 'zod';
 import { field } from './CommonValidator';
 
+interface EmailPhoneData {
+  email?: string;
+  phone?: string;
+}
+
 /**
  * Login schema
  * Used by: LoginController.processLogin
@@ -13,11 +18,11 @@ import { field } from './CommonValidator';
 export const loginSchema = z.object({
   email: z.string().optional(),
   phone: z.string().optional(),
-  password: z.string().min(1, 'Password wajib diisi'),
+  password: z.string().min(1, 'Password is required'),
 }).refine(
-  (data: any) => data.email || data.phone,
+  (data: EmailPhoneData) => data.email || data.phone,
   {
-    message: 'Email atau nomor telepon wajib diisi',
+    message: 'Email or phone number is required',
     path: ['email'],
   }
 );
@@ -29,7 +34,7 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   name: field.name,
   email: field.email,
-  password: z.string().min(6, 'Password minimal 6 karakter'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 /**
@@ -40,9 +45,9 @@ export const forgotPasswordSchema = z.object({
   email: z.string().optional(),
   phone: z.string().optional(),
 }).refine(
-  (data: any) => data.email || data.phone,
+  (data: EmailPhoneData) => data.email || data.phone,
   {
-    message: 'Email atau nomor telepon wajib diisi',
+    message: 'Email or phone number is required',
     path: ['email'],
   }
 );
@@ -52,8 +57,8 @@ export const forgotPasswordSchema = z.object({
  * Used by: PasswordController.resetPassword
  */
 export const resetPasswordSchema = z.object({
-  id: z.string().min(1, 'Token tidak valid'),
-  password: z.string().min(6, 'Password minimal 6 karakter'),
+  id: z.string().min(1, 'Invalid token'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 /**
@@ -61,6 +66,6 @@ export const resetPasswordSchema = z.object({
  * Used by: PasswordController.changePassword
  */
 export const changePasswordSchema = z.object({
-  current_password: z.string().min(1, 'Password lama wajib diisi'),
-  new_password: z.string().min(6, 'Password baru minimal 6 karakter'),
+  current_password: z.string().min(1, 'Current password is required'),
+  new_password: z.string().min(6, 'New password must be at least 6 characters'),
 });
