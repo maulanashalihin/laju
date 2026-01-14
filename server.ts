@@ -2,6 +2,9 @@
 // Boots the HTTP server, wires middlewares & routes,
 // loads environment variables, and configures HTTPS for local development.
 
+// Load environment variables from .env into process.env
+import "dotenv/config";
+
 // Inertia middleware: integrates Inertia.js responses for SSR-like pages
 import inertia from "./app/middlewares/inertia";
 
@@ -39,14 +42,6 @@ if(process.env.HAS_CERTIFICATE === 'true') {
 
 // Create the HyperExpress server with the above options
 const webserver = new HyperExpress.Server(option);
-
-// Load environment variables from .env into process.env
-// In production (build folder), load .env from parent directory (root repository)
-const envPath = process.env.NODE_ENV === 'production'
-  ? path.join(__dirname, '..', '.env')
-  : undefined;
-  
-require("dotenv").config({ path: envPath });
 
 // Register view engine & template rendering (side-effect import)
 // This module sets up HTML/Inertia view rendering globally.

@@ -9,7 +9,7 @@
  * - PASS_MAILER: Gmail App Password (not your login password)
  */
 
-const nodemailer = require("nodemailer");
+import nodemailer from "nodemailer";
 
 /**
  * Default mail transporter instance

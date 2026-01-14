@@ -8,7 +8,7 @@ import { resolve } from 'path';
 const input = {
   app: resolve(__dirname, 'resources/js/app.js'),
   index: resolve(__dirname, 'resources/js/index.js'),
-    css: resolve(__dirname, 'resources/js/index.css'),
+  css: resolve(__dirname, 'resources/js/index.css'),
 };
 
 // Default port from environment or fallback to 3000

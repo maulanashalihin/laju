@@ -3,7 +3,7 @@
  * This service provides direct access to the better-sqlite3 database connection
  * for optimal performance without an ORM or query builder layer.
  */
-require("dotenv").config();
+import "dotenv/config";
 import config from "../../knexfile";
 import Database from 'better-sqlite3';
 import type * as BetterSqlite3 from 'better-sqlite3';

@@ -5,7 +5,7 @@
  */
 
 import config from "../../knexfile";
-require("dotenv").config();
+import "dotenv/config";
 import DBInstance from "knex";
 import { Knex } from "knex";
 
