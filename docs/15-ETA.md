@@ -343,6 +343,48 @@ response.inertia("Dashboard", {
 
 ---
 
+## Assets
+
+### Using the Asset Helper
+
+Laju provides an `it.asset()` helper function to reference Vite-built assets in your templates. This helper automatically resolves the correct asset path in development and production.
+
+```html
+<!-- JavaScript assets -->
+<script type="module" src="<%= it.asset('js/index.js') %>"></script>
+
+<!-- CSS assets -->
+<link rel="stylesheet" href="<%= it.asset('js/index.css') %>">
+```
+
+### Vite Entry Points
+
+Assets are declared in `vite.config.mjs` under the `input` object:
+
+```javascript
+const input = {
+  app: resolve(__dirname, 'resources/js/app.js'),
+  index: resolve(__dirname, 'resources/js/index.js'),
+  css: resolve(__dirname, 'resources/js/index.css'),
+};
+```
+
+### Available Assets
+
+Based on the Vite configuration, the following assets are available:
+
+- `js/app.js` - Main Inertia application bundle
+- `js/index.js` - Landing page JavaScript
+- `js/index.css` - Landing page styles (TailwindCSS v4)
+
+### Asset Resolution
+
+- **Development**: Assets are served from the Vite dev server with hot module replacement
+- **Production**: Assets are built to `dist/` with hashed filenames for cache busting
+- The `it.asset()` helper automatically handles the path resolution in both environments
+
+---
+
 ## Best Practices
 
 ### Security

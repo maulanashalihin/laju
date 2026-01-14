@@ -57,15 +57,7 @@ function loadViteManifest() {
       try {
          const manifestContent = readFileSync(manifestPath, 'utf8');
          viteManifest = JSON.parse(manifestContent);
-        Object.keys(viteManifest).forEach(item => {
-                if (viteManifest[item].css) {
-                    viteManifest[item].css.forEach(cssItem => {
-                        viteManifest[item.replace(".js", ".css")] = {
-                            file: cssItem
-                        };
-                    });
-                }
-            }); 
+  
       } catch (error) {
          console.error('Error loading Vite manifest:', error);
          viteManifest = {};

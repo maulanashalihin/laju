@@ -72,8 +72,45 @@ For Inertia pages, use the `inertia.html` shell:
 
 ## Assets
 
+### Using the Asset Helper
+
+Use the `it.asset()` helper function to reference Vite-built assets in your templates:
+
+```html
+<!-- JavaScript assets -->
+<script type="module" src="<%= it.asset('js/index.js') %>"></script>
+
+<!-- CSS assets -->
+<link rel="stylesheet" href="<%= it.asset('js/index.css') %>">
+```
+
+### Vite Entry Points
+
+Assets are declared in `vite.config.mjs`:
+
+```javascript
+const input = {
+  app: resolve(__dirname, 'resources/js/app.js'),
+  index: resolve(__dirname, 'resources/js/index.js'),
+  css: resolve(__dirname, 'resources/js/index.css'),
+};
+```
+
+### Available Assets
+
+- `js/app.js` - Main Inertia application bundle
+- `js/index.js` - Landing page JavaScript
+- `js/index.css` - Landing page styles (TailwindCSS v4)
+
+### Asset Resolution
+
+- **Development**: Assets served from Vite dev server with HMR
+- **Production**: Assets built to `dist/` with hashed filenames
+- `it.asset()` helper handles path resolution automatically
+
+### Other Assets
+
 - CSS: Use TailwindCSS v4
-- JS: Loaded from `/js/app.js` (Vite bundle)
 - Images: Use `/public/` or S3 URLs
 
 ## Performance
