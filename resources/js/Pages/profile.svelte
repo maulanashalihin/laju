@@ -1,11 +1,10 @@
 <script>
-  import axios from "axios";
   import Header from "../Components/Header.svelte";
   import { Toast } from "../Components/helper";
   import { page, router } from '@inertiajs/svelte';
 
-   let { flash, user } = $props();
- 
+  let { flash, user } = $props();
+
 
   let current_password = $state('');
   let new_password = $state('');
@@ -23,9 +22,9 @@
     if (user?.email !== undefined) formEmail = user.email;
     if (user?.phone !== undefined) formPhone = user.phone;
   });
- 
 
- 
+
+
 
   function handleAvatarChange(event) {
     const file = event.target.files[0];
@@ -33,22 +32,21 @@
       const formData = new FormData();
       formData.append("file", file);
       isLoading = true;
-      axios
-        .post("/assets/avatar", formData)
-        .then((response) => {
+      fetch("/assets/avatar", {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
           setTimeout(() => {
             isLoading = false;
-            previewUrl = response.data + "?v=" + Date.now();
+            previewUrl = data.url + "?v=" + Date.now();
           }, 500);
-          user.avatar = response.data + "?v=" + Date.now();
+          user.avatar = data.url + "?v=" + Date.now();
         })
         .catch((error) => {
           isLoading = false;
-          if (error.response?.data?.message) {
-            Toast(error.response.data.message, 'error');
-          } else {
-            Toast('Gagal mengupload avatar', 'error');
-          }
+          Toast('Failed to upload avatar', 'error');
         });
     }
   }

@@ -100,7 +100,12 @@ export function rateLimit(options: RateLimitOptions = {}) {
 export const authRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000,  // 15 minutes
   maxRequests: 5,             // 5 requests
-  message: 'Too many login attempts, please try again later'
+  message: 'Too many login attempts, please try again later',
+  handler: (request: Request, response: Response) => {
+    const isResetPassword = request.url.includes('/reset-password');
+    const redirectPath = isResetPassword ? '/reset-password' : '/login';
+    return response.flash("error", 'Too many attempts, please try again later').redirect(redirectPath, 303);
+  }
 });
 
 // Moderate rate limit for API endpoints
@@ -121,7 +126,10 @@ export const generalRateLimit = rateLimit({
 export const passwordResetRateLimit = rateLimit({
   windowMs: 60 * 60 * 1000,  // 1 hour
   maxRequests: 3,             // 3 requests
-  message: 'Too many password reset attempts, please try again later'
+  message: 'Too many password reset attempts, please try again later',
+  handler: (request: Request, response: Response) => {
+    return response.flash("error", 'Too many password reset attempts, please try again later').redirect("/forgot-password", 303);
+  }
 });
 
 // Email sending rate limit
@@ -149,8 +157,11 @@ export const uploadRateLimit = rateLimit({
 // Create account rate limit (by IP)
 export const createAccountRateLimit = rateLimit({
   windowMs: 60 * 60 * 1000,  // 1 hour
-  maxRequests: 3,             // 3 accounts
-  message: 'Too many accounts created from this IP, please try again later'
+  maxRequests: 3,             // 3 accounts per hour
+  message: 'Too many account creation attempts, please try again later',
+  handler: (request: Request, response: Response) => {
+    return response.flash("error", 'Too many account creation attempts, please try again later').redirect("/register", 303);
+  }
 });
 
 /**

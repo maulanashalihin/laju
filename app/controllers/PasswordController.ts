@@ -65,10 +65,15 @@ class PasswordController {
    public async sendResetPassword(request: Request, response: Response) {
       const body = await request.json();
       
-      const validated = Validator.validateOrFail(forgotPasswordSchema, body, response);
-      if (!validated) return;
+      const validationResult = Validator.validate(forgotPasswordSchema, body);
       
-      const { email, phone } = validated;
+      if (!validationResult.success) {
+         const errors = validationResult.errors || {};
+         const firstError = Object.values(errors)[0]?.[0] || 'Validation error';
+         return response.flash("error", firstError).redirect("/forgot-password", 303);
+      }
+      
+      const { email, phone } = validationResult.data!;
 
       let user;
 
@@ -79,7 +84,7 @@ class PasswordController {
       }
 
       if (!user) {
-         return response.status(404).send("Email tidak terdaftar");
+         return response.flash("error", "Email or phone not registered").redirect("/forgot-password", 303);
       }
 
       const token = randomUUID();
@@ -121,7 +126,7 @@ This link will expire in 24 hours.
             });
       } catch (error) {}
 
-      return response.send("OK");
+      return response.flash("success", "Password reset link has been sent").redirect("/forgot-password", 303);
    }
 
    public async changePassword(request: Request, response: Response) {

@@ -1,33 +1,21 @@
 <script>
   import { inertia, router } from "@inertiajs/svelte"
   import LajuIcon from "../../Components/LajuIcon.svelte"
-  import axios from "axios"
 
   let form = $state({
     email: "",
     phone: ""
   })
 
-  let success = $state(false)
   let isLoading = $state(false)
   let { flash } = $props()
-  let serverError = $state('')
 
   function submitForm() {
-    serverError = ''
     isLoading = true
-    axios.post("/forgot-password", form).then((response) => {
-      success = true
-      form.email = ""
-      form.phone = ""
-    }).catch((error) => {
-      if (error.response?.data?.message) {
-        serverError = error.response.data.message
-      } else {
-        serverError = 'Terjadi kesalahan. Silakan coba lagi nanti.'
+    router.post("/forgot-password", form, {
+      onFinish: () => {
+        isLoading = false
       }
-    }).finally(() => {
-      isLoading = false
     })
   }
 </script>
@@ -63,21 +51,12 @@
         </div>
       {/if}
 
-      {#if serverError}
-        <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
-          <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span class="text-red-400 text-sm">{serverError}</span>
-        </div>
-      {/if}
-
-      {#if success}
+      {#if flash?.success}
         <div class="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex items-start gap-3">
           <svg class="w-5 h-5 text-green-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span class="text-green-400 text-sm">Password reset link has been sent to your email</span>
+          <span class="text-green-400 text-sm">{flash.success}</span>
         </div>
       {/if}
 
