@@ -39,6 +39,13 @@ This directory uses **Eta** templating engine for server-side rendering.
 <%~ include('partials/header') %>
 ```
 
+### Unescaped Output (Raw HTML)
+Use `<%~ %>` for raw HTML output (no escaping):
+```eta
+<%~ article.content %>
+```
+**Warning**: Only use with trusted content to prevent XSS attacks.
+
 ### Default Values
 Use ternary operator for default values:
 ```eta

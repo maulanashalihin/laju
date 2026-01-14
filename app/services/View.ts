@@ -8,6 +8,7 @@ import { readFileSync, readdirSync, statSync, watch, existsSync } from "fs";
 import { Eta } from 'eta'
 import path from "path";
 import "dotenv/config"; 
+import { t } from "./Translation"
 
 // Set views directory based on environment
 let directory = process.env.NODE_ENV !== 'production' ? "resources/views" : "dist/views";
@@ -68,10 +69,13 @@ if(process.env.NODE_ENV === 'production')
  */
 export function view(filename: string, view_data?: any) {
    view_data = view_data || {}; 
+   view_data.t = t
    view_data.asset = function(file: string){
       if(process.env.NODE_ENV === 'production')
-      {   
-        return viteManifest[file].file
+      {
+        const entry = viteManifest[file];
+        if (!entry) return file;
+        return file.endsWith(".js") ? entry.file : entry.file.endsWith(".css") ? entry.file : entry.css?.[0] || file;
       }
       return `http://localhost:${process.env.VITE_PORT}/${file}`
    }

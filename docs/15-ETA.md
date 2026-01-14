@@ -77,7 +77,7 @@ resources/views/
 <!-- Output: <script>alert('xss')</script> -->
 
 <!-- Use for trusted HTML only -->
-<div class="prose"><%~ it.articleHtml %></div>
+<div class="prose"><%~ it.article.content %></div>
 ```
 
 ### Comments

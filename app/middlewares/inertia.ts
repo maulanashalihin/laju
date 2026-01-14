@@ -33,6 +33,7 @@ const inertia = () => {
          if (!request.header("X-Inertia")) {
             const html = view("inertia.html", {
                page: JSON.stringify(inertiaObject),
+               ...inertiaProps,
                ...viewProps
             });
 
