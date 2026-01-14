@@ -8,7 +8,8 @@ Complete guide for database operations in Laju framework.
 2. [DB Service (Knex.js)](#db-service-knexjs)
 3. [SQLite Service (Native)](#sqlite-service-native)
 4. [Migrations](#migrations)
-5. [Performance Tips](#performance-tips)
+5. [Database Refresh](#database-refresh)
+6. [Performance Tips](#performance-tips)
 
 ---
 
@@ -350,6 +351,92 @@ npx knex migrate:rollback
 # Check migration status
 npx knex migrate:status
 ```
+
+---
+
+## Database Refresh
+
+The `db:refresh` command allows you to selectively refresh a specific database by deleting its SQLite file and re-running migrations.
+
+### Usage
+
+```bash
+# Interactive mode - prompts you to select a database
+npm run refresh
+
+# Direct selection - refresh specific database
+npm run refresh 1    # Development
+npm run refresh 2    # Production
+npm run refresh 3    # Test
+```
+
+### How It Works
+
+1. **Lists available databases** - Shows all databases configured in `knexfile.ts`
+2. **Displays status** - Shows which database files exist (✓) or not (✗)
+3. **Deletes selected database** - Removes only the specified `.sqlite3` file
+4. **Recreates directory** - Ensures the `data` directory exists
+5. **Runs migrations** - Executes all pending migrations for the selected environment
+
+### Example Output
+
+```bash
+$ npm run refresh
+
+📦 Available Databases:
+─────────────────────────
+1. Development (./data/dev.sqlite3) ✓
+2. Production (./data/production.sqlite3) ✓
+3. Test (./data/test.sqlite3) ✗
+─────────────────────────
+
+Select database number (1-3): 1
+
+🔄 Refreshing Development database...
+   File: ./data/dev.sqlite3
+
+✅ Database file deleted
+
+🚀 Running migrations...
+
+Requiring external module ts-node/register
+Using environment: development
+Batch 1 run: 7 migrations
+
+✅ Database refreshed successfully!
+```
+
+### Benefits
+
+- **Selective refresh** - Only refresh the database you need, not all of them
+- **Safe** - Doesn't delete the entire `data` folder, only the specific SQLite file
+- **Automatic migrations** - Runs migrations with the correct `NODE_ENV` set
+- **Interactive or direct** - Use prompts for convenience or pass arguments for scripts
+
+### Configuration
+
+The command reads database configurations from `knexfile.ts`:
+
+```typescript
+// knexfile.ts
+const config: { [key: string]: Knex.Config } = {
+  development: {
+    client: "better-sqlite3",
+    connection: {
+      filename: "./data/dev.sqlite3"
+    },
+    useNullAsDefault: true
+  },
+  // ... production, test
+};
+```
+
+### When to Use
+
+- Reset development database during development
+- Clean up test database after running tests
+- Rebuild database after schema changes
+- Start fresh with a clean database state
 
 ---
 
