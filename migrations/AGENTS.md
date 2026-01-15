@@ -33,7 +33,7 @@ export async function up(knex: Knex): Promise<void> {
       table.boolean('is_active').defaultTo(false);
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('updated_at').defaultTo(knex.fn.now());
-      
+
       // Foreign key
       table.foreign('user_id')
          .references('id')
@@ -42,6 +42,11 @@ export async function up(knex: Knex): Promise<void> {
    });
 }
 ```
+
+**Important Notes:**
+- **UUID columns**: Do NOT use `defaultTo(knex.raw('gen_random_uuid()'))` - this is PostgreSQL-specific and causes errors in SQLite
+- **UUID generation**: Generate UUIDs in application layer using `uuidv7()` or `uuid()` from the `uuidv7` or `uuid` package
+- **Timestamps**: Use `knex.fn.now()` for current timestamp
 
 ## Modifying Tables
 
