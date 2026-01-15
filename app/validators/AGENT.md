@@ -4,20 +4,8 @@
 
 1. **One schema per action** - Create separate schemas for store/update
 2. **Reuse common fields** - Import from `CommonValidator.ts`
-3. **Clear documentation** - Comment which controller method uses each schema
-4. **Export schemas** - Export all schemas for controller imports
-5. **Use Zod** - All schemas use Zod for type-safe validation
-
-## File Structure
-
-```
-app/validators/
-├── CommonValidator.ts    # Reusable field schemas
-├── AuthValidator.ts      # Auth-related schemas
-├── ProfileValidator.ts   # Profile-related schemas
-├── PostValidator.ts      # Post-related schemas (your custom validators)
-└── ...
-```
+3. **Export schemas** - Export all schemas for controller imports
+4. **Use Zod** - All schemas use Zod for type-safe validation
 
 ## Basic Pattern
 
@@ -25,19 +13,13 @@ app/validators/
 import { z } from 'zod';
 import { field } from './CommonValidator';
 
-/**
- * Store schema
- * Used by: PostController.store
- */
+// Store schema - all fields required
 export const storeSchema = z.object({
   title: field.requiredString('Title', 3),
   content: field.requiredString('Content', 10),
 });
 
-/**
- * Update schema
- * Used by: PostController.update
- */
+// Update schema - all fields optional
 export const updateSchema = z.object({
   title: field.requiredString('Title', 3).optional(),
   content: field.requiredString('Content', 10).optional(),
@@ -46,37 +28,18 @@ export const updateSchema = z.object({
 
 ## Common Fields
 
-Import reusable fields from `CommonValidator.ts`:
-
 ```typescript
 import { field } from './CommonValidator';
 
-// Email (auto lowercase)
-email: field.email
-
-// Password (min 8 chars, 1 number)
-password: field.password
-
-// Phone (Indonesian format)
-phone: field.phone
-
-// Name (2-100 chars)
-name: field.name
-
-// UUID
-uuid: field.uuid
-
-// URL
-url: field.url
-
-// Slug
-slug: field.slug
-
-// Required string (customizable)
-requiredString: field.requiredString('Field Name', minLength)
-
-// Optional string
-optionalString: field.optionalString
+email: field.email              // Email (auto lowercase)
+password: field.password        // Password (min 8 chars, 1 number)
+phone: field.phone              // Phone (Indonesian format)
+name: field.name                // Name (2-100 chars)
+uuid: field.uuid                // UUID
+url: field.url                  // URL
+slug: field.slug                // Slug
+requiredString: field.requiredString('Field Name', minLength)  // Required string
+optionalString: field.optionalString  // Optional string
 ```
 
 ## Store vs Update Schemas
@@ -86,7 +49,7 @@ optionalString: field.optionalString
 export const storeSchema = z.object({
   title: field.requiredString('Title', 3),
   content: field.requiredString('Content', 10),
-  status: z.enum(['draft', 'published']),
+  status: z.enum(['draft', 'published']).default('draft'),
 });
 ```
 
@@ -101,59 +64,67 @@ export const updateSchema = z.object({
 
 ## Custom Validation
 
-Add custom validation with `refine`:
-
 ```typescript
-// Email OR phone required
 export const loginSchema = z.object({
-  email: z.string().optional(),
-  phone: z.string().optional(),
-}).refine(
-  (data) => data.email || data.phone,
-  { message: 'Email or phone is required', path: ['email'] }
-);
-
-// Password confirmation
-export const registerSchema = z.object({
+  email_or_phone: field.requiredString('Email or Phone', 3),
   password: field.password,
-  password_confirmation: z.string(),
 }).refine(
-  (data) => data.password === data.password_confirmation,
-  { message: 'Password confirmation does not match', path: ['password_confirmation'] }
+  (data) => field.email.safeParse(data.email_or_phone).success || 
+           field.phone.safeParse(data.email_or_phone).success,
+  { message: "Invalid email or phone" }
 );
 ```
 
 ## Conditional Fields
 
-Make fields optional based on conditions:
-
 ```typescript
-export const updateProfileSchema = z.object({
-  phone: z.string().nullish().refine(
-    (val) => !val || /^(\+62|62|0)[0-9]{9,12}$/.test(val),
-    'Invalid phone number format'
-  ),
-  avatar: z.string().nullish(),
-});
+export const registerSchema = z.object({
+  email: field.email,
+  phone: field.phone.optional(),
+}).refine(
+  (data) => data.email || data.phone,
+  { message: "Email or phone is required" }
+);
 ```
 
-## Using in Controller
-
-Import schema and use with `Validator.validate()`:
+## Usage in Controller
 
 ```typescript
-import Validator from "../services/Validator";
-import { storeSchema, updateSchema } from "../validators/PostValidator";
+import Validator from "../services/Validator"
+import { storeSchema, updateSchema } from "../validators/PostValidator"
 
-// In store method
-const body = await request.json();
 const validationResult = Validator.validate(storeSchema, body);
 if (!validationResult.success) {
   const firstError = Object.values(validationResult.errors || {})[0]?.[0] || 'Validasi gagal';
-  return response.flash("error", firstError).redirect("/posts/create", 302);
+  return response.flash("error", firstError).redirect("/path", 302);
 }
 const { title, content } = validationResult.data!;
 ```
+
+## Common Zod Methods
+
+```typescript
+z.string()                    // String type
+z.number()                    // Number type
+z.boolean()                   // Boolean type
+z.enum(['a', 'b'])           // Enum values
+z.array(z.string())          // Array of strings
+.optional()                   // Optional field
+.nullable()                   // Nullable field
+.min(3)                      // Minimum length
+.max(100)                    // Maximum length
+.email()                     // Email validation
+.url()                       // URL validation
+.refine()                    // Custom validation
+```
+
+## Validation Flow
+
+1. Import schema from validator file
+2. Use `Validator.validate(schema, data)`
+3. Check `validationResult.success`
+4. Extract errors or data
+5. Return appropriate response
 
 ## Complete Example
 
