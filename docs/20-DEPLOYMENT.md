@@ -253,9 +253,14 @@ Update `.env`:
 TRUST_PROXY=true
 ```
 
-Or update `server.ts`:
+Update `server.ts`:
 ```typescript
-app.express.set('trust proxy', true);
+const option = {
+  max_body_length: 10 * 1024 * 1024,
+  key_file_name : "",
+  cert_file_name : "",
+  trust_proxy: process.env.TRUST_PROXY === 'true',
+};
 ```
 
 4. **Origin Rules (Optional):**
