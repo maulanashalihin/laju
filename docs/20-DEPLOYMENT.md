@@ -48,17 +48,23 @@ Every push to `main` will automatically deploy to server.
 
 ### Setup
 
-1. **Copy workflow file:**
+1. **Move workflow file:**
    ```bash
-   cp -r github-workflow-sample/workflows .github/
+   mv github-workflow-sample/workflows .github/
    ```
 
-2. **Setup GitHub Secrets** (Repository → Settings → Secrets → Actions):
+2. **Edit workflow configuration** (`.github/workflows/deploy.yml`):
+   - Line 68: Change branch name (default: `main`)
+   - Line 97: Change project path (default: `/root/laju`)
+   - Line 100: Change branch name in `git pull` command
+   - Line 124: Change PM2 process name (default: `laju`)
+
+3. **Setup GitHub Secrets** (Repository → Settings → Secrets → Actions):
    - `SSH_HOST` - Server IP (e.g., `123.45.67.89`)
    - `SSH_USER` - SSH username (e.g., `root`)
    - `SSH_PRIVATE_KEY` - SSH private key (including `-----BEGIN...` and `-----END...`)
 
-3. **Push to GitHub:**
+4. **Push to GitHub:**
    ```bash
    git add .
    git commit -m "Update feature"
@@ -276,6 +282,6 @@ docker-compose logs -f
 
 ## Next Steps
 
-- [GitHub Actions Deploy Details](10-GITHUB-ACTIONS.md)
+- [GitHub Actions Deploy Details](21-GITHUB-ACTIONS.md)
 - [Backup & Restore](12-BACKUP-RESTORE.md)
 - [Best Practices](09-BEST-PRACTICES.md)

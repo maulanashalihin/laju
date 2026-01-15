@@ -60,28 +60,44 @@ Push to GitHub → GitHub Actions triggered → SSH to server → Pull code → 
 
 ## Quick Start
 
-### 1. Copy Workflow File
+### 1. Move Workflow File
 
-Copy the `workflows` folder from `github-workflow-sample` to your project root and rename it to `.github`:
+Move the `workflows` folder from `github-workflow-sample` to your project root and rename it to `.github`:
 
 ```bash
 # From project root
-cp -r github-workflow-sample/workflows .github/
+mv github-workflow-sample/workflows .github/
 ```
 
-Final structure:
+### 2. Edit Workflow Configuration
 
-```
-your-project/
-├── .github/
-│   └── workflows/
-│       └── deploy.yml
-├── app/
-├── resources/
-└── ...
+Edit `.github/workflows/deploy.yml` and customize these lines:
+
+| Line | Setting | Default | Change To |
+|------|---------|---------|-----------|
+| 68 | Branch name | `main` | Your branch name |
+| 97 | Project path | `/root/laju` | Your server path |
+| 100 | Git pull branch | `main` | Your branch name |
+| 124 | PM2 process name | `laju` | Your PM2 name |
+
+Example:
+```yaml
+# Line 68 - Change branch
+  push:
+    branches:
+      - production  # Your branch
+
+# Line 97 - Change project path
+          cd /var/www/myapp  # Your path
+
+# Line 100 - Change branch
+          git pull origin production  # Your branch
+
+# Line 124 - Change PM2 name
+          pm2 reload myapp  # Your PM2 name
 ```
 
-### 2. Setup GitHub Secrets
+### 3. Setup GitHub Secrets
 
 Open your GitHub repository:
 
@@ -525,6 +541,6 @@ jobs:
 
 ## Next Steps
 
-- [Deployment Guide](08-DEPLOYMENT.md) - Manual deployment guide
+- [Deployment Guide](20-DEPLOYMENT.md) - Manual deployment guide
 - [Best Practices](09-BEST-PRACTICES.md) - Development best practices
 - [API Reference](07-API-REFERENCE.md) - API documentation
