@@ -489,6 +489,41 @@ There are three ways to navigate in Inertia.js with Svelte:
 
 ### Toast Notifications
 
+#### Quick Method (Recommended)
+
+Use the `Toast` helper function for quick notifications:
+
+```svelte
+<script>
+  import { Toast } from '@/Components/helper.js';
+  
+  function showSuccess() {
+    Toast('Operation successful!', 'success', 3000);
+  }
+  
+  function showError() {
+    Toast('Something went wrong', 'error', 3000);
+  }
+  
+  function showWarning() {
+    Toast('Please check your input', 'warning', 3000);
+  }
+  
+  function showInfo() {
+    Toast('New message received', 'info', 3000);
+  }
+</script>
+
+<button onclick={showSuccess}>Show Success</button>
+<button onclick={showError}>Show Error</button>
+<button onclick={showWarning}>Show Warning</button>
+<button onclick={showInfo}>Show Info</button>
+```
+
+#### Custom Component Method
+
+Create a reusable Toast component:
+
 ```svelte
 <!-- Toast.svelte -->
 <script>
@@ -552,13 +587,17 @@ There are three ways to navigate in Inertia.js with Svelte:
 
 ## Form Handling
 
-### Complete Form Example
+### Simple Form with Flash Messages (Recommended)
+
+For most forms, use flash messages for error handling. The backend handles validation and sends flash messages automatically.
+
+**Note:** See [Flash Messages & Error Handling](04-ROUTING-CONTROLLERS.md#flash-messages--error-handling) in the Routing & Controllers documentation for backend validation patterns.
 
 ```svelte
 <script>
   import { router } from '@inertiajs/svelte';
   
-  let { user } = $props();
+  let { user, flash } = $props();
   
   let form = $state({
     name: user?.name || '',
@@ -566,63 +605,43 @@ There are three ways to navigate in Inertia.js with Svelte:
     phone: user?.phone || ''
   });
   
-  let errors = $state({});
-  let loading = $state(false);
-  let success = $state(false);
+  let isLoading = $state(false);
   
-  // Validation
-  let isValid = $derived(
-    form.name.length > 0 && 
-    form.email.includes('@')
-  );
-  
-  async function handleSubmit() {
-    errors = {};
-    
-    // Client-side validation
-    if (form.name.length < 2) {
-      errors.name = 'Name must be at least 2 characters';
-    }
-    if (!form.email.includes('@')) {
-      errors.email = 'Invalid email address';
-    }
-    
-    if (Object.keys(errors).length > 0) return;
-    
-    loading = true;
+  function handleSubmit() {
+    isLoading = true;
     
     router.post('/change-profile', form, {
-      onSuccess: () => {
-        success = true;
-        setTimeout(() => success = false, 3000);
-      },
-      onError: (errs) => {
-        errors = errs;
-      },
-      onFinish: () => {
-        loading = false;
-      }
+      onFinish: () => isLoading = false
     });
   }
 </script>
 
+<!-- Display flash messages from backend -->
+{#if flash?.error}
+  <div class="mb-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
+    <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span class="text-red-400 text-sm">{flash.error}</span>
+  </div>
+{/if}
+
+{#if flash?.success}
+  <div class="mb-4 p-4 rounded-xl bg-green-500/10 border border-green-500/20 flex items-start gap-3">
+    <svg class="w-5 h-5 text-green-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    <span class="text-green-400 text-sm">{flash.success}</span>
+  </div>
+{/if}
+
 <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-4">
-  {#if success}
-    <div class="bg-green-100 text-green-800 p-3 rounded">
-      Profile updated successfully!
-    </div>
-  {/if}
-  
   <div>
     <label class="block text-sm font-medium mb-1">Name</label>
     <input 
       bind:value={form.name}
       class="w-full border rounded px-3 py-2 focus:outline-none"
-      class:border-red-500={errors.name}
     />
-    {#if errors.name}
-      <p class="text-red-500 text-sm mt-1">{errors.name}</p>
-    {/if}
   </div>
   
   <div>
@@ -631,11 +650,7 @@ There are three ways to navigate in Inertia.js with Svelte:
       type="email"
       bind:value={form.email}
       class="w-full border rounded px-3 py-2 focus:outline-none"
-      class:border-red-500={errors.email}
     />
-    {#if errors.email}
-      <p class="text-red-500 text-sm mt-1">{errors.email}</p>
-    {/if}
   </div>
   
   <div>
@@ -649,12 +664,34 @@ There are three ways to navigate in Inertia.js with Svelte:
   
   <button 
     type="submit"
-    disabled={loading || !isValid}
+    disabled={isLoading}
     class="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
   >
-    {loading ? 'Saving...' : 'Save Changes'}
+    {isLoading ? 'Saving...' : 'Save Changes'}
   </button>
 </form>
+```
+
+**Backend Controller:**
+```typescript
+public async changeProfile(request: Request, response: Response) {
+  const body = await request.json();
+  
+  // Backend validates
+  if (!body.name || body.name.length < 2) {
+    return response.flash("error", "Name must be at least 2 characters").redirect("/profile", 303);
+  }
+  
+  if (!body.email || !body.email.includes('@')) {
+    return response.flash("error", "Invalid email address").redirect("/profile", 303);
+  }
+  
+  // Update database
+  await DB.from("users").where("id", request.user.id).update(body);
+  
+  // Send success message
+  return response.flash("success", "Profile updated successfully!").redirect("/profile", 303);
+}
 ```
 
 ---
