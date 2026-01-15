@@ -85,8 +85,17 @@ const { email, password } = validationResult.data!;
 
 ```typescript
 const body = await request.json();
-const validated = Validator.validateOrFail(schema, body, response);
-if (!validated) return;
+const validationResult = Validator.validate(schema, body);
+
+if (!validationResult.success) {
+   return response.status(422).json({
+      success: false,
+      message: 'Validation failed',
+      errors: validationResult.errors,
+   });
+}
+
+const validated = validationResult.data!;
 ```
 
 ## Database Operations
