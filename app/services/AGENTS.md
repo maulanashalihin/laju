@@ -131,17 +131,6 @@ if (result.success) {
 }
 ```
 
-#### `validateOrFail<T>(schema, data, response)`
-
-Validate and automatically send error response if failed. Returns `null` on failure.
-
-```typescript
-const validatedData = Validator.validateOrFail(schema, data, response);
-if (!validatedData) return; // Validation failed, response already sent
-
-// Continue with validated data
-```
-
 #### `validateOrThrow<T>(schema, data)`
 
 Validate and throw ZodError if validation fails.

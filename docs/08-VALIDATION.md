@@ -96,15 +96,12 @@ if (result.success) {
 }
 ```
 
-### `validateOrFail(schema, data, response)`
+### `validateOrThrow(schema, data)`
 
-Validate and automatically send error response if failed.
+Validate and throw ZodError if validation fails.
 
 ```typescript
-const validatedData = Validator.validateOrFail(schema, body, response);
-if (!validatedData) return; // Validation failed, response already sent
-
-// Continue with validated data
+const data = Validator.validateOrThrow(schema, body);
 ```
 
 ## Validation in Controllers
@@ -153,7 +150,7 @@ class ProfileController {
 
 ### For API Endpoints
 
-Use `validateOrFail()` for API responses:
+Use `validate()` and handle JSON response in controller:
 
 ```typescript
 // app/controllers/ApiController.ts
@@ -164,14 +161,23 @@ class ApiController {
   public async createPost(request: Request, response: Response) {
     const body = await request.json();
 
-    // Validate input (sends JSON error on failure)
-    const validatedData = Validator.validateOrFail(createPostSchema, body, response);
-    if (!validatedData) return; // Validation failed, response already sent
+    // Validate input
+    const validationResult = Validator.validate(createPostSchema, body);
+
+    if (!validationResult.success) {
+      return response.status(422).json({
+        success: false,
+        message: 'Validation failed',
+        errors: validationResult.errors,
+      });
+    }
+
+    const { title, content } = validationResult.data!;
 
     // Create post
     const post = await DB.table("posts").insert({
-      title: validatedData.title,
-      content: validatedData.content,
+      title,
+      content,
       user_id: request.user.id,
     });
 
@@ -180,18 +186,18 @@ class ApiController {
 }
 ```
 
-**Why use `validateOrFail()` for APIs?**
-- Automatically sends JSON error response on validation failure
-- Returns typed data on success
-- Standardized error format for API consumers
-- Less boilerplate code
+**Why handle response in controller?**
+- Controller owns HTTP response logic
+- Flexibility to customize error format per endpoint
+- Easier testing without mocking Response object
+- Clear separation of concerns
 
 ### Choosing the Right Method
 
 | Use Case | Method | Response Type | Example |
 |----------|--------|---------------|---------|
 | Inertia forms | `validate()` | Flash + Redirect | User registration, profile update |
-| API endpoints | `validateOrFail()` | JSON | Mobile app, external integrations |
+| API endpoints | `validate()` | JSON | Mobile app, external integrations |
 | Internal validation | `validateOrThrow()` | Exception | Background jobs, services |
 
 ## Common Schemas

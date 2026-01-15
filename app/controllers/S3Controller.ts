@@ -12,10 +12,17 @@ class S3Controller {
     try {
       const body = await request.json();
       
-      const validated = Validator.validateOrFail(signedUrlSchema, body, response);
-      if (!validated) return;
+      const validationResult = Validator.validate(signedUrlSchema, body);
       
-      const { filename, contentType } = validated;
+      if (!validationResult.success) {
+         return response.status(422).json({
+            success: false,
+            message: 'Validation failed',
+            errors: validationResult.errors,
+         });
+      }
+      
+      const { filename, contentType } = validationResult.data!;
  
      
 

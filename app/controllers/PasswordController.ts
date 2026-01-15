@@ -31,10 +31,17 @@ class PasswordController {
    public async resetPassword(request: Request, response: Response) {
       const body = await request.json();
       
-      const validated = Validator.validateOrFail(resetPasswordSchema, body, response);
-      if (!validated) return;
+      const validationResult = Validator.validate(resetPasswordSchema, body);
       
-      const { id, password } = validated;
+      if (!validationResult.success) {
+         return response.status(422).json({
+            success: false,
+            message: 'Validation failed',
+            errors: validationResult.errors,
+         });
+      }
+      
+      const { id, password } = validationResult.data!;
 
       const token = await DB.from("password_reset_tokens")
          .where("token", id)
@@ -136,8 +143,17 @@ This link will expire in 24 hours.
 
       const body = await request.json();
 
-      const validated = Validator.validateOrFail(changePasswordSchema, body, response);
-      if (!validated) return;
+      const validationResult = Validator.validate(changePasswordSchema, body);
+      
+      if (!validationResult.success) {
+         return response.status(422).json({
+            success: false,
+            message: 'Validation failed',
+            errors: validationResult.errors,
+         });
+      }
+      
+      const validated = validationResult.data!;
 
       const user = await DB.from("users")
          .where("id", request.user.id)

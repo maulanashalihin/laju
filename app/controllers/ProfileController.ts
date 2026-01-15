@@ -48,8 +48,17 @@ class ProfileController {
 
       const body = await request.json();
 
-      const validated = Validator.validateOrFail(deleteUsersSchema, body, response);
-      if (!validated) return;
+      const validationResult = Validator.validate(deleteUsersSchema, body);
+      
+      if (!validationResult.success) {
+         return response.status(422).json({
+            success: false,
+            message: 'Validation failed',
+            errors: validationResult.errors,
+         });
+      }
+      
+      const validated = validationResult.data!;
 
       if (!request.user.is_admin) {
          return response.status(403).json({ error: "Unauthorized" });

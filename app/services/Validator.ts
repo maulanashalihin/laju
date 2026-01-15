@@ -55,32 +55,6 @@ class ValidatorService {
   }
 
   /**
-   * Validate and return data or send error response
-   * @param schema - Zod schema to validate against
-   * @param data - Data to validate
-   * @param response - HyperExpress response object
-   * @returns Validated data or null if validation fails
-   */
-  validateOrFail<T>(
-    schema: ZodSchema<T>,
-    data: unknown,
-    response: Response
-  ): T | null {
-    const result = this.validate(schema, data);
-
-    if (!result.success) {
-      response.status(422).json({
-        success: false,
-        message: 'Validation failed',
-        errors: result.errors,
-      });
-      return null;
-    }
-
-    return result.data!;
-  }
-
-  /**
    * Validate and throw error if validation fails
    * @param schema - Zod schema to validate against
    * @param data - Data to validate
