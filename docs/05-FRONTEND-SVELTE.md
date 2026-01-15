@@ -385,6 +385,35 @@ Svelte 5 introduces runes - a new reactive primitive system:
 
 ### Navigation
 
+There are three ways to navigate in Inertia.js with Svelte:
+
+#### 1. Using Link Component
+
+```svelte
+<script>
+  import { Link } from '@inertiajs/svelte';
+</script>
+
+<Link href="/posts">Posts</Link>
+<Link href="/dashboard" method="post" as="button">Create</Link>
+```
+
+#### 2. Using `use:inertia` Directive
+
+```svelte
+<script>
+  import { inertia } from '@inertiajs/svelte';
+</script>
+
+<!-- With anchor tag -->
+<a href="/posts" use:inertia>Posts</a>
+
+<!-- With button -->
+<button use:inertia href="/dashboard">Go to Dashboard</button>
+```
+
+#### 3. Programmatic Navigation
+
 ```svelte
 <script>
   import { router } from '@inertiajs/svelte';
@@ -396,14 +425,15 @@ Svelte 5 introduces runes - a new reactive primitive system:
   function goBack() {
     history.back();
   }
+  
+  function visitWithMethod() {
+    router.post('/posts', { title: 'New Post' });
+  }
 </script>
 
-<!-- Inertia Link -->
-<a href="/posts">Posts</a>
-
-<!-- Programmatic navigation -->
 <button onclick={() => navigate('/dashboard')}>Go to Dashboard</button>
 <button onclick={goBack}>Back</button>
+<button onclick={visitWithMethod}>Create Post</button>
 ```
 
 ---
