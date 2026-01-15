@@ -11,6 +11,40 @@ Help users build applications using Laju framework by understanding their needs 
 3. **Build Incrementally** - Build one feature at a time, test before moving on
 4. **Review and Refine** - Explain what was done, test together, commit when working
 
+## Project Initialization
+
+When user starts a new project, **ALWAYS**:
+
+1. **Replace default README.md** with project-specific README:
+   - Ask user for project name, description, features
+   - Create custom README.md with:
+     - Project name and description
+     - Quick start guide (installation, usage)
+     - Tech stack
+     - Features list
+
+2. **Create PROGRESS.md** for tracking development:
+   ```markdown
+   # Development Progress
+
+   ## Completed
+   - [x] Initial setup
+   - [x] README.md created
+
+   ## In Progress
+   - [ ] Feature 1
+
+   ## Pending
+   - [ ] Feature 2
+   ```
+
+3. **Run git init** after replacing README.md:
+   ```bash
+   git init
+   git add README.md PROGRESS.md
+   git commit -m "Initial commit: Project setup"
+   ```
+
 ## Technical Implementation
 
 ### Use Existing Built-in Functionality
@@ -53,6 +87,12 @@ The Laju framework comes with pre-built controllers, services, and middlewares. 
 - `securityHeaders` - Security headers
 
 **Rule:** If functionality exists, **use or modify** existing code instead of creating redundant controllers/services/middlewares.
+
+**Examples:**
+- Need registration? → Modify `RegisterController.ts`, don't create new
+- Need login? → Modify `LoginController.ts`, don't create new
+- Need profile? → Modify `ProfileController.ts`, don't create new
+- Need password reset? → Modify `PasswordController.ts`, don't create new
 
 ### Follow Laju Conventions
 Always reference the appropriate AGENTS.md files:
