@@ -37,7 +37,9 @@ t('errors.required', 'id', { field: 'Email' })  // "Email wajib diisi"
 
 ## Language Files
 
-Translation files are stored in `app/services/languages/`:
+### Server-Side (SSR)
+
+Translation files for server-side rendering are stored in `app/services/languages/`:
 
 ```
 app/services/languages/
@@ -47,6 +49,21 @@ app/services/languages/
 ├── fr.json
 └── ...
 ```
+
+### Client-Side (Svelte/Inertia)
+
+Translation files for client-side rendering are stored in `resources/js/languages/`:
+
+```
+resources/js/languages/
+├── en.json
+├── id.json
+├── ar.json
+├── fr.json
+└── ...
+```
+
+> **Note**: You can copy language files from `app/services/languages/` to `resources/js/languages/` or maintain separate translations for server and client.
 
 ### Basic Structure
 
@@ -130,49 +147,58 @@ class UserController {
 
 ## Usage in Inertia Pages (Svelte)
 
-For Svelte/Inertia pages, create your own translation setup in `resources/js/Components` and import it into your pages.
+For Svelte/Inertia pages, use the simple `Translation.js` helper in `resources/js/Components/Translation.js`. Language files are stored in `resources/js/languages/`.
 
-### Create Translation Component
-
-```svelte
-<!-- resources/js/Components/Translation.svelte -->
-<script>
-  let { lang = 'en' } = $props();
-
-  // Load language files
-  const translations = {
-    en: () => import('../../app/services/languages/en.json'),
-    id: () => import('../../app/services/languages/id.json'),
-    // Add more languages as needed
-  };
-
-  $effect(() => {
-    // Load translations when language changes
-    translations[lang]?.();
-  });
-
-  function t(key: string, params: Record<string, any> = {}) {
-    // Implement translation logic here
-    return key;
-  }
-</script>
-
-<slot {t} />
-```
-
-### Use in Svelte Page
+### Basic Usage
 
 ```svelte
 <!-- resources/js/Pages/Dashboard.svelte -->
 <script>
-  import Translation from '../Components/Translation.svelte';
-  let { lang = 'en' } = $props();
+  import { t, initTranslation } from '../Components/Translation.js';
+
+  // Initialize translation (uses localStorage or defaults to 'en')
+  initTranslation();
 </script>
 
-<Translation lang={lang} let:t>
-  <h1>{t('welcome')}</h1>
-  <p>{t('dashboard')}</p>
-</Translation>
+<h1>{t('welcome')}</h1>
+<p>{t('dashboard')}</p>
+```
+
+### With Interpolation
+
+```svelte
+<script>
+  import { t, initTranslation } from '../Components/Translation.js';
+  let userName = $state('John');
+
+  initTranslation();
+</script>
+
+<h1>{t('greeting', { name: userName })}</h1>
+```
+
+### Change Language Dynamically
+
+```svelte
+<script>
+  import { t, initTranslation, setLanguage } from '../Components/Translation.js';
+  let currentLang = $state('en');
+
+  initTranslation();
+
+  async function changeLanguage(newLang) {
+    currentLang = newLang;
+    await setLanguage(newLang); // Saves to localStorage automatically
+  }
+</script>
+
+<select bind:value={currentLang} onchange={(e) => changeLanguage(e.target.value)}>
+  <option value="en">English</option>
+  <option value="id">Indonesian</option>
+  <option value="ar">Arabic</option>
+</select>
+
+<h1>{t('welcome')}</h1>
 ```
 
 ### Alternative: Pass from Controller
