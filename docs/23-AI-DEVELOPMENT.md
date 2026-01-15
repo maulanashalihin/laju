@@ -22,27 +22,14 @@ That's it! Your project is now running at `http://localhost:5555`
 
 ### Step 2: Set Up Your Project
 
-The AI will help you set up your project:
-
-**Replace README.md:**
+The AI will help you set up your project in the right order:
+ 
+**1. Describe Your App:**
 ```
-AI: "Let's update README.md with your project details.
-What should we call this project?
-What does it do?
-Who will use it?"
+AI: "What do you want to build? Please describe your app in simple terms."
 ```
 
-**Initialize Git:**
-```
-AI: "Now let's set up git so we can save your progress.
-I'll initialize the repository and make the first commit."
-```
-
-You don't need to do anything - the AI handles it automatically!
-
-### Step 3: Tell AI What You Want to Build
-
-Open your AI assistant (Claude Code, Cursor, Windsurf, etc.) and describe your app in simple terms:
+**Important:** Describe ALL features you want upfront. We use the **Waterfall method** - define everything first, then build everything at once.
 
 ```
 I want to build a simple task management app where:
@@ -50,21 +37,87 @@ I want to build a simple task management app where:
 - Each project has tasks
 - Tasks can be marked as done or not done
 - Show all tasks on a dashboard
+- Users can assign tasks to people
+- Users can add comments to tasks
+- Users can filter tasks by status
 ```
 
-### Step 4: Let AI Build It
+**Optional:** If you have design references, mention them:
+- Design system (e.g., "Use shadcn/ui components")
+- UI kit (e.g., "I have a Figma design I can share")
+- Branding preferences (e.g., "Use blue and purple colors")
+- Similar apps (e.g., "Like Trello but simpler")
+
+**Why Waterfall?**
+- All features are built together concurrently
+- No need to come back and add features later
+- Faster overall development time
+- Better integration between features
+
+**2. Create Project Documentation:**
+```
+AI: "Let's set up your project properly.
+- I'll create a README.md with your project details
+- I'll create a PRD.md with your product requirements and design specifications
+- I'll create a PROGRESS.md to track our development progress"
+```
+
+**3. Review Documentation:**
+```
+AI: "Please review the documentation I created:
+- README.md - Project overview, features, tech stack
+- PRD.md - Requirements, design specifications
+- PROGRESS.md - Development tracking template
+
+Let me know if you'd like any changes before I proceed."
+```
+
+**4. Setup Design System:**
+```
+AI: "Now I'll configure the design system.
+- I'll set up your branding colors and typography in tailwind.config.js
+- I'll import TailwindCSS 3 directives in your CSS file"
+```
+
+**5. Create Database:**
+```
+AI: "I'll create the database structure for your app.
+- I'll create migration files for your data tables
+- I'll run the migrations to set up your database"
+```
+
+**6. Initialize Git:**
+```
+AI: "Now let's set up git so we can save your progress.
+I'll initialize the repository and make the first commit."
+```
+
+You don't need to do anything - the AI handles it automatically!
+
+### Step 3: Let AI Build It (Concurrent Workflow)
+
+After git init, your project is ready! The AI can now work on multiple features **simultaneously**:
 
 The AI will:
 1. Ask you clarifying questions (answer them in plain language)
-2. Create all the necessary files automatically
-3. Set up the database
-4. Build the user interface
-5. Make everything work together
-6. **Auto-save your progress** (you don't need to worry about git)
+2. Create all necessary files **in parallel** - controllers, pages, migrations, routes
+3. Build the user interface for all features at once
+4. Make everything work together
+5. **Auto-save your progress** (you don't need to worry about git)
+
+**Key benefit:** All phases happen concurrently - the AI doesn't wait for one feature to finish before starting the next. Everything gets built together!
+
+**Test & Review During Development:**
+As the AI builds each feature, you can:
+- **Test** - Open `http://localhost:5555` and try out each feature as it's built
+- **Review** - Check if the feature works as you described
+- **Give feedback** - Tell the AI what to change: "The button should be blue" or "Add a confirmation dialog"
+
+The AI will adjust based on your feedback immediately while continuing to build other features in parallel.
 
 You just need to review and say "yes" or "make changes".
 
-### Step 5: Test Your App
+### Step 4: Test Your App
 
 Open `http://localhost:5555` in your browser and try it out!
 
@@ -75,47 +128,84 @@ The create project button doesn't work, please fix it
 
 The AI will fix it and save the changes automatically.
 
-### Step 6: Keep Improving
+### Step 5: Deployment
 
-Want to add more features? Just ask:
+When all features are working as expected, deploy your app:
+
 ```
-Add the ability to assign tasks to people
+How do I deploy this app so others can use it?
 ```
 
-The AI will:
-1. Add the feature
-2. Test it
-3. Save your progress automatically
-4. Update your README with the new feature
+The AI will guide you through the deployment process.
+
+**Note:** We use the Waterfall development method - all features are defined upfront in Step 2 and built together. If you discover you need additional features later, you'll need to start a new development cycle from Step 2.
 
 ---
 
-## Real Example: Building a Blog
+## Resuming Work on Your Project
 
-### What You Say:
+If you need to take a break and come back later, here's how to continue:
+
+### Check Your Progress First
+
+Always start by checking `PROGRESS.md` to see what's been completed:
 
 ```
-I want a simple blog where:
-- I can write and publish articles
-- People can read articles
-- Each article has a title and content
-- Show a list of all articles on the homepage
+AI: "Let me check PROGRESS.md to see where we left off..."
 ```
 
-### What AI Does (Automatically):
+The AI will read your progress and show you:
+- What's already been built
+- What's currently in progress
+- What's still pending
 
-1. **Creates database** - Sets up tables for articles
-2. **Builds admin panel** - Page where you write articles
-3. **Creates homepage** - Shows all articles to readers
-4. **Makes it look nice** - Clean, modern design
-5. **Connects everything** - All features work together
+### Continue Building
 
-### What You Do:
+The AI will automatically continue with pending items from PROGRESS.md:
 
-1. Review the AI's work
-2. Test it in your browser
-3. Ask for changes if needed
-4. Done!
+```
+AI: "I see from PROGRESS.md that we have these pending items:
+- User authentication
+- Task creation form
+- Dashboard with task list
+
+Let's continue building these features."
+```
+
+The AI will:
+1. Read PROGRESS.md to see pending items
+2. Start building the pending features concurrently
+3. Test and review as features are completed
+4. Auto-save progress after each working feature
+
+### Example: Resuming After a Break
+
+**You:**
+```
+I'm back. Let's continue where we left off.
+```
+
+**AI:**
+```
+I checked PROGRESS.md. Here's our current status:
+
+✅ Completed:
+- Initial setup
+- README.md created
+- PRD.md created
+- Design system configured
+- Database migrations
+
+🔄 In Progress:
+- User authentication (login page)
+
+⏳ Pending:
+- User registration
+- Task creation
+- Dashboard
+
+Let's continue with user authentication. I'll complete the login page and start on registration.
+```
 
 ---
 
@@ -155,24 +245,27 @@ Describe what happens step by step:
 4. The project is saved and appears in the project list
 ```
 
-### Start Simple, Add Later
+### Be Thorough in Your Description
 
-Don't try to build everything at once. Start with the basics:
+With the Waterfall method, it's important to describe all features upfront:
 
-**First iteration:**
+**Good (Complete Description):**
 ```
-Create projects with name only
+I want a task management app where:
+- Users can create projects with name and description
+- Each project has tasks
+- Tasks can be marked as done or not done
+- Users can assign tasks to people
+- Users can add comments to tasks
+- Show all tasks on a dashboard
 ```
 
-**Second iteration:**
+**Incomplete (Will Need Another Cycle):**
 ```
-Add description field to projects
+I want a task management app with projects and tasks.
 ```
 
-**Third iteration:**
-```
-Add tasks to projects
-```
+**Tip:** Take time to think through all the features you need before starting. The AI will ask clarifying questions to help you be thorough.
 
 ---
 
@@ -219,58 +312,31 @@ I don't understand what you mean by [technical term]. Please explain in simple t
 
 ---
 
-## Example Conversations
+## Practical Tips from Practitioners
 
-### Example 1: Simple Feature Request
+### Use Different AI Models for Different Phases
 
-**You:**
-```
-I want users to be able to delete projects
-```
+**Before Starting Your Project:**
+- Use **Gemini 3 Pro** (via Gemini Web) for:
+  - Creating complete PRD (Product Requirements Document)
+  - Designing landing page
+  - Creating design system and UI-kit
+  - Gemini 3 Pro excels at visual design and comprehensive documentation
 
-**AI:**
-```
-I'll add a delete button to each project card. When clicked, it will ask for confirmation, then delete the project. Should I proceed?
-```
+**During Development:**
+- Use **GLM 4.7** or similar cost-effective AI models for:
+  - Writing code and implementing features
+  - Debugging and fixing issues
+  - More affordable for extended development sessions
 
-**You:**
-```
-Yes, that sounds good
-```
+**Why This Approach?**
+- Saves money - use expensive AI only for design/planning phase
+- Better results - leverage each AI's strengths
+- Faster development - design is ready before coding starts
 
-**AI:**
-```
-Done! I've added the delete functionality. You can now delete projects from the project list page.
-```
+### AGENT.md Configuration
 
-### Example 2: Fixing a Problem
-
-**You:**
-```
-When I try to create a task, nothing happens
-```
-
-**AI:**
-```
-Let me check the code... I see the issue. The form isn't submitting correctly. I'll fix it now.
-```
-
-**AI:**
-```
-Fixed! Try creating a task again. It should work now.
-```
-
-### Example 3: Making Changes
-
-**You:**
-```
-I want the task list to show the most recent tasks first
-```
-
-**AI:**
-```
-I'll update the sorting to show tasks in descending order by creation date. Done!
-```
+The AGENT.md file in this project is designed for **Windsurf** editor structure. If you're using a different AI editor (Cursor, Claude Code, etc.), you may need to adjust the configuration to match your editor's specific requirements and conventions.
 
 ---
 
@@ -280,24 +346,10 @@ I'll update the sorting to show tasks in descending order by creation date. Done
 - [ ] Install Node.js (if not already installed)
 - [ ] Choose an AI assistant (Claude Code, Cursor, Windsurf, etc.)
 - [ ] Create your project: `npx create-laju-app my-project`
-- [ ] Describe your app to the AI
+- [ ] Describe ALL features you want (be thorough!)
+- [ ] Review and approve documentation (README, PRD, PROGRESS)
 - [ ] Test it in your browser
-- [ ] Ask for improvements
 - [ ] Deploy when ready
-
----
-
-## What You Can Build
-
-With Laju + AI, you can build:
-
-- **Websites** - Blogs, portfolios, landing pages
-- **Web Apps** - Task managers, CRMs, dashboards
-- **Tools** - Calculators, converters, utilities
-- **Platforms** - Marketplaces, social networks, forums
-- **And much more!**
-
-If you can describe it, AI can build it.
 
 ---
 
@@ -322,13 +374,12 @@ The AI will teach you at your own pace.
 **To build an app with Laju + AI:**
 
 1. Create project (1 command)
-2. Describe what you want (plain language)
-3. Let AI build it
+2. Set up project with AI (describe ALL features upfront)
+3. Let AI build everything concurrently
 4. Test in browser
-5. Ask for changes
-6. Deploy
+5. Deploy
 
-**No coding required. Just describe, review, and iterate.**
+**No coding required. Just describe thoroughly and let AI build it.**
 
 ---
 

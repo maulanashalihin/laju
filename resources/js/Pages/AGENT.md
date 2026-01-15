@@ -12,7 +12,7 @@
 - Use `.svelte` extension with JavaScript syntax (no type annotations)
 - No `: string`, `: number`, `: boolean`, or any TypeScript types
 
-**Tech Stack:** Tailwind CSS v4, Svelte, CSS-in-JS
+**Tech Stack:** Tailwind CSS v3, Svelte, CSS-in-JS
 **Styling:** Always use `focus:outline-none` on form inputs, avoid emojis
 
 ## Basic Pattern
@@ -60,23 +60,28 @@
 ```svelte
 <script>
   import { router } from '@inertiajs/svelte'
+  import { Toast } from '../Components/helper.js'
+  import { onMount } from 'svelte'
   import Header from '../Components/Header.svelte'
   let { flash, post } = $props()
   let form = $state({ title: post?.title || '', content: post?.content || '' })
   let isLoading = $state(false)
-  let serverError = $state('')
+
+  onMount(() => {
+    if (flash?.error) {
+      Toast(flash.error, 'error')
+    }
+    if (flash?.success) {
+      Toast(flash.success, 'success')
+    }
+  })
 
   function submitForm() {
-    serverError = ''
     isLoading = true
     const method = post ? router.put : router.post
     const url = post ? `/posts/${post.id}` : '/posts'
     method(url, form, {
-      onFinish: () => isLoading = false,
-      onError: (errors) => {
-        isLoading = false
-        serverError = Object.values(errors)[0] || 'Terjadi kesalahan'
-      }
+      onFinish: () => isLoading = false
     })
   }
 </script>
@@ -84,12 +89,6 @@
 <Header />
 <div class="max-w-2xl mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">{post ? 'Edit Post' : 'Create Post'}</h1>
-  {#if flash?.error}
-    <div class="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">{flash.error}</div>
-  {/if}
-  {#if serverError}
-    <div class="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">{serverError}</div>
-  {/if}
   <form onsubmit={(e) => { e.preventDefault(); submitForm(); }}>
     <div class="space-y-4">
       <div>
@@ -107,6 +106,12 @@
   </form>
 </div>
 ```
+
+**Important:** 
+- **Use `flash` prop** for error/success messages from controller
+- **Display flash in `onMount`** using Toast for long forms
+- **Don't use `onError` callback** - errors come from flash prop
+- **Controller uses `response.flash()`** to send messages
 
 ## Common Patterns
 

@@ -55,19 +55,24 @@ When user starts a new project, **ALWAYS** follow this sequence:
    - [ ] Feature 2
    ```
 
-5. **Setup design system** in `resources/js/index.css`:
-   - Apply branding colors from PRD.md
-   - Set up typography
-   - Configure design tokens
+5. **Review documentation** - Ask user to review and approve:
+   - README.md - Project overview, features, tech stack
+   - PRD.md - Requirements, design specifications
+   - PROGRESS.md - Development tracking template
+   - Wait for user confirmation before proceeding
 
-6. **Create migrations** for database schema
+6. **Setup design system**:
+   - Configure theme in `tailwind.config.js` (branding colors, typography, design tokens from PRD.md)
+   - Import Tailwind directives in `resources/js/index.css`
 
-7. **Run migrations**:
+7. **Create migrations** for database schema
+
+8. **Run migrations**:
    ```bash
    knex migrate:latest
    ```
 
-8. **Git init and first commit**:
+9. **Git init and first commit**:
    ```bash
    git init
    git add .
