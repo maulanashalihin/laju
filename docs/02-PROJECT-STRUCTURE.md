@@ -19,6 +19,7 @@ laju/
 ├── commands/                     # CLI commands
 ├── tests/                        # Test suite
 ├── public/                       # Static assets
+├── storage/                      # Local file storage (when STORAGE_DRIVER=local)
 ├── dist/                         # Compiled frontend (Vite)
 ├── build/                        # Production build
 ├── data/                         # SQLite databases
@@ -93,10 +94,13 @@ app/controllers/
 │   ├── distFolder()        # Serve compiled assets
 │   └── publicFolder()      # Serve public files
 │
-└── S3Controller.ts         # S3 operations
-    ├── getSignedUrl()      # Generate presigned URL
-    ├── getPublicUrl()      # Get public file URL
-    └── health()            # S3 health check
+├── S3Controller.ts         # S3 operations
+│   ├── getSignedUrl()      # Generate presigned URL
+│   ├── getPublicUrl()      # Get public file URL
+│   └── health()            # S3 health check
+│
+└── StorageController.ts    # Local storage operations
+    └── serveFile()         # Serve local storage files
 ```
 
 ### Middleware (`app/middlewares/`)
@@ -159,6 +163,13 @@ app/services/
 │   ├── getPublicUrl()      # Get public URL
 │   ├── getObject()         # Download file
 │   └── deleteObject()      # Delete file
+│
+├── LocalStorage.ts         # Local filesystem storage
+│   ├── uploadBuffer()      # Upload file to disk
+│   ├── getPublicUrl()      # Get public URL
+│   ├── getObject()         # Download file
+│   ├── deleteObject()      # Delete file
+│   └── exists()            # Check if file exists
 │
 ├── Mailer.ts               # SMTP email (Nodemailer)
 │   └── send()              # Send email via SMTP

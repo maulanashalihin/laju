@@ -6,7 +6,9 @@ import OAuthController from "../app/controllers/OAuthController";
 import Auth from "../app/middlewares/auth"
 import HomeController from "../app/controllers/HomeController";
 import AssetController from "../app/controllers/AssetController";
+import UploadController from "../app/controllers/UploadController";
 import S3Controller from "../app/controllers/S3Controller";
+import StorageController from "../app/controllers/StorageController";
 import HyperExpress from 'hyper-express';
 
 // Rate limiting middleware
@@ -30,17 +32,34 @@ Route.get("/", HomeController.index);
 Route.get("/test", HomeController.test);
 
 /**
+ * Upload Routes
+ * Routes for file uploads
+ * ------------------------------------------------
+ * POST /api/upload/image - Upload image with processing
+ * POST /api/upload/file - Upload file (PDF, Word, Excel, etc.)
+ */
+Route.post("/api/upload/image", [Auth, uploadRateLimit], UploadController.uploadImage);
+Route.post("/api/upload/file", [Auth, uploadRateLimit], UploadController.uploadFile);
+
+/**
  * S3 Routes
  * Routes for handling S3 operations
  * ------------------------------------------------
  * POST /api/s3/signed-url - Generate signed URL for file upload
- * POST /api/s3/product-image-url - Generate signed URL for product images
  * GET  /api/s3/public-url/:fileKey - Get public URL for existing file
  * GET  /api/s3/health - S3 service health check
  */
 Route.post("/api/s3/signed-url", [Auth, uploadRateLimit], S3Controller.getSignedUrl);
 Route.get("/api/s3/public-url/:fileKey", [apiRateLimit], S3Controller.getPublicUrl);
 Route.get("/api/s3/health", [apiRateLimit], S3Controller.health);
+
+/**
+ * Local Storage Static Files
+ * Serves files from local storage
+ * ------------------------------------------------
+ * GET /storage/* - Serve local storage files
+ */
+Route.get("/storage/*", StorageController.serveFile);
 /**
  * Authentication Routes
  * Routes for handling user authentication

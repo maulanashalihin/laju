@@ -1,22 +1,30 @@
-# S3 Storage Guide
+# Storage Guide
 
-Complete guide for S3 storage and file uploads in Laju framework.
+Complete guide for file storage in Laju framework with support for S3 and Local filesystem.
 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Configuration](#configuration)
-3. [S3 Service Methods](#s3-service-methods)
-4. [Presigned URL Uploads](#presigned-url-uploads)
-5. [Server Implementation](#server-implementation)
-6. [Client Implementation](#client-implementation)
-7. [Best Practices](#best-practices)
+2. [S3 Storage](#s3-storage)
+3. [Local Storage](#local-storage)
+4. [Choosing the Right Storage](#choosing-the-right-storage)
+5. [Best Practices](#best-practices)
 
 ---
 
 ## Overview
 
-Laju uses Wasabi/S3 for file storage with presigned URLs for secure uploads.
+Laju provides two separate storage services that can be used independently:
+- **S3 Storage** - Wasabi/S3 for production with presigned URLs
+- **Local Storage** - Filesystem storage for development and small projects
+
+Both services are available and can be used simultaneously in your application.
+
+---
+
+## S3 Storage
+
+S3 storage uses Wasabi/S3 with presigned URLs for secure uploads.
 
 ### Why Presigned URLs?
 
@@ -25,12 +33,9 @@ Laju uses Wasabi/S3 for file storage with presigned URLs for secure uploads.
 - **Secure** - Time-limited, signed URLs
 - **Scalable** - Handle unlimited concurrent uploads
 
----
-
-## Configuration
+### Configuration
 
 ```env
-# .env
 WASABI_ACCESS_KEY=your_access_key
 WASABI_SECRET_KEY=your_secret_key
 WASABI_BUCKET=laju-dev
@@ -39,14 +44,12 @@ WASABI_ENDPOINT=https://s3.ap-southeast-1.wasabisys.com
 CDN_URL=https://cdn.example.com  # Optional
 ```
 
----
-
-## S3 Service Methods
+### S3 Service Methods
 
 ```typescript
-import { 
-  uploadBuffer, 
-  getSignedUploadUrl, 
+import {
+  uploadBuffer,
+  getSignedUploadUrl,
   getPublicUrl,
   getObject,
   deleteObject,
@@ -85,96 +88,305 @@ const fileExists = await exists('assets/photo.jpg');
 
 ---
 
-## Presigned URL Uploads
+## Local Storage
 
-Recommended approach for file uploads.
+Local storage uses the filesystem for file storage.
 
-### Flow
+### When to Use Local Storage
 
-1. Client requests presigned URL from server
-2. Server generates time-limited signed URL
-3. Client uploads file directly to S3 using signed URL
-4. Client saves public URL to database
+- **Development** - No need for S3 credentials
+- **Small projects** - Simple deployment without cloud costs
+- **Testing** - Easier to test without external dependencies
+- **Internal tools** - Files stay on your server
+
+### Configuration
+
+```env
+LOCAL_STORAGE_PATH=./storage
+LOCAL_STORAGE_PUBLIC_URL=/storage
+```
+
+### LocalStorage Service Methods
+
+```typescript
+import {
+  uploadBuffer,
+  getPublicUrl,
+  getObject,
+  deleteObject,
+  exists
+} from "app/services/LocalStorage";
+
+// Upload buffer directly
+await uploadBuffer(
+  'assets/photo.jpg',           // key
+  buffer,                       // file buffer
+  'image/jpeg'                  // content type (optional)
+);
+
+// Get public URL
+const publicUrl = getPublicUrl('assets/photo.jpg');
+// Returns: /storage/assets/photo.jpg
+
+// Download file
+const response = await getObject('assets/photo.jpg');
+const buffer = response.Body;
+
+// Delete file
+await deleteObject('assets/photo.jpg');
+
+// Check if file exists
+const fileExists = await exists('assets/photo.jpg');
+```
+
+### Serving Local Files
+
+Add a route to serve local files:
+
+```typescript
+// routes/web.ts
+import StorageController from "../app/controllers/StorageController";
+
+Route.get("/storage/*", StorageController.serveFile);
+```
+
+### Directory Structure
+
+```
+project/
+├── storage/
+│   └── assets/
+│       ├── photo1.jpg
+│       └── photo2.jpg
+└── app/
+```
+
+---
+
+## Choosing the Right Storage
+
+- **Development** - Use `local` for faster iteration and no external dependencies
+- **Production** - Use `s3` for scalability, CDN, and better performance
+- **Testing** - Use `local` for simpler test setup
+- **Small/Internal Projects** - Use `local` to reduce costs
+
+Both services can be used simultaneously in the same application. Simply import the service you need:
+
+```typescript
+// Use S3 for user uploads
+import { uploadBuffer as uploadToS3 } from "app/services/S3";
+
+// Use local storage for temporary files
+import { uploadBuffer as uploadToLocal } from "app/services/LocalStorage";
+```
 
 ---
 
 ## Server Implementation
 
-### Controller
+### UploadController
+
+Laju provides a dedicated controller for handling file uploads with two separate methods:
 
 ```typescript
-// app/controllers/S3Controller.ts
-import { Request, Response } from "../../type";
-import { getSignedUploadUrl, getPublicUrl } from "../services/S3";
-import { randomUUID } from "crypto";
+// app/controllers/UploadController.ts
+import { uuidv7 } from "uuidv7";
+import sharp from "sharp";
+import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
 
-class S3Controller {
-  public async getSignedUrl(request: Request, response: Response) {
-    const { filename, contentType } = await request.json();
-    
-    // Validate content type
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
-    if (!allowedTypes.includes(contentType)) {
-      return response.status(400).json({ error: 'Invalid file type' });
+class UploadController {
+  /**
+   * Upload Image with Processing
+   * - Validates image type (JPEG, PNG, GIF, WebP)
+   * - Processes with Sharp (resize, convert to WebP)
+   * - Uploads to storage
+   * - Saves metadata to database
+   */
+  public async uploadImage(request: Request, response: Response) {
+    if (!request.user) {
+      return response.status(401).json({ error: 'Unauthorized' });
     }
-    
-    // Generate unique key
-    const ext = filename.split('.').pop();
-    const key = `uploads/${request.user.id}/${randomUUID()}.${ext}`;
-    
-    // Generate presigned URL (1 hour expiry)
-    const signedUrl = await getSignedUploadUrl(key, contentType, 3600);
-    const publicUrl = getPublicUrl(key);
-    
-    return response.json({
-      success: true,
-      data: {
-        signedUrl,
-        publicUrl,
-        fileKey: key,
-        expiresIn: 3600
+
+    const userId = request.user.id;
+    let uploadedAsset: any = null;
+
+    await request.multipart(async (field: unknown) => {
+      if (field && typeof field === 'object' && 'file' in field && field.file) {
+        const file = field.file as { stream: NodeJS.ReadableStream; mime_type: string };
+        
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.mime_type)) {
+          return response.status(400).json({ 
+            success: false, 
+            error: 'Invalid file type' 
+          });
+        }
+
+        const chunks: Buffer[] = [];
+        file.stream.on('data', (chunk: Buffer) => chunks.push(chunk));
+        
+        await new Promise((resolve) => {
+          file.stream.on('end', resolve);
+        });
+        
+        const buffer = Buffer.concat(chunks);
+
+        const processedBuffer = await sharp(buffer)
+          .webp({ quality: 80 })
+          .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+          .toBuffer();
+
+        const id = uuidv7();
+        const fileName = `${id}.webp`;
+        const storageKey = `assets/${fileName}`;
+        
+        await uploadBuffer(storageKey, processedBuffer, 'image/webp');
+        const publicUrl = getPublicUrl(storageKey);
+
+        uploadedAsset = {
+          id,
+          type: 'image',
+          url: publicUrl,
+          mime_type: 'image/webp',
+          name: fileName,
+          size: processedBuffer.length,
+          user_id: userId,
+          storage_key: storageKey,
+          created_at: Date.now(),
+          updated_at: Date.now()
+        };
+
+        await DB.from("assets").insert(uploadedAsset);
+        response.json({ success: true, data: uploadedAsset });
       }
     });
   }
 
-  public async getPublicUrl(request: Request, response: Response) {
-    const { fileKey } = request.params;
-    const publicUrl = getPublicUrl(fileKey);
-    return response.json({ success: true, data: { publicUrl } });
+  /**
+   * Upload File (Non-Image)
+   * - Validates file type (PDF, Word, Excel, Text, CSV)
+   * - Uploads directly without processing
+   * - Saves metadata to database
+   */
+  public async uploadFile(request: Request, response: Response) {
+    if (!request.user) {
+      return response.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const userId = request.user.id;
+
+    await request.multipart(async (field: unknown) => {
+      if (field && typeof field === 'object' && 'file' in field && field.file) {
+        const file = field.file as { stream: NodeJS.ReadableStream; mime_type: string; name: string };
+        
+        const allowedTypes = [
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'application/vnd.ms-excel',
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'text/plain',
+          'text/csv'
+        ];
+        
+        if (!allowedTypes.includes(file.mime_type)) {
+          return response.status(400).json({ 
+            success: false, 
+            error: 'Invalid file type' 
+          });
+        }
+
+        const chunks: Buffer[] = [];
+        file.stream.on('data', (chunk: Buffer) => chunks.push(chunk));
+        
+        await new Promise((resolve) => {
+          file.stream.on('end', resolve);
+        });
+        
+        const buffer = Buffer.concat(chunks);
+
+        const id = uuidv7();
+        const ext = file.name.split('.').pop();
+        const fileName = `${id}.${ext}`;
+        const storageKey = `files/${userId}/${fileName}`;
+        
+        await uploadBuffer(storageKey, buffer, file.mime_type);
+        const publicUrl = getPublicUrl(storageKey);
+
+        const uploadedAsset = {
+          id,
+          type: 'file',
+          url: publicUrl,
+          mime_type: file.mime_type,
+          name: file.name,
+          size: buffer.length,
+          user_id: userId,
+          storage_key: storageKey,
+          created_at: Date.now(),
+          updated_at: Date.now()
+        };
+
+        await DB.from("assets").insert(uploadedAsset);
+        response.json({ success: true, data: uploadedAsset });
+      }
+    });
   }
 }
 
-export default new S3Controller();
+export default new UploadController();
 ```
 
 ### Routes
 
 ```typescript
-import S3Controller from "../app/controllers/S3Controller";
+import UploadController from "../app/controllers/UploadController";
 import Auth from "../app/middlewares/auth";
 import { uploadRateLimit } from "../app/middlewares/rateLimit";
 
+// Upload routes
+Route.post("/api/upload/image", [Auth, uploadRateLimit], UploadController.uploadImage);
+Route.post("/api/upload/file", [Auth, uploadRateLimit], UploadController.uploadFile);
+
+// S3 routes (for presigned URLs)
 Route.post("/api/s3/signed-url", [Auth, uploadRateLimit], S3Controller.getSignedUrl);
-Route.get("/api/s3/public-url/:fileKey", S3Controller.getPublicUrl);
+Route.get("/api/s3/public-url/:fileKey", [apiRateLimit], S3Controller.getPublicUrl);
+Route.get("/api/s3/health", [apiRateLimit], S3Controller.health);
+
+// Local storage route
+Route.get("/storage/*", StorageController.serveFile);
 ```
+
+### Choosing Storage Service
+
+To switch between S3 and Local Storage, change the import in UploadController:
+
+```typescript
+// For S3 Storage
+import { getPublicUrl, uploadBuffer } from "app/services/S3";
+
+// For Local Storage
+import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
+```
+
+Both services have the same API, making it easy to switch between them without changing any other code.
 
 ---
 
 ## Client Implementation
 
-### Svelte Component
+### Svelte Component (S3 Presigned URLs)
 
 ```svelte
 <script>
   let uploading = $state(false);
   let imageUrl = $state('');
-  
+
   async function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
-    
+
     uploading = true;
-    
+
     try {
       // 1. Get presigned URL from server
       const res = await fetch('/api/s3/signed-url', {
@@ -185,19 +397,19 @@ Route.get("/api/s3/public-url/:fileKey", S3Controller.getPublicUrl);
           contentType: file.type
         })
       });
-      
+
       const { data } = await res.json();
-      
+
       // 2. Upload directly to S3
       await fetch(data.signedUrl, {
         method: 'PUT',
         headers: { 'Content-Type': file.type },
         body: file
       });
-      
+
       // 3. Save public URL
       imageUrl = data.publicUrl;
-      
+
       // 4. Optional: Save to database
       await fetch('/api/posts', {
         method: 'POST',
@@ -207,7 +419,7 @@ Route.get("/api/s3/public-url/:fileKey", S3Controller.getPublicUrl);
           image: data.publicUrl
         })
       });
-      
+
     } catch (error) {
       console.error('Upload failed:', error);
     } finally {
@@ -227,7 +439,7 @@ Route.get("/api/s3/public-url/:fileKey", S3Controller.getPublicUrl);
 {/if}
 ```
 
-### Vanilla JavaScript
+### Vanilla JavaScript (S3 Presigned URLs)
 
 ```javascript
 async function uploadFile(file) {
@@ -240,16 +452,16 @@ async function uploadFile(file) {
       contentType: file.type
     })
   });
-  
+
   const { data } = await res.json();
-  
+
   // 2. Upload to S3
   await fetch(data.signedUrl, {
     method: 'PUT',
     headers: { 'Content-Type': file.type },
     body: file
   });
-  
+
   return data.publicUrl;
 }
 ```
@@ -286,7 +498,7 @@ const ext = filename.split('.').pop();
 const key = `uploads/${userId}/${randomUUID()}.${ext}`;
 ```
 
-### 4. Set Appropriate Expiry
+### 4. Set Appropriate Expiry (S3 Only)
 
 ```typescript
 // Short expiry for sensitive files
@@ -301,16 +513,16 @@ const signedUrl = await getSignedUploadUrl(key, contentType, 3600); // 1 hour
 ```svelte
 <script>
   let progress = $state(0);
-  
+
   async function uploadWithProgress(file, signedUrl) {
     const xhr = new XMLHttpRequest();
-    
+
     xhr.upload.addEventListener('progress', (e) => {
       if (e.lengthComputable) {
         progress = (e.loaded / e.total) * 100;
       }
     });
-    
+
     return new Promise((resolve, reject) => {
       xhr.addEventListener('load', () => resolve());
       xhr.addEventListener('error', reject);
@@ -340,6 +552,23 @@ const optimized = await sharp(buffer)
   .toBuffer();
 
 await uploadBuffer(key, optimized, 'image/jpeg');
+```
+
+### 7. Security Considerations
+
+```typescript
+// Always validate file types on server
+const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+if (!allowedTypes.includes(contentType)) {
+  return response.status(400).json({ error: 'Invalid file type' });
+}
+
+// Use unique filenames to prevent overwrites
+import { randomUUID } from "crypto";
+const key = `uploads/${userId}/${randomUUID()}.${ext}`;
+
+// For local storage, serve files with proper headers
+// app/controllers/StorageController.ts handles this automatically
 ```
 
 ---

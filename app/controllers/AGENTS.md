@@ -195,3 +195,153 @@ try {
    return response.status(500).json({ error: "Internal server error" });
 }
 ```
+
+## File Upload Handling
+
+### Multipart Upload Pattern
+
+For handling file uploads with multipart/form-data:
+
+```typescript
+import { uuidv7 } from "uuidv7";
+import sharp from "sharp";
+
+class UploadController {
+   public async uploadImage(request: Request, response: Response) {
+      if (!request.user) {
+         return response.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const userId = request.user.id;
+      let uploadedAsset: any = null;
+
+      await request.multipart(async (field: unknown) => {
+         if (field && typeof field === 'object' && 'file' in field && field.file) {
+            const file = field.file as { stream: NodeJS.ReadableStream; mime_type: string };
+            
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.mime_type)) {
+               return response.status(400).json({ error: 'Invalid file type' });
+            }
+
+            // Convert stream to buffer
+            const chunks: Buffer[] = [];
+            file.stream.on('data', (chunk: Buffer) => chunks.push(chunk));
+            
+            await new Promise((resolve) => {
+               file.stream.on('end', resolve);
+            });
+            
+            const buffer = Buffer.concat(chunks);
+
+            // Process image with Sharp
+            const processedBuffer = await sharp(buffer)
+               .webp({ quality: 80 })
+               .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
+               .toBuffer();
+
+            // Upload to storage
+            const id = uuidv7();
+            const fileName = `${id}.webp`;
+            const storageKey = `assets/${fileName}`;
+            
+            await uploadBuffer(storageKey, processedBuffer, 'image/webp');
+            const publicUrl = getPublicUrl(storageKey);
+
+            // Save to database
+            uploadedAsset = {
+               id,
+               type: 'image',
+               url: publicUrl,
+               mime_type: 'image/webp',
+               name: fileName,
+               size: processedBuffer.length,
+               user_id: userId,
+               storage_key: storageKey,
+               created_at: Date.now(),
+               updated_at: Date.now()
+            };
+
+            await DB.from("assets").insert(uploadedAsset);
+            response.json({ success: true, data: uploadedAsset });
+         }
+      });
+   }
+}
+```
+
+### Non-Image File Upload
+
+For uploading files without processing:
+
+```typescript
+public async uploadFile(request: Request, response: Response) {
+   if (!request.user) {
+      return response.status(401).json({ error: 'Unauthorized' });
+   }
+
+   const userId = request.user.id;
+
+   await request.multipart(async (field: unknown) => {
+      if (field && typeof field === 'object' && 'file' in field && field.file) {
+         const file = field.file as { stream: NodeJS.ReadableStream; mime_type: string; name: string };
+         
+         const allowedTypes = ['application/pdf', 'text/plain', 'text/csv'];
+         if (!allowedTypes.includes(file.mime_type)) {
+            return response.status(400).json({ error: 'Invalid file type' });
+         }
+
+         // Convert stream to buffer
+         const chunks: Buffer[] = [];
+         file.stream.on('data', (chunk: Buffer) => chunks.push(chunk));
+         
+         await new Promise((resolve) => {
+            file.stream.on('end', resolve);
+         });
+         
+         const buffer = Buffer.concat(chunks);
+
+         // Upload directly without processing
+         const id = uuidv7();
+         const ext = file.name.split('.').pop();
+         const fileName = `${id}.${ext}`;
+         const storageKey = `files/${userId}/${fileName}`;
+         
+         await uploadBuffer(storageKey, buffer, file.mime_type);
+         const publicUrl = getPublicUrl(storageKey);
+
+         // Save to database
+         const uploadedAsset = {
+            id,
+            type: 'file',
+            url: publicUrl,
+            mime_type: file.mime_type,
+            name: file.name,
+            size: buffer.length,
+            user_id: userId,
+            storage_key: storageKey,
+            created_at: Date.now(),
+            updated_at: Date.now()
+         };
+
+         await DB.from("assets").insert(uploadedAsset);
+         response.json({ success: true, data: uploadedAsset });
+      }
+   });
+}
+```
+
+### Storage Service Selection
+
+Choose between S3 and Local Storage by changing the import:
+
+```typescript
+// For S3 Storage
+import { getPublicUrl, uploadBuffer } from "app/services/S3";
+
+// For Local Storage
+import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
+```
+
+Both services have the same API, making it easy to switch between them.
