@@ -612,6 +612,61 @@ Both services have the same API, making it easy to switch between them without c
 
 ## Client Implementation
 
+### Upload Methods Comparison
+
+There are two main approaches for uploading files:
+
+#### 1. Server-Side Upload (LocalStorage)
+
+**How it works:**
+- Client sends file directly to server via FormData
+- Server processes the file (resize, convert, etc.)
+- Server uploads to storage
+- Server returns the file URL
+
+**Pros:**
+- Simple to implement
+- Server can process files (resize, convert formats)
+- Better security (server validates everything)
+- Consistent behavior across all clients
+
+**Cons:**
+- Higher server load (files pass through server)
+- Slower for large files (upload to server, then to storage)
+- Server needs more bandwidth
+
+**Best for:**
+- Image uploads that need processing
+- Small to medium files
+- Applications with strict security requirements
+- Development and testing
+
+#### 2. Presigned URL Upload (S3)
+
+**How it works:**
+- Client requests a presigned URL from server
+- Server generates a temporary, signed URL for S3
+- Client uploads file directly to S3 using the presigned URL
+- Client notifies server when upload is complete
+
+**Pros:**
+- Reduced server load (files go directly to S3)
+- Faster for large files (direct upload to S3 edge locations)
+- Better performance (no server bottleneck)
+- Scalable (handle unlimited concurrent uploads)
+
+**Cons:**
+- More complex implementation
+- Client must handle upload errors
+- No server-side file processing
+- Requires S3/Wasabi setup
+
+**Best for:**
+- Large files (>10MB)
+- High-volume uploads
+- Production applications
+- Applications with global users (CDN benefits)
+
 ### Svelte Component (LocalStorage Upload)
 
 ```svelte
