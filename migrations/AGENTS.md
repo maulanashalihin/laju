@@ -43,6 +43,11 @@ export async function up(knex: Knex): Promise<void> {
 }
 ```
 
+**After Creating Migration:**
+- Remind user to run the migration
+- Provide the command: `npx knex migrate:latest`
+- Offer to run it for them
+
 **Important Notes:**
 - **UUID columns**: Do NOT use `defaultTo(knex.raw('gen_random_uuid()'))` - this is PostgreSQL-specific and causes errors in SQLite
 - **UUID generation**: Generate UUIDs in application layer using `uuidv7()` or `uuid()` from the `uuidv7` or `uuid` package
