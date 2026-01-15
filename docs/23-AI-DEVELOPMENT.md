@@ -6,14 +6,37 @@ Build complete Laju applications using AI coding assistants without writing code
 
 Laju's standardized structure makes it ideal for AI-assisted development. The conventions allow LLMs to understand, navigate, and build features accurately.
 
-## Recommended AI Editors
+## Choosing Your Approach
 
+### Manual AI Development
+- **Best for**: Learning, exploration, complex logic, unclear requirements
+- **Tools**: Windsurf, Trae.ai, Cursor, Claude Code, GitHub Copilot
+- **Format**: README.md + TODOLIST.md
+- **Control**: High - you guide AI step-by-step
+
+### Autonomous Development (Ralph)
+- **Best for**: Well-defined features, repetitive tasks, large refactoring
+- **Tools**: Amp (required)
+- **Format**: PRD → prd.json
+- **Control**: Low - AI runs autonomously
+
+### Quick Decision Guide
+- New to Laju? → Start with Manual approach
+- Clear requirements, repetitive work? → Use Ralph
+- Complex business logic? → Use Manual
+- Need to ship fast with known patterns? → Use Ralph
+
+## Recommended AI Tools
+
+### For Manual AI Development
 - **Windsurf** - [codeium.com/windsurf](https://codeium.com/windsurf)
 - **Trae.ai** - [trae.ai](https://trae.ai)
 - **Cursor** - [cursor.sh](https://cursor.sh)
 - **Claude Code** - [anthropic.com/claude](https://anthropic.com/claude)
-- **Open Code** - [openai.com](https://openai.com)
 - **GitHub Copilot** - [github.com/features/copilot](https://github.com/features/copilot)
+
+### For Autonomous Development (Ralph)
+- **Amp** - [ampcode.com](https://ampcode.com) (required for Ralph)
 
 ## Step-by-Step Workflow
 
