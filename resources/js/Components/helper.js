@@ -64,7 +64,7 @@ export function validatePhone(phone, selected_dial_code = "+62") {
  * @returns {string} Generated password
  */
 export function password_generator( pLength ) {
-  var keyListAlpha="abcdefghijklmnopqrstuvwxyz",
+  var keyListAlpha="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
   keyListInt="123456789",
   keyListSpec="!@#_",
   password='';
