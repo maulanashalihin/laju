@@ -9,25 +9,23 @@
 
 ## Built-in Middlewares
 
-### auth
+| Middleware | Purpose | Usage |
+|------------|---------|-------|
+| `auth` | Authentication - checks user session | `router.get("/dashboard", auth, Controller.index)` |
+| `csrf` | CSRF protection - validates CSRF tokens | `router.post("/posts", csrf, Controller.store)` |
+| `inertia` | Inertia.js headers | `router.get("/page", inertia, Controller.index)` |
+| `rateLimit` | Rate limiting - limits request frequency | `router.post("/api", rateLimit("api"), Controller.action)` |
+| `securityHeaders` | Security headers | `router.get("/page", securityHeaders, Controller.index)` |
 
-**Purpose:** Authentication - checks if user is logged in by verifying session cookie
+## Usage Examples
 
-**Behavior:**
-- Checks `auth_id` cookie
-- Retrieves user from cache or database
-- Sets `request.user` if authenticated
-- Redirects to `/login` if not authenticated
-
-**Usage:**
+### Authentication
 ```typescript
 import auth from "../app/middlewares/auth"
 
 router.get("/dashboard", auth, DashboardController.index)
-```
 
-**Access user in controller:**
-```typescript
+// Access user in controller
 export default {
   async index(request: Request, response: Response) {
     const user = request.user
@@ -36,23 +34,14 @@ export default {
 }
 ```
 
-### csrf
-
-**Purpose:** CSRF protection - validates CSRF tokens for POST/PUT/DELETE requests
-
-**Behavior:**
-- Validates CSRF token from request body or headers
-- Generates new CSRF token for GET requests
-- Returns 403 if token is invalid or missing
-
-**Usage:**
+### CSRF Protection
 ```typescript
 import csrf from "../app/middlewares/csrf"
 
 router.post("/posts", csrf, PostController.store)
 ```
 
-**In forms (Svelte):**
+In forms (Svelte):
 ```svelte
 <script>
   import { page } from '@inertiajs/svelte'
@@ -60,54 +49,24 @@ router.post("/posts", csrf, PostController.store)
 
 <form method="POST">
   <input type="hidden" name="_token" value={page.props.csrf_token} />
-  <!-- other form fields -->
 </form>
 ```
 
-### inertia
-
-**Purpose:** Inertia.js headers - sets required headers for Inertia.js requests
-
-**Behavior:**
-- Sets `X-Inertia` header
-- Sets `X-Inertia-Version` header
-- Handles Inertia-specific request/response
-
-**Usage:**
-```typescript
-import inertia from "../app/middlewares/inertia"
-
-router.get("/dashboard", inertia, DashboardController.index)
-```
-
-### rateLimit
-
-**Purpose:** Rate limiting - limits request frequency to prevent abuse
-
-**Behavior:**
-- Tracks requests by IP or user ID
-- Returns 429 status if limit exceeded
-- Sets rate limit headers in response
-
-**Usage with preset:**
+### Rate Limiting
 ```typescript
 import { rateLimit } from "../app/middlewares/rateLimit"
 
-// Use preset rate limiters
+// Use presets
 router.post("/login", rateLimit("auth"), LoginController.login)
 router.post("/api/data", rateLimit("api"), ApiController.index)
-```
 
-**Custom rate limit:**
-```typescript
+// Custom limit
 import { createRateLimit } from "../app/middlewares/rateLimit"
-
 const customLimit = createRateLimit({
   maxRequests: 5,
-  windowMs: 60 * 1000, // 1 minute
+  windowMs: 60 * 1000,
   message: "Too many requests"
 })
-
 router.post("/endpoint", customLimit, Controller.action)
 ```
 
@@ -118,33 +77,12 @@ router.post("/endpoint", customLimit, Controller.action)
 - `register` - 3 requests per hour
 - `upload` - 10 requests per minute
 
-### securityHeaders
-
-**Purpose:** Security headers - adds security-related HTTP headers
-
-**Behavior:**
-- Sets various security headers:
-  - `X-Content-Type-Options: nosniff`
-  - `X-Frame-Options: DENY`
-  - `X-XSS-Protection: 1; mode=block`
-  - `Strict-Transport-Security`
-  - `Content-Security-Policy`
-  - `Referrer-Policy`
-
-**Usage:**
-```typescript
-import securityHeaders from "../app/middlewares/securityHeaders"
-
-router.get("/dashboard", securityHeaders, DashboardController.index)
-```
-
 ## Middleware Order
 
-Order matters! Apply middlewares in this sequence:
-
+Order matters! Apply in sequence:
 ```typescript
 router.get("/protected", 
-  securityHeaders,  // 1. Security headers first
+  securityHeaders,  // 1. Security headers
   csrf,            // 2. CSRF protection
   rateLimit("api"), // 3. Rate limiting
   auth,            // 4. Authentication
@@ -155,38 +93,28 @@ router.get("/protected",
 
 ## Creating Custom Middlewares
 
-If built-in middlewares don't meet your needs, create custom ones:
-
 ```typescript
 // app/middlewares/myMiddleware.ts
 import { Request, Response } from "../../type"
 
 export default async (request: Request, response: Response) => {
-  // Check condition
   if (!request.headers.authorization) {
     return response.status(401).json({ error: "Unauthorized" })
   }
-
   // If condition passes, middleware completes automatically
-  // No need to call next()
 }
 ```
 
-**Usage:**
+Usage:
 ```typescript
 import myMiddleware from "../app/middlewares/myMiddleware"
-
 router.get("/api/data", myMiddleware, ApiController.index)
 ```
 
-## Common Middleware Patterns
+## Common Patterns
 
 ### Admin Check
-
 ```typescript
-// app/middlewares/admin.ts
-import { Request, Response } from "../../type"
-
 export default async (request: Request, response: Response) => {
   if (!request.user?.is_admin) {
     return response.status(403).json({ error: "Forbidden" })
@@ -195,11 +123,7 @@ export default async (request: Request, response: Response) => {
 ```
 
 ### Email Verification Check
-
 ```typescript
-// app/middlewares/verified.ts
-import { Request, Response } from "../../type"
-
 export default async (request: Request, response: Response) => {
   if (!request.user?.is_verified) {
     return response.redirect("/email/verify")
@@ -208,52 +132,11 @@ export default async (request: Request, response: Response) => {
 ```
 
 ### API Key Check
-
 ```typescript
-// app/middlewares/apiKey.ts
-import { Request, Response } from "../../type"
-
 export default async (request: Request, response: Response) => {
   const apiKey = request.headers["x-api-key"]
-
   if (!apiKey || apiKey !== process.env.API_KEY) {
     return response.status(401).json({ error: "Invalid API key" })
   }
 }
 ```
-
-### Maintenance Mode
-
-```typescript
-// app/middlewares/maintenance.ts
-import { Request, Response } from "../../type"
-
-export default async (request: Request, response: Response) => {
-  if (process.env.MAINTENANCE_MODE === "true") {
-    return response.status(503).json({ 
-      error: "Service temporarily unavailable" 
-    })
-  }
-}
-```
-
-## Quick Reference
-
-| Middleware | Purpose | Usage |
-|------------|---------|-------|
-| `auth` | Authentication | `router.get("/dashboard", auth, Controller.index)` |
-| `csrf` | CSRF protection | `router.post("/posts", csrf, Controller.store)` |
-| `inertia` | Inertia.js headers | `router.get("/page", inertia, Controller.index)` |
-| `rateLimit` | Rate limiting | `router.post("/api", rateLimit("api"), Controller.action)` |
-| `securityHeaders` | Security headers | `router.get("/page", securityHeaders, Controller.index)` |
-
-## Best Practices
-
-1. **Check existing middlewares first** - Don't create duplicate functionality
-2. **No next() calls** - Middlewares complete automatically
-3. **Order matters** - Apply in correct sequence
-4. **Return response** - If condition fails, return response immediately
-5. **Use presets** - Use rateLimit presets when possible
-6. **Keep it simple** - Each middleware should do one thing
-7. **Test thoroughly** - Test middleware behavior with different scenarios
-8. **Document clearly** - Add comments explaining middleware logic
