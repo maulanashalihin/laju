@@ -25,7 +25,7 @@ cd taskflow
 npm run dev
 ```
 
-Server runs at `http://localhost:3000`
+Server runs at `http://localhost:5555`
 
 ### Step 2: Review AGENTS.md
 
@@ -38,6 +38,7 @@ Laju comes with pre-configured AGENTS.md files. Review them to understand the fr
 - `migrations/AGENTS.md` - Migration patterns
 - `routes/AGENTS.md` - Routing patterns
 - `resources/js/AGENTS.md` - Frontend guidelines
+- `resources/views/AGENTS.md` - View templates
 
 ---
 
