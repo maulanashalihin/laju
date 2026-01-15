@@ -104,8 +104,8 @@ Documentation is organized for progressive learning from beginner to advanced.
 ```
 app/
 ├── controllers/     # Request handlers
-├── middlewares/     # Auth, rate limiting
-├── services/        # DB, Mailer, Storage
+├── middlewares/     # Auth, rate limiting, CSRF
+├── services/        # DB, Mailer, Storage, Cache
 └── validators/      # Input validation
 
 resources/
@@ -117,6 +117,13 @@ resources/
 
 routes/              # Route definitions
 migrations/          # Database migrations
+commands/            # CLI commands
+tests/               # Unit & integration tests
+docs/                # Documentation
+benchmark/           # Performance benchmarks
+public/              # Static assets
+storage/             # Local storage
+type/                # TypeScript definitions
 ```
 
 ## Commands
