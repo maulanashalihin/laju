@@ -20,21 +20,6 @@ t('greeting', 'id', { name: 'Budi' })  // "Halo, Budi!"
 t('errors.required', 'id', { field: 'Email' })  // "Email wajib diisi"
 ```
 
-## Supported Languages
-
-| Code | Language |
-|------|----------|
-| `en` | English |
-| `id` | Indonesian |
-| `ar` | Arabic |
-| `fr` | French |
-| `de` | German |
-| `tr` | Turkish |
-| `ur` | Urdu |
-| `ps` | Pashto |
-| `fa` | Persian |
-| `sw` | Swahili |
-
 ## Language Files
 
 ### Server-Side (SSR)
