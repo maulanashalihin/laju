@@ -897,37 +897,6 @@ async function uploadFile(file) {
 
 ### Important Built-in Routes
 
-#### Authentication Routes
-
-```typescript
-// Login
-POST /auth/login
-Body: { email, password }
-Response: Redirect to dashboard
-
-// Logout
-POST /auth/logout
-Response: Redirect to login
-
-// Change Password
-POST /auth/change-password
-Body: { current_password, new_password, confirm_password }
-Response: Flash message + redirect
-```
-
-#### Profile Routes
-
-```typescript
-// Update Profile
-POST /change-profile
-Body: { name, email, phone, avatar? }
-Response: Flash message + redirect
-
-// Get Profile
-GET /profile
-Response: Inertia render with user data
-```
-
 #### Upload Routes
 
 ```typescript
@@ -946,6 +915,27 @@ Allowed types: PDF, Word, Excel, Text, CSV
 Processing: None (direct upload)
 ```
 
+#### S3 Presigned URL Routes
+
+```typescript
+// Get Presigned Upload URL
+POST /api/s3/signed-url
+Body: { filename, contentType }
+Response: { signedUrl, publicUrl }
+Purpose: Generate temporary signed URL for direct S3 upload
+Expiration: 1 hour (3600 seconds)
+
+// Get Public URL
+GET /api/s3/public-url/:fileKey
+Response: { publicUrl }
+Purpose: Get public URL for a file already in S3
+
+// Health Check
+GET /api/s3/health
+Response: { status: 'ok' }
+Purpose: Check if S3 connection is working
+```
+
 #### Storage Routes
 
 ```typescript
@@ -954,16 +944,6 @@ GET /storage/*
 Example: /storage/assets/019bbf56-89ba-70ae-ad90-6705056eb04c.webp
 Response: File with proper Content-Type and Cache-Control
 Security: Only allowed file extensions
-```
-
-#### Admin Routes
-
-```typescript
-// Delete Users (Admin only)
-POST /profile/delete-users
-Body: { ids: string[] }
-Response: Flash message + redirect
-Middleware: Auth + isAdmin check
 ```
 ```
 
