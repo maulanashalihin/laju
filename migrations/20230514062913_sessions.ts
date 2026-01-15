@@ -7,6 +7,7 @@ export async function up(knex: Knex): Promise<void> {
         table.string("user_id").index();
         table.text("user_agent");
         table.timestamp('expires_at').nullable();
+        table.index('expires_at');
     });
 }
 

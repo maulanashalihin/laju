@@ -162,7 +162,7 @@ Route.post("/posts", [middleware1, middleware2, middleware3], Controller.store);
 
 ### 1. Auth Middleware
 
-Protects routes requiring authentication.
+Protects routes requiring authentication with session-based authentication.
 
 **Location:** `app/middlewares/auth.ts`
 
@@ -181,44 +181,174 @@ Route.post("/profile", [Auth], ProfileController.update);
 
 ```typescript
 export default async (request: Request, response: Response) => {
-  if (request.cookies.auth_id) {
-    const user = SQLite.get(`
-      SELECT u.id, u.name, u.email, u.is_admin, u.is_verified 
-      FROM sessions s
-      JOIN users u ON s.user_id = u.id
-      WHERE s.id = ?
-    `, [request.cookies.auth_id]);
+   const redirectToLogin = () => response.cookie("auth_id", "", 0).redirect("/login");
 
-    if (user) {
+   if (!request.cookies.auth_id) {
+      return redirectToLogin();
+   }
+
+   try {
+      // Cache session for 60 days to reduce database queries
+      const user = await Cache.remember(
+         `session:${request.cookies.auth_id}`,
+         60 * 24 * 60, // 60 days in minutes
+         async () => {
+            return SQLite.get(`
+               SELECT u.id, u.name, u.email, u.phone, u.is_admin, u.is_verified
+               FROM sessions s
+               JOIN users u ON s.user_id = u.id
+               WHERE s.id = ? AND s.expires_at > datetime('now')
+            `, [request.cookies.auth_id]) as User | null;
+         }
+      );
+
+      if (!user) {
+         return redirectToLogin();
+      }
+
       // Convert SQLite 0/1 to boolean
-      user.is_admin = !!user.is_admin;
-      user.is_verified = !!user.is_verified;
+      user.is_admin = Boolean(user.is_admin);
+      user.is_verified = Boolean(user.is_verified);
 
       request.user = user;
-      request.share = { user: request.user };
-      // No return = continue to handler
-    } else {
-      return response.cookie("auth_id", "", 0).redirect("/login");
-    }
-  } else {
-    return response.cookie("auth_id", "", 0).redirect("/login");
-  }
+
+   } catch (error) {
+      console.error("Auth middleware error:", error);
+      return redirectToLogin();
+   }
 }
 ```
+
+**Features:**
+- ✅ Session caching (60 days) for performance
+- ✅ Session expiration check
+- ✅ Error handling with fallback to login
+- ✅ Includes phone field in user data
 
 **Access user in controller:**
 
 ```typescript
-public async show(request: Request, response: Response) {
-  const userId = request.user.id; // Available after Auth middleware
-  const user = await DB.from("users").where("id", userId).first();
-  return response.json({ user });
+public async show(request: Request, response: Response) => {
+   const userId = request.user.id; // Available after Auth middleware
+   const user = await DB.from("users").where("id", userId).first();
+   return response.json({ user });
 }
 ```
 
 ---
 
-### 2. Rate Limit Middleware
+### 2. CSRF Middleware
+
+Protects against Cross-Site Request Forgery attacks with token-based validation.
+
+**Location:** `app/middlewares/csrf.ts`
+
+#### Global CSRF Protection
+
+```typescript
+import { csrf } from "app/middlewares/csrf";
+
+// Apply globally in server.ts
+webserver.use(csrf({
+  excludeAPIs: true,  // Exclude /api/* routes (default: true)
+  excludePaths: ['/webhooks/*']  // Additional paths to exclude
+}));
+```
+
+#### Individual Route CSRF Check
+
+```typescript
+import { csrfCheck } from "app/middlewares/csrf";
+
+// Apply to specific routes
+Route.post("/upload", [csrfCheck], UploadController.store);
+```
+
+#### How It Works
+
+```typescript
+export function csrf(options: CSRFOptions = {}) {
+  const config = {
+    excludePaths: new Set(options.excludePaths || []),
+    excludeAPIs: options.excludeAPIs ?? true
+  };
+
+  return async (request: Request, response: Response) => {
+    const method = request.method.toUpperCase();
+    const path = request.path;
+
+    // Only check state-changing methods (POST, PUT, PATCH, DELETE)
+    if (['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+      // For GET requests, ensure token exists in cookie
+      if (!request.cookies.csrf_token) {
+        CSRF.setToken(response);
+      }
+      return; // Continue to next handler
+    }
+
+    // Skip excluded paths
+    for (const excludedPath of config.excludePaths) {
+      if (path.startsWith(excludedPath)) {
+        return;
+      }
+    }
+
+    // Skip API routes if configured
+    if (config.excludeAPIs && path.startsWith('/api/')) {
+      return;
+    }
+
+    // Validate CSRF token
+    const token = CSRF.getTokenFromRequest(request);
+    const cookieToken = request.cookies.csrf_token;
+
+    if (!token || !cookieToken || token !== cookieToken || !CSRF.validate(token)) {
+      return response.status(403).json({
+        success: false,
+        error: {
+          message: 'Invalid CSRF token',
+          code: 'CSRF_INVALID'
+        }
+      });
+    }
+
+    // Token valid, generate new one for next request (token rotation)
+    const newToken = CSRF.regenerate();
+    response.cookie('csrf_token', newToken, TOKEN_EXPIRY, {
+      httpOnly: false,
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production'
+    });
+  };
+}
+```
+
+**Features:**
+- ✅ Token rotation on each successful request
+- ✅ Automatic token generation for GET requests
+- ✅ Configurable path exclusions
+- ✅ API route exclusion (default)
+- ✅ Secure cookie settings in production
+
+**Frontend Usage:**
+
+```typescript
+// Include CSRF token in requests
+const csrfToken = document.cookie.match(/csrf_token=([^;]+)/)?.[1];
+
+fetch('/api/posts', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-CSRF-Token': csrfToken
+  },
+  body: JSON.stringify({ title: 'New Post' })
+});
+```
+
+---
+
+### 3. Rate Limit Middleware
 
 Prevents abuse by limiting requests per time window.
 
@@ -227,7 +357,7 @@ Prevents abuse by limiting requests per time window.
 #### Preset Rate Limiters
 
 ```typescript
-import { 
+import {
   authRateLimit,           // 5 requests per 15 min
   apiRateLimit,            // 100 requests per 15 min
   generalRateLimit,        // 1000 requests per 15 min
@@ -260,6 +390,18 @@ const customLimit = rateLimit({
 Route.post("/api/data", [customLimit], DataController.store);
 ```
 
+#### Custom Handler
+
+```typescript
+const customLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  maxRequests: 5,
+  handler: (request: Request, response: Response) => {
+    return response.flash("error", 'Too many attempts, please try again later').redirect("/login", 303);
+  }
+});
+```
+
 #### Rate Limit by User ID
 
 ```typescript
@@ -271,9 +413,28 @@ const userLimit = userRateLimit(50, 15 * 60 * 1000);
 Route.post("/api/posts", [Auth, userLimit], PostController.store);
 ```
 
+#### Custom Key Rate Limit
+
+```typescript
+import { customRateLimit } from "app/middlewares/rateLimit";
+
+// Rate limit by custom key
+const apiLimit = customRateLimit('api:v1:endpoint', 1000, 15 * 60 * 1000);
+
+Route.get("/api/v1/data", [apiLimit], DataController.index);
+```
+
+**Features:**
+- ✅ Cloudflare IP detection (supports `cf-connecting-ip` header)
+- ✅ Rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`)
+- ✅ Custom key generators
+- ✅ Skip conditions
+- ✅ Custom handlers
+- ✅ Automatic logging for exceeded limits
+
 ---
 
-### 3. Security Headers Middleware
+### 4. Security Headers Middleware
 
 Adds security-related HTTP headers to all responses.
 
@@ -286,18 +447,19 @@ Automatically adds security headers to prevent:
 - Clickjacking
 - MIME type sniffing
 - Unauthorized cross-origin requests
+- DNS prefetching
 - And other common web vulnerabilities
 
 #### Default Headers
 
 ```typescript
 // Development mode - allows external resources
-Content-Security-Policy: default-src 'self' http: https: data: blob:;
+Content-Security-Policy: default-src 'self' http: https: data: blob:; ...
 X-Frame-Options: DENY
 X-Content-Type-Options: nosniff
-X-XSS-Protection: 1; mode=block
-Referrer-Policy: strict-origin-when-cross-origin
-Permissions-Policy: geolocation=(), microphone=(), camera=()
+X-DNS-Prefetch-Control: off
+X-Download-Options: noopen
+X-Permitted-Cross-Domain-Policies: none
 
 // Production mode - strict policy
 Content-Security-Policy: default-src 'self'; ...
@@ -323,16 +485,33 @@ import { securityHeaders, SecurityHeadersOptions } from "app/middlewares/securit
 const customHeaders: SecurityHeadersOptions = {
   contentSecurityPolicy: "default-src 'self'; script-src 'self' https://cdn.example.com",
   strictTransportSecurity: false, // Disable HSTS
+  xFrameOptions: 'SAMEORIGIN', // Allow same-origin frames
+  xContentTypeOptions: true,
 };
 
 webserver.use(securityHeaders(customHeaders));
+```
+
+#### Preset Configurations
+
+```typescript
+import {
+  developmentSecurityHeaders,
+  productionSecurityHeaders
+} from "app/middlewares/securityHeaders";
+
+// Development mode - less restrictive
+webserver.use(developmentSecurityHeaders());
+
+// Production mode - most restrictive
+webserver.use(productionSecurityHeaders());
 ```
 
 #### Development vs Production
 
 **Development Mode:**
 - Allows all external resources (`http: https: data: blob:`)
-- Includes Vite dev server (`http://localhost:5132`)
+- Includes Vite dev server (`http://localhost:${VITE_PORT || 5173}`)
 - Disables HSTS (HTTP Strict Transport Security)
 - Permissive for easier development
 
@@ -349,11 +528,12 @@ The CSP is configured differently for development and production:
 **Development:**
 ```
 default-src 'self' http: https: data: blob:
-script-src 'self' 'unsafe-inline' 'unsafe-eval' http: https: http://localhost:5132
-style-src 'self' 'unsafe-inline' http: https:
-img-src 'self' data: blob: http: https:
-font-src 'self' data: http: https:
-connect-src 'self' http: https: ws: wss:
+script-src 'self' 'unsafe-inline' 'unsafe-eval' http: https: http://localhost:${VITE_PORT}
+style-src 'self' 'unsafe-inline' http: https: http://localhost:${VITE_PORT}
+img-src 'self' data: blob: http: https: http://localhost:${VITE_PORT}
+font-src 'self' data: http: https: http://localhost:${VITE_PORT}
+connect-src 'self' http: https: ws: wss: http://localhost:${VITE_PORT} ws://localhost:${VITE_PORT}
+frame-ancestors 'self'
 ```
 
 **Production:**
@@ -372,6 +552,23 @@ This ensures:
 - ✅ Vite HMR works with WebSocket connections
 - ✅ CDN resources can be loaded during development
 - ✅ Production remains secure with strict policies
+
+#### Available Options
+
+```typescript
+interface SecurityHeadersOptions {
+  contentSecurityPolicy?: boolean | string;
+  strictTransportSecurity?: boolean | string;
+  xFrameOptions?: boolean | string;
+  xContentTypeOptions?: boolean;
+  xXSSProtection?: boolean | string;
+  referrerPolicy?: boolean | string;
+  permissionsPolicy?: boolean | string;
+  crossOriginEmbedderPolicy?: boolean;
+  crossOriginOpenerPolicy?: boolean | string;
+  crossOriginResourcePolicy?: boolean | string;
+}
+```
 
 #### Important Notes
 
@@ -406,7 +603,7 @@ export function securityHeaders() {
 
 ---
 
-### 4. Inertia Middleware
+### 5. Inertia Middleware
 
 Handles Inertia.js responses for SPA-like experience.
 
@@ -419,9 +616,125 @@ import inertia from "app/middlewares/inertia";
 webserver.use(inertia());
 
 // Now you can use response.inertia() in controllers
-public async index(request: Request, response: Response) {
+public async index(request: Request, response: Response) => {
   const posts = await DB.from("posts");
   return response.inertia("posts/index", { posts });
+}
+```
+
+#### How It Works
+
+```typescript
+const inertia = () => {
+  return async (request: Request, response: Response) => {
+    // Set up the flash method on response
+    response.flash = (type: string, message: string, ttl: number = 3000) => {
+      response.cookie(type, message, ttl);
+      return response;
+    };
+
+    // Override redirect method
+    response.redirect = ((url: string, status: number = 302) => {
+      return response.status(status).setHeader("Location", url).send();
+    }) as { (url: string): boolean; (url: string, status?: number): Response };
+
+    // Set up the inertia method on response
+    response.inertia = async (component: string, inertiaProps = {}, viewProps = {}) => {
+      const url = request.originalUrl;
+
+      // Merge shared props with inertia props
+      let props: Record<string, unknown> = {
+        ...request.share,
+        user: request.user || {},
+        ...inertiaProps
+      };
+
+      // Parse all flash messages from cookies
+      const flashTypes = ['error', 'success', 'info', 'warning'];
+      const flashMessages: Record<string, string> = {};
+
+      for (const type of flashTypes) {
+        if (request.cookies[type]) {
+          flashMessages[type] = request.cookies[type];
+          response.cookie(type, "", 0);
+        }
+      }
+
+      // Add flash messages to props
+      if (Object.keys(flashMessages).length > 0) {
+        props.flash = flashMessages;
+      }
+
+      const inertiaObject = {
+        component: component,
+        props: props,
+        url: url,
+        version: pkg.version,
+      };
+
+      if (!request.header("X-Inertia")) {
+        // Initial page load - return HTML
+        const html = view("inertia.html", {
+          page: JSON.stringify(inertiaObject),
+          title: "Laju - LAJU - Hyper Performance TypeScript Monolith",
+          ...viewProps
+        });
+
+        return response.type("html").send(html);
+      }
+
+      // Inertia request - return JSON
+      response.setHeader("Vary", "Accept");
+      response.setHeader("X-Inertia", "true");
+      response.setHeader("X-Inertia-Version", pkg.version);
+
+      return response.json(inertiaObject);
+    };
+
+    // CRITICAL: Must not call anything here to let request pass through to route handlers
+  };
+};
+```
+
+#### Features
+
+- ✅ Flash message support (error, success, info, warning)
+- ✅ Automatic flash message cleanup
+- ✅ Shared props merging
+- ✅ User prop automatically included
+- ✅ Version tracking for cache busting
+- ✅ Initial page load returns HTML
+- ✅ Subsequent requests return JSON
+
+#### Flash Messages
+
+```typescript
+// Set flash message in controller
+public async store(request: Request, response: Response) {
+  // ... create post logic
+  return response.flash("success", "Post created successfully!")
+    .redirect("/posts");
+}
+
+// Access in Svelte component
+<script>
+  let { flash } = $props();
+</script>
+
+{#if flash?.success}
+  <div class="alert success">{flash.success}</div>
+{/if}
+```
+
+#### Shared Props
+
+```typescript
+// Set shared props in middleware
+request.share = { appName: "My App", theme: "dark" };
+
+// Available in all Inertia responses
+public async index(request: Request, response: Response) {
+  return response.inertia("dashboard", { posts }); // Includes shared props
 }
 ```
 
@@ -961,7 +1274,17 @@ return response.json({ success: true });
 2. **Order matters** - Middleware executes in array order
 3. **Return to stop** - Always return when sending response
 4. **Keep focused** - One responsibility per middleware
-5. **Use built-in** - Auth, rate limiting, Inertia already available
+5. **Use built-in** - Auth, CSRF, rate limiting, Inertia, security headers already available
+
+### Built-in Middleware Summary
+
+| Middleware | Purpose | Location |
+|------------|---------|----------|
+| `Auth` | Session-based authentication | `app/middlewares/auth.ts` |
+| `csrf()` / `csrfCheck()` | CSRF protection with token rotation | `app/middlewares/csrf.ts` |
+| `rateLimit()` | Flexible rate limiting with presets | `app/middlewares/rateLimit.ts` |
+| `securityHeaders()` | Security headers (CSP, HSTS, etc.) | `app/middlewares/securityHeaders.ts` |
+| `inertia()` | Inertia.js response handling | `app/middlewares/inertia.ts` |
 
 ### Quick Reference
 
