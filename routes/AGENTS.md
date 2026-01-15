@@ -27,8 +27,6 @@ export default Route;
 
 ## Route Organization
 
-Group routes with clear comments:
-
 ```typescript
 /**
  * Public Routes
@@ -64,8 +62,6 @@ Route.get("/profile", [Auth], ProfileController.edit);
 
 ## Rate Limiting
 
-Import and apply rate limiters:
-
 ```typescript
 import {
   authRateLimit,           // 5 req/15min - Login/logout
@@ -75,16 +71,9 @@ import {
   uploadRateLimit          // 50 req/hour - File uploads
 } from "../app/middlewares/rateLimit";
 
-// Authentication routes
 Route.post("/login", [authRateLimit], LoginController.processLogin);
 Route.post("/register", [createAccountRateLimit], RegisterController.processRegister);
-Route.post("/forgot-password", [passwordResetRateLimit], PasswordController.sendResetPassword);
-
-// API routes
 Route.post("/api/*", [apiRateLimit], ApiController.method);
-
-// Upload routes
-Route.post("/upload", [uploadRateLimit], UploadController.upload);
 ```
 
 ## Route Parameters
@@ -102,8 +91,6 @@ const postId = request.params.postId;
 
 ## Middleware Order
 
-Middlewares execute in array order:
-
 ```typescript
 Route.get("/protected", [Auth, RateLimit], Controller.method);
 // Auth runs first, then RateLimit, then Controller
@@ -111,18 +98,12 @@ Route.get("/protected", [Auth, RateLimit], Controller.method);
 
 ## Catch-All Routes
 
-**Must be the LAST route in the file:**
-
+**Must be the LAST route:**
 ```typescript
-// Public assets - Always last
 Route.get("/public/*", AssetController.publicFolder);
 ```
 
-Catch-all routes match any path, so they must come after all specific routes.
-
 ## RESTful Resource Routes
-
-Standard CRUD pattern:
 
 ```typescript
 Route.get("/posts", PostController.index);           // List
@@ -138,76 +119,14 @@ Route.delete("/posts/:id", PostController.destroy);  // Delete
 
 **SSR (Public, SEO):**
 ```typescript
-Route.get("/", HomeController.index);  // Landing page
-Route.get("/blog", BlogController.index);  // Blog posts
+Route.get("/", HomeController.index);
+Route.get("/blog", BlogController.index);
 ```
 
 **Inertia (Protected):**
 ```typescript
 Route.get("/dashboard", [Auth], DashboardController.index);
 Route.get("/profile", [Auth], ProfileController.edit);
-```
-
-## Complete Example
-
-```typescript
-import HyperExpress from 'hyper-express';
-import HomeController from "../app/controllers/HomeController";
-import PostController from "../app/controllers/PostController";
-import Auth from "../app/middlewares/auth";
-import AssetController from "../app/controllers/AssetController";
-import { authRateLimit, apiRateLimit } from "../app/middlewares/rateLimit";
-
-const Route = new HyperExpress.Router();
-
-/**
- * Public Routes
- * ------------------------------------------------
- * GET  / - Home page
- * GET  /about - About page
- */
-Route.get("/", HomeController.index);
-Route.get("/about", HomeController.about);
-
-/**
- * Post Routes (Public)
- * ------------------------------------------------
- * GET  /posts - List all posts
- * GET  /posts/:id - Show single post
- */
-Route.get("/posts", PostController.index);
-Route.get("/posts/:id", PostController.show);
-
-/**
- * Post Routes (Protected)
- * ------------------------------------------------
- * GET   /posts/create - Create form
- * POST  /posts - Store new post
- * GET   /posts/:id/edit - Edit form
- * PUT   /posts/:id - Update post
- * DELETE /posts/:id - Delete post
- */
-Route.get("/posts/create", [Auth], PostController.create);
-Route.post("/posts", [Auth, authRateLimit], PostController.store);
-Route.get("/posts/:id/edit", [Auth], PostController.edit);
-Route.put("/posts/:id", [Auth, authRateLimit], PostController.update);
-Route.delete("/posts/:id", [Auth], PostController.destroy);
-
-/**
- * API Routes
- * ------------------------------------------------
- * POST /api/posts - API endpoint
- */
-Route.post("/api/posts", [apiRateLimit], ApiController.store);
-
-/**
- * Static Assets - Always Last
- * ------------------------------------------------
- * GET /public/* - Serve public files
- */
-Route.get("/public/*", AssetController.publicFolder);
-
-export default Route;
 ```
 
 ## Quick Reference
@@ -230,5 +149,3 @@ export default Route;
 | `passwordResetRateLimit` | 1 hour | 3 | Password reset |
 | `createAccountRateLimit` | 1 hour | 3 | Registration |
 | `uploadRateLimit` | 1 hour | 50 | File uploads |
-| `emailRateLimit` | 1 hour | 10 | Email sending |
-| `generalRateLimit` | 15 min | 1000 | General routes |
