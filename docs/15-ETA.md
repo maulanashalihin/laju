@@ -385,6 +385,82 @@ Based on the Vite configuration, the following assets are available:
 
 ---
 
+## Translation
+
+Laju provides automatic translation support in Eta templates. The `t` function from `app/services/Translation.ts` is automatically available in all templates as `it.t`.
+
+### Basic Usage
+
+```html
+<!-- Simple translation -->
+<h1><%= it.t('welcome', 'en') %></h1>
+<p><%= it.t('description', 'id') %></p>
+
+<!-- Output (en): Welcome -->
+<!-- Output (id): Selamat datang -->
+```
+
+### With Interpolation
+
+```html
+<!-- Translation with parameters -->
+<h1><%= it.t('greeting', 'en', { name: 'John' }) %></h1>
+<p><%= it.t('items_count', 'id', { count: 5 }) %></p>
+
+<!-- Output (en): Hello, John! -->
+<!-- Output (id): Anda memiliki 5 item -->
+```
+
+### Nested Keys
+
+```html
+<!-- Nested translation keys -->
+<p><%= it.t('errors.required', 'en', { field: 'Email' }) %></p>
+<p><%= it.t('success.created', 'id', { item: 'Produk' }) %></p>
+
+<!-- Output (en): Email is required -->
+<!-- Output (id): Produk berhasil dibuat -->
+```
+
+### Dynamic Language from Controller
+
+```typescript
+// Controller
+public async index(request: Request, response: Response) {
+  const lang = request.cookies.lang || 'en';
+  
+  const html = view("index.html", {
+    lang: lang,
+    title: it.t('welcome', lang)
+  });
+  
+  return response.type("html").send(html);
+}
+```
+
+```html
+<!-- Template -->
+<h1><%= it.t('welcome', it.lang) %></h1>
+<p><%= it.t('description', it.lang) %></p>
+```
+
+### Language Detection in Controller
+
+```typescript
+// Detect language from cookie, query, or header
+const lang = request.cookies.lang || 
+             request.query.lang as string || 
+             request.headers['accept-language']?.split(',')[0]?.split('-')[0] || 
+             'en';
+
+const html = view("page.html", {
+  lang: lang,
+  // Pass language to template
+});
+```
+
+---
+
 ## Best Practices
 
 ### Security
