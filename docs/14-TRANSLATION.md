@@ -52,10 +52,10 @@ app/services/languages/
 
 ### Client-Side (Svelte/Inertia)
 
-Translation files for client-side rendering are stored in `resources/js/languages/`:
+Translation files for client-side rendering are stored in `resources/js/Components/languages/`:
 
 ```
-resources/js/languages/
+resources/js/Components/languages/
 ├── en.json
 ├── id.json
 ├── ar.json
@@ -63,7 +63,7 @@ resources/js/languages/
 └── ...
 ```
 
-> **Note**: You can copy language files from `app/services/languages/` to `resources/js/languages/` or maintain separate translations for server and client.
+> **Note**: You can copy language files from `app/services/languages/` to `resources/js/Components/languages/` or maintain separate translations for server and client.
 
 ### Basic Structure
 

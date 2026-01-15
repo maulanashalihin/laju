@@ -33,7 +33,7 @@ export async function loadTranslations(lang) {
   if (translations[lang]) return; // Already loaded
   
   try {
-    const module = await import(`../languages/${lang}.json`);
+    const module = await import(`./languages/${lang}.json`);
     translations[lang] = module.default;
   } catch (error) {
     console.error(`Failed to load translations for ${lang}:`, error);
