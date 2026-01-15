@@ -1,13 +1,13 @@
 /**
  * Common Validator - Reusable Field Schemas
- * Building blocks untuk compose validation schemas
+ * Building blocks for composing validation schemas
  */
 
 import { z } from 'zod';
 
 /**
  * Reusable field schemas
- * Gunakan ini untuk compose schema yang lebih kompleks
+ * Use these to compose more complex schemas
  */
 export const field = {
   // Email validation (auto lowercase)

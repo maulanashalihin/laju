@@ -1,6 +1,6 @@
 /**
  * Auth Validation Schemas
- * Schemas untuk LoginController, RegisterController, PasswordController
+ * Schemas for LoginController, RegisterController, PasswordController
  */
 
 import { z } from 'zod';

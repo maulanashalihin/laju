@@ -1,28 +1,28 @@
 # Validation Guide
 
-Laju menggunakan **Zod** untuk validasi input yang type-safe dan mudah digunakan.
+Laju uses **Zod** for type-safe and easy-to-use input validation.
 
-## Instalasi
+## Installation
 
-Zod sudah termasuk dalam dependencies Laju. Jika belum ada:
+Zod is already included in Laju dependencies. If not available:
 
 ```bash
 npm install zod
 ```
 
-## Kenapa Zod?
+## Why Zod?
 
-| Fitur | Zod | Yup |
-|-------|-----|-----|
+| Feature | Zod | Yup |
+|---------|-----|-----|
 | Bundle Size | **8KB** | 15KB |
 | TypeScript | Native | Via types |
-| Learning Curve | **Lebih mudah** | Sedang |
-| Type Inference | ✅ Otomatis | ❌ Manual |
+| Learning Curve | **Easier** | Medium |
+| Type Inference | ✅ Automatic | ❌ Manual |
 | Zero Dependencies | ✅ | ❌ |
 
 ## Quick Start
 
-### 1. Buat Validation Schema
+### 1. Create Validation Schema
 
 ```typescript
 // app/validators/PostValidator.ts
@@ -31,18 +31,18 @@ import { z } from 'zod';
 export const createPostSchema = z.object({
   title: z
     .string()
-    .min(3, 'Judul minimal 3 karakter')
-    .max(100, 'Judul maksimal 100 karakter'),
+    .min(3, 'Title must be at least 3 characters')
+    .max(100, 'Title must be at most 100 characters'),
   content: z
     .string()
-    .min(10, 'Konten minimal 10 karakter'),
+    .min(10, 'Content must be at least 10 characters'),
   published: z.boolean().optional(),
 });
 
 export const updatePostSchema = createPostSchema.partial();
 ```
 
-### 2. Gunakan di Controller
+### 2. Use in Controller
 
 ```typescript
 // app/controllers/PostController.ts
@@ -84,7 +84,7 @@ export default new PostController();
 
 ### `validate(schema, data)`
 
-Validasi data dan return result object.
+Validate data and return result object.
 
 ```typescript
 const result = Validator.validate(loginSchema, body);
@@ -98,7 +98,7 @@ if (result.success) {
 
 ### `validateOrFail(schema, data, response)`
 
-Validasi dan otomatis kirim error response jika gagal.
+Validate and automatically send error response if failed.
 
 ```typescript
 const validatedData = Validator.validateOrFail(schema, body, response);
@@ -109,7 +109,7 @@ if (!validatedData) return; // Validation failed, response already sent
 
 ## Common Schemas
 
-Validator service menyediakan schema umum yang siap pakai:
+Validator service provides ready-to-use common schemas:
 
 ```typescript
 import Validator from "../services/Validator";
@@ -124,10 +124,22 @@ Validator.schemas.password
 Validator.schemas.phone
 
 // Required string
-Validator.schemas.requiredString('Nama')
+Validator.schemas.requiredString('Name')
+
+// Optional string
+Validator.schemas.optionalString
+
+// Positive number
+Validator.schemas.positiveNumber
 
 // URL
 Validator.schemas.url
+
+// Date (ISO format)
+Validator.schemas.date
+
+// Boolean
+Validator.schemas.boolean
 
 // UUID
 Validator.schemas.uuid
@@ -144,7 +156,7 @@ const passwordSchema = z.object({
 }).refine(
   (data) => data.password === data.confirm_password,
   {
-    message: 'Password tidak cocok',
+    message: 'Passwords do not match',
     path: ['confirm_password'],
   }
 );
@@ -168,7 +180,7 @@ const emailSchema = z.string().email().refine(
     const exists = await DB.from('users').where('email', email).first();
     return !exists;
   },
-  { message: 'Email sudah terdaftar' }
+  { message: 'Email already registered' }
 );
 ```
 
@@ -177,15 +189,15 @@ const emailSchema = z.string().email().refine(
 ### Login Validation
 
 ```typescript
-// app/validators/LoginValidator.ts
+// app/validators/AuthValidator.ts
 export const loginSchema = z.object({
   email: z.string().optional(),
   phone: z.string().optional(),
-  password: z.string().min(6, 'Password minimal 6 karakter'),
+  password: z.string().min(1, 'Password is required'),
 }).refine(
   (data) => data.email || data.phone,
   {
-    message: 'Email atau nomor telepon wajib diisi',
+    message: 'Email or phone number is required',
     path: ['email'],
   }
 );
@@ -194,32 +206,44 @@ export const loginSchema = z.object({
 ### Register Validation
 
 ```typescript
+// app/validators/AuthValidator.ts
+import { field } from './CommonValidator';
+
 export const registerSchema = z.object({
-  name: z.string().min(2, 'Nama minimal 2 karakter'),
-  email: z.string().email('Email tidak valid').toLowerCase(),
-  password: z
-    .string()
-    .min(8, 'Password minimal 8 karakter')
-    .regex(/[0-9]/, 'Password harus mengandung angka'),
-  password_confirmation: z.string(),
-}).refine(
-  (data) => data.password === data.password_confirmation,
-  {
-    message: 'Konfirmasi password tidak cocok',
-    path: ['password_confirmation'],
-  }
-);
+  name: field.name,
+  email: field.email,
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
 ```
 
 ### File Upload Validation
 
 ```typescript
-export const uploadSchema = z.object({
-  file_name: z.string(),
-  file_size: z.number().max(5 * 1024 * 1024, 'File maksimal 5MB'),
-  file_type: z.enum(['image/jpeg', 'image/png', 'image/webp'], {
-    errorMap: () => ({ message: 'Hanya JPG, PNG, WEBP yang diperbolehkan' }),
-  }),
+// app/validators/CommonValidator.ts
+export function fileUploadSchema(options?: {
+  maxSize?: number;
+  allowedTypes?: string[];
+}) {
+  const maxSize = options?.maxSize || 5 * 1024 * 1024; // 5MB default
+  const allowedTypes = options?.allowedTypes || [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+  ];
+
+  return z.object({
+    file_name: z.string().min(1, 'Filename is required'),
+    file_size: z
+      .number()
+      .max(maxSize, `Maximum file size is ${maxSize / 1024 / 1024}MB`),
+    file_type: z.enum(allowedTypes as [string, ...string[]]),
+  });
+}
+
+// Usage
+const uploadSchema = fileUploadSchema({
+  maxSize: 10 * 1024 * 1024, // 10MB
+  allowedTypes: ['image/jpeg', 'image/png', 'application/pdf'],
 });
 ```
 
@@ -241,22 +265,22 @@ const userSchema = z.object({
 
 ## Error Response Format
 
-Ketika validasi gagal, response format:
+When validation fails, the response format:
 
 ```json
 {
   "success": false,
   "message": "Validation failed",
   "errors": {
-    "email": ["Email tidak valid"],
-    "password": ["Password minimal 8 karakter", "Password harus mengandung angka"]
+    "email": ["Invalid email"],
+    "password": ["Password must be at least 8 characters", "Password must contain a number"]
   }
 }
 ```
 
 ## Best Practices
 
-### 1. Pisahkan Validator per Feature
+### 1. Separate Validators per Feature
 
 ```
 app/validators/
@@ -289,9 +313,9 @@ export const updateUserSchema = baseUserSchema.partial();
 ```typescript
 const schema = z.object({
   email: z.string({
-    required_error: 'Email wajib diisi',
-    invalid_type_error: 'Email harus berupa string',
-  }).email('Format email tidak valid'),
+    required_error: 'Email is required',
+    invalid_type_error: 'Email must be a string',
+  }).email('Invalid email format'),
 });
 ```
 
@@ -348,7 +372,7 @@ const schema = z.object({
 
 ## TypeScript Type Inference
 
-Zod otomatis generate TypeScript types:
+Zod automatically generates TypeScript types:
 
 ```typescript
 import { z } from 'zod';
@@ -371,7 +395,7 @@ function createUser(data: User) {
 
 ## Existing Validators
 
-Laju sudah menyediakan validators untuk controllers yang ada:
+Laju already provides validators for existing controllers:
 
 | File | Schemas | Used By |
 |------|---------|--------|

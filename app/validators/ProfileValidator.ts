@@ -1,6 +1,6 @@
 /**
  * Profile Validation Schemas
- * Schemas untuk ProfileController
+ * Schemas for ProfileController
  */
 
 import { z } from 'zod';

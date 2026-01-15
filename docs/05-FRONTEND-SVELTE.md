@@ -775,7 +775,7 @@ Backend controllers should send clear, actionable error messages:
 ```typescript
 // Controller
 return response
-  .flash("error", "Email sudah terdaftar. Silakan gunakan email lain atau login.")
+  .flash("error", "Email already registered. Please use a different email or login.")
   .redirect("/register");
 ```
 

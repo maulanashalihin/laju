@@ -1,6 +1,6 @@
 /**
  * S3 Validation Schemas
- * Schemas untuk S3Controller
+ * Schemas for S3Controller
  */
 
 import { z } from 'zod';
