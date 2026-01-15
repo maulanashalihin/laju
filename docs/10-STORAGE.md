@@ -228,36 +228,86 @@ project/
 
 ## Choosing the Right Storage
 
-### Recommendation
+### Comparison: LocalStorage vs S3 Storage
 
-**For Production: Use S3 Storage**
+| Aspect | LocalStorage | S3 Storage |
+|--------|-------------|------------|
+| **Cost** | Free | Paid (Wasabi: ~$6/TB/month) |
+| **Setup** | No configuration needed | Requires AWS/Wasabi credentials |
+| **Performance** | Fast (local filesystem) | Fast (CDN integration) |
+| **Scalability** | Limited by server disk | Unlimited |
+| **Migration** | Difficult (files on server) | Easy (external storage) |
+| **Security** | Server-level only | Encryption + IAM policies |
+| **Backup** | Manual backup required | Built-in backup & versioning |
+| **Multi-server** | Not supported | Supported (shared storage) |
+| **Access Control** | Filesystem permissions | IAM policies |
+| **Disaster Recovery** | Manual | Automatic |
 
-While LocalStorage is free and simple, S3 is recommended for production deployments due to critical benefits:
+### When to Use LocalStorage
 
-**Migration Benefits:**
-- Files stored externally, not on your server
-- Easy server migration - no need to copy files
-- Server can be replaced without data loss
-- Seamless horizontal scaling across multiple instances
-- No risk of file corruption during server updates
+**Pros:**
+- **Free** - No monthly storage costs
+- **Simple** - No external dependencies or credentials
+- **Fast** - Direct filesystem access
+- **Development-friendly** - Easy to test and debug
+- **Complete control** - Files stay on your server
+- **No network latency** - Files served locally
 
-**Security Benefits:**
-- Files encrypted at rest
-- Access control with IAM policies
-- No risk of file deletion during server cleanup
-- Built-in backup and disaster recovery
-- Versioning support for file recovery
+**Cons:**
+- **Migration difficulty** - Files tied to server, hard to migrate
+- **Scalability limits** - Limited by server disk space
+- **Single point of failure** - Server failure = data loss
+- **Manual backup** - Need to implement backup strategy
+- **No built-in security** - Rely on server-level permissions
+- **Not multi-server** - Can't share files across instances
 
-**When to Use Each:**
+**Best for:**
+- Development and testing environments
+- Small projects with limited budget
+- Internal tools with sensitive data
+- Applications with strict data residency requirements
 
-| Scenario | Recommended Storage | Reason |
-|----------|---------------------|---------|
-| **Development** | LocalStorage | Free, no credentials needed |
-| **Testing** | LocalStorage | Easier to test without external deps |
-| **Small internal tools** | LocalStorage | Files stay on your server |
-| **Production** | S3 Storage | Better migration, security, scalability |
-| **High traffic** | S3 Storage | Direct uploads, CDN integration |
-| **Multi-server** | S3 Storage | Shared storage across instances |
+### When to Use S3 Storage
+
+**Pros:**
+- **Easy migration** - Files external to server, easy server replacement
+- **Highly scalable** - Unlimited storage capacity
+- **Built-in security** - Encryption at rest, IAM policies
+- **Automatic backup** - Versioning and disaster recovery
+- **Multi-server support** - Shared storage across instances
+- **CDN integration** - Fast global delivery
+- **Presigned URLs** - Secure direct uploads from clients
+
+**Cons:**
+- **Cost** - Monthly storage fees (but affordable)
+- **Setup required** - Need AWS/Wasabi credentials
+- **Network dependency** - Requires internet access
+- **Learning curve** - Need to understand S3 concepts
+
+**Best for:**
+- Production applications
+- High-traffic sites
+- Multi-server deployments
+- Applications requiring easy migration
+- Projects with global users (CDN)
+- Applications needing built-in backup
+
+### Recommendation Summary
+
+**Use LocalStorage when:**
+- You're in development or testing phase
+- Budget is limited and project is small
+- Data must stay on your server (compliance)
+- You need complete control over files
+- Single-server deployment
+
+**Use S3 Storage when:**
+- You're deploying to production
+- You need easy server migration
+- You have multiple servers
+- You need built-in backup and security
+- You want to scale horizontally
+- You have global users (CDN benefits)
 
 ### Switching Between Storage
 
