@@ -5,7 +5,6 @@ export async function up(knex: Knex): Promise<void> {
         table.string("key").primary();
         table.text("value").notNullable();
         table.bigInteger("expiration").notNullable(); // Unix timestamp in seconds
-        table.index("expiration");
     });
 }
 
