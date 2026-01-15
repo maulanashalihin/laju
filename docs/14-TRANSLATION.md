@@ -181,35 +181,6 @@ For Svelte/Inertia pages, use the simple `Translation.js` helper in `resources/j
 <h1>{t('welcome')}</h1>
 ```
 
-### Alternative: Pass from Controller
-
-You can also pass translations from the controller:
-
-```typescript
-// Controller
-async index(request: Request, response: Response) {
-  const lang = request.cookies.lang || 'en';
-  
-  return response.inertia('dashboard', {
-    lang,
-    translations: {
-      welcome: t('welcome', lang),
-      dashboard: t('dashboard', lang)
-    }
-  });
-}
-```
-
-```svelte
-<!-- resources/js/Pages/Dashboard.svelte -->
-<script>
-  let { translations } = $props();
-</script>
-
-<h1>{translations.welcome}</h1>
-<p>{translations.dashboard}</p>
-```
-
 ## Language Detection
 
 ### From Query Parameter
