@@ -75,6 +75,10 @@ class RedisService {
         return await this.client.exists(key);
     }
 
+    async incr(key: string): Promise<number> {
+        return await this.client.incr(key);
+    }
+
     async ttl(key: string): Promise<number> {
         return await this.client.ttl(key);
     }

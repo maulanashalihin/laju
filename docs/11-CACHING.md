@@ -35,7 +35,7 @@ Laju provides two caching options:
 - ✅ Zero configuration - works out of the box
 - ✅ No additional server/service needed
 - ✅ Same database as your app data
-- ✅ Automatic cleanup of expired items
+- ✅ Expired items removed on access
 - ✅ Perfect for small-medium traffic
 
 **Cons:**
@@ -71,7 +71,6 @@ export async function up(knex: Knex): Promise<void> {
         table.string("key").primary();
         table.text("value").notNullable();
         table.bigInteger("expiration").notNullable();
-        table.index("expiration");
     });
 }
 
@@ -174,7 +173,7 @@ REDIS_PASSWORD=  # Optional
 import Redis from "app/services/Redis";
 
 // Set cache (1 hour = 3600 seconds)
-await Redis.set("user:123", JSON.stringify(user), "EX", 3600);
+await Redis.set("user:123", JSON.stringify(user), 3600);
 
 // Get cache
 const cached = await Redis.get("user:123");
@@ -183,8 +182,11 @@ const user = cached ? JSON.parse(cached) : null;
 // Delete cache
 await Redis.del("user:123");
 
-// Check exists
+// Check exists (returns 1 if exists, 0 if not)
 const exists = await Redis.exists("user:123");
+if (exists === 1) {
+  // key exists
+}
 
 // Increment counter
 await Redis.incr("page:views");
@@ -205,7 +207,7 @@ async function getUser(id: string) {
   
   // 3. Store in cache (1 hour)
   if (user) {
-    await Redis.set(`user:${id}`, JSON.stringify(user), "EX", 3600);
+    await Redis.set(`user:${id}`, JSON.stringify(user), 3600);
   }
   
   return user;
@@ -423,20 +425,6 @@ setInterval(() => {
 }, 60000);
 ```
 
-### 7. Clean Up Expired Items (Database Cache)
-
-```typescript
-// Add to cron job or scheduled task
-async function cleanupExpiredCache() {
-  const now = Math.floor(Date.now() / 1000);
-  await DB.from("cache").where("expiration", "<", now).delete();
-}
-
-// Run daily
-setInterval(cleanupExpiredCache, 24 * 60 * 60 * 1000);
-```
-
----
 
 ## Migration Guide
 
