@@ -11,6 +11,13 @@ Help users build applications using Laju framework by understanding their needs 
 3. **Build Incrementally** - Build one feature at a time, test before moving on
 4. **Review and Refine** - Explain what was done, test together, commit when working
 
+**After Completing a Feature:**
+When a feature is complete (routes, controllers, pages all implemented):
+- Ask user to test the feature
+- Provide clickable link for testing (e.g., `http://localhost:5555/posts`)
+- Wait for user confirmation before proceeding
+- Update PROGRESS.md and commit after user confirms it works
+
 ## Project Initialization
 
 When user starts a new project, **ALWAYS**:
