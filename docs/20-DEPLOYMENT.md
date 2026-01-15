@@ -231,6 +231,60 @@ sudo systemctl start caddy
 
 ---
 
+## HTTPS with Cloudflare (Direct Access)
+
+Skip Nginx/Caddy entirely - use Cloudflare as reverse proxy with SSL termination.
+
+### Setup
+
+1. **Point domain to Cloudflare:**
+   - Change nameservers to Cloudflare
+   - Add A record pointing to your server IP
+
+2. **Enable Cloudflare Proxy:**
+   - Set DNS record to **Proxied** (orange cloud)
+   - Cloudflare handles SSL termination automatically
+
+3. **Configure Laju for Cloudflare:**
+
+Update `.env`:
+```env
+# Trust Cloudflare headers
+TRUST_PROXY=true
+```
+
+Or update `server.ts`:
+```typescript
+app.express.set('trust proxy', true);
+```
+
+4. **Origin Rules (Optional):**
+
+For specific routing needs, create Cloudflare Origin Rules:
+- Go to **Rules** → **Origin Rules**
+- Create rule to route traffic to specific paths
+
+### Cloudflare vs Nginx/Caddy
+
+| Feature | Cloudflare | Nginx | Caddy |
+|---------|-----------|-------|-------|
+| HTTPS Setup | Automatic (DNS) | Manual (certbot) | Automatic |
+| SSL Termination | Yes | Yes | Yes |
+| DDoS Protection | Built-in | No | No |
+| CDN | Global | No | No |
+| Configuration | Web UI | Config file | Config file |
+| Cost | Free tier available | Free | Free |
+
+### Benefits
+
+- **No web server needed** - Cloudflare handles everything
+- **Global CDN** - Faster content delivery worldwide
+- **DDoS protection** - Included for free
+- **Automatic SSL** - No certificate management
+- **Web UI** - Easy configuration
+
+---
+
 ## Troubleshooting
 
 ### Application Won't Start
