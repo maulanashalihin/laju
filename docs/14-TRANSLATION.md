@@ -149,17 +149,14 @@ class UserController {
 
 For Svelte/Inertia pages, use the simple `Translation.js` helper in `resources/js/Components/Translation.js`. Language files are stored in `resources/js/Components/languages/`.
 
-> **Note**: The `Translation.js` helper uses localStorage to store the current language. You don't need to pass the language parameter to `t()` - it automatically uses the stored language (defaults to 'en').
+> **Note**: The `Translation.js` helper uses localStorage to store the current language. You don't need to pass the language parameter to `t()` - it automatically uses the stored language (defaults to 'en'). The `t()` function will automatically load the language if it hasn't been loaded yet.
 
 ### Basic Usage
 
 ```svelte
 <!-- resources/js/Pages/Dashboard.svelte -->
 <script>
-  import { t, initTranslation } from '../Components/Translation.js';
-
-  // Initialize translation (uses localStorage or defaults to 'en')
-  initTranslation();
+  import { t } from '../Components/Translation.js';
 </script>
 
 <h1>{t('welcome')}</h1>
@@ -170,10 +167,8 @@ For Svelte/Inertia pages, use the simple `Translation.js` helper in `resources/j
 
 ```svelte
 <script>
-  import { t, initTranslation } from '../Components/Translation.js';
+  import { t } from '../Components/Translation.js';
   let userName = $state('John');
-
-  initTranslation();
 </script>
 
 <h1>{t('greeting', { name: userName })}</h1>
@@ -183,10 +178,8 @@ For Svelte/Inertia pages, use the simple `Translation.js` helper in `resources/j
 
 ```svelte
 <script>
-  import { t, initTranslation, setLanguage } from '../Components/Translation.js';
+  import { t, setLanguage } from '../Components/Translation.js';
   let currentLang = $state('en');
-
-  initTranslation();
 
   async function changeLanguage(newLang) {
     currentLang = newLang;

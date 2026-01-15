@@ -47,8 +47,14 @@ export async function loadTranslations(lang) {
  * @param {Object} params - Parameters for interpolation
  * @returns {string} Translated text or key if not found
  */
-export function t(key, params = {}) {
+export async function t(key, params = {}) {
   const lang = currentLang;
+  
+  // Auto-load language if not loaded yet
+  if (!translations[lang]) {
+    await loadTranslations(lang);
+  }
+  
   const langTranslations = translations[lang] || {};
   
   // Handle nested keys (e.g., 'errors.required')
@@ -69,17 +75,4 @@ export function t(key, params = {}) {
   }
   
   return key;
-}
-
-/**
- * Initialize translation with a language
- * @param {string} lang - Initial language code (optional, uses localStorage if not provided)
- */
-export async function initTranslation(lang) {
-  if (lang) {
-    setLanguage(lang);
-  } else {
-    currentLang = getLanguage();
-    await loadTranslations(currentLang);
-  }
 }
