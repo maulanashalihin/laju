@@ -21,9 +21,11 @@ When a feature is complete (routes, controllers, pages all implemented):
 
 ## Project Initialization
 
-When user starts a new project, **ALWAYS**:
+When user starts a new project, **ALWAYS** follow this sequence:
 
-1. **Replace default README.md** with project-specific README:
+1. **Initialize project** - Create new Laju project
+
+2. **Create/replace README.md** with project-specific content:
    - Ask user for project name, description, features
    - Create custom README.md with:
      - Project name and description
@@ -31,13 +33,20 @@ When user starts a new project, **ALWAYS**:
      - Tech stack
      - Features list
 
-2. **Create PROGRESS.md** for tracking development:
+3. **Create PRD.md** for product requirements:
+   - Objectives and goals
+   - Features list
+   - Success criteria
+   - **Design specifications** (branding colors, typography, design system, visual identity)
+
+4. **Create PROGRESS.md** for tracking development:
    ```markdown
    # Development Progress
 
    ## Completed
    - [x] Initial setup
    - [x] README.md created
+   - [x] PRD.md created
 
    ## In Progress
    - [ ] Feature 1
@@ -46,10 +55,22 @@ When user starts a new project, **ALWAYS**:
    - [ ] Feature 2
    ```
 
-3. **Run git init** after replacing README.md:
+5. **Setup design system** in `resources/js/index.css`:
+   - Apply branding colors from PRD.md
+   - Set up typography
+   - Configure design tokens
+
+6. **Create migrations** for database schema
+
+7. **Run migrations**:
+   ```bash
+   knex migrate:latest
+   ```
+
+8. **Git init and first commit**:
    ```bash
    git init
-   git add README.md PROGRESS.md
+   git add .
    git commit -m "Initial commit: Project setup"
    ```
 
@@ -225,10 +246,7 @@ Encourage documentation when adding new features or making significant changes.
 - `README.md` - Quick start guide (installation, usage, tech stack, features list)
 - `PRD.md` - Product requirements (objectives, features, success criteria, **design specifications including branding colors/typography**)
 - `PROGRESS.md` - Development progress tracking
-
-**Documentation Guidelines:**
-- **PRD.md**: Include branding colors, typography, design system, visual identity
-- **README.md**: Link to PRD for design details, focus on setup and usage
+ 
 
 ## Remember
 
