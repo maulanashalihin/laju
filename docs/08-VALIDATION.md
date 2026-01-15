@@ -107,6 +107,93 @@ if (!validatedData) return; // Validation failed, response already sent
 // Continue with validated data
 ```
 
+## Validation in Controllers
+
+### For Inertia Forms (Web UI)
+
+Use `validate()` with flash messages for form submissions:
+
+```typescript
+// app/controllers/ProfileController.ts
+import Validator from "../services/Validator";
+import { updateProfileSchema } from "../validators/ProfileValidator";
+
+class ProfileController {
+  public async update(request: Request, response: Response) {
+    const body = await request.json();
+
+    // Validate input
+    const validationResult = Validator.validate(updateProfileSchema, body);
+
+    if (!validationResult.success) {
+      const errors = validationResult.errors || {};
+      const firstError = Object.values(errors)[0]?.[0] || 'Validation error';
+      return response
+        .flash("error", firstError)
+        .redirect("/profile", 303);
+    }
+
+    const { name, email } = validationResult.data!;
+
+    // Update profile
+    await DB.from("users").where("id", request.user.id).update({ name, email });
+
+    return response
+      .flash("success", "Profile updated successfully")
+      .redirect("/profile", 303);
+  }
+}
+```
+
+**Why use `validate()` for Inertia forms?**
+- Returns result object instead of sending JSON response
+- Allows you to extract first error message for flash message
+- Prevents JSON modal errors in browser
+- Enables redirect with error feedback
+
+### For API Endpoints
+
+Use `validateOrFail()` for API responses:
+
+```typescript
+// app/controllers/ApiController.ts
+import Validator from "../services/Validator";
+import { createPostSchema } from "../validators/PostValidator";
+
+class ApiController {
+  public async createPost(request: Request, response: Response) {
+    const body = await request.json();
+
+    // Validate input (sends JSON error on failure)
+    const validatedData = Validator.validateOrFail(createPostSchema, body, response);
+    if (!validatedData) return; // Validation failed, response already sent
+
+    // Create post
+    const post = await DB.table("posts").insert({
+      title: validatedData.title,
+      content: validatedData.content,
+      user_id: request.user.id,
+    });
+
+    return response.json({ success: true, data: post });
+  }
+}
+```
+
+**Why use `validateOrFail()` for APIs?**
+- Automatically sends JSON error response on validation failure
+- Returns typed data on success
+- Standardized error format for API consumers
+- Less boilerplate code
+
+### Choosing the Right Method
+
+| Use Case | Method | Response Type | Example |
+|----------|--------|---------------|---------|
+| Inertia forms | `validate()` | Flash + Redirect | User registration, profile update |
+| API endpoints | `validateOrFail()` | JSON | Mobile app, external integrations |
+| Internal validation | `validateOrThrow()` | Exception | Background jobs, services |
+
 ## Common Schemas
 
 Validator service provides ready-to-use common schemas:

@@ -110,3 +110,59 @@ class UserService {
    }
 }
 ```
+
+## Validator Service
+
+The Validator service provides type-safe input validation using Zod.
+
+### API Methods
+
+#### `validate<T>(schema, data)`
+
+Validate data and return result object.
+
+```typescript
+const result = Validator.validate(schema, data);
+
+if (result.success) {
+   console.log(result.data); // Typed data
+} else {
+   console.log(result.errors); // Error messages
+}
+```
+
+#### `validateOrFail<T>(schema, data, response)`
+
+Validate and automatically send error response if failed. Returns `null` on failure.
+
+```typescript
+const validatedData = Validator.validateOrFail(schema, data, response);
+if (!validatedData) return; // Validation failed, response already sent
+
+// Continue with validated data
+```
+
+#### `validateOrThrow<T>(schema, data)`
+
+Validate and throw ZodError if validation fails.
+
+```typescript
+const data = Validator.validateOrThrow(schema, data);
+```
+
+### Common Schemas
+
+Pre-built validation schemas available:
+
+```typescript
+Validator.schemas.email          // Email validation
+Validator.schemas.password       // Password (min 8 chars, 1 number)
+Validator.schemas.phone          // Indonesian phone format
+Validator.schemas.requiredString('Name')  // Required string
+Validator.schemas.optionalString // Optional string
+Validator.schemas.positiveNumber // Positive number
+Validator.schemas.url            // URL validation
+Validator.schemas.date           // ISO date format
+Validator.schemas.boolean        // Boolean
+Validator.schemas.uuid           // UUID
+```
