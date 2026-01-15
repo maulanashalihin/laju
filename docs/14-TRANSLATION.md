@@ -2,7 +2,7 @@
 
 Laju provides a lightweight and stateless Translation service for multi-language support.
 
-> **Note**: `app/services/Translation.ts` is designed for **SSR (Server-Side Rendering) only**. Use it in controllers or Eta templates. For Svelte/Inertia pages, create your own translation setup in `resources/js/Components` and import it into your pages.
+> **Note**: `app/services/Translation.ts` is designed for **SSR (Server-Side Rendering) only**. Use it in controllers or Eta templates. For Svelte/Inertia pages, use the provided `Translation.js` helper in `resources/js/Components/Translation.js`.
 
 ## Basic Usage
 
