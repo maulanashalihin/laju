@@ -147,7 +147,9 @@ class UserController {
 
 ## Usage in Inertia Pages (Svelte)
 
-For Svelte/Inertia pages, use the simple `Translation.js` helper in `resources/js/Components/Translation.js`. Language files are stored in `resources/js/languages/`.
+For Svelte/Inertia pages, use the simple `Translation.js` helper in `resources/js/Components/Translation.js`. Language files are stored in `resources/js/Components/languages/`.
+
+> **Note**: The `Translation.js` helper uses localStorage to store the current language. You don't need to pass the language parameter to `t()` - it automatically uses the stored language (defaults to 'en').
 
 ### Basic Usage
 
@@ -268,7 +270,11 @@ const lang = request.user?.language || 'en';
 
 ## Adding New Language
 
-You can add any language to the translation system. Simply create a new language file and import it in Translation.ts.
+You can add any language to the translation system.
+
+### Server-Side (SSR)
+
+For controllers and Eta templates:
 
 1. Create language file:
 
@@ -292,7 +298,22 @@ const lang_data = {
 } as any;
 ```
 
-That's it! The language is now available for use.
+### Client-Side (Svelte/Inertia)
+
+For Svelte/Inertia pages:
+
+1. Create language file:
+
+```json
+// resources/js/Components/languages/es.json
+{
+  "welcome": "Bienvenido",
+  "login": "Iniciar sesión",
+  "logout": "Cerrar sesión"
+}
+```
+
+That's it! The language is now available for use. The `Translation.js` helper will automatically load it when `setLanguage('es')` is called.
 
 ## Fallback Behavior
 
@@ -351,12 +372,23 @@ This makes debugging easier - you can directly see which keys haven't been trans
 
 ### 4. Store User Language Preference
 
+**Server-Side (SSR):**
+
 ```typescript
 // Save to cookie
 response.cookie('lang', 'id', 1000 * 60 * 60 * 24 * 365); // 1 year
 
 // Or save to database
 await DB.from('users').where('id', userId).update({ language: 'id' });
+```
+
+**Client-Side (Svelte/Inertia):**
+
+```javascript
+// Translation.js automatically saves to localStorage
+await setLanguage('id');
+
+// Language persists across page reloads
 ```
 
 ## Why Not i18next?
