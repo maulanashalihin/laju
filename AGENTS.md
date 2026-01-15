@@ -140,8 +140,7 @@ laju/
 - Always validate input
 - Use parameterized queries only
 - Apply rate limiting to auth/API routes
-- Check `request.user` in protected routes
-- Use `Authenticate.hash()` / `Authenticate.compare()` for passwords
+- Check `request.user` in protected routes 
 
 ## Commit Guidance
 
