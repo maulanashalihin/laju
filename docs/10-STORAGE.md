@@ -5,9 +5,9 @@ Complete guide for file storage in Laju framework with support for Local filesys
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Local Storage](#local-storage)
-3. [S3 Storage](#s3-storage)
-4. [Choosing the Right Storage](#choosing-the-right-storage)
+2. [Choosing the Right Storage](#choosing-the-right-storage)
+3. [Local Storage](#local-storage)
+4. [S3 Storage](#s3-storage)
 5. [Best Practices](#best-practices)
 
 ---
@@ -19,6 +19,105 @@ Laju provides two separate storage services that can be used independently:
 - **S3 Storage** - Wasabi/S3 for production with presigned URLs
 
 Both services are available and can be used simultaneously in your application.
+
+---
+
+## Choosing the Right Storage
+
+### Comparison: LocalStorage vs S3 Storage
+
+| Aspect | LocalStorage | S3 Storage |
+|--------|-------------|------------|
+| **Cost** | Free | Paid (Wasabi: ~$6/TB/month) |
+| **Setup** | No configuration needed | Requires AWS/Wasabi credentials |
+| **Performance** | Fast (local filesystem) | Fast (CDN integration) |
+| **Scalability** | Limited by server disk | Unlimited |
+| **Migration** | Difficult (files on server) | Easy (external storage) |
+| **Security** | Server-level only | Encryption + IAM policies |
+| **Backup** | Manual backup required | Built-in backup & versioning |
+| **Multi-server** | Not supported | Supported (shared storage) |
+| **Access Control** | Filesystem permissions | IAM policies |
+| **Disaster Recovery** | Manual | Automatic |
+
+### When to Use LocalStorage
+
+**Pros:**
+- **Free** - No monthly storage costs
+- **Simple** - No external dependencies or credentials
+- **Fast** - Direct filesystem access
+- **Development-friendly** - Easy to test and debug
+- **Complete control** - Files stay on your server
+- **No network latency** - Files served locally
+
+**Cons:**
+- **Migration difficulty** - Files tied to server, hard to migrate
+- **Scalability limits** - Limited by server disk space
+- **Single point of failure** - Server failure = data loss
+- **Manual backup** - Need to implement backup strategy
+- **No built-in security** - Rely on server-level permissions
+- **Not multi-server** - Can't share files across instances
+
+**Best for:**
+- Development and testing environments
+- Small projects with limited budget
+- Internal tools with sensitive data
+- Applications with strict data residency requirements
+
+### When to Use S3 Storage
+
+**Pros:**
+- **Easy migration** - Files external to server, easy server replacement
+- **Highly scalable** - Unlimited storage capacity
+- **Built-in security** - Encryption at rest, IAM policies
+- **Automatic backup** - Versioning and disaster recovery
+- **Multi-server support** - Shared storage across instances
+- **CDN integration** - Fast global delivery
+- **Presigned URLs** - Secure direct uploads from clients
+
+**Cons:**
+- **Cost** - Monthly storage fees (but affordable)
+- **Setup required** - Need AWS/Wasabi credentials
+- **Network dependency** - Requires internet access
+- **Learning curve** - Need to understand S3 concepts
+
+**Best for:**
+- Production applications
+- High-traffic sites
+- Multi-server deployments
+- Applications requiring easy migration
+- Projects with global users (CDN)
+- Applications needing built-in backup
+
+### Recommendation Summary
+
+**Use LocalStorage when:**
+- You're in development or testing phase
+- Budget is limited and project is small
+- Data must stay on your server (compliance)
+- You need complete control over files
+- Single-server deployment
+
+**Use S3 Storage when:**
+- You're deploying to production
+- You need easy server migration
+- You have multiple servers
+- You need built-in backup and security
+- You want to scale horizontally
+- You have global users (CDN benefits)
+
+### Switching Between Storage
+
+Both services have the same API, making it easy to switch:
+
+```typescript
+// For Local Storage (Development)
+import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
+
+// For S3 Storage (Production)
+import { getPublicUrl, uploadBuffer } from "app/services/S3";
+```
+
+Simply change the import in your controller to switch storage providers.
 
 ---
 
@@ -148,105 +247,6 @@ await deleteObject('assets/photo.jpg');
 // Check if file exists
 const fileExists = await exists('assets/photo.jpg');
 ```
-
----
-
-## Choosing the Right Storage
-
-### Comparison: LocalStorage vs S3 Storage
-
-| Aspect | LocalStorage | S3 Storage |
-|--------|-------------|------------|
-| **Cost** | Free | Paid (Wasabi: ~$6/TB/month) |
-| **Setup** | No configuration needed | Requires AWS/Wasabi credentials |
-| **Performance** | Fast (local filesystem) | Fast (CDN integration) |
-| **Scalability** | Limited by server disk | Unlimited |
-| **Migration** | Difficult (files on server) | Easy (external storage) |
-| **Security** | Server-level only | Encryption + IAM policies |
-| **Backup** | Manual backup required | Built-in backup & versioning |
-| **Multi-server** | Not supported | Supported (shared storage) |
-| **Access Control** | Filesystem permissions | IAM policies |
-| **Disaster Recovery** | Manual | Automatic |
-
-### When to Use LocalStorage
-
-**Pros:**
-- **Free** - No monthly storage costs
-- **Simple** - No external dependencies or credentials
-- **Fast** - Direct filesystem access
-- **Development-friendly** - Easy to test and debug
-- **Complete control** - Files stay on your server
-- **No network latency** - Files served locally
-
-**Cons:**
-- **Migration difficulty** - Files tied to server, hard to migrate
-- **Scalability limits** - Limited by server disk space
-- **Single point of failure** - Server failure = data loss
-- **Manual backup** - Need to implement backup strategy
-- **No built-in security** - Rely on server-level permissions
-- **Not multi-server** - Can't share files across instances
-
-**Best for:**
-- Development and testing environments
-- Small projects with limited budget
-- Internal tools with sensitive data
-- Applications with strict data residency requirements
-
-### When to Use S3 Storage
-
-**Pros:**
-- **Easy migration** - Files external to server, easy server replacement
-- **Highly scalable** - Unlimited storage capacity
-- **Built-in security** - Encryption at rest, IAM policies
-- **Automatic backup** - Versioning and disaster recovery
-- **Multi-server support** - Shared storage across instances
-- **CDN integration** - Fast global delivery
-- **Presigned URLs** - Secure direct uploads from clients
-
-**Cons:**
-- **Cost** - Monthly storage fees (but affordable)
-- **Setup required** - Need AWS/Wasabi credentials
-- **Network dependency** - Requires internet access
-- **Learning curve** - Need to understand S3 concepts
-
-**Best for:**
-- Production applications
-- High-traffic sites
-- Multi-server deployments
-- Applications requiring easy migration
-- Projects with global users (CDN)
-- Applications needing built-in backup
-
-### Recommendation Summary
-
-**Use LocalStorage when:**
-- You're in development or testing phase
-- Budget is limited and project is small
-- Data must stay on your server (compliance)
-- You need complete control over files
-- Single-server deployment
-
-**Use S3 Storage when:**
-- You're deploying to production
-- You need easy server migration
-- You have multiple servers
-- You need built-in backup and security
-- You want to scale horizontally
-- You have global users (CDN benefits)
-
-### Switching Between Storage
-
-Both services have the same API, making it easy to switch:
-
-```typescript
-// For Local Storage (Development)
-import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
-
-// For S3 Storage (Production)
-import { getPublicUrl, uploadBuffer } from "app/services/S3";
-```
-
-Simply change the import in your controller to switch storage providers.
 
 ---
 
