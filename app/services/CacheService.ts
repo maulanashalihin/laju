@@ -75,7 +75,9 @@ class CacheService {
         }
 
         const value = await callback();
-        await this.put(key, value, minutes);
+        if (value !== null) {
+            await this.put(key, value, minutes);
+        }
         return value;
     }
 

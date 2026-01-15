@@ -7,7 +7,11 @@ const storagePath = process.env.LOCAL_STORAGE_PATH || "./storage";
 
 class Controller {
     public async serveFile(request: Request, response: Response) {
-        const filePath = request.params[0] || "";
+        // Extract path after /storage/ from request.path (same pattern as AssetController)
+        const requestPath = request.path || "";
+        const filePath = requestPath.startsWith("/storage/") 
+            ? requestPath.substring("/storage/".length).replaceAll("%20", " ")
+            : "";
 
         try {
             const fullPath = path.join(storagePath, filePath);

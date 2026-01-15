@@ -17,7 +17,7 @@ export default async (request: Request, response: Response) => {
          60 * 24 * 60, // 60 days in minutes
          async () => {
             return SQLite.get(`
-               SELECT u.id, u.name, u.email, u.phone, u.is_admin, u.is_verified
+               SELECT u.id, u.name, u.email, u.phone, u.avatar, u.is_admin, u.is_verified
                FROM sessions s
                JOIN users u ON s.user_id = u.id
                WHERE s.id = ? AND s.expires_at > datetime('now')

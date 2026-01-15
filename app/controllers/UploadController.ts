@@ -3,6 +3,7 @@ import { Response, Request } from "../../type";
 import sharp from "sharp";
 import DB from "../services/DB";
 import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
+import path from "path";
 
 // Storage Service Selection:
 // To switch between S3 and Local Storage, change the import above:
@@ -14,7 +15,28 @@ import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
 // import { getPublicUrl, uploadBuffer } from "app/services/S3";
 //
 // Both services have the same API, making it easy to switch between them.
-// Local Storage is recommended for development, S3 for production. 
+// Local Storage is recommended for development, S3 for production.
+
+// Mime type map for common image types
+const MIME_TYPES: Record<string, string> = {
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.png': 'image/png',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp',
+    '.pdf': 'application/pdf',
+    '.doc': 'application/msword',
+    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    '.xls': 'application/vnd.ms-excel',
+    '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    '.txt': 'text/plain',
+    '.csv': 'text/csv'
+};
+
+function getMimeType(filename: string): string {
+    const ext = path.extname(filename).toLowerCase();
+    return MIME_TYPES[ext] || 'application/octet-stream';
+} 
 
 class UploadController {
     /**
@@ -37,12 +59,23 @@ class UploadController {
 
             await request.multipart(async (field: unknown) => {
                 if (field && typeof field === 'object' && 'file' in field && field.file) {
-                    const file = field.file as { stream: NodeJS.ReadableStream; mime_type: string };
+                    const multipartField = field as { 
+                        name: string; 
+                        mime_type: string;
+                        file: { stream: NodeJS.ReadableStream; name: string } 
+                    };
                     
+                    console.log('File object:', {
+                        name: multipartField.file.name,
+                        mime_type: multipartField.mime_type,
+                        hasStream: !!multipartField.file.stream
+                    });
+
                     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-                    if (!allowedTypes.includes(file.mime_type)) {
+                    if (!allowedTypes.includes(multipartField.mime_type)) {
                         isValidFile = false;
-                        errorMessage = 'Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.';
+                        errorMessage = `Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed. Got: ${multipartField.mime_type}`;
+                        console.error('Invalid mime type:', multipartField.mime_type);
                         return;
                     }
 
@@ -50,7 +83,7 @@ class UploadController {
                     const fileName = `${id}.webp`;
 
                     const chunks: Buffer[] = [];
-                    const readable = file.stream;
+                    const readable = multipartField.file.stream;
 
                     readable.on('data', (chunk: Buffer) => {
                         chunks.push(chunk);

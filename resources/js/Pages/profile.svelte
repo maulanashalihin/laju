@@ -9,8 +9,7 @@
   let current_password = $state('');
   let new_password = $state('');
   let confirm_password = $state('');
-  let isLoading = $state(false);
-  let avatarFile;
+  let isLoading = $state(false); 
   let previewUrl = $derived(user?.avatar || null);
 
   let formName = $state('');
@@ -32,17 +31,32 @@
       const formData = new FormData();
       formData.append("file", file);
       isLoading = true;
-      fetch("/assets/avatar", {
+      fetch("/api/upload/image", {
         method: "POST",
         body: formData,
       })
         .then((response) => response.json())
         .then((data) => {
-          setTimeout(() => {
+          if (data.success && data.data) {
+            // Save avatar URL to database using Inertia router
+            router.post('/change-profile', {
+              name: formName,
+              email: formEmail,
+              phone: formPhone,
+              avatar: data.data.url
+            }, {
+              onFinish: () => {
+                setTimeout(() => {
+                  isLoading = false;
+                  previewUrl = data.data.url + "?v=" + Date.now();
+                }, 500);
+                user.avatar = data.data.url + "?v=" + Date.now();
+              }
+            });
+          } else {
             isLoading = false;
-            previewUrl = data.url + "?v=" + Date.now();
-          }, 500);
-          user.avatar = data.url + "?v=" + Date.now();
+            Toast(data.error || 'Failed to upload avatar', 'error');
+          }
         })
         .catch((error) => {
           isLoading = false;
@@ -55,7 +69,8 @@
     router.post('/change-profile', {
       name: formName,
       email: formEmail,
-      phone: formPhone
+      phone: formPhone,
+      avatar: user.avatar
     }, {
       onStart: () => isLoading = true,
       onFinish: () => isLoading = false

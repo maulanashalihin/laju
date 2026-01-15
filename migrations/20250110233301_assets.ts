@@ -10,7 +10,7 @@ export async function up(knex: Knex): Promise<void> {
         table.string('url').notNullable();
         table.string('mime_type');
         table.integer('size').unsigned(); // file size in bytes
-        table.string('s3_key').nullable().index(); // S
+        table.string('storage_key').nullable().index(); // Storage key (S3 or LocalStorage)
         // Ownership and Organization 
         table.string('user_id').index(); 
         

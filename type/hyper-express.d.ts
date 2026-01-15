@@ -16,6 +16,7 @@ declare module 'hyper-express' {
       name: string;
       email: string;
       phone?: string;
+      avatar?: string;
       is_admin: boolean;
       is_verified: boolean;
     };

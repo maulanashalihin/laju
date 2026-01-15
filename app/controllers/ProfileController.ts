@@ -24,17 +24,18 @@ class ProfileController {
          return response.flash("error", firstError).redirect("/profile", 303);
       }
 
-      const { name, email, phone } = validationResult.data!;
+      const { name, email, phone, avatar } = validationResult.data!;
 
       await DB.from("users").where("id", request.user.id).update({
          name,
          email,
          phone: phone || null,
+         avatar: avatar || null,
       });
 
       await Authenticate.invalidateUserSessions(request.user.id);
 
-      return response.flash("success", "Profile updated successfully").redirect("/profile");
+      return response.flash("success", "Profile updated successfully").redirect("/profile", 303);
    }
 
    public async homePage(request: Request, response: Response) {

@@ -17,6 +17,7 @@ export const updateProfileSchema = z.object({
     (val) => !val || /^(\+62|62|0)[0-9]{9,12}$/.test(val),
     'Invalid phone number format'
   ),
+  avatar: z.string().nullish(),
 });
 
 /**
