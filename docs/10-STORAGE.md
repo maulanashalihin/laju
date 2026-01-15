@@ -577,234 +577,6 @@ class Controller {
 export default new Controller();
 ```
 
-```typescript
-// app/controllers/UploadController.ts
-import { uuidv7 } from "uuidv7";
-import { Response, Request } from "../../type";
-import sharp from "sharp";
-import DB from "../services/DB";
-import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
-
-// Storage Service Selection:
-// To switch between S3 and Local Storage, change the import above:
-//
-// Local Storage:
-// import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
-//
-// S3 Storage:
-// import { getPublicUrl, uploadBuffer } from "app/services/S3";
-
-class UploadController {
-    /**
-     * Upload Image with Processing
-     * - Validates image type (JPEG, PNG, GIF, WebP)
-     * - Processes with Sharp (resize, convert to WebP)
-     * - Uploads to storage
-     * - Saves metadata to database
-     */
-    public async uploadImage(request: Request, response: Response) {
-        try {
-            if (!request.user) {
-                return response.status(401).json({ error: 'Unauthorized' });
-            }
-
-            const userId = request.user.id;
-            let uploadedAsset: any = null;
-            let isValidFile = true;
-            let errorMessage = '';
-
-            await request.multipart(async (field: unknown) => {
-                if (field && typeof field === 'object' && 'file' in field && field.file) {
-                    const multipartField = field as { 
-                        name: string; 
-                        mime_type: string;
-                        file: { stream: NodeJS.ReadableStream; name: string } 
-                    };
-
-                    // Validate file type
-                    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-                    if (!allowedTypes.includes(multipartField.mime_type)) {
-                        isValidFile = false;
-                        errorMessage = `Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed. Got: ${multipartField.mime_type}`;
-                        return;
-                    }
-
-                    // Generate unique filename
-                    const id = uuidv7();
-                    const fileName = `${id}.webp`;
-
-                    // Convert stream to buffer
-                    const chunks: Buffer[] = [];
-                    const readable = multipartField.file.stream;
-
-                    readable.on('data', (chunk: Buffer) => {
-                        chunks.push(chunk);
-                    });
-
-                    readable.on('end', async () => {
-                        const buffer = Buffer.concat(chunks);
-
-                        try {
-                            // Process image with Sharp
-                            const processedBuffer = await sharp(buffer)
-                                .webp({ quality: 80 })
-                                .resize(1200, 1200, {
-                                    fit: 'inside',
-                                    withoutEnlargement: true
-                                })
-                                .toBuffer();
-
-                            // Upload to storage
-                            const storageKey = `assets/${fileName}`;
-                            await uploadBuffer(storageKey, processedBuffer, 'image/webp');
-                            const publicUrl = getPublicUrl(storageKey);
-
-                            // Save to database
-                            uploadedAsset = {
-                                id,
-                                type: 'image',
-                                url: publicUrl,
-                                mime_type: 'image/webp',
-                                name: fileName,
-                                size: processedBuffer.length,
-                                user_id: userId,
-                                storage_key: storageKey,
-                                created_at: Date.now(),
-                                updated_at: Date.now()
-                            };
-
-                            await DB.from("assets").insert(uploadedAsset);
-                            response.json({ success: true, data: uploadedAsset });
-                        } catch (err) {
-                            response.status(500).json({ 
-                                success: false, 
-                                error: 'Error processing and uploading image' 
-                            });
-                        }
-                    });
-                }
-            });
-
-            if (!isValidFile) {
-                return response.status(400).json({ 
-                    success: false, 
-                    error: errorMessage 
-                });
-            }
-
-        } catch (error) {
-            return response.status(500).json({ 
-                success: false, 
-                error: 'Internal server error' 
-            });
-        }
-    }
-
-    /**
-     * Upload File (Non-Image)
-     * - Validates file type (PDF, Word, Excel, Text, CSV)
-     * - Uploads directly without processing
-     * - Saves metadata to database
-     */
-    public async uploadFile(request: Request, response: Response) {
-        try {
-            if (!request.user) {
-                return response.status(401).json({ error: 'Unauthorized' });
-            }
-
-            const userId = request.user.id;
-            let uploadedAsset: any = null;
-            let isValidFile = true;
-            let errorMessage = '';
-
-            await request.multipart(async (field: unknown) => {
-                if (field && typeof field === 'object' && 'file' in field && field.file) {
-                    const file = field.file as { stream: NodeJS.ReadableStream; mime_type: string; name: string };
-                    
-                    // Validate file type
-                    const allowedTypes = [
-                        'application/pdf',
-                        'application/msword',
-                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                        'application/vnd.ms-excel',
-                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                        'text/plain',
-                        'text/csv'
-                    ];
-                    
-                    if (!allowedTypes.includes(file.mime_type)) {
-                        isValidFile = false;
-                        errorMessage = 'Invalid file type. Allowed types: PDF, Word, Excel, Text, CSV';
-                        return;
-                    }
-
-                    // Generate unique filename
-                    const id = uuidv7();
-                    const ext = file.name.split('.').pop();
-                    const fileName = `${id}.${ext}`;
-
-                    // Convert stream to buffer
-                    const chunks: Buffer[] = [];
-                    const readable = file.stream;
-
-                    readable.on('data', (chunk: Buffer) => {
-                        chunks.push(chunk);
-                    });
-
-                    readable.on('end', async () => {
-                        const buffer = Buffer.concat(chunks);
-
-                        try {
-                            // Upload directly without processing
-                            const storageKey = `files/${userId}/${fileName}`;
-                            await uploadBuffer(storageKey, buffer, file.mime_type);
-                            const publicUrl = getPublicUrl(storageKey);
-
-                            // Save to database
-                            uploadedAsset = {
-                                id,
-                                type: 'file',
-                                url: publicUrl,
-                                mime_type: file.mime_type,
-                                name: file.name,
-                                size: buffer.length,
-                                user_id: userId,
-                                storage_key: storageKey,
-                                created_at: Date.now(),
-                                updated_at: Date.now()
-                            };
-
-                            await DB.from("assets").insert(uploadedAsset);
-                            response.json({ success: true, data: uploadedAsset });
-                        } catch (err) {
-                            response.status(500).json({ 
-                                success: false, 
-                                error: 'Error uploading file' 
-                            });
-                        }
-                    });
-                }
-            });
-
-            if (!isValidFile) {
-                return response.status(400).json({ 
-                    success: false, 
-                    error: errorMessage 
-                });
-            }
-
-        } catch (error) {
-            return response.status(500).json({ 
-                success: false, 
-                error: 'Internal server error' 
-            });
-        }
-    }
-}
-
-export default new UploadController();
-```
-
 ### Routes
 
 ```typescript
@@ -840,52 +612,35 @@ Both services have the same API, making it easy to switch between them without c
 
 ## Client Implementation
 
-### Svelte Component (S3 Presigned URLs)
+### Svelte Component (LocalStorage Upload)
 
 ```svelte
 <script>
   let uploading = $state(false);
   let imageUrl = $state('');
 
-  async function handleFileSelect(event) {
+  async function handleImageUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
 
     uploading = true;
 
     try {
-      // 1. Get presigned URL from server
-      const res = await fetch('/api/s3/signed-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          filename: file.name,
-          contentType: file.type
-        })
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload/image", {
+        method: "POST",
+        body: formData,
       });
 
-      const { data } = await res.json();
+      const data = await response.json();
 
-      // 2. Upload directly to S3
-      await fetch(data.signedUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type },
-        body: file
-      });
-
-      // 3. Save public URL
-      imageUrl = data.publicUrl;
-
-      // 4. Optional: Save to database
-      await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: 'My Post',
-          image: data.publicUrl
-        })
-      });
-
+      if (data.success && data.data) {
+        imageUrl = data.data.url;
+      } else {
+        console.error('Upload failed:', data.error);
+      }
     } catch (error) {
       console.error('Upload failed:', error);
     } finally {
@@ -894,7 +649,7 @@ Both services have the same API, making it easy to switch between them without c
   }
 </script>
 
-<input type="file" onchange={handleFileSelect} accept="image/*" disabled={uploading} />
+<input type="file" onchange={handleImageUpload} accept="image/*" disabled={uploading} />
 
 {#if uploading}
   <p>Uploading...</p>
@@ -905,31 +660,164 @@ Both services have the same API, making it easy to switch between them without c
 {/if}
 ```
 
-### Vanilla JavaScript (S3 Presigned URLs)
+### Svelte Component (File Upload)
+
+```svelte
+<script>
+  let uploading = $state(false);
+  let fileUrl = $state('');
+
+  async function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    uploading = true;
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload/file", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        fileUrl = data.data.url;
+      } else {
+        console.error('Upload failed:', data.error);
+      }
+    } catch (error) {
+      console.error('Upload failed:', error);
+    } finally {
+      uploading = false;
+    }
+  }
+</script>
+
+<input type="file" onchange={handleFileUpload} accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.csv" disabled={uploading} />
+
+{#if uploading}
+  <p>Uploading...</p>
+{/if}
+
+{#if fileUrl}
+  <a href={fileUrl} download>Download File</a>
+{/if}
+```
+
+### Vanilla JavaScript (LocalStorage Upload)
 
 ```javascript
-async function uploadFile(file) {
-  // 1. Get presigned URL
-  const res = await fetch('/api/s3/signed-url', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      filename: file.name,
-      contentType: file.type
-    })
+async function uploadImage(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch("/api/upload/image", {
+    method: "POST",
+    body: formData,
   });
 
-  const { data } = await res.json();
+  const data = await response.json();
 
-  // 2. Upload to S3
-  await fetch(data.signedUrl, {
-    method: 'PUT',
-    headers: { 'Content-Type': file.type },
-    body: file
-  });
-
-  return data.publicUrl;
+  if (data.success && data.data) {
+    return data.data.url;
+  } else {
+    throw new Error(data.error || 'Upload failed');
+  }
 }
+
+async function uploadFile(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch("/api/upload/file", {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = await response.json();
+
+  if (data.success && data.data) {
+    return data.data.url;
+  } else {
+    throw new Error(data.error || 'Upload failed');
+  }
+}
+```
+
+### Important Built-in Routes
+
+#### Authentication Routes
+
+```typescript
+// Login
+POST /auth/login
+Body: { email, password }
+Response: Redirect to dashboard
+
+// Logout
+POST /auth/logout
+Response: Redirect to login
+
+// Change Password
+POST /auth/change-password
+Body: { current_password, new_password, confirm_password }
+Response: Flash message + redirect
+```
+
+#### Profile Routes
+
+```typescript
+// Update Profile
+POST /change-profile
+Body: { name, email, phone, avatar? }
+Response: Flash message + redirect
+
+// Get Profile
+GET /profile
+Response: Inertia render with user data
+```
+
+#### Upload Routes
+
+```typescript
+// Upload Image
+POST /api/upload/image
+Body: multipart/form-data with "file" field
+Response: { success: true, data: { id, url, ... } }
+Allowed types: JPEG, PNG, GIF, WebP
+Processing: Resize to 1200x1200, convert to WebP
+
+// Upload File
+POST /api/upload/file
+Body: multipart/form-data with "file" field
+Response: { success: true, data: { id, url, ... } }
+Allowed types: PDF, Word, Excel, Text, CSV
+Processing: None (direct upload)
+```
+
+#### Storage Routes
+
+```typescript
+// Serve Local Storage Files
+GET /storage/*
+Example: /storage/assets/019bbf56-89ba-70ae-ad90-6705056eb04c.webp
+Response: File with proper Content-Type and Cache-Control
+Security: Only allowed file extensions
+```
+
+#### Admin Routes
+
+```typescript
+// Delete Users (Admin only)
+POST /profile/delete-users
+Body: { ids: string[] }
+Response: Flash message + redirect
+Middleware: Auth + isAdmin check
+```
 ```
 
 ---
