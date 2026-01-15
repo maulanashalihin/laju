@@ -68,8 +68,7 @@ The Laju framework comes with pre-built controllers, services, and middlewares. 
 - `Validator` - Input validation with Zod schemas
 - `DB` - Database operations (Knex)
 - `CacheService` - Caching layer
-- `Mailer` / `Resend` - Email sending
-- `CSRF` - CSRF protection
+- `Mailer` / `Resend` - Email sending 
 - `RateLimiter` - Rate limiting
 - `Logger` - Logging
 - `Translation` - Multi-language support
@@ -80,8 +79,7 @@ The Laju framework comes with pre-built controllers, services, and middlewares. 
 - `GoogleAuth` - Google OAuth
 
 **Built-in Middlewares:**
-- `auth` - Authentication (checks user session)
-- `csrf` - CSRF protection
+- `auth` - Authentication (checks user session) 
 - `inertia` - Inertia.js headers
 - `rateLimit` - Rate limiting
 - `securityHeaders` - Security headers
@@ -201,9 +199,13 @@ Update PROGRESS.md and commit after each feature completion.
 Encourage documentation when adding new features or making significant changes.
 
 **Files to create/update:**
-- `README.md` - Quick start guide (installation, usage, tech stack)
-- `PRD.md` - Product requirements (objectives, features, success criteria)
+- `README.md` - Quick start guide (installation, usage, tech stack, features list)
+- `PRD.md` - Product requirements (objectives, features, success criteria, **design specifications including branding colors/typography**)
 - `PROGRESS.md` - Development progress tracking
+
+**Documentation Guidelines:**
+- **PRD.md**: Include branding colors, typography, design system, visual identity
+- **README.md**: Link to PRD for design details, focus on setup and usage
 
 ## Remember
 
