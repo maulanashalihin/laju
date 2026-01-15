@@ -4,46 +4,6 @@
 
 Help users build applications using Laju framework by understanding their needs and implementing them correctly.
 
-## Adaptive Communication
-
-### Assess User's Technical Level
-Before diving in, gauge the user's experience:
-- Ask about their familiarity with coding
-- Adjust technical depth accordingly
-- Use appropriate terminology
-
-**For non-technical users:**
-- Use plain language and analogies
-- Explain technical concepts simply
-- Avoid jargon unless explaining it
-- Focus on business outcomes
-
-**For technical users:**
-- Use appropriate technical terms
-- Discuss implementation choices
-- Reference Laju patterns directly
-- Focus on code quality and architecture
-
-### Communication Style
-
-**Always:**
-- Be clear and specific
-- Confirm understanding before proceeding
-- Ask clarifying questions when needed
-- Celebrate progress
-
-**For non-technical users:**
-- Be patient and supportive
-- Repeat explanations in different ways
-- Use analogies when helpful
-- Explain WHY, not just WHAT
-
-**For technical users:**
-- Be direct and efficient
-- Discuss trade-offs and alternatives
-- Reference documentation
-- Focus on best practices
-
 ## Workflow
 
 ### 1. Understand Requirements
@@ -69,29 +29,33 @@ Create a project-specific README:
 ```markdown
 # [Your Project Name]
 
-## What This Does
-[Brief description of your app]
-
-## Main Features
-- Feature 1
-- Feature 2
-- Feature 3
-
-## Who It's For
-[Target users]
-
-## Getting Started
+## Quick Start
 ```bash
 npm install
 npm run dev
 ```
 
 Visit http://localhost:5555
+
+## Overview
+[Brief description - 1-2 sentences what this app does]
+
+## Installation
+[Installation steps if needed beyond npm install]
+
+## Usage
+[Basic usage instructions]
+
+## Tech Stack
+- Laju Framework
+- [Database]
+- [Frontend]
+
+## Documentation
+- See PRD.md for detailed requirements
+- See PROGRESS.md for development progress
 ```
-
-**For technical users:** Keep Laju tech stack reference in a "Tech Stack" section
-**For non-technical users:** Focus on what the app does, not technical details
-
+ 
 ### 1.6. Initialize Git Repository
 After replacing README, initialize git:
 
@@ -113,6 +77,76 @@ AI: "I've set up git for your project.
 This means every time we complete a feature,
 I'll automatically save your progress.
 You don't need to worry about git commands."
+```
+
+### 1.7. Create PRD.md and PROGRESS.md
+After initializing git, create project documentation:
+
+```
+AI: "Now let's create documentation files to track our project.
+I'll create PRD.md for the complete project overview
+and PROGRESS.md to track our progress."
+```
+
+Create PRD.md:
+```markdown
+# Product Requirements Document
+
+## Project Overview
+[Detailed description of the project - what problem it solves, why it exists]
+
+## Objectives
+- Objective 1 - [What we want to achieve]
+- Objective 2 - [What we want to achieve]
+- Objective 3 - [What we want to achieve]
+
+## Target Users
+[Detailed user personas - who will use this application and their needs]
+
+## Key Features
+1. Feature 1 - [Detailed description, user stories, acceptance criteria]
+2. Feature 2 - [Detailed description, user stories, acceptance criteria]
+3. Feature 3 - [Detailed description, user stories, acceptance criteria]
+
+## Technical Stack
+- Framework: Laju
+- Database: [PostgreSQL/MySQL/etc] - [Reasoning for choice]
+- Frontend: [Inertia/React/etc] - [Reasoning for choice]
+
+## Success Criteria
+- [ ] Success criteria 1 - [Measurable outcome]
+- [ ] Success criteria 2 - [Measurable outcome]
+- [ ] Success criteria 3 - [Measurable outcome]
+```
+
+Create PROGRESS.md:
+```markdown
+# Project Progress
+
+## Completed Features
+- [ ] Feature 1
+- [ ] Feature 2
+- [ ] Feature 3
+
+## In Progress
+- [ ] Current task
+
+## Pending
+- [ ] Future feature 1
+- [ ] Future feature 2
+
+## Notes
+[Any important notes or decisions]
+```
+
+Explain what was done:
+```
+AI: "I've created:
+- PRD.md - Complete project overview with features and objectives
+- PROGRESS.md - Progress tracking with checkboxes
+
+Every time we complete a task, I'll update PROGRESS.md
+and commit the changes so you can track our progress."
 ```
 
 ### 2. Plan Implementation
@@ -137,13 +171,21 @@ You don't need to worry about git commands."
 
 ### Follow Laju Conventions
 Always reference the appropriate AGENTS.md files:
-- `app/controllers/AGENTS.md` - Controller patterns
+
+**Backend:**
+- `app/controllers/AGENTS.md` - Controller patterns (REST API, SSR vs Inertia, validation)
+- `app/validators/AGENT.md` - Validation schemas (Zod, store/update patterns)
 - `app/middlewares/AGENTS.md` - Middleware patterns
 - `app/services/AGENTS.md` - Database operations
 - `migrations/AGENTS.md` - Migration patterns
-- `routes/AGENTS.md` - Routing patterns
-- `resources/js/AGENTS.md` - Frontend guidelines
-- `resources/views/AGENTS.md` - View templates
+
+**Routing:**
+- `routes/AGENTS.md` - Routing patterns (RESTful routes, rate limiting, middleware)
+
+**Frontend:**
+- `resources/js/Pages/AGENT.md` - Svelte 5 pages (Inertia, forms, transitions, frontend rules)
+- `resources/js/Components/AGENT.md` - Reusable components (props, state, events)
+- `resources/views/AGENTS.md` - SSR templates (Eta)
 
 ### Use Standard Patterns
 - Controllers → Services → Database
@@ -152,6 +194,62 @@ Always reference the appropriate AGENTS.md files:
 - Use Knex for database operations
 - Use Inertia for interactive pages
 - Use Eta for SSR pages
+
+### Project Structure
+
+```
+laju/
+├── app/
+│   ├── controllers/           # HTTP request handlers
+│   │   ├── AGENTS.md         # Controller guide
+│   │   ├── HomeController.ts
+│   │   ├── LoginController.ts
+│   │   └── ...
+│   ├── middlewares/          # Request/response middleware
+│   │   ├── AGENTS.md         # Middleware guide
+│   │   ├── auth.ts
+│   │   ├── csrf.ts
+│   │   └── ...
+│   ├── services/             # Business logic & utilities
+│   │   ├── AGENTS.md         # Service guide
+│   │   ├── DB.ts             # Database operations
+│   │   ├── Validator.ts      # Input validation
+│   │   └── ...
+│   └── validators/           # Validation schemas
+│       ├── AGENT.md          # Validator guide
+│       ├── AuthValidator.ts
+│       ├── ProfileValidator.ts
+│       └── ...
+├── routes/                   # Route definitions
+│   ├── AGENTS.md             # Routing guide
+│   └── web.ts                # Main routes file
+├── migrations/               # Database migrations
+│   ├── AGENTS.md             # Migration guide
+│   └── *.ts                  # Migration files
+├── resources/
+│   ├── js/
+│   │   ├── Pages/            # Svelte 5 Inertia pages
+│   │   │   ├── AGENT.md       # Pages guide
+│   │   │   ├── home.svelte
+│   │   │   ├── profile.svelte
+│   │   │   └── ...
+│   │   └── Components/       # Reusable Svelte components
+│   │       ├── AGENT.md       # Components guide
+│   │       ├── Header.svelte
+│   │       ├── DarkModeToggle.svelte
+│   │       └── ...
+│   └── views/                 # SSR templates (Eta)
+│       ├── AGENTS.md         # Views guide
+│       ├── index.html
+│       └── ...
+├── public/                   # Static assets
+├── storage/                  # File storage
+├── tests/                    # Test files
+├── docs/                     # Documentation
+├── package.json
+├── server.ts                 # Application entry point
+└── AGENTS.md                 # Main AI guide (this file)
+```
 
 ### Security Best Practices
 - Always validate input
@@ -192,6 +290,25 @@ AI: "I've saved:
 Your progress is safe."
 ```
 
+### Update PROGRESS.md and Commit
+After completing each feature or task:
+
+1. Update PROGRESS.md to mark the task as completed
+2. Commit all changes with a descriptive message
+
+```bash
+git add .
+git commit -m "Complete: [feature name]"
+```
+
+Example:
+```
+AI: "Feature is working! Let me update PROGRESS.md and save your progress..."
+[updates PROGRESS.md]
+[runs git commands]
+"Saved! Your progress is tracked in PROGRESS.md."
+```
+
 ## Documentation
 
 ### Help Create Documentation
@@ -201,19 +318,14 @@ Encourage documentation when:
 - User wants to remember how something works
 
 **Files to create/update:**
-- `README.md` - Project overview and progress
-- `PRD.md` - Product requirements (if complex)
-- `PROGRESS.md` - Detailed progress tracking (optional)
-- `CHANGELOG.md` - History of changes (optional)
+- `README.md` - Quick start guide for users/developers (installation, usage, tech stack)
+- `PRD.md` - Product requirements document (objectives, features with acceptance criteria, success criteria)
+- `PROGRESS.md` - Development progress tracking (completed, in progress, pending tasks) 
 
-### Track Progress
-Update progress after each feature:
-```markdown
-## Progress
-- [x] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-```
+### Purpose of Each File
+- **README.md** - How to use/install the project (quick reference)
+- **PRD.md** - What we're building and why (detailed requirements)
+- **PROGRESS.md** - What we've done and what's next (task tracking)
 
 ## Testing
 

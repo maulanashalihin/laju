@@ -1,347 +1,241 @@
-# Laju Controllers
+# Controller Guide for AI
 
-## Controller Structure
+## Core Principles
 
-Controllers are exported as **instances**, not classes. Never use `this` inside controllers.
+1. **Follow REST API standards** - Implement standard RESTful methods
+2. **Validate first** - Use `Validator.ts` before any DB operations
+3. **Separate concerns** - Complete business logic, then create response
+4. **Use proper HTTP status codes** - 302 for store, 303 for update/delete
+5. **Never use `this`** - Controllers are exported as instances
 
+## SSR vs Inertia Decision
+
+**Use SSR (`view()`) when:**
+- Public pages needing SEO
+- Routes WITHOUT `auth` middleware
+
+**Use Inertia (`response.inertia()`) when:**
+- Protected routes requiring authentication
+- Routes WITH `auth` middleware
+
+| Route Type | Auth | SEO | Use |
+|------------|------|-----|-----|
+| Public | No | Yes | SSR |
+| Public | No | No | Inertia (prefer) |
+| Protected | Yes | No | Inertia |
+
+## Method Patterns
+
+### index() - List
 ```typescript
-class MyController {
-   public async myMethod(request: Request, response: Response) {
-      // ❌ WRONG: this.anotherMethod()
-      // ✅ CORRECT: MyController.anotherMethod() or extract to utility function
-   }
-}
+// SSR
+const posts = await DB.from("posts").orderBy("created_at", "desc");
+return response.type("html").send(view("posts/index", { posts }));
 
-export default new MyController();
+// Inertia
+const posts = await DB.from("posts").orderBy("created_at", "desc");
+return response.inertia("posts/index", { posts });
 ```
 
-## Response Patterns
-
-### Inertia Responses
+### create() - Show Form
 ```typescript
-return response.inertia("PageName", { prop1, prop2 });
+// SSR
+return response.type("html").send(view("posts/create"));
+
+// Inertia
+return response.inertia("posts/create");
 ```
 
-### JSON Responses
-```typescript
-return response.json({ success: true, data: result });
-```
-
-### Redirects
-```typescript
-// Default 302 (Found) - for GET requests
-return response.redirect("/path");
-
-// 303 (See Other) - for POST/PUT/PATCH form submissions
-return response.redirect("/path", 303);
-
-// 301 (Moved Permanently) - for permanent redirects
-return response.redirect("/new-path", 301);
-
-// 307 (Temporary Redirect) - for method preservation
-return response.redirect("/submit", 307);
-```
-
-**⚠️ IMPORTANT**: Always use 303 for form submissions (POST, PUT, PATCH) to prevent browsers from changing the HTTP method.
-
-### Error Responses
-```typescript
-return response.status(401).json({ error: 'Unauthorized' });
-return response.status(404).send("Not found");
-```
-
-## Authentication Check
-
-Always check if user is authenticated:
-
-```typescript
-if (!request.user) {
-   return response.status(401).json({ error: 'Unauthorized' });
-}
-```
-
-## Input Validation
-
-### Validation with Flash Messages (Recommended for Inertia Forms)
-
-**⚠️ IMPORTANT**: For Inertia forms, use `validate()` instead of `validateOrFail()` to avoid JSON response modal errors.
-
+### store() - Create (302)
 ```typescript
 const body = await request.json();
-const validationResult = Validator.validate(schema, body);
-
+const validationResult = Validator.validate(storeSchema, body);
 if (!validationResult.success) {
-   const errors = validationResult.errors || {};
-   const firstError = Object.values(errors)[0]?.[0] || 'Terjadi kesalahan validasi';
-   return response
-      .flash("error", firstError)
-      .redirect("/path");
+  const firstError = Object.values(validationResult.errors || {})[0]?.[0] || 'Validasi gagal';
+  return response.flash("error", firstError).redirect("/posts/create", 302);
 }
-
-const { email, password } = validationResult.data!;
+const { title, content } = validationResult.data!;
+await DB.table("posts").insert({ title, content, user_id: request.user.id, created_at: Date.now(), updated_at: Date.now() });
+return response.flash("success", "Berhasil dibuat").redirect("/posts", 302);
 ```
 
-### Validation with JSON Response (For API Endpoints)
-
+### show() - Single Resource
 ```typescript
+// SSR
+const post = await DB.from("posts").where("id", id).first();
+if (!post) return response.status(404).type("html").send(view("errors/404"));
+return response.type("html").send(view("posts/show", { post }));
+
+// Inertia
+const post = await DB.from("posts").where("id", id).first();
+if (!post) return response.inertia("errors/404");
+return response.inertia("posts/show", { post });
+```
+
+### edit() - Show Edit Form
+```typescript
+// SSR
+const post = await DB.from("posts").where("id", id).first();
+if (!post) return response.status(404).type("html").send(view("errors/404"));
+return response.type("html").send(view("posts/edit", { post }));
+
+// Inertia
+const post = await DB.from("posts").where("id", id).first();
+if (!post) return response.inertia("errors/404");
+return response.inertia("posts/edit", { post });
+```
+
+### update() - Update (303)
+```typescript
+const { id } = request.params;
 const body = await request.json();
-const validationResult = Validator.validate(schema, body);
-
+const validationResult = Validator.validate(updateSchema, body);
 if (!validationResult.success) {
-   return response.status(422).json({
-      success: false,
-      message: 'Validation failed',
-      errors: validationResult.errors,
-   });
+  const firstError = Object.values(validationResult.errors || {})[0]?.[0] || 'Validasi gagal';
+  return response.flash("error", firstError).redirect(`/posts/${id}/edit`, 303);
+}
+const post = await DB.from("posts").where("id", id).first();
+if (!post) return response.flash("error", "Tidak ditemukan").redirect("/posts", 303);
+const { title, content } = validationResult.data!;
+await DB.from("posts").where("id", id).update({ title, content, updated_at: Date.now() });
+return response.flash("success", "Berhasil diperbarui").redirect("/posts", 303);
+```
+
+### destroy() - Delete (303)
+```typescript
+const { id } = request.params;
+const post = await DB.from("posts").where("id", id).first();
+if (!post) return response.flash("error", "Tidak ditemukan").redirect("/posts", 303);
+await DB.from("posts").where("id", id).delete();
+return response.flash("success", "Berhasil dihapus").redirect("/posts", 303);
+```
+
+## Complete Example
+
+```typescript
+import { Request, Response } from "../../type";
+import DB from "../services/DB";
+import Validator from "../services/Validator";
+import { storeSchema, updateSchema } from "../validators/PostValidator";
+
+class PostController {
+  public async index(request: Request, response: Response) {
+    const posts = await DB.from("posts").orderBy("created_at", "desc");
+    return response.inertia("posts/index", { posts });
+  }
+
+  public async create(request: Request, response: Response) {
+    return response.inertia("posts/create");
+  }
+
+  public async store(request: Request, response: Response) {
+    try {
+      const body = await request.json();
+      const validationResult = Validator.validate(storeSchema, body);
+      if (!validationResult.success) {
+        const firstError = Object.values(validationResult.errors || {})[0]?.[0] || 'Validasi gagal';
+        return response.flash("error", firstError).redirect("/posts/create", 302);
+      }
+      const { title, content } = validationResult.data!;
+      await DB.table("posts").insert({ title, content, user_id: request.user.id, created_at: Date.now(), updated_at: Date.now() });
+      return response.flash("success", "Berhasil dibuat").redirect("/posts", 302);
+    } catch (error: any) {
+      console.error("Store error:", error);
+      return response.flash("error", "Terjadi kesalahan").redirect("/posts/create", 302);
+    }
+  }
+
+  public async show(request: Request, response: Response) {
+    const { id } = request.params;
+    const post = await DB.from("posts").where("id", id).first();
+    if (!post) return response.inertia("errors/404");
+    return response.inertia("posts/show", { post });
+  }
+
+  public async edit(request: Request, response: Response) {
+    const { id } = request.params;
+    const post = await DB.from("posts").where("id", id).first();
+    if (!post) return response.inertia("errors/404");
+    return response.inertia("posts/edit", { post });
+  }
+
+  public async update(request: Request, response: Response) {
+    try {
+      const { id } = request.params;
+      const body = await request.json();
+      const validationResult = Validator.validate(updateSchema, body);
+      if (!validationResult.success) {
+        const firstError = Object.values(validationResult.errors || {})[0]?.[0] || 'Validasi gagal';
+        return response.flash("error", firstError).redirect(`/posts/${id}/edit`, 303);
+      }
+      const post = await DB.from("posts").where("id", id).first();
+      if (!post) return response.flash("error", "Tidak ditemukan").redirect("/posts", 303);
+      const { title, content } = validationResult.data!;
+      await DB.from("posts").where("id", id).update({ title, content, updated_at: Date.now() });
+      return response.flash("success", "Berhasil diperbarui").redirect("/posts", 303);
+    } catch (error: any) {
+      console.error("Update error:", error);
+      return response.flash("error", "Terjadi kesalahan").redirect(`/posts/${id}/edit`, 303);
+    }
+  }
+
+  public async destroy(request: Request, response: Response) {
+    try {
+      const { id } = request.params;
+      const post = await DB.from("posts").where("id", id).first();
+      if (!post) return response.flash("error", "Tidak ditemukan").redirect("/posts", 303);
+      await DB.from("posts").where("id", id).delete();
+      return response.flash("success", "Berhasil dihapus").redirect("/posts", 303);
+    } catch (error: any) {
+      console.error("Delete error:", error);
+      return response.flash("error", "Terjadi kesalahan").redirect("/posts", 303);
+    }
+  }
 }
 
-const validated = validationResult.data!;
+export default new PostController();
 ```
 
-## Database Operations
+## Quick Reference
 
-### When to use DB vs SQLite
+| Method | SSR | Inertia | Redirect |
+|--------|-----|---------|----------|
+| index | `view()` | `response.inertia()` | - |
+| create | `view()` | `response.inertia()` | - |
+| store | - | - | 302 |
+| show | `view()` | `response.inertia()` | - |
+| edit | `view()` | `response.inertia()` | - |
+| update | - | - | 303 |
+| destroy | - | - | 303 |
 
-- **DB (Knex)**: Complex queries, joins, transactions, inserts/updates, or when query builder improves readability
-- **SQLite**: Simple reads with significant performance gain, especially for high-traffic endpoints
-
-**Performance**: SQLite is 385% faster for `SELECT BY ID` and 96% faster for `SELECT ALL` queries.
-
-### Loading Records
-```typescript
-// SQLite - simple reads (faster)
-const user = SQLite.get("SELECT * FROM users WHERE id = ?", [id]);
-const users = SQLite.all("SELECT * FROM users WHERE active = ?", [1]);
-
-// DB - with query builder
-const user = await DB.from("users").where("id", id).first();
-const users = await DB.from("users").where("active", true).orderBy("created_at", "desc").limit(10);
-```
-
-### Joins (DB only)
-```typescript
-const posts = await DB.from("posts")
-   .join("users", "posts.user_id", "users.id")
-   .select("posts.*", "users.name as author_name")
-   .where("posts.published", true);
-```  
-
-## User Data Updates
-
-When updating user data, always invalidate cache:
+## Validation Pattern
 
 ```typescript
-import Authenticate from "../services/Authenticate";
-
-await DB.from("users").where("id", userId).update({ name: "New Name" });
-await Authenticate.invalidateUserSessions(userId);
+const validationResult = Validator.validate(schema, body);
+if (!validationResult.success) {
+  const firstError = Object.values(validationResult.errors || {})[0]?.[0] || 'Validasi gagal';
+  return response.flash("error", firstError).redirect("/path", statusCode);
+}
+const { field1, field2 } = validationResult.data!;
 ```
 
 ## Error Handling
 
-### Flash Messages
-
-Use flash messages for validation and authentication errors:
-
-```typescript
-return response.flash("error", "Email sudah terdaftar").redirect("/path");
-```
-
-Supported types: `error`, `success`, `info`, `warning`
-
-### Error Handling Pattern
-
-```typescript
-public async processRequest(request: Request, response: Response) {
-   try {
-      const body = await request.json();
-      
-      // Validation
-      const validationResult = Validator.validate(schema, body);
-      if (!validationResult.success) {
-         const errors = validationResult.errors || {};
-         const firstError = Object.values(errors)[0]?.[0] || 'Terjadi kesalahan validasi';
-         return response.flash("error", firstError).redirect("/path", 303);
-      }
-      
-      // Business logic
-      const { email } = validationResult.data!;
-      
-      // Database operations
-      const existing = await DB.from("users").where("email", email).first();
-      if (existing) {
-         return response.flash("error", "Email sudah terdaftar").redirect("/path", 303);
-      }
-      
-      // Success
-      return response.flash("success", "Success!").redirect("/path", 303);
-      
-   } catch (error: any) {
-      console.error("Error:", error);
-      if (error.code === 'SQLITE_CONSTRAINT') {
-         return response.flash("error", "Data sudah ada").redirect("/path", 303);
-      }
-      return response.flash("error", "Terjadi kesalahan. Silakan coba lagi nanti.").redirect("/path", 303);
-   }
-}
-```
-
-### JSON Error Responses (For API Endpoints)
 ```typescript
 try {
-   // operations
-} catch (error) {
-   console.error("Error:", error);
-   return response.status(500).json({ error: "Internal server error" });
+  // Business logic
+} catch (error: any) {
+  console.error("Method error:", error);
+  if (error.code === 'SQLITE_CONSTRAINT') {
+    return response.flash("error", "Data sudah ada").redirect("/path", statusCode);
+  }
+  return response.flash("error", "Terjadi kesalahan").redirect("/path", statusCode);
 }
 ```
 
-## File Upload Handling
+## Flash Message Types
 
-### Multipart Upload Pattern
-
-For handling file uploads with multipart/form-data:
-
-```typescript
-import { uuidv7 } from "uuidv7";
-import sharp from "sharp";
-
-class UploadController {
-   public async uploadImage(request: Request, response: Response) {
-      if (!request.user) {
-         return response.status(401).json({ error: 'Unauthorized' });
-      }
-
-      const userId = request.user.id;
-      let uploadedAsset: any = null;
-
-      await request.multipart(async (field: unknown) => {
-         if (field && typeof field === 'object' && 'file' in field && field.file) {
-            const file = field.file as { stream: NodeJS.ReadableStream; mime_type: string };
-            
-            // Validate file type
-            const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-            if (!allowedTypes.includes(file.mime_type)) {
-               return response.status(400).json({ error: 'Invalid file type' });
-            }
-
-            // Convert stream to buffer
-            const chunks: Buffer[] = [];
-            file.stream.on('data', (chunk: Buffer) => chunks.push(chunk));
-            
-            await new Promise((resolve) => {
-               file.stream.on('end', resolve);
-            });
-            
-            const buffer = Buffer.concat(chunks);
-
-            // Process image with Sharp
-            const processedBuffer = await sharp(buffer)
-               .webp({ quality: 80 })
-               .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
-               .toBuffer();
-
-            // Upload to storage
-            const id = uuidv7();
-            const fileName = `${id}.webp`;
-            const storageKey = `assets/${fileName}`;
-            
-            await uploadBuffer(storageKey, processedBuffer, 'image/webp');
-            const publicUrl = getPublicUrl(storageKey);
-
-            // Save to database
-            uploadedAsset = {
-               id,
-               type: 'image',
-               url: publicUrl,
-               mime_type: 'image/webp',
-               name: fileName,
-               size: processedBuffer.length,
-               user_id: userId,
-               storage_key: storageKey,
-               created_at: Date.now(),
-               updated_at: Date.now()
-            };
-
-            await DB.from("assets").insert(uploadedAsset);
-            response.json({ success: true, data: uploadedAsset });
-         }
-      });
-   }
-}
-```
-
-### Non-Image File Upload
-
-For uploading files without processing:
-
-```typescript
-public async uploadFile(request: Request, response: Response) {
-   if (!request.user) {
-      return response.status(401).json({ error: 'Unauthorized' });
-   }
-
-   const userId = request.user.id;
-
-   await request.multipart(async (field: unknown) => {
-      if (field && typeof field === 'object' && 'file' in field && field.file) {
-         const file = field.file as { stream: NodeJS.ReadableStream; mime_type: string; name: string };
-         
-         const allowedTypes = ['application/pdf', 'text/plain', 'text/csv'];
-         if (!allowedTypes.includes(file.mime_type)) {
-            return response.status(400).json({ error: 'Invalid file type' });
-         }
-
-         // Convert stream to buffer
-         const chunks: Buffer[] = [];
-         file.stream.on('data', (chunk: Buffer) => chunks.push(chunk));
-         
-         await new Promise((resolve) => {
-            file.stream.on('end', resolve);
-         });
-         
-         const buffer = Buffer.concat(chunks);
-
-         // Upload directly without processing
-         const id = uuidv7();
-         const ext = file.name.split('.').pop();
-         const fileName = `${id}.${ext}`;
-         const storageKey = `files/${userId}/${fileName}`;
-         
-         await uploadBuffer(storageKey, buffer, file.mime_type);
-         const publicUrl = getPublicUrl(storageKey);
-
-         // Save to database
-         const uploadedAsset = {
-            id,
-            type: 'file',
-            url: publicUrl,
-            mime_type: file.mime_type,
-            name: file.name,
-            size: buffer.length,
-            user_id: userId,
-            storage_key: storageKey,
-            created_at: Date.now(),
-            updated_at: Date.now()
-         };
-
-         await DB.from("assets").insert(uploadedAsset);
-         response.json({ success: true, data: uploadedAsset });
-      }
-   });
-}
-```
-
-### Storage Service Selection
-
-Choose between S3 and Local Storage by changing the import:
-
-```typescript
-// For S3 Storage
-import { getPublicUrl, uploadBuffer } from "app/services/S3";
-
-// For Local Storage
-import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
-```
-
-Both services have the same API, making it easy to switch between them.
+- `error` - Validation errors and failures
+- `success` - Successful operations
+- `info` - Informational messages
+- `warning` - Warnings
