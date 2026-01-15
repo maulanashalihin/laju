@@ -53,9 +53,7 @@ When user starts a new project, **ALWAYS**:
    git commit -m "Initial commit: Project setup"
    ```
 
-## Technical Implementation
-
-### Core Principle: Maximize Existing Functionality
+## Core Principle: Maximize Existing Functionality
 
 **ALWAYS check and use existing controllers, pages, and services before creating new ones.** This is the most important rule in Laju framework development.
 
@@ -115,33 +113,7 @@ When user starts a new project, **ALWAYS**:
 - Need database operations? → Use `DB.from("table")` directly, don't create service
 - Need create/edit form? → Use single `form.svelte` page for both (pass `post` prop for edit)
 
-### Follow Laju Conventions
-Always reference the appropriate AGENTS.md files:
-
-**Backend:**
-- `app/controllers/AGENTS.md` - Controller patterns (REST API, SSR vs Inertia, validation)
-- `app/validators/AGENT.md` - Validation schemas (Zod, store/update patterns)
-- `app/middlewares/AGENTS.md` - Middleware patterns
-- `app/services/AGENTS.md` - Database operations
-- `migrations/AGENTS.md` - Migration patterns
-
-**Routing:**
-- `routes/AGENTS.md` - Routing patterns (RESTful routes, rate limiting, middleware)
-
-**Frontend:**
-- `resources/js/Pages/AGENT.md` - Svelte 5 pages (Inertia, forms, transitions, frontend rules)
-- `resources/js/Components/AGENT.md` - Reusable components (props, state, events)
-- `resources/views/AGENTS.md` - SSR templates (Eta)
-
-### Use Standard Patterns
-- Controllers → Services → Database
-- NO `this` in controllers
-- NO `next()` in middlewares
-- Use Knex for database operations
-- Use Inertia for interactive pages
-- Use Eta for SSR pages
-
-### Project Structure
+## Project Structure
 
 ```
 laju/
@@ -196,6 +168,34 @@ laju/
 ├── server.ts                 # Application entry point
 └── AGENTS.md                 # Main AI guide (this file)
 ```
+
+## Technical Implementation
+
+### Use Standard Patterns
+- Controllers → Services → Database
+- NO `this` in controllers
+- NO `next()` in middlewares
+- Use Knex for database operations
+- Use Inertia for interactive pages
+- Use Eta for SSR pages
+
+### Follow Laju Conventions
+Always reference the appropriate AGENTS.md files for detailed patterns:
+
+**Backend:**
+- `app/controllers/AGENTS.md` - Controller patterns (REST API, SSR vs Inertia, validation)
+- `app/validators/AGENT.md` - Validation schemas (Zod, store/update patterns)
+- `app/middlewares/AGENTS.md` - Middleware patterns
+- `app/services/AGENTS.md` - Database operations
+- `migrations/AGENTS.md` - Migration patterns
+
+**Routing:**
+- `routes/AGENTS.md` - Routing patterns (RESTful routes, rate limiting, middleware)
+
+**Frontend:**
+- `resources/js/Pages/AGENT.md` - Svelte 5 pages (Inertia, forms, transitions, frontend rules)
+- `resources/js/Components/AGENT.md` - Reusable components (props, state, events)
+- `resources/views/AGENTS.md` - SSR templates (Eta)
 
 ### Security Best Practices
 - Always validate input
