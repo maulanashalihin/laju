@@ -1,12 +1,12 @@
 # Storage Guide
 
-Complete guide for file storage in Laju framework with support for S3 and Local filesystem.
+Complete guide for file storage in Laju framework with support for Local filesystem and S3.
 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [S3 Storage](#s3-storage)
-3. [Local Storage](#local-storage)
+2. [Local Storage](#local-storage)
+3. [S3 Storage](#s3-storage)
 4. [Choosing the Right Storage](#choosing-the-right-storage)
 5. [Best Practices](#best-practices)
 
@@ -15,10 +15,73 @@ Complete guide for file storage in Laju framework with support for S3 and Local 
 ## Overview
 
 Laju provides two separate storage services that can be used independently:
+- **Local Storage** - Filesystem storage (free, no external dependencies)
 - **S3 Storage** - Wasabi/S3 for production with presigned URLs
-- **Local Storage** - Filesystem storage for development and small projects
 
 Both services are available and can be used simultaneously in your application.
+
+---
+
+## Local Storage
+
+Local storage uses the filesystem for file storage.
+
+### Why Local Storage?
+
+- **Free** - No cloud storage costs
+- **Simple** - No external dependencies or credentials needed
+- **Fast** - Direct filesystem access
+- **Development-friendly** - Easy to test and debug
+- **Complete control** - Files stay on your server
+
+### When to Use Local Storage
+
+- **Development** - No need for S3 credentials
+- **Small projects** - Simple deployment without cloud costs
+- **Testing** - Easier to test without external dependencies
+- **Internal tools** - Files stay on your server
+- **Budget-conscious** - No monthly storage fees
+
+### Configuration
+
+```env
+LOCAL_STORAGE_PATH=./storage
+LOCAL_STORAGE_PUBLIC_URL=/storage
+```
+
+### Local Storage Service Methods
+
+```typescript
+import {
+  uploadBuffer,
+  getPublicUrl,
+  getObject,
+  deleteObject,
+  exists
+} from "app/services/LocalStorage";
+
+// Upload buffer directly
+await uploadBuffer(
+  'assets/photo.jpg',           // key
+  buffer,                       // file buffer
+  'image/jpeg',                 // content type
+  'public, max-age=31536000'    // cache control (optional)
+);
+
+// Get public URL
+const publicUrl = getPublicUrl('assets/photo.jpg');
+// Returns: /storage/assets/photo.jpg
+
+// Download file
+const response = await getObject('assets/photo.jpg');
+const stream = response.Body;
+
+// Delete file
+await deleteObject('assets/photo.jpg');
+
+// Check if file exists
+const fileExists = await exists('assets/photo.jpg');
+```
 
 ---
 
