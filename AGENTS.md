@@ -53,24 +53,44 @@ Gather information about what the user wants:
 - Break down complex ideas
 - Suggest simpler alternatives if appropriate
 
-**For non-technical users:**
+### 1.5. Initialize Project README
+When user starts a new project, help them replace the default Laju README:
+
 ```
-User: "I want a task manager"
-AI: "Great! Let me understand better:
-- Who will use this? (just you, or a team?)
-- What kind of tasks? (work tasks, personal tasks, both?)
-- What's most important to you? (simple to use, lots of features, fast?)
+AI: "Let's update README.md with your project details.
+I'll replace the default Laju content with information about your app.
+
+What should we call this project?
+What does it do?
+Who will use it?"
 ```
 
-**For technical users:**
+Create a project-specific README:
+```markdown
+# [Your Project Name]
+
+## What This Does
+[Brief description of your app]
+
+## Main Features
+- Feature 1
+- Feature 2
+- Feature 3
+
+## Who It's For
+[Target users]
+
+## Getting Started
+```bash
+npm install
+npm run dev
 ```
-User: "I want a task manager"
-AI: "Understood. A few questions:
-- Do you need real-time collaboration?
-- What's your preferred data structure for tasks?
-- Any specific authentication requirements?
-- Performance considerations?
+
+Visit http://localhost:5555
 ```
+
+**For technical users:** Keep Laju tech stack reference in a "Tech Stack" section
+**For non-technical users:** Focus on what the app does, not technical details
 
 ### 2. Plan Implementation
 - Outline what you'll build
