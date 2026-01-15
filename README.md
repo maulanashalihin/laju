@@ -75,19 +75,29 @@ Documentation is organized for progressive learning from beginner to advanced.
 - [Middleware](docs/07-MIDDLEWARE.md) - Auth, Rate limiting
 - [Validation](docs/08-VALIDATION.md) - Input validation
 - [Email](docs/09-EMAIL.md) - Send emails
+- [Templates (Eta)](docs/15-ETA.md) - Server-side rendering
+- [Performance](docs/18-PERFORMANCE.md) - Optimization tips
 
 ### Advanced Features
 - [Storage (S3)](docs/10-STORAGE.md) - File uploads
 - [Caching](docs/11-CACHING.md) - Redis + Database cache
+- [Redis](docs/11b-REDIS.md) - Redis configuration
 - [Background Jobs](docs/12-BACKGROUND-JOBS.md) - Cron jobs, Scheduling
 - [CSRF Protection](docs/13-CSRF.md) - Security
 - [Translation](docs/14-TRANSLATION.md) - Multi-language
+- [Backup & Restore](docs/22-BACKUP-RESTORE.md) - Database backup
 
 ### Production
 - [Best Practices](docs/16-BEST-PRACTICES.md) - Code quality
 - [Security Guide](docs/17-SECURITY.md) - Secure your app
 - [Testing](docs/19-TESTING.md) - Unit + Integration tests
 - [Deployment](docs/20-DEPLOYMENT.md) - Production setup
+- [GitHub Actions](docs/21-GITHUB-ACTIONS.md) - CI/CD workflows
+- [AI Development](docs/23-AI-DEVELOPMENT.md) - AI integration
+
+### Reference
+- [API Reference](docs/24-API-REFERENCE.md) - Framework API
+- [TypeScript Guide](docs/25-TYPESCRIPT.md) - TypeScript patterns
 
 ## Project Structure
 
