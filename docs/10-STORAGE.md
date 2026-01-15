@@ -228,20 +228,50 @@ project/
 
 ## Choosing the Right Storage
 
-- **Development** - Use `local` for faster iteration and no external dependencies
-- **Production** - Use `s3` for scalability, CDN, and better performance
-- **Testing** - Use `local` for simpler test setup
-- **Small/Internal Projects** - Use `local` to reduce costs
+### Recommendation
 
-Both services can be used simultaneously in the same application. Simply import the service you need:
+**For Production: Use S3 Storage**
+
+While LocalStorage is free and simple, S3 is recommended for production deployments due to critical benefits:
+
+**Migration Benefits:**
+- Files stored externally, not on your server
+- Easy server migration - no need to copy files
+- Server can be replaced without data loss
+- Seamless horizontal scaling across multiple instances
+- No risk of file corruption during server updates
+
+**Security Benefits:**
+- Files encrypted at rest
+- Access control with IAM policies
+- No risk of file deletion during server cleanup
+- Built-in backup and disaster recovery
+- Versioning support for file recovery
+
+**When to Use Each:**
+
+| Scenario | Recommended Storage | Reason |
+|----------|---------------------|---------|
+| **Development** | LocalStorage | Free, no credentials needed |
+| **Testing** | LocalStorage | Easier to test without external deps |
+| **Small internal tools** | LocalStorage | Files stay on your server |
+| **Production** | S3 Storage | Better migration, security, scalability |
+| **High traffic** | S3 Storage | Direct uploads, CDN integration |
+| **Multi-server** | S3 Storage | Shared storage across instances |
+
+### Switching Between Storage
+
+Both services have the same API, making it easy to switch:
 
 ```typescript
-// Use S3 for user uploads
-import { uploadBuffer as uploadToS3 } from "app/services/S3";
+// For Local Storage (Development)
+import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
 
-// Use local storage for temporary files
-import { uploadBuffer as uploadToLocal } from "app/services/LocalStorage";
+// For S3 Storage (Production)
+import { getPublicUrl, uploadBuffer } from "app/services/S3";
 ```
+
+Simply change the import in your controller to switch storage providers.
 
 ---
 
