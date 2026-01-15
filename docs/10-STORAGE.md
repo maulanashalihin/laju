@@ -229,6 +229,269 @@ const fileExists = await exists('assets/photo.jpg');
 
 ## Server Implementation
 
+### UploadController
+
+UploadController handles file uploads with two separate methods:
+
+```typescript
+// app/controllers/UploadController.ts
+import { uuidv7 } from "uuidv7";
+import { Response, Request } from "../../type";
+import sharp from "sharp";
+import DB from "../services/DB";
+import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
+
+// Storage Service Selection:
+// To switch between S3 and Local Storage, change the import above:
+//
+// Local Storage:
+// import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
+//
+// S3 Storage:
+// import { getPublicUrl, uploadBuffer } from "app/services/S3";
+
+class UploadController {
+    /**
+     * Upload Image with Processing
+     * - Validates image type (JPEG, PNG, GIF, WebP)
+     * - Processes with Sharp (resize, convert to WebP)
+     * - Uploads to storage
+     * - Saves metadata to database
+     */
+    public async uploadImage(request: Request, response: Response) {
+        try {
+            if (!request.user) {
+                return response.status(401).json({ error: 'Unauthorized' });
+            }
+
+            const userId = request.user.id;
+            let uploadedAsset: any = null;
+            let isValidFile = true;
+            let errorMessage = '';
+
+            await request.multipart(async (field: unknown) => {
+                if (field && typeof field === 'object' && 'file' in field && field.file) {
+                    const multipartField = field as { 
+                        name: string; 
+                        mime_type: string;
+                        file: { stream: NodeJS.ReadableStream; name: string } 
+                    };
+
+                    // Validate file type
+                    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                    if (!allowedTypes.includes(multipartField.mime_type)) {
+                        isValidFile = false;
+                        errorMessage = `Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed. Got: ${multipartField.mime_type}`;
+                        return;
+                    }
+
+                    // Generate unique filename
+                    const id = uuidv7();
+                    const fileName = `${id}.webp`;
+
+                    // Convert stream to buffer
+                    const chunks: Buffer[] = [];
+                    const readable = multipartField.file.stream;
+
+                    readable.on('data', (chunk: Buffer) => {
+                        chunks.push(chunk);
+                    });
+
+                    readable.on('end', async () => {
+                        const buffer = Buffer.concat(chunks);
+
+                        try {
+                            // Process image with Sharp
+                            const processedBuffer = await sharp(buffer)
+                                .webp({ quality: 80 })
+                                .resize(1200, 1200, {
+                                    fit: 'inside',
+                                    withoutEnlargement: true
+                                })
+                                .toBuffer();
+
+                            // Upload to storage
+                            const storageKey = `assets/${fileName}`;
+                            await uploadBuffer(storageKey, processedBuffer, 'image/webp');
+                            const publicUrl = getPublicUrl(storageKey);
+
+                            // Save to database
+                            uploadedAsset = {
+                                id,
+                                type: 'image',
+                                url: publicUrl,
+                                mime_type: 'image/webp',
+                                name: fileName,
+                                size: processedBuffer.length,
+                                user_id: userId,
+                                storage_key: storageKey,
+                                created_at: Date.now(),
+                                updated_at: Date.now()
+                            };
+
+                            await DB.from("assets").insert(uploadedAsset);
+                            response.json({ success: true, data: uploadedAsset });
+                        } catch (err) {
+                            response.status(500).json({ 
+                                success: false, 
+                                error: 'Error processing and uploading image' 
+                            });
+                        }
+                    });
+                }
+            });
+
+            if (!isValidFile) {
+                return response.status(400).json({ 
+                    success: false, 
+                    error: errorMessage 
+                });
+            }
+
+        } catch (error) {
+            return response.status(500).json({ 
+                success: false, 
+                error: 'Internal server error' 
+            });
+        }
+    }
+
+    /**
+     * Upload File (Non-Image)
+     * - Validates file type (PDF, Word, Excel, Text, CSV)
+     * - Uploads directly without processing
+     * - Saves metadata to database
+     */
+    public async uploadFile(request: Request, response: Response) {
+        try {
+            if (!request.user) {
+                return response.status(401).json({ error: 'Unauthorized' });
+            }
+
+            const userId = request.user.id;
+            let uploadedAsset: any = null;
+            let isValidFile = true;
+            let errorMessage = '';
+
+            await request.multipart(async (field: unknown) => {
+                if (field && typeof field === 'object' && 'file' in field && field.file) {
+                    const file = field.file as { stream: NodeJS.ReadableStream; mime_type: string; name: string };
+                    
+                    // Validate file type
+                    const allowedTypes = [
+                        'application/pdf',
+                        'application/msword',
+                        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        'application/vnd.ms-excel',
+                        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                        'text/plain',
+                        'text/csv'
+                    ];
+                    
+                    if (!allowedTypes.includes(file.mime_type)) {
+                        isValidFile = false;
+                        errorMessage = 'Invalid file type. Allowed types: PDF, Word, Excel, Text, CSV';
+                        return;
+                    }
+
+                    // Generate unique filename
+                    const id = uuidv7();
+                    const ext = file.name.split('.').pop();
+                    const fileName = `${id}.${ext}`;
+
+                    // Convert stream to buffer
+                    const chunks: Buffer[] = [];
+                    const readable = file.stream;
+
+                    readable.on('data', (chunk: Buffer) => {
+                        chunks.push(chunk);
+                    });
+
+                    readable.on('end', async () => {
+                        const buffer = Buffer.concat(chunks);
+
+                        try {
+                            // Upload directly without processing
+                            const storageKey = `files/${userId}/${fileName}`;
+                            await uploadBuffer(storageKey, buffer, file.mime_type);
+                            const publicUrl = getPublicUrl(storageKey);
+
+                            // Save to database
+                            uploadedAsset = {
+                                id,
+                                type: 'file',
+                                url: publicUrl,
+                                mime_type: file.mime_type,
+                                name: file.name,
+                                size: buffer.length,
+                                user_id: userId,
+                                storage_key: storageKey,
+                                created_at: Date.now(),
+                                updated_at: Date.now()
+                            };
+
+                            await DB.from("assets").insert(uploadedAsset);
+                            response.json({ success: true, data: uploadedAsset });
+                        } catch (err) {
+                            response.status(500).json({ 
+                                success: false, 
+                                error: 'Error uploading file' 
+                            });
+                        }
+                    });
+                }
+            });
+
+            if (!isValidFile) {
+                return response.status(400).json({ 
+                    success: false, 
+                    error: errorMessage 
+                });
+            }
+
+        } catch (error) {
+            return response.status(500).json({ 
+                success: false, 
+                error: 'Internal server error' 
+            });
+        }
+    }
+}
+
+export default new UploadController();
+```
+
+### Routes
+
+```typescript
+// routes/web.ts
+import UploadController from "../app/controllers/UploadController";
+import StorageController from "../app/controllers/StorageController";
+import Auth from "../app/middlewares/auth";
+import { uploadRateLimit } from "../app/middlewares/rateLimit";
+
+// Upload routes
+Route.post("/api/upload/image", [Auth, uploadRateLimit], UploadController.uploadImage);
+Route.post("/api/upload/file", [Auth, uploadRateLimit], UploadController.uploadFile);
+
+// Local storage route
+Route.get("/storage/*", StorageController.serveFile);
+```
+
+### Choosing Storage Service
+
+To switch between S3 and Local Storage, change the import in UploadController:
+
+```typescript
+// For Local Storage (Development)
+import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
+
+// For S3 Storage (Production)
+import { getPublicUrl, uploadBuffer } from "app/services/S3";
+```
+
+Both services have the same API, making it easy to switch between them without changing any other code.
+
 ### StorageController
 
 StorageController serves static files from local storage with security features:
@@ -313,10 +576,6 @@ class Controller {
 
 export default new Controller();
 ```
-
-### UploadController
-
-UploadController handles file uploads with two separate methods:
 
 ```typescript
 // app/controllers/UploadController.ts
