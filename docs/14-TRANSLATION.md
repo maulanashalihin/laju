@@ -130,6 +130,55 @@ class UserController {
 }
 ```
 
+## Usage in Template Engines (Eta)
+
+The `t` function is automatically available in all Eta templates as `it.t`. You don't need to import or pass it manually.
+
+### Basic Usage
+
+```html
+<!-- resources/views/index.html -->
+<h1><%= it.t('welcome', 'en') %></h1>
+<p><%= it.t('description', 'id') %></p>
+```
+
+### With Interpolation
+
+```html
+<h1><%= it.t('greeting', 'en', { name: 'John' }) %></h1>
+<p><%= it.t('items_count', 'id', { count: 5 }) %></p>
+```
+
+### Nested Keys
+
+```html
+<p><%= it.t('errors.required', 'en', { field: 'Email' }) %></p>
+<p><%= it.t('success.created', 'id', { item: 'Produk' }) %></p>
+```
+
+### Dynamic Language from Controller
+
+```typescript
+// Controller
+public async index(request: Request, response: Response) {
+  const lang = request.cookies.lang || 'en';
+  
+  const html = view("index.html", {
+    lang: lang
+  });
+  
+  return response.type("html").send(html);
+}
+```
+
+```html
+<!-- Template -->
+<h1><%= it.t('welcome', it.lang) %></h1>
+<p><%= it.t('description', it.lang) %></p>
+```
+
+For more detailed examples, see the [Eta Template Guide](./15-ETA.md#translation).
+
 ## Usage in Inertia Pages (Svelte)
 
 For Svelte/Inertia pages, use the simple `Translation.js` helper in `resources/js/Components/Translation.js`. Language files are stored in `resources/js/Components/languages/`.
