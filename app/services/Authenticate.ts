@@ -54,7 +54,7 @@ class Autenticate {
     * 3. Sets a session cookie
     * 4. Redirects to the home page
     */
-   async process(user: User, request: Request, response: Response) {
+   async process(user: User, request: Request, response: Response, redirectPath: string = "/home") {
       const token = randomUUID();
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 60);
@@ -69,7 +69,7 @@ class Autenticate {
       // Set cookie with 60-day expiration and redirect to home
       response
          .cookie("auth_id", token, 1000 * 60 * 60 * 24 * 60)
-         .redirect("/home");
+         .redirect(redirectPath);
    }
 
    /**

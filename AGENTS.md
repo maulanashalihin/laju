@@ -7,9 +7,10 @@ Help users build applications using Laju framework by understanding their needs 
 ## Workflow
 
 1. **Understand Requirements** - Ask clarifying questions, confirm understanding, break down complex ideas
-2. **Plan Implementation** - Outline what to build, get approval, start with important features
-3. **Build Incrementally** - Build one feature at a time, test before moving on
-4. **Review and Refine** - Explain what was done, test together, commit when working
+2. **Check Existing Functionality** - **ALWAYS check if controllers/pages/services already exist before creating new ones**
+3. **Plan Implementation** - Outline what to build, prioritize modifying existing code, get approval
+4. **Build Incrementally** - Build one feature at a time, test before moving on
+5. **Review and Refine** - Explain what was done, test together, commit when working
 
 **After Completing a Feature:**
 When a feature is complete (routes, controllers, pages all implemented):
@@ -54,8 +55,15 @@ When user starts a new project, **ALWAYS**:
 
 ## Technical Implementation
 
-### Use Existing Built-in Functionality
-The Laju framework comes with pre-built controllers, services, and middlewares. **Always check if functionality exists before creating new ones.**
+### Core Principle: Maximize Existing Functionality
+
+**ALWAYS check and use existing controllers, pages, and services before creating new ones.** This is the most important rule in Laju framework development.
+
+**Why?**
+- Avoids redundant code
+- Maintains consistency
+- Reduces maintenance burden
+- Leverages tested, built-in functionality
 
 **Built-in Controllers:**
 - `HomeController` - Home page
@@ -73,9 +81,9 @@ The Laju framework comes with pre-built controllers, services, and middlewares. 
 **Built-in Services:**
 - `Authenticate` - Password hashing, login/logout, session management
 - `Validator` - Input validation with Zod schemas
-- `DB` - Database operations (Knex)
+- `DB` - Database operations (Knex) - **Use directly for any table operations**
 - `CacheService` - Caching layer
-- `Mailer` / `Resend` - Email sending 
+- `Mailer` / `Resend` - Email sending
 - `RateLimiter` - Rate limiting
 - `Logger` - Logging
 - `Translation` - Multi-language support
@@ -86,18 +94,26 @@ The Laju framework comes with pre-built controllers, services, and middlewares. 
 - `GoogleAuth` - Google OAuth
 
 **Built-in Middlewares:**
-- `auth` - Authentication (checks user session) 
+- `auth` - Authentication (checks user session)
 - `inertia` - Inertia.js headers
 - `rateLimit` - Rate limiting
 - `securityHeaders` - Security headers
 
-**Rule:** If functionality exists, **use or modify** existing code instead of creating redundant controllers/services/middlewares.
+**Built-in Auth Pages:**
+- `resources/js/Pages/auth/login.svelte` - Login page
+- `resources/js/Pages/auth/register.svelte` - Registration page
+- `resources/js/Pages/auth/forgot-password.svelte` - Forgot password
+- `resources/js/Pages/auth/reset-password.svelte` - Reset password
+
+**Rule:** If functionality exists, **use or modify** existing code instead of creating redundant controllers/services/middlewares/pages.
 
 **Examples:**
 - Need registration? → Modify `RegisterController.ts`, don't create new
 - Need login? → Modify `LoginController.ts`, don't create new
 - Need profile? → Modify `ProfileController.ts`, don't create new
 - Need password reset? → Modify `PasswordController.ts`, don't create new
+- Need database operations? → Use `DB.from("table")` directly, don't create service
+- Need create/edit form? → Use single `form.svelte` page for both (pass `post` prop for edit)
 
 ### Follow Laju Conventions
 Always reference the appropriate AGENTS.md files:
@@ -216,6 +232,7 @@ Encourage documentation when adding new features or making significant changes.
 
 ## Remember
 
+- **Maximize existing functionality first** - Always check if controllers/pages/services exist before creating new ones
 - Assess user's technical level first
 - Adapt communication style accordingly
 - Follow Laju patterns from AGENTS.md files

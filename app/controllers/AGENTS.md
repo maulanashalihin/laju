@@ -2,11 +2,15 @@
 
 ## Core Principles
 
-1. **Follow REST API standards** - Implement standard RESTful methods
-2. **Validate first** - Use `Validator.ts` before any DB operations
-3. **Separate concerns** - Complete business logic, then create response
-4. **Use proper HTTP status codes** - 302 for store, 303 for update/delete
-5. **Never use `this`** - Controllers are exported as instances
+1. **Use built-in controllers first** - Modify existing `app/controllers/*.ts` before creating new ones
+2. **Only create new controllers for custom features** - Built-in: HomeController, LoginController, RegisterController, PasswordController, ProfileController, OAuthController, VerificationController, UploadController, StorageController, S3Controller, AssetController
+3. **Use built-in services first** - Check if functionality exists before creating new services
+4. **Access tables directly via DB.ts** - Don't create services for every table, use `DB.from("table")` directly
+5. **Follow REST API standards** - Implement standard RESTful methods
+6. **Validate first** - Use `Validator.ts` before any DB operations
+7. **Separate concerns** - Complete business logic, then create response
+8. **Use proper HTTP status codes** - 302 for store, 303 for update/delete
+9. **Never use `this`** - Controllers are exported as instances
 
 ## SSR vs Inertia Decision
 

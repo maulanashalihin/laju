@@ -7,6 +7,11 @@
 3. **Accept props** - Use `$props()` to accept data from parent
 4. **Keep focused** - Each component should have a single responsibility
 
+**Important:**
+- **Generate Components in JavaScript only** - Do NOT use TypeScript
+- Use `.svelte` extension with JavaScript syntax (no type annotations)
+- No `: string`, `: number`, `: boolean`, or any TypeScript types
+
 ## Basic Pattern
 
 ```svelte
@@ -19,71 +24,6 @@
   <h2 class="text-xl font-bold">{title}</h2>
   <p>{content}</p>
 </div>
-```
-
-## Button Component
-
-```svelte
-<script>
-  let { type = 'button', variant = 'primary', size = 'md', disabled = false, onclick = () => {}, children } = $props()
-
-  const variants = {
-    primary: 'bg-brand-600 text-white hover:bg-brand-700',
-    secondary: 'bg-slate-200 text-slate-900 hover:bg-slate-300',
-    danger: 'bg-red-600 text-white hover:bg-red-700',
-    ghost: 'bg-transparent text-slate-700 hover:bg-slate-100'
-  }
-
-  const sizes = {
-    sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg'
-  }
-</script>
-
-<button {type} {disabled} onclick={onclick} class="rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed {variants[variant]} {sizes[size]}">
-  {@render children()}
-</button>
-```
-
-**Usage:**
-```svelte
-<script>
-  import Button from '../Components/Button.svelte'
-</script>
-
-<Button variant="primary" onclick={() => console.log('clicked')}>
-  Click Me
-</Button>
-```
-
-## Input Component
-
-```svelte
-<script>
-  let { label, type = 'text', placeholder = '', value = $bindable(), error = '', required = false } = $props()
-</script>
-
-<div class="space-y-2">
-  {#if label}
-    <label class="block text-sm font-medium">{label} {#if required}<span class="text-red-500">*</span>{/if}</label>
-  {/if}
-  <input bind:value {type} {placeholder} required={required} class="w-full px-4 py-2 rounded-lg border dark:bg-slate-900 focus:outline-none" />
-  {#if error}
-    <p class="text-sm text-red-500">{error}</p>
-  {/if}
-</div>
-```
-
-**Usage:**
-```svelte
-<script>
-  import Input from '../Components/Input.svelte'
-  let email = $state('')
-  let emailError = $state('')
-</script>
-
-<Input label="Email" type="email" placeholder="you@example.com" bind:value={email} error={emailError} required />
 ```
 
 ## Card Component
@@ -211,18 +151,18 @@
 
 <div class="animate-spin {sizes[size]}">
   <svg class="w-full h-full" viewBox="0 0 24 24">
-    <circle 
-      class="opacity-25" 
-      cx="12" 
-      cy="12" 
-      r="10" 
-      stroke="currentColor" 
-      stroke-width="4" 
+    <circle
+      class="opacity-25"
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="currentColor"
+      stroke-width="4"
       fill="none"
     ></circle>
-    <path 
-      class="opacity-75" 
-      fill="currentColor" 
+    <path
+      class="opacity-75"
+      fill="currentColor"
       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
     ></path>
   </svg>
@@ -238,98 +178,6 @@
 {#if isLoading}
   <Spinner />
 {/if}
-```
-
-## Complete Example - Form Component
-
-```svelte
-<script>
-  import Input from './Input.svelte'
-  import Button from './Button.svelte'
-
-  let { 
-    title,
-    onSubmit = () => {},
-    isLoading = false
-  } = $props()
-
-  let form = $state({
-    name: '',
-    email: ''
-  })
-
-  let errors = $state({
-    name: '',
-    email: ''
-  })
-
-  function handleSubmit() {
-    // Validate
-    if (!form.name) {
-      errors.name = 'Name is required'
-      return
-    }
-    if (!form.email) {
-      errors.email = 'Email is required'
-      return
-    }
-
-    onSubmit(form)
-  }
-</script>
-
-<div class="max-w-md mx-auto p-6 bg-white dark:bg-slate-900 rounded-xl shadow-lg">
-  <h2 class="text-2xl font-bold mb-6">{title}</h2>
-
-  <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-4">
-    <Input
-      label="Name"
-      placeholder="Your name"
-      bind:value={form.name}
-      error={errors.name}
-      required
-    />
-
-    <Input
-      label="Email"
-      type="email"
-      placeholder="you@example.com"
-      bind:value={form.email}
-      error={errors.email}
-      required
-    />
-
-    <Button
-      type="submit"
-      variant="primary"
-      disabled={isLoading}
-      onclick={handleSubmit}
-    >
-      {#if isLoading}
-        Submitting...
-      {:else}
-        Submit
-      {/if}
-    </Button>
-  </form>
-</div>
-```
-
-**Usage:**
-```svelte
-<script>
-  import UserForm from '../Components/UserForm.svelte'
-
-  function handleFormSubmit(data) {
-    console.log('Form submitted:', data)
-  }
-</script>
-
-<UserForm 
-  title="Create User" 
-  onSubmit={handleFormSubmit}
-  isLoading={false}
-/>
 ```
 
 ## Quick Reference

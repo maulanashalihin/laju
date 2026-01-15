@@ -7,16 +7,13 @@
 3. **Handle flash** - Display `flash` prop for errors/success
 4. **Use Inertia router** - Form submissions via `router.post/put/delete`
 
-## Frontend Rules
+**Important:**
+- **Generate Pages in JavaScript only** - Do NOT use TypeScript
+- Use `.svelte` extension with JavaScript syntax (no type annotations)
+- No `: string`, `: number`, `: boolean`, or any TypeScript types
 
-**Tech Stack:**
-- Tailwind CSS v4
-- Svelte Framework
-- CSS-in-JS solutions
-
-**Styling:**
-- Always use `focus:outline-none` on form inputs
-- Avoid/reduce emoji usage
+**Tech Stack:** Tailwind CSS v4, Svelte, CSS-in-JS
+**Styling:** Always use `focus:outline-none` on form inputs, avoid emojis
 
 ## Basic Pattern
 
@@ -58,7 +55,7 @@
 </div>
 ```
 
-## Form Page
+## Form Page (Create/Edit)
 
 ```svelte
 <script>
@@ -72,7 +69,9 @@
   function submitForm() {
     serverError = ''
     isLoading = true
-    router.post('/posts', form, {
+    const method = post ? router.put : router.post
+    const url = post ? `/posts/${post.id}` : '/posts'
+    method(url, form, {
       onFinish: () => isLoading = false,
       onError: (errors) => {
         isLoading = false
@@ -84,7 +83,7 @@
 
 <Header />
 <div class="max-w-2xl mx-auto px-4 py-8">
-  <h1 class="text-3xl font-bold mb-6">Create Post</h1>
+  <h1 class="text-3xl font-bold mb-6">{post ? 'Edit Post' : 'Create Post'}</h1>
   {#if flash?.error}
     <div class="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">{flash.error}</div>
   {/if}
@@ -102,93 +101,43 @@
         <textarea bind:value={form.content} rows="6" class="w-full px-4 py-2 rounded-lg border dark:bg-slate-900 focus:outline-none" placeholder="Enter content"></textarea>
       </div>
       <button type="submit" disabled={isLoading} class="px-6 py-3 bg-brand-600 text-white rounded-lg disabled:opacity-50">
-        {#if isLoading}Saving...{:else}Save Post{/if}
+        {#if isLoading}Saving...{:else}{post ? 'Update' : 'Save'} Post{/if}
       </button>
     </div>
   </form>
 </div>
 ```
 
-## Update Form
+## Common Patterns
 
+**Delete:**
 ```svelte
-<script>
-  import { router } from '@inertiajs/svelte'
-  let { flash, post } = $props()
-  let form = $state({ title: post.title, content: post.content })
-  let isLoading = $state(false)
-  let serverError = $state('')
-
-  function submitForm() {
-    serverError = ''
-    isLoading = true
-    router.put(`/posts/${post.id}`, form, {
-      onFinish: () => isLoading = false,
-      onError: (errors) => {
-        isLoading = false
-        serverError = Object.values(errors)[0] || 'Terjadi kesalahan'
-      }
-    })
-  }
-</script>
-
-<!-- Similar to create form, but uses router.put() -->
+import { router } from '@inertiajs/svelte'
+function deletePost() {
+  if (confirm('Are you sure?')) router.delete(`/posts/${post.id}`)
+}
 ```
 
-## Delete Action
-
+**Inertia Links:**
 ```svelte
-<script>
-  import { router } from '@inertiajs/svelte'
-  let { post } = $props()
-
-  function deletePost() {
-    if (confirm('Are you sure?')) {
-      router.delete(`/posts/${post.id}`)
-    }
-  }
-</script>
-
-<button onclick={deletePost} class="px-4 py-2 bg-red-600 text-white rounded-lg">Delete</button>
-```
-
-## Inertia Links
-
-```svelte
-<script>
-  import { inertia } from '@inertiajs/svelte'
-</script>
-
+import { inertia } from '@inertiajs/svelte'
 <a href="/posts" use:inertia>All Posts</a>
-<a href="/posts?page=2" use:inertia>Next Page</a>
-<a href="https://example.com" target="_blank">External</a>
 ```
 
-## Flash Messages
-
+**Flash Messages:**
 ```svelte
-<script>
-  let { flash } = $props()
-</script>
-
 {#if flash?.error}
   <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">{flash.error}</div>
 {/if}
-
 {#if flash?.success}
   <div class="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">{flash.success}</div>
 {/if}
 ```
 
-## Transitions
-
+**Transitions:**
 ```svelte
-<script>
-  import { fly, fade } from 'svelte/transition'
-</script>
-
+import { fly } from 'svelte/transition'
 <div in:fly={{ y: 20, duration: 800 }}>Content</div>
-
 {#each items as item, i}
   <div in:fly={{ y: 20, duration: 800, delay: i * 50 }}>{item}</div>
 {/each}
@@ -209,25 +158,21 @@
 
 ## Controller to Page Mapping
 
-| Controller | Page Path | Type |
-|------------|-----------|------|
-| `index()` | `posts/index.svelte` | List |
-| `create()` | `posts/create.svelte` | Form |
-| `show()` | `posts/show.svelte` | Display |
-| `edit()` | `posts/edit.svelte` | Form |
-| `store()` | Redirects to `index` | - |
-| `update()` | Redirects to `index` | - |
-| `destroy()` | Redirects to `index` | - |
+| Controller | Page Path |
+|------------|-----------|
+| `index()` | `posts/index.svelte` |
+| `create()` | `posts/form.svelte` (no post prop) |
+| `show()` | `posts/show.svelte` |
+| `edit()` | `posts/form.svelte` (with post prop) |
+| `store/update/destroy()` | Redirect to `index` |
+
+**Note:** `create()` and `edit()` both use the same `form.svelte` page. Pass `post` prop for edit, omit for create.
 
 ## Best Practices
 
 1. **$state for form data** - Reactive state for user inputs
 2. **$props for server data** - Data from controller
-3. **Handle loading states** - Show loading during submission
-4. **Display errors clearly** - Show flash and validation errors
-5. **Use transitions** - Add smooth animations
-6. **Import components** - Reuse from Components folder
-7. **Match controller naming** - Page paths match controller inertia calls
-8. **Create reusable components** - If UI repeats, create in `resources/js/Components/`
-9. **Use focus:outline-none** - Always on form inputs
-10. **Avoid emojis** - Use icons or text instead
+3. **Handle loading & errors** - Show loading during submission, display flash errors
+4. **Use transitions** - Add smooth animations
+5. **Reuse components** - Import from Components folder
+6. **Match controller naming** - Page paths match controller inertia calls
