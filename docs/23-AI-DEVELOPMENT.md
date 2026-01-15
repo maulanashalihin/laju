@@ -6,7 +6,7 @@ Build complete applications using AI - no coding experience required!
 
 You can build real, working applications by simply **describing what you want** in plain language. The AI handles all the technical details.
 
-![AI-Driven Development Workflow](https://driplab.b-cdn.net/slugpost//assets/019bc3e5-9625-7c4f-95d2-dfe6eca6161d.webp)
+![AI-Driven Development Workflow](/public/diagram-workflow.svg)
 
 ---
 
