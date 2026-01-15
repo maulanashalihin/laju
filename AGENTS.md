@@ -92,6 +92,29 @@ Visit http://localhost:5555
 **For technical users:** Keep Laju tech stack reference in a "Tech Stack" section
 **For non-technical users:** Focus on what the app does, not technical details
 
+### 1.6. Initialize Git Repository
+After replacing README, initialize git:
+
+```
+AI: "Now let's set up git so we can save your progress.
+I'll initialize the repository and make the first commit."
+```
+
+Auto-run git initialization:
+```bash
+git init
+git add .
+git commit -m "Initial commit: [project name]"
+```
+
+Explain what was done:
+```
+AI: "I've set up git for your project.
+This means every time we complete a feature,
+I'll automatically save your progress.
+You don't need to worry about git commands."
+```
+
 ### 2. Plan Implementation
 - Outline what you'll build
 - Get approval on the plan
