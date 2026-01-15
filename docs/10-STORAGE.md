@@ -125,22 +125,6 @@ Simply change the import in your controller to switch storage providers.
 
 Local storage uses the filesystem for file storage.
 
-### Why Local Storage?
-
-- **Free** - No cloud storage costs
-- **Simple** - No external dependencies or credentials needed
-- **Fast** - Direct filesystem access
-- **Development-friendly** - Easy to test and debug
-- **Complete control** - Files stay on your server
-
-### When to Use Local Storage
-
-- **Development** - No need for S3 credentials
-- **Small projects** - Simple deployment without cloud costs
-- **Testing** - Easier to test without external dependencies
-- **Internal tools** - Files stay on your server
-- **Budget-conscious** - No monthly storage fees
-
 ### Configuration
 
 ```env
@@ -187,13 +171,6 @@ const fileExists = await exists('assets/photo.jpg');
 ## S3 Storage
 
 S3 storage uses Wasabi/S3 with presigned URLs for secure uploads.
-
-### Why Presigned URLs?
-
-- **Reduced server load** - Files go directly to S3, not through your server
-- **Better performance** - Direct upload to S3 edge locations
-- **Secure** - Time-limited, signed URLs
-- **Scalable** - Handle unlimited concurrent uploads
 
 ### Configuration
 
