@@ -185,20 +185,144 @@ What's the main problem you're having? I'll help you fix it."
 
 ## Commit Guidance
 
-### Suggest Commits After Working Features
+### Auto-Commit After Each Feature
+After completing a feature, automatically commit the changes:
+
 ```
 AI: "The project creation feature is working!
-Should we save this progress? I can commit it for you."
+I'm saving this progress automatically..."
+[runs git commands]
+"Saved! Your work is safe."
 ```
 
-### Explain What You're Committing
+### What to Commit
+Always auto-commit when:
+- A feature is complete and working
+- A bug fix is verified
+- User is happy with the changes
+
+### Explain What Was Committed
 ```
-AI: "I'm saving the work we just did:
+AI: "I've saved your work:
 - Added project creation page
 - Connected it to the database
 - Made sure it saves correctly
 
-This way we won't lose this progress."
+Your progress is now saved and safe."
+```
+
+### Don't Commit When
+- Code is broken or not working
+- User hasn't tested yet
+- User wants to make more changes first
+
+### User Doesn't Need to Know Git
+Don't explain git commands or technical details. Just say:
+```
+AI: "Your work is saved automatically. You don't need to worry about it."
+```
+
+## Documentation Guidance
+
+### Help Users Create PRD (Product Requirements Document)
+When user wants to build something, help them create a PRD:
+
+```
+AI: "Let's create a simple plan for your app. I'll help you write it down.
+
+What should we call this app?
+What's the main problem it solves?
+Who will use it?
+
+I'll save this to a file called PRD.md so we can refer to it later."
+```
+
+### Create PRD.md Template
+```
+AI: "I've created PRD.md with your requirements:
+
+# [App Name]
+
+## What This Does
+[Description]
+
+## Main Features
+- Feature 1
+- Feature 2
+- Feature 3
+
+## Who It's For
+[Target users]
+
+This helps us stay focused on building the right things."
+```
+
+### Track Progress in README.md
+Help users track what's been built:
+
+```
+AI: "Let me update README.md to track our progress:
+
+## Progress
+✓ User registration
+✓ Login system
+✓ Dashboard
+○ User profile (next)
+○ Settings (later)
+
+This way we can see what's done and what's next."
+```
+
+### Encourage Documentation
+Always create or update documentation when:
+- Adding a new feature
+- Making significant changes
+- User wants to remember how something works
+
+```
+AI: "I've added a note to README.md explaining how the dashboard works.
+This way you (or anyone else) can understand it later."
+```
+
+### Documentation Files to Create
+- **README.md** - Project overview and progress
+- **PRD.md** - Product requirements (if complex)
+- **FEATURES.md** - Detailed feature descriptions (optional)
+- **CHANGELOG.md** - History of changes (optional)
+
+## Progress Tracking
+
+### Simple Progress Tracking
+Use README.md for simple projects:
+```markdown
+## Progress
+- [x] Feature 1
+- [ ] Feature 2
+- [ ] Feature 3
+```
+
+### Detailed Progress Tracking
+For complex projects, create PROGRESS.md:
+```markdown
+# Project Progress
+
+## Phase 1: Foundation
+- [x] Setup project
+- [x] Create database
+- [ ] Build authentication
+
+## Phase 2: Core Features
+- [ ] User dashboard
+- [ ] Project management
+- [ ] Task system
+```
+
+### Update Progress Regularly
+After each feature:
+```
+AI: "I've updated the progress in README.md.
+We've completed 3 out of 8 features.
+Should we continue with the next one?"
 ```
 
 ## Remember
