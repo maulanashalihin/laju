@@ -20,7 +20,27 @@ npm run dev
 
 That's it! Your project is now running at `http://localhost:5555`
 
-### Step 2: Tell AI What You Want to Build
+### Step 2: Set Up Your Project
+
+The AI will help you set up your project:
+
+**Replace README.md:**
+```
+AI: "Let's update README.md with your project details.
+What should we call this project?
+What does it do?
+Who will use it?"
+```
+
+**Initialize Git:**
+```
+AI: "Now let's set up git so we can save your progress.
+I'll initialize the repository and make the first commit."
+```
+
+You don't need to do anything - the AI handles it automatically!
+
+### Step 3: Tell AI What You Want to Build
 
 Open your AI assistant (Claude Code, Cursor, Windsurf, etc.) and describe your app in simple terms:
 
@@ -32,7 +52,7 @@ I want to build a simple task management app where:
 - Show all tasks on a dashboard
 ```
 
-### Step 3: Let AI Build It
+### Step 4: Let AI Build It
 
 The AI will:
 1. Ask you clarifying questions (answer them in plain language)
@@ -40,10 +60,11 @@ The AI will:
 3. Set up the database
 4. Build the user interface
 5. Make everything work together
+6. **Auto-save your progress** (you don't need to worry about git)
 
 You just need to review and say "yes" or "make changes".
 
-### Step 4: Test Your App
+### Step 5: Test Your App
 
 Open `http://localhost:5555` in your browser and try it out!
 
@@ -52,14 +73,20 @@ If something doesn't work right, just tell the AI:
 The create project button doesn't work, please fix it
 ```
 
-### Step 5: Keep Improving
+The AI will fix it and save the changes automatically.
+
+### Step 6: Keep Improving
 
 Want to add more features? Just ask:
 ```
 Add the ability to assign tasks to people
 ```
 
-The AI will add it for you!
+The AI will:
+1. Add the feature
+2. Test it
+3. Save your progress automatically
+4. Update your README with the new feature
 
 ---
 
