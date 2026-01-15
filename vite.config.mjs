@@ -16,6 +16,11 @@ const PORT = parseInt(process.env.VITE_PORT) || 3000;
  
 // https://vite.dev/config/
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'resources/js'),
+    },
+  },
   plugins: [
     tailwindcss(),
     svelte(),

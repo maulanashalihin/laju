@@ -676,23 +676,95 @@ For most forms, use flash messages for error handling. The backend handles valid
 ```typescript
 public async changeProfile(request: Request, response: Response) {
   const body = await request.json();
-  
+
   // Backend validates
   if (!body.name || body.name.length < 2) {
     return response.flash("error", "Name must be at least 2 characters").redirect("/profile", 303);
   }
-  
+
   if (!body.email || !body.email.includes('@')) {
     return response.flash("error", "Invalid email address").redirect("/profile", 303);
   }
-  
+
   // Update database
   await DB.from("users").where("id", request.user.id).update(body);
-  
+
   // Send success message
   return response.flash("success", "Profile updated successfully!").redirect("/profile", 303);
 }
 ```
+
+### Form with Auto Toast (Simpler)
+
+Use `$effect` to automatically display flash messages as toast notifications:
+
+```svelte
+<script>
+  import { router } from '@inertiajs/svelte';
+  import { Toast } from '@/Components/helper.js';
+
+  let { user, flash } = $props();
+
+  // Auto-display flash messages as toasts
+  $effect(() => {
+    if (flash?.error) {
+      Toast(flash.error, 'error', 3000);
+    }
+    if (flash?.success) {
+      Toast(flash.success, 'success', 3000);
+    }
+    if (flash?.warning) {
+      Toast(flash.warning, 'warning', 3000);
+    }
+    if (flash?.info) {
+      Toast(flash.info, 'info', 3000);
+    }
+  });
+
+  let form = $state({
+    name: user?.name || '',
+    email: user?.email || ''
+  });
+
+  let isLoading = $state(false);
+
+  function handleSubmit() {
+    isLoading = true;
+    router.post('/change-profile', form, {
+      onFinish: () => isLoading = false
+    });
+  }
+</script>
+
+<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-4">
+  <div>
+    <label class="block text-sm font-medium mb-1">Name</label>
+    <input
+      bind:value={form.name}
+      class="w-full border rounded px-3 py-2 focus:outline-none"
+    />
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium mb-1">Email</label>
+    <input
+      type="email"
+      bind:value={form.email}
+      class="w-full border rounded px-3 py-2 focus:outline-none"
+    />
+  </div>
+
+  <button
+    type="submit"
+    disabled={isLoading}
+    class="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+  >
+    {isLoading ? 'Saving...' : 'Save Changes'}
+  </button>
+</form>
+```
+
+This approach automatically displays flash messages as toasts without manual HTML rendering.
 
 ---
 
@@ -878,83 +950,6 @@ Backend controllers should send clear, actionable error messages:
 return response
   .flash("error", "Email sudah terdaftar. Silakan gunakan email lain atau login.")
   .redirect("/register");
-```
-
----
-
-### Complete Example: Register Form
-
-```svelte
-<script>
-import { router } from '@inertiajs/svelte';
-
-let form = $state({
-  name: '',
-  email: '',
-  password: '',
-  password_confirmation: ''
-});
-
-let isLoading = $state(false);
-let showPassword = $state(false);
-let passwordError = $state('');
-let serverError = $state('');
-let { flash } = $props();
-
-function submitForm() {
-  if (form.password !== form.password_confirmation) {
-    passwordError = 'Passwords do not match';
-    return;
-  }
-  
-  passwordError = '';
-  serverError = '';
-  isLoading = true;
-  
-  router.post("/register", form, {
-    onFinish: () => isLoading = false,
-    onError: (errors) => {
-      isLoading = false;
-      if (errors.email) {
-        serverError = errors.email;
-      } else if (errors.password) {
-        serverError = errors.password;
-      } else if (errors.name) {
-        serverError = errors.name;
-      } else {
-        serverError = 'Terjadi kesalahan. Silakan periksa input Anda.';
-      }
-    }
-  });
-}
-</script>
-
-{#if flash?.error}
-  <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-    <span class="text-red-400">{flash.error}</span>
-  </div>
-{/if}
-
-{#if serverError}
-  <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-    <span class="text-red-400">{serverError}</span>
-  </div>
-{/if}
-
-<form onsubmit={(e) => { e.preventDefault(); submitForm(); }}>
-  <input bind:value={form.name} placeholder="Name" />
-  <input bind:value={form.email} type="email" placeholder="Email" />
-  <input bind:value={form.password} type="password" placeholder="Password" />
-  <input bind:value={form.password_confirmation} type="password" placeholder="Confirm Password" />
-  
-  {#if passwordError}
-    <p class="text-red-500 text-sm">{passwordError}</p>
-  {/if}
-  
-  <button type="submit" disabled={isLoading}>
-    {isLoading ? 'Creating account...' : 'Create account'}
-  </button>
-</form>
 ```
 
 ---
