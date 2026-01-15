@@ -151,81 +151,6 @@ const fileExists = await exists('assets/photo.jpg');
 
 ---
 
-## Local Storage
-
-Local storage uses the filesystem for file storage.
-
-### When to Use Local Storage
-
-- **Development** - No need for S3 credentials
-- **Small projects** - Simple deployment without cloud costs
-- **Testing** - Easier to test without external dependencies
-- **Internal tools** - Files stay on your server
-
-### Configuration
-
-```env
-LOCAL_STORAGE_PATH=./storage
-LOCAL_STORAGE_PUBLIC_URL=/storage
-```
-
-### LocalStorage Service Methods
-
-```typescript
-import {
-  uploadBuffer,
-  getPublicUrl,
-  getObject,
-  deleteObject,
-  exists
-} from "app/services/LocalStorage";
-
-// Upload buffer directly
-await uploadBuffer(
-  'assets/photo.jpg',           // key
-  buffer,                       // file buffer
-  'image/jpeg'                  // content type (optional)
-);
-
-// Get public URL
-const publicUrl = getPublicUrl('assets/photo.jpg');
-// Returns: /storage/assets/photo.jpg
-
-// Download file
-const response = await getObject('assets/photo.jpg');
-const buffer = response.Body;
-
-// Delete file
-await deleteObject('assets/photo.jpg');
-
-// Check if file exists
-const fileExists = await exists('assets/photo.jpg');
-```
-
-### Serving Local Files
-
-Add a route to serve local files:
-
-```typescript
-// routes/web.ts
-import StorageController from "../app/controllers/StorageController";
-
-Route.get("/storage/*", StorageController.serveFile);
-```
-
-### Directory Structure
-
-```
-project/
-├── storage/
-│   └── assets/
-│       ├── photo1.jpg
-│       └── photo2.jpg
-└── app/
-```
-
----
-
 ## Choosing the Right Storage
 
 ### Comparison: LocalStorage vs S3 Storage
@@ -498,20 +423,6 @@ Route.get("/api/s3/health", [apiRateLimit], S3Controller.health);
 // Local storage route
 Route.get("/storage/*", StorageController.serveFile);
 ```
-
-### Choosing Storage Service
-
-To switch between S3 and Local Storage, change the import in UploadController:
-
-```typescript
-// For S3 Storage
-import { getPublicUrl, uploadBuffer } from "app/services/S3";
-
-// For Local Storage
-import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
-```
-
-Both services have the same API, making it easy to switch between them without changing any other code.
 
 ---
 
