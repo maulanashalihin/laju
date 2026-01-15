@@ -2,6 +2,8 @@
 
 Laju provides a lightweight and stateless Translation service for multi-language support.
 
+> **Note**: `app/services/Translation.ts` is designed for **SSR (Server-Side Rendering) only**. Use it in controllers or Eta templates. For Svelte/Inertia pages, create your own translation setup in `resources/js/Components` and import it into your pages.
+
 ## Basic Usage
 
 ```typescript
@@ -128,7 +130,54 @@ class UserController {
 
 ## Usage in Inertia Pages (Svelte)
 
-### Pass Language from Controller
+For Svelte/Inertia pages, create your own translation setup in `resources/js/Components` and import it into your pages.
+
+### Create Translation Component
+
+```svelte
+<!-- resources/js/Components/Translation.svelte -->
+<script>
+  let { lang = 'en' } = $props();
+
+  // Load language files
+  const translations = {
+    en: () => import('../../app/services/languages/en.json'),
+    id: () => import('../../app/services/languages/id.json'),
+    // Add more languages as needed
+  };
+
+  $effect(() => {
+    // Load translations when language changes
+    translations[lang]?.();
+  });
+
+  function t(key: string, params: Record<string, any> = {}) {
+    // Implement translation logic here
+    return key;
+  }
+</script>
+
+<slot {t} />
+```
+
+### Use in Svelte Page
+
+```svelte
+<!-- resources/js/Pages/Dashboard.svelte -->
+<script>
+  import Translation from '../Components/Translation.svelte';
+  let { lang = 'en' } = $props();
+</script>
+
+<Translation lang={lang} let:t>
+  <h1>{t('welcome')}</h1>
+  <p>{t('dashboard')}</p>
+</Translation>
+```
+
+### Alternative: Pass from Controller
+
+You can also pass translations from the controller:
 
 ```typescript
 // Controller
@@ -145,27 +194,14 @@ async index(request: Request, response: Response) {
 }
 ```
 
-### Use in Svelte Component
-
 ```svelte
+<!-- resources/js/Pages/Dashboard.svelte -->
 <script>
   let { translations } = $props();
 </script>
 
 <h1>{translations.welcome}</h1>
 <p>{translations.dashboard}</p>
-```
-
-### Alternative: Import Translation in Frontend
-
-```svelte
-<script>
-  import { t } from 'app/services/Translation';
-  
-  let { lang = 'en' } = $props();
-</script>
-
-<h1>{t('welcome', lang)}</h1>
 ```
 
 ## Language Detection
