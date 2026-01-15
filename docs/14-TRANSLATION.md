@@ -1,11 +1,11 @@
 # Translation (Multi-Language)
 
-Laju menyediakan Translation service yang ringan dan stateless untuk multi-language support.
+Laju provides a lightweight and stateless Translation service for multi-language support.
 
 ## Basic Usage
 
 ```typescript
-import { t } from "../services/Translation";
+import { t } from "app/services/Translation";
 
 // Basic translation
 t('welcome', 'id')     // "Selamat datang"
@@ -35,7 +35,7 @@ t('errors.required', 'id', { field: 'Email' })  // "Email wajib diisi"
 
 ## Language Files
 
-Translation files disimpan di `app/services/languages/`:
+Translation files are stored in `app/services/languages/`:
 
 ```
 app/services/languages/
@@ -102,7 +102,7 @@ t('success.created', 'id', { item: 'Produk' })     // "Produk berhasil dibuat"
 ## Usage in Controllers
 
 ```typescript
-import { t } from "../services/Translation";
+import { t } from "app/services/Translation";
 import { Request, Response } from "../../type";
 
 class UserController {
@@ -160,7 +160,7 @@ async index(request: Request, response: Response) {
 
 ```svelte
 <script>
-  import { t } from '../../services/Translation';
+  import { t } from 'app/services/Translation';
   
   let { lang = 'en' } = $props();
 </script>
@@ -206,6 +206,8 @@ const lang = request.user?.language || 'en';
 
 ## Adding New Language
 
+You can add any language to the translation system. Simply create a new language file and import it in Translation.ts.
+
 1. Create language file:
 
 ```json
@@ -228,15 +230,17 @@ const lang_data = {
 } as any;
 ```
 
+That's it! The language is now available for use.
+
 ## Fallback Behavior
 
-Jika key tidak ditemukan, function mengembalikan key itu sendiri:
+If a key is not found, the function returns the key itself:
 
 ```typescript
 t('unknown_key', 'id')  // Returns: "unknown_key"
 ```
 
-Ini memudahkan debugging - Anda bisa langsung lihat key mana yang belum ditranslasi.
+This makes debugging easier - you can directly see which keys haven't been translated.
 
 ## Best Practices
 
@@ -244,15 +248,15 @@ Ini memudahkan debugging - Anda bisa langsung lihat key mana yang belum ditransl
 
 ```json
 {
-  "btn_save": "Simpan",
-  "btn_cancel": "Batal",
-  "btn_delete": "Hapus",
+  "btn_save": "Save",
+  "btn_cancel": "Cancel",
+  "btn_delete": "Delete",
   
-  "label_name": "Nama",
+  "label_name": "Name",
   "label_email": "Email",
   
-  "msg_success": "Berhasil",
-  "msg_error": "Terjadi kesalahan"
+  "msg_success": "Success",
+  "msg_error": "An error occurred"
 }
 ```
 
@@ -261,14 +265,14 @@ Ini memudahkan debugging - Anda bisa langsung lihat key mana yang belum ditransl
 ```json
 {
   "auth": {
-    "login": "Masuk",
-    "logout": "Keluar",
-    "register": "Daftar"
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register"
   },
   "product": {
-    "title": "Produk",
-    "add": "Tambah Produk",
-    "edit": "Edit Produk"
+    "title": "Product",
+    "add": "Add Product",
+    "edit": "Edit Product"
   }
 }
 ```
@@ -277,10 +281,10 @@ Ini memudahkan debugging - Anda bisa langsung lihat key mana yang belum ditransl
 
 ```json
 // Good
-{ "welcome_user": "Selamat datang, {name}!" }
+{ "welcome_user": "Welcome, {name}!" }
 
 // Avoid
-{ "welcome_john": "Selamat datang, John!" }
+{ "welcome_john": "Welcome, John!" }
 ```
 
 ### 4. Store User Language Preference
@@ -295,13 +299,13 @@ await DB.from('users').where('id', userId).update({ language: 'id' });
 
 ## Why Not i18next?
 
-Laju menggunakan Translation service sendiri karena:
+Laju uses its own Translation service because:
 
-| Aspek | Translation.ts | i18next |
+| Aspect | Translation.ts | i18next |
 |-------|---------------|---------|
-| **Stateless** | ✅ Aman multi-user | ⚠️ Global state |
+| **Stateless** | ✅ Safe for multi-user | ⚠️ Global state |
 | **Bundle size** | 0 KB | ~40 KB |
-| **Setup** | Zero config | Perlu init |
-| **Server-side** | ✅ Perfect fit | ⚠️ Perlu `getFixedT()` |
+| **Setup** | Zero config | Requires init |
+| **Server-side** | ✅ Perfect fit | ⚠️ Needs `getFixedT()` |
 
-i18next menggunakan global state yang bisa menyebabkan race condition di server dengan concurrent requests. Translation.ts stateless - setiap call independen.
+i18next uses global state which can cause race conditions on servers with concurrent requests. Translation.ts is stateless - every call is independent.

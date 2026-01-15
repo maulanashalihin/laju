@@ -8,7 +8,7 @@ import { readFileSync, readdirSync, statSync, watch, existsSync } from "fs";
 import { Eta } from 'eta'
 import path from "path";
 import "dotenv/config"; 
-import { t } from "./Translation"
+import { t } from "app/services/Translation"
 
 // Set views directory based on environment
 let directory = process.env.NODE_ENV !== 'production' ? "resources/views" : "dist/views";
