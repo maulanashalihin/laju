@@ -748,6 +748,98 @@ async function uploadFile(file) {
 }
 ```
 
+### Svelte Component (S3 Presigned URLs)
+
+```svelte
+<script>
+  let uploading = $state(false);
+  let imageUrl = $state('');
+
+  async function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    uploading = true;
+
+    try {
+      // 1. Get presigned URL from server
+      const res = await fetch('/api/s3/signed-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: file.name,
+          contentType: file.type
+        })
+      });
+
+      const { data } = await res.json();
+
+      // 2. Upload directly to S3
+      await fetch(data.signedUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file
+      });
+
+      // 3. Save public URL
+      imageUrl = data.publicUrl;
+
+      // 4. Optional: Save to database
+      await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: 'My Post',
+          image: data.publicUrl
+        })
+      });
+
+    } catch (error) {
+      console.error('Upload failed:', error);
+    } finally {
+      uploading = false;
+    }
+  }
+</script>
+
+<input type="file" onchange={handleFileSelect} accept="image/*" disabled={uploading} />
+
+{#if uploading}
+  <p>Uploading...</p>
+{/if}
+
+{#if imageUrl}
+  <img src={imageUrl} alt="Uploaded" class="w-32 h-32 object-cover" />
+{/if}
+```
+
+### Vanilla JavaScript (S3 Presigned URLs)
+
+```javascript
+async function uploadFile(file) {
+  // 1. Get presigned URL
+  const res = await fetch('/api/s3/signed-url', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      filename: file.name,
+      contentType: file.type
+    })
+  });
+
+  const { data } = await res.json();
+
+  // 2. Upload to S3
+  await fetch(data.signedUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': file.type },
+    body: file
+  });
+
+  return data.publicUrl;
+}
+```
+
 ### Important Built-in Routes
 
 #### Authentication Routes
