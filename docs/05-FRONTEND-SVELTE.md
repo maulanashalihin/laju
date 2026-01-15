@@ -324,65 +324,6 @@ Svelte 5 introduces runes - a new reactive primitive system:
 </div>
 ```
 
-### Form Submission
-
-```svelte
-<script>
-  import { router } from '@inertiajs/svelte';
-  
-  let form = $state({
-    title: '',
-    content: ''
-  });
-  
-  let loading = $state(false);
-  let errors = $state({});
-  
-  async function handleSubmit() {
-    loading = true;
-    
-    router.post('/posts', form, {
-      onError: (errs) => {
-        errors = errs;
-      },
-      onFinish: () => {
-        loading = false;
-      }
-    });
-  }
-</script>
-
-<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
-  <div class="mb-4">
-    <label class="block text-sm font-medium mb-1">Title</label>
-    <input 
-      bind:value={form.title} 
-      class="w-full border rounded px-3 py-2 focus:outline-none"
-      class:border-red-500={errors.title}
-    />
-    {#if errors.title}
-      <p class="text-red-500 text-sm mt-1">{errors.title}</p>
-    {/if}
-  </div>
-  
-  <div class="mb-4">
-    <label class="block text-sm font-medium mb-1">Content</label>
-    <textarea 
-      bind:value={form.content}
-      class="w-full border rounded px-3 py-2 h-32 focus:outline-none"
-    ></textarea>
-  </div>
-  
-  <button 
-    type="submit" 
-    disabled={loading}
-    class="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-  >
-    {loading ? 'Saving...' : 'Save'}
-  </button>
-</form>
-```
-
 ### Navigation
 
 There are three ways to navigate in Inertia.js with Svelte:
@@ -811,109 +752,9 @@ let { flash } = $props();
 
 ---
 
-### Form with Error Handling (Recommended for Auth Forms)
-
-For authentication and registration forms, use this pattern with both flash messages and validation errors:
-
-```svelte
-<script>
-import { router } from '@inertiajs/svelte';
-
-let form = $state({
-  email: '',
-  password: ''
-});
-
-let isLoading = $state(false);
-let serverError = $state('');
-let { flash } = $props();
-
-function submitForm() {
-  serverError = '';
-  isLoading = true;
-  
-  router.post('/login', form, {
-    onFinish: () => isLoading = false,
-    onError: (errors) => {
-      isLoading = false;
-      if (errors.email) {
-        serverError = errors.email;
-      } else if (errors.password) {
-        serverError = errors.password;
-      } else {
-        serverError = 'Terjadi kesalahan. Silakan periksa input Anda.';
-      }
-    }
-  });
-}
-</script>
-
-<!-- Display flash errors from backend -->
-{#if flash?.error}
-  <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
-    <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <span class="text-red-400 text-sm">{flash.error}</span>
-  </div>
-{/if}
-
-<!-- Display validation errors from onError callback -->
-{#if serverError}
-  <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
-    <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-    </svg>
-    <span class="text-red-400 text-sm">{serverError}</span>
-  </div>
-{/if}
-
-<form onsubmit={(e) => { e.preventDefault(); submitForm(); }} class="space-y-4">
-  <div>
-    <label class="block text-sm font-medium mb-1">Email</label>
-    <input 
-      bind:value={form.email}
-      type="email"
-      class="w-full border rounded px-3 py-2 focus:outline-none"
-    />
-  </div>
-  
-  <div>
-    <label class="block text-sm font-medium mb-1">Password</label>
-    <input 
-      bind:value={form.password}
-      type="password"
-      class="w-full border rounded px-3 py-2 focus:outline-none"
-    />
-  </div>
-  
-  <button 
-    type="submit"
-    disabled={isLoading}
-    class="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-  >
-    {isLoading ? 'Signing in...' : 'Sign in'}
-  </button>
-</form>
-```
-
----
-
 ### Error Handling Best Practices
 
-#### 1. Clear Errors Before Submit
-
-Always clear error states before submitting a new form:
-
-```svelte
-function submitForm() {
-  serverError = '';  // Clear previous errors
-  isLoading = true;
-  router.post('/submit', form, { ... });
-}
-```
-
-#### 2. Show Loading States
+#### 1. Show Loading States
 
 Display loading indicators during async operations:
 
@@ -927,21 +768,7 @@ Display loading indicators during async operations:
 </button>
 ```
 
-#### 3. Handle Multiple Error Types
-
-Display both flash messages (from backend) and validation errors (from onError):
-
-```svelte
-{#if flash?.error}
-  <div class="error-banner">{flash.error}</div>
-{/if}
-
-{#if serverError}
-  <div class="error-banner">{serverError}</div>
-{/if}
-```
-
-#### 4. User-Friendly Error Messages
+#### 2. User-Friendly Error Messages
 
 Backend controllers should send clear, actionable error messages:
 
