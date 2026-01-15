@@ -263,11 +263,50 @@ const option = {
 };
 ```
 
-4. **Origin Rules (Optional):**
+4. **Setup Cloudflare DNS & Rules:**
 
-For specific routing needs, create Cloudflare Origin Rules:
+**Step 1: Add DNS Record**
+- Go to **DNS** → **Records**
+- Click **Add Record**
+- Type: `A`
+- Name: `@` (or subdomain like `www`)
+- IPv4 address: `YOUR_SERVER_IP`
+- Proxy status: **Proxied** (orange cloud)
+- Click **Save**
+
+**Step 2: Create Origin Rule (to route to port 5555)**
 - Go to **Rules** → **Origin Rules**
-- Create rule to route traffic to specific paths
+- Click **Create Rule**
+- Rule name: `Route to Laju App Port 5555`
+- Field: **Hostname** → Operator: **equals** → Value: `yourdomain.com`
+- Then add setting:
+  - Setting: **Port** → Value: `5555`
+- Click **Deploy**
+
+**Alternative: Use Workers**
+If Origin Rules don't work, use Cloudflare Workers:
+
+Create `worker.js`:
+```javascript
+export default {
+  async fetch(request) {
+    const url = new URL(request.url);
+    url.hostname = 'YOUR_SERVER_IP';
+    url.port = '5555';
+
+    const newRequest = new Request(url, {
+      method: request.method,
+      headers: request.headers,
+      body: request.body,
+      redirect: 'manual'
+    });
+
+    return fetch(newRequest);
+  }
+};
+```
+
+Then route your domain to this Worker in **Workers Routes**.
 
 ### Cloudflare vs Nginx/Caddy
 
