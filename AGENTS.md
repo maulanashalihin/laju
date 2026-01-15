@@ -169,6 +169,47 @@ and commit the changes so you can track our progress."
 
 ## Technical Implementation
 
+### Use Existing Built-in Functionality
+The Laju framework comes with pre-built controllers, services, and middlewares. **Always check if functionality exists before creating new ones.**
+
+**Built-in Controllers:**
+- `HomeController` - Home page
+- `LoginController` - User authentication (login)
+- `RegisterController` - User registration
+- `PasswordController` - Password reset (forgot/reset/change)
+- `ProfileController` - User profile management
+- `OAuthController` - OAuth authentication (Google, etc.)
+- `VerificationController` - Email verification
+- `UploadController` - File uploads (local/S3)
+- `StorageController` - Storage management
+- `S3Controller` - AWS S3 operations
+- `AssetController` - Asset serving
+
+**Built-in Services:**
+- `Authenticate` - Password hashing, login/logout, session management
+- `Validator` - Input validation with Zod schemas
+- `DB` - Database operations (Knex)
+- `CacheService` - Caching layer
+- `Mailer` / `Resend` - Email sending
+- `CSRF` - CSRF protection
+- `RateLimiter` - Rate limiting
+- `Logger` - Logging
+- `Translation` - Multi-language support
+- `View` - SSR template rendering
+- `S3` - AWS S3 integration
+- `Redis` - Redis client
+- `LocalStorage` - Local file storage
+- `GoogleAuth` - Google OAuth
+
+**Built-in Middlewares:**
+- `auth` - Authentication (checks user session)
+- `csrf` - CSRF protection
+- `inertia` - Inertia.js headers
+- `rateLimit` - Rate limiting
+- `securityHeaders` - Security headers
+
+**Rule:** If functionality exists, **use or modify** existing code instead of creating redundant controllers/services/middlewares.
+
 ### Follow Laju Conventions
 Always reference the appropriate AGENTS.md files:
 
