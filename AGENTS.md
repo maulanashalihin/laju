@@ -1,5 +1,16 @@
 # Laju Framework - AI Assistant Rules
 
+## Tech Stack & Versions
+
+- **Svelte**: v5.41.3 (with runes `$state`, `$props`)
+- **Tailwind CSS**: v3.4.17
+- **Inertia.js**: v2.2.10
+- **Vite**: v5.4.10
+- **TypeScript**: v5.6.3 (backend only)
+- **HyperExpress**: v6.17.3 (backend server)
+- **Knex**: v3.1.0 (database query builder)
+- **Zod**: v4.3.5 (validation)
+
 ## Primary Goal
 
 Help users build applications using Laju framework by understanding their needs and implementing them correctly.

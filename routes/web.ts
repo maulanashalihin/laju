@@ -4,7 +4,7 @@ import PasswordController from "../app/controllers/PasswordController";
 import ProfileController from "../app/controllers/ProfileController";
 import OAuthController from "../app/controllers/OAuthController";
 import Auth from "../app/middlewares/auth"
-import HomeController from "../app/controllers/HomeController";
+import PublicController from "../app/controllers/PublicController";
 import AssetController from "../app/controllers/AssetController";
 import UploadController from "../app/controllers/UploadController";
 import S3Controller from "../app/controllers/S3Controller";
@@ -28,8 +28,8 @@ const Route = new HyperExpress.Router();
  * ------------------------------------------------
  * GET  / - Home page
  */
-Route.get("/", HomeController.index);
-Route.get("/test", HomeController.test);
+Route.get("/", PublicController.index);
+Route.get("/test", PublicController.test);
 
 /**
  * Upload Routes
