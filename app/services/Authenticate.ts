@@ -4,8 +4,7 @@
  * session management, and login/logout functionality.
  */
 
-import DB from "./DB";
-import Cache from "./CacheService";
+import DB from "./DB"; 
 import { Request, Response, User } from "../../type";
 import { randomUUID, pbkdf2Sync, randomBytes } from "crypto";
 
@@ -84,32 +83,12 @@ class Autenticate {
     * 4. Redirects to the login page
     */
    async logout(request: Request, response: Response) {
-      await DB.from("sessions").where("id", request.cookies.auth_id).delete();
-      await Cache.forget(`session:${request.cookies.auth_id}`);
+      await DB.from("sessions").where("id", request.cookies.auth_id).delete(); 
 
       response.cookie("auth_id", "", 0).redirect("/login");
    }
 
-   /**
-    * Invalidates all session caches for a specific user
-    * Call this when user profile is updated or admin edits user data
-    * @param {string} userId - The user ID whose sessions should be invalidated
-    * 
-    * @description
-    * 1. Queries all session IDs for the given user
-    * 2. Invalidates cache for each session
-    */
-   async invalidateUserSessions(userId: string) {
-      try {
-         const sessions = await DB.from("sessions").where("user_id", userId).select("id");
-
-         for (const session of sessions) {
-            await Cache.forget(`session:${session.id}`);
-         }
-      } catch (error) {
-         console.error(`Error invalidating sessions for user ${userId}:`, error);
-      }
-   }
+  
 }
 
 // Export a singleton instance

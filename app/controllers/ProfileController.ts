@@ -32,8 +32,7 @@ class ProfileController {
          phone: phone || null,
          avatar: avatar || null,
       });
-
-      await Authenticate.invalidateUserSessions(request.user.id);
+ 
 
       return response.flash("success", "Profile updated successfully").redirect("/profile", 303);
    }
@@ -69,9 +68,7 @@ class ProfileController {
       
       await DB.from("users").whereIn("id", userIds).delete();
 
-      for (const userId of userIds) {
-         await Authenticate.invalidateUserSessions(userId);
-      }
+   
 
       return response.redirect("/home");
    }

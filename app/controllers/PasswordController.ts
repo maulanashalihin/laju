@@ -63,8 +63,7 @@ class PasswordController {
       await DB.from("password_reset_tokens")
          .where("token", id)
          .delete();
-
-      await Authenticate.invalidateUserSessions(user.id);
+ 
 
       return Authenticate.process(user, request, response);
    }
@@ -170,8 +169,7 @@ This link will expire in 24 hours.
             .update({
                password: await Authenticate.hash(validated.new_password),
             });
-         
-         await Authenticate.invalidateUserSessions(request.user.id);
+          
          
          return response.json({ message: "Password berhasil diubah" });
       } else {
