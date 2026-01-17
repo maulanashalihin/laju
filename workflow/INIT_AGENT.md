@@ -176,6 +176,15 @@ git commit -m "Initial commit: Project setup"
 npm run dev
 ```
 
+### 15. Complete Initialization
+
+**Proses INIT AGENT selesai!**
+
+Setelah dev server berjalan dengan baik:
+1. Tutup session ini
+2. Buka session baru dan mulai dengan: **"Hai @[workflow/TASK_AGENT.md] yuk kita kerja"**
+3. Lanjutkan implementasi fitur sesuai `workflow/PROGRESS.md`
+
 ## Important Notes
 
 - **Selalu ikuti urutan ini** - Jangan skip steps
