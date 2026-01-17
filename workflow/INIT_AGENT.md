@@ -129,6 +129,12 @@ git add .
 git commit -m "Initial commit: Project setup"
 ```
 
+### 13. Start Dev Server
+
+```bash
+npm run dev
+```
+
 ## Important Notes
 
 - **Selalu ikuti urutan ini** - Jangan skip steps
@@ -149,7 +155,7 @@ git commit -m "Initial commit: Project setup"
 - Leverages tested, built-in functionality
 
 **Built-in Controllers:**
-- `HomeController` - Home page
+- `PublicController` - Home page (SSR)
 - `LoginController` - User authentication (login)
 - `RegisterController` - User registration
 - `PasswordController` - Password reset (forgot/reset/change)
