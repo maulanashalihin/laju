@@ -118,7 +118,7 @@ Buat migration files untuk database schema berdasarkan `workflow/TDD.md`.
 ### 11. Run Migrations
 
 ```bash
-knex migrate:latest
+npx knex migrate:latest
 ```
 
 ### 12. Git Init and First Commit
