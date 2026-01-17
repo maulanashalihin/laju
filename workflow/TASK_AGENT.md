@@ -196,7 +196,7 @@ export class PostController  {
 **Index Page** (`resources/js/Pages/posts/index.svelte`):
 ```svelte
 <script>
-  import { router } from '@inertiajs/svelte'
+  import { router,inertia } from '@inertiajs/svelte'
   import DashboardLayout from '@/Components/DashboardLayout.svelte'
   let { flash, posts } = $props()
 </script>

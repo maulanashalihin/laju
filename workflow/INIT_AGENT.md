@@ -280,7 +280,89 @@ Setelah dev server berjalan dengan baik:
 
 
 ## Common Implementation Patterns
- 
+
+### File Upload Pattern
+
+When a table needs a file field (e.g., `posts.thumbnail`, `users.avatar`), the field should store the **URL directly**, not the `asset_id`.
+
+```typescript
+// UploadController returns:
+{
+  success: true,
+  data: {
+    id: "uuid",
+    type: "image",
+    url: "https://example.com/assets/uuid.webp",  // ← Store this URL
+    mime_type: "image/webp",
+    name: "uuid.webp",
+    size: 12345,
+    user_id: 1,
+    storage_key: "assets/uuid.webp",
+    created_at: 1234567890,
+    updated_at: 1234567890
+  }
+}
+```
+
+**Database Schema Example:**
+```typescript
+// Migration
+export async function up(knex: Knex) {
+  await knex.schema.createTable('posts', (table) => {
+    table.increments('id').primary()
+    table.string('title')
+    table.text('content')
+    table.string('thumbnail')  // ← Store URL here, NOT asset_id
+    table.integer('user_id').unsigned().references('id').inTable('users')
+    table.timestamps()
+  })
+}
+```
+
+**Frontend Implementation:**
+```svelte
+<script>
+  let thumbnailUrl = $state('')
+
+  async function handleUpload(event) {
+    const formData = new FormData()
+    formData.append('file', event.target.files[0])
+
+    const response = await fetch('/upload/image', {
+      method: 'POST',
+      body: formData
+    })
+
+    const result = await response.json()
+    if (result.success) {
+      thumbnailUrl = result.data.url  // ← Store URL directly
+    }
+  }
+</script>
+
+<input type="file" on:change={handleUpload} />
+<img src={thumbnailUrl} alt="Thumbnail" />
+```
+
+**Backend Store/Update:**
+```typescript
+async store() {
+  const body = await request.json()
+  const { title, content, thumbnail } = body  // ← thumbnail is URL
+
+  await DB.table('posts').insert({
+    user_id: request.user.id,
+    title,
+    content,
+    thumbnail,  // ← Store URL directly in database
+    created_at: Date.now(),
+    updated_at: Date.now()
+  })
+
+  return response.flash('success', 'Post berhasil dibuat').redirect('/posts', 302)
+}
+```
+
 **Example: Creating Post System**
 
 1. **Check PROGRESS.md**: Find "Post system" in Phase 3
