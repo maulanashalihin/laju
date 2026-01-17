@@ -75,7 +75,7 @@ Always reference `workflow/ui-kit.html`
 ## Common Patterns
 
 ### Pattern 1: New Feature (Page + Controller + Route)
-
+ 
 **Example: Creating Post System**
 
 1. **Check PROGRESS.md**: Find "Post system" in Phase 3
@@ -86,12 +86,12 @@ Always reference `workflow/ui-kit.html`
 
 3. **Create Controller** (following `skills/create-controller.md`):
 ```typescript
-import { Controller, request, response } from 'hyper-express'
+import { Response, Request } from "../../type";
 import { DB } from '../services/DB'
 import { Validator } from '../services/Validator'
 import { storePostSchema } from '../validators/PostValidator'
 
-export class PostController extends Controller {
+export class PostController  {
   async index() {
     const posts = await DB.from('posts')
       .join('users', 'posts.user_id', 'users.id')
@@ -289,6 +289,7 @@ Route.get('/posts/:id/edit', [Auth], PostController.edit)
 Route.put('/posts/:id', [Auth], PostController.update)
 Route.delete('/posts/:id', [Auth], PostController.destroy)
 ```
+
 
 6. **Update PROGRESS.md**: Check off completed items
 

@@ -212,12 +212,12 @@ git commit -m "Initial commit: Project setup"
 
 3. **Create Controller** (following `skills/create-controller.md`):
 ```typescript
-import { Controller, request, response } from 'hyper-express'
+import { Response, Request } from "../../type";
 import { DB } from '../services/DB'
 import { Validator } from '../services/Validator'
 import { storePostSchema } from '../validators/PostValidator'
 
-export class PostController extends Controller {
+export class PostController  {
   async index() {
     const posts = await DB.from('posts')
       .join('users', 'posts.user_id', 'users.id')
