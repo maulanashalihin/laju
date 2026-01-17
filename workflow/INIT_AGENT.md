@@ -133,7 +133,19 @@ Konfigurasi theme:
 - Update `tailwind.config.js` dengan branding colors, typography, dan design tokens dari `workflow/PRD.md` dan `workflow/ui-kit.html`
 - Import Tailwind directives di `resources/js/index.css`
 
-### 9. Create DashboardLayout Component
+
+### 9. Create Migrations
+
+Buat migration files untuk database schema berdasarkan `workflow/TDD.md`.
+
+### 10. Run Migrations
+
+```bash
+npx knex migrate:latest
+```
+
+
+### 11. Create DashboardLayout Component
 
 Buat `resources/js/Components/DashboardLayout.svelte`:
 - Ikuti design system dari `workflow/ui-kit.html`
@@ -141,7 +153,7 @@ Buat `resources/js/Components/DashboardLayout.svelte`:
 - Include header, sidebar, dan main content area
 - Apply branding colors, typography, dan design tokens dari PRD.md
 
-### 10. Customize Built-in Auth Pages
+### 12. Customize Built-in Auth Pages
 
 Update built-in auth pages untuk match design system dari `workflow/ui-kit.html`:
 
@@ -151,16 +163,6 @@ Update built-in auth pages untuk match design system dari `workflow/ui-kit.html`
 - `resources/js/Pages/auth/reset-password.svelte` - Ikuti layout patterns dari ui-kit.html
 
 **Gunakan DashboardLayout atau AuthLayout** yang sudah dibuat di step 9 untuk konsistensi.
-
-### 11. Create Migrations
-
-Buat migration files untuk database schema berdasarkan `workflow/TDD.md`.
-
-### 12. Run Migrations
-
-```bash
-npx knex migrate:latest
-```
 
 ### 13. Git Init and First Commit
 
