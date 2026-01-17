@@ -76,6 +76,9 @@ class Command {
       console.log("📝 Updating CSS imports...");
       this.updateCssImportsV3();
 
+      console.log("📝 Reverting vite.config.mjs...");
+      this.revertViteConfigV3();
+
       console.log("\n🚀 Installing dependencies...");
       try {
          execSync("npm install", { stdio: "inherit" });
@@ -103,14 +106,17 @@ class Command {
       console.log("📝 Updating package.json...");
       this.updatePackageJsonV4(packageJson);
 
-      console.log("📝 Updating postcss.config.mjs...");
-      this.updatePostcssConfigV4();
+      console.log("📝 Removing PostCSS config (not needed in v4)...");
+      this.removePostcssConfig();
 
       console.log("📝 Creating CSS configuration...");
       this.createCssConfigV4();
 
       console.log("📝 Backing up tailwind.config.js...");
       this.backupTailwindConfig();
+
+      console.log("📝 Updating vite.config.mjs...");
+      this.updateViteConfigV4();
 
       console.log("\n🚀 Installing dependencies...");
       try {
@@ -162,8 +168,15 @@ class Command {
          packageJson.devDependencies.tailwindcss = "^4.0.0";
       }
 
+      // Add @tailwindcss/vite plugin
+      if (!packageJson.devDependencies) packageJson.devDependencies = {};
+      if (!packageJson.devDependencies['@tailwindcss/vite']) {
+         packageJson.devDependencies['@tailwindcss/vite'] = "^4.0.0";
+      }
+
       this.writePackageJson(packageJson);
       console.log("   ✓ Updated tailwindcss to ^4.0.0");
+      console.log("   ✓ Added @tailwindcss/vite plugin");
    }
 
    private createTailwindConfigV3() {
@@ -243,16 +256,14 @@ export default {
       console.log("   ✓ Updated postcss.config.mjs");
    }
 
-   private updatePostcssConfigV4() {
+   private removePostcssConfig() {
       const configPath = path.resolve("postcss.config.mjs");
-      const configContent = `export default {
-  plugins: {
-    '@tailwindcss/postcss': {},
-  },
-}
-`;
-      fs.writeFileSync(configPath, configContent);
-      console.log("   ✓ Updated postcss.config.mjs for v4");
+      if (fs.existsSync(configPath)) {
+         fs.unlinkSync(configPath);
+         console.log("   ✓ Removed postcss.config.mjs");
+      } else {
+         console.log("   ✓ No PostCSS config to remove");
+      }
    }
 
    private createCssConfigV4() {
@@ -317,6 +328,50 @@ export default {
          fs.copyFileSync(configPath, backupPath);
          console.log("   ✓ Backed up tailwind.config.js");
       }
+   }
+
+   private updateViteConfigV4() {
+      const configPath = path.resolve("vite.config.mjs");
+      let content = fs.readFileSync(configPath, "utf-8");
+
+      // Add import if not exists
+      if (!content.includes("import tailwindcss from '@tailwindcss/vite'")) {
+         content = content.replace(
+            "import { svelte } from '@sveltejs/vite-plugin-svelte'",
+            "import { svelte } from '@sveltejs/vite-plugin-svelte'\nimport tailwindcss from '@tailwindcss/vite'"
+         );
+      }
+
+      // Add plugin to plugins array if not exists
+      if (!content.includes("tailwindcss(),")) {
+         content = content.replace(
+            "plugins: [\n    svelte(),",
+            "plugins: [\n    tailwindcss(),\n    svelte(),"
+         );
+      }
+
+      fs.writeFileSync(configPath, content);
+      console.log("   ✓ Updated vite.config.mjs");
+   }
+
+   private revertViteConfigV3() {
+      const configPath = path.resolve("vite.config.mjs");
+      let content = fs.readFileSync(configPath, "utf-8");
+
+      // Remove import
+      content = content.replace(
+         /import tailwindcss from '@tailwindcss\/vite'\n/,
+         ""
+      );
+
+      // Remove plugin from plugins array
+      content = content.replace(
+         "plugins: [\n    tailwindcss(),\n    svelte(),",
+         "plugins: [\n    svelte(),"
+      );
+
+      fs.writeFileSync(configPath, content);
+      console.log("   ✓ Reverted vite.config.mjs");
    }
 }
 

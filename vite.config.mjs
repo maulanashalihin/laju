@@ -12,7 +12,7 @@ const input = {
 
 // Default port from environment or fallback to 3000
 const PORT = parseInt(process.env.VITE_PORT) || 3000;
- 
+
 // https://vite.dev/config/
 export default defineConfig({
   resolve: {
