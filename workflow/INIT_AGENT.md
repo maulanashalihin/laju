@@ -319,49 +319,6 @@ export async function up(knex: Knex) {
 }
 ```
 
-**Frontend Implementation:**
-```svelte
-<script>
-  let thumbnailUrl = $state('')
-
-  async function handleUpload(event) {
-    const formData = new FormData()
-    formData.append('file', event.target.files[0])
-
-    const response = await fetch('/upload/image', {
-      method: 'POST',
-      body: formData
-    })
-
-    const result = await response.json()
-    if (result.success) {
-      thumbnailUrl = result.data.url  // ← Store URL directly
-    }
-  }
-</script>
-
-<input type="file" on:change={handleUpload} />
-<img src={thumbnailUrl} alt="Thumbnail" />
-```
-
-**Backend Store/Update:**
-```typescript
-async store() {
-  const body = await request.json()
-  const { title, content, thumbnail } = body  // ← thumbnail is URL
-
-  await DB.table('posts').insert({
-    user_id: request.user.id,
-    title,
-    content,
-    thumbnail,  // ← Store URL directly in database
-    created_at: Date.now(),
-    updated_at: Date.now()
-  })
-
-  return response.flash('success', 'Post berhasil dibuat').redirect('/posts', 302)
-}
-```
 
 **Example: Creating Post System**
 
