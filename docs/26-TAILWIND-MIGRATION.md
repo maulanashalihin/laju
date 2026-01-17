@@ -8,12 +8,14 @@ Laju framework provides a migration script to facilitate transitions between Tai
 # Check current version
 npm run tailwind:migrate check
 
-# Upgrade to Tailwind CSS v4
+# Upgrade to Tailwind CSS v4 (automatically runs npm install)
 npm run tailwind:migrate to-v4
 
-# Downgrade to Tailwind CSS v3
+# Downgrade to Tailwind CSS v3 (automatically runs npm install)
 npm run tailwind:migrate to-v3
 ```
+
+**Note:** The migration script automatically runs `npm install` after updating configuration files. No manual installation is required.
 
 ## Overview
 
@@ -74,7 +76,9 @@ npm run tailwind:migrate to-v4
    - Add `import tailwindcss from '@tailwindcss/vite'`
    - Add `tailwindcss()` to plugins array
 
-6. Install dependencies with `npm install`
+6. **Automatically run `npm install`** to install/update dependencies
+
+**After migration:** Start the dev server with `npm run dev` to test the changes.
 
 **Differences between v3 and v4:**
 
@@ -107,7 +111,9 @@ npm run tailwind:migrate to-v3
    - Remove `@tailwindcss/vite` import
    - Remove `tailwindcss()` plugin from plugins array
 
-6. Install dependencies with `npm install`
+6. **Automatically run `npm install`** to install/update dependencies
+
+**After migration:** Start the dev server with `npm run dev` to test the changes.
 
 ## Tailwind CSS v4 Configuration
 
