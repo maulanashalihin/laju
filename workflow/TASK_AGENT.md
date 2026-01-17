@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This agent helps process development tasks for JemputJodoh.id project by:
+This agent helps process development tasks for this project by:
 - Creating `resources/js/Pages` (Svelte 5 + inertia.js 2)
 - Creating `app/controllers` (TypeScript controllers)
 - Creating/updating `routes/web.ts` (route definitions)
