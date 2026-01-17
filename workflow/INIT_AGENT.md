@@ -127,22 +127,23 @@ Minta user review dan approve:
 
 **Tunggu konfirmasi user sebelum melanjutkan ke step berikutnya**
 
-### 8. Setup Design System
+
+### 8. Create Migrations
+
+Buat migration files untuk database schema berdasarkan `workflow/TDD.md`.
+
+### 9. Run Migrations
+
+```bash
+npx knex migrate:latest
+```
+
+### 10. Setup Design System
 
 Konfigurasi theme:
 - Update `tailwind.config.js` dengan branding colors, typography, dan design tokens dari `workflow/PRD.md` dan `workflow/ui-kit.html`
 - Import Tailwind directives di `resources/js/index.css`
 
-
-### 9. Create Migrations
-
-Buat migration files untuk database schema berdasarkan `workflow/TDD.md`.
-
-### 10. Run Migrations
-
-```bash
-npx knex migrate:latest
-```
 
 
 ### 11. Create DashboardLayout Component
