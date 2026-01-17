@@ -37,7 +37,7 @@ You just need to describe your app and review the documentation!
 
 **What you say:**
 ```
-Hai @[workflow/INIT_AGENT.md], let start new projefct
+Hai @[workflow/INIT_AGENT.md], let start new project.  I want to build ...
 ```
 
 **AI responds:** I'll help you initialize a new Laju project. Let me start by asking about your project.
