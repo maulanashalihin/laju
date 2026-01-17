@@ -78,23 +78,45 @@ Template tracking development:
 - [x] workflow/PRD.md created
 - [x] workflow/TDD.md created
 - [x] workflow/ui-kit.html created
+- [x] workflow/PROGRESS.md created
 
 ## In Progress
 - [ ] Feature 1
 
 ## Pending
 - [ ] Feature 2
+
+---
+
+## Features
+
+### Posts
+- [ ] Pages: index.svelte, form.svelte
+- [ ] Controller: PostController (index, create, store, edit, update, destroy)
+- [ ] Routes: GET /posts, GET /posts/create, POST /posts, GET /posts/:id/edit, PUT /posts/:id, DELETE /posts/:id
+
+### Users
+- [ ] Pages: index.svelte, form.svelte
+- [ ] Controller: UserController (index, create, store, edit, update, destroy)
+- [ ] Routes: GET /users, GET /users/create, POST /users, GET /users/:id/edit, PUT /users/:id, DELETE /users/:id
+
+### [Feature Name]
+- [ ] Pages: index.svelte, form.svelte
+- [ ] Controller: [Feature]Controller (index, create, store, edit, update, destroy)
+- [ ] Routes: GET /[feature], GET /[feature]/create, POST /[feature], GET /[feature]/:id/edit, PUT /[feature]/:id, DELETE /[feature]/:id
+
+---
+
+## Migrations
+### Completed
+- [ ] migration_name
+
+### Pending
+- [ ] migration_name
 ```
 
-### 7. Create DashboardLayout Component
 
-Buat `resources/js/Components/DashboardLayout.svelte`:
-- Ikuti design system dari `workflow/ui-kit.html`
-- Gunakan sebagai main layout untuk aplikasi
-- Include header, sidebar, dan main content area
-- Apply branding colors, typography, dan design tokens dari PRD.md
-
-### 8. Review Documentation
+### 7. Review Documentation
 
 Minta user review dan approve:
 - `README.md` - Project overview, features, tech stack
@@ -105,11 +127,19 @@ Minta user review dan approve:
 
 **Tunggu konfirmasi user sebelum melanjutkan ke step berikutnya**
 
-### 9. Setup Design System
+### 8. Setup Design System
 
 Konfigurasi theme:
 - Update `tailwind.config.js` dengan branding colors, typography, dan design tokens dari `workflow/PRD.md` dan `workflow/ui-kit.html`
 - Import Tailwind directives di `resources/js/index.css`
+
+### 9. Create DashboardLayout Component
+
+Buat `resources/js/Components/DashboardLayout.svelte`:
+- Ikuti design system dari `workflow/ui-kit.html`
+- Gunakan sebagai main layout untuk aplikasi
+- Include header, sidebar, dan main content area
+- Apply branding colors, typography, dan design tokens dari PRD.md
 
 ### 10. Create Migrations
 
@@ -141,6 +171,22 @@ npm run dev
 - **Tunggu approval user** sebelum melanjutkan setelah step 8 (Review Documentation)
 - **Gunakan built-in functionality** - Cek dulu apakah controller/page/service sudah ada sebelum membuat baru
 - **Test sebelum commit** - Pastikan semua berjalan dengan baik sebelum commit
+
+## API Action Guidelines
+
+**Gunakan Inertia Router** untuk:
+- Pindah halaman (navigation)
+- Form submission yang perlu redirect ke halaman lain
+- GET request untuk load data di halaman baru
+- Actions yang mengubah state dan perlu update halaman
+
+**Gunakan Fetch API** untuk:
+- Actions yang tidak memerlukan pindah halaman
+- Form submission dengan stay-on-page behavior
+- AJAX requests untuk update data tanpa reload
+- Real-time updates, live search, autocomplete
+- Actions yang hanya perlu response JSON (success/error message)
+- Modal actions, dropdown actions, inline actions
 
 
 
@@ -426,5 +472,5 @@ Route.delete('/posts/:id', [Auth], PostController.destroy)
 
 Setelah project initialization selesai, lanjutkan dengan:
 1. Implementasi fitur pertama sesuai `workflow/PROGRESS.md`
-2. Gunakan `TASK_AGENT.md` untuk panduan implementasi fitur
+2. Gunakan `workflow/TASK_AGENT.md` untuk panduan implementasi fitur
 3. Update `workflow/PROGRESS.md` setelah setiap fitur selesai
