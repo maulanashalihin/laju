@@ -18,7 +18,7 @@ Help users build applications using Laju framework by understanding their needs 
 ## Workflow
 
 1. **Understand Requirements** - Ask clarifying questions, confirm understanding, break down complex ideas
-2. **Check Existing Functionality** - **ALWAYS check if controllers/pages/services already exist before creating new ones**
+2. **Check Existing Functionality** - **ALWAYS check if controllers|pages|services already exist before creating new ones**
 3. **Plan Implementation** - Outline what to build, prioritize modifying existing code, get approval
 4. **Build Incrementally** - Build one feature at a time, test before moving on
 5. **Review and Refine** - Explain what was done, test together, commit when working
@@ -28,7 +28,7 @@ When a feature is complete (routes, controllers, pages all implemented):
 - Ask user to test the feature
 - Provide clickable link for testing (e.g., `http://localhost:5555/posts`)
 - Wait for user confirmation before proceeding
-- Update PROGRESS.md and commit after user confirms it works
+- Update workflow/PROGRESS.md and commit after user confirms it works
 
 ## Project Initialization
 
@@ -44,20 +44,40 @@ When user starts a new project, **ALWAYS** follow this sequence:
      - Tech stack
      - Features list
 
-3. **Create PRD.md** for product requirements:
+3. **Create workflow/PRD.md** for product requirements:
    - Objectives and goals
    - Features list
    - Success criteria
    - **Design specifications** (branding colors, typography, design system, visual identity)
 
-4. **Create PROGRESS.md** for tracking development:
+4. **Create workflow/TDD.md** for technical design document:
+   - Technical architecture and system design
+   - Database schema and relationships
+   - API endpoints and routes
+   - Data models and flow
+   - Security considerations
+   - Technical specifications from PRD.md
+
+5. **Create workflow/ui-kit.html** for UI design system:
+   - Color palette and theme tokens
+   - Typography styles (headings, body text)
+   - Button styles and variants
+   - Form input styles
+   - Card and container styles
+   - Status badges and feedback components
+   - Layout patterns and spacing
+   - Icon usage guidelines 
+
+6. **Create workflow/PROGRESS.md** for tracking development:
    ```markdown
    # Development Progress
 
    ## Completed
    - [x] Initial setup
    - [x] README.md created
-   - [x] PRD.md created
+   - [x] workflow/PRD.md created
+   - [x] workflow/TDD.md created
+   - [x] workflow/ui-kit.html created 
 
    ## In Progress
    - [ ] Feature 1
@@ -66,29 +86,37 @@ When user starts a new project, **ALWAYS** follow this sequence:
    - [ ] Feature 2
    ```
 
-5. **Review documentation** - Ask user to review and approve:
+7. **Create DashboardLayout component** in `resources/js/Components/DashboardLayout.svelte`:
+   - Follow the design system from `workflow/ui-kit.html`
+   - Use as the main layout for the application
+   - Include header, sidebar, and main content area
+   - Apply branding colors, typography, and design tokens from PRD.md
+
+8. **Review documentation** - Ask user to review and approve:
    - README.md - Project overview, features, tech stack
-   - PRD.md - Requirements, design specifications
-   - PROGRESS.md - Development tracking template
+   - workflow/PRD.md - Requirements, design specifications
+   - workflow/TDD.md - Technical design document (architecture, database, API)
+   - workflow/ui-kit.html - UI design system and components
+   - workflow/PROGRESS.md - Development tracking template
    - Wait for user confirmation before proceeding
 
-6. **Setup design system**:
-   - Configure theme in `tailwind.config.js` (branding colors, typography, design tokens from PRD.md)
+9. **Setup design system**:
+   - Configure theme in `tailwind.config.js` (branding colors, typography, design tokens from workflow/PRD.md and workflow/ui-kit.html)
    - Import Tailwind directives in `resources/js/index.css`
 
-7. **Create migrations** for database schema
+10. **Create migrations** for database schema
 
-8. **Run migrations**:
-   ```bash
-   knex migrate:latest
-   ```
+11. **Run migrations**:
+    ```bash
+    knex migrate:latest
+    ```
 
-9. **Git init and first commit**:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit: Project setup"
-   ```
+12. **Git init and first commit**:
+    ```bash
+    git init
+    git add .
+    git commit -m "Initial commit: Project setup"
+    ```
 
 ## Core Principle: Maximize Existing Functionality
 
@@ -155,46 +183,37 @@ When user starts a new project, **ALWAYS** follow this sequence:
 ```
 laju/
 ├── app/
-│   ├── controllers/           # HTTP request handlers
-│   │   ├── AGENTS.md         # Controller guide
+│   ├── controllers/           # HTTP request handlers 
 │   │   ├── HomeController.ts
 │   │   ├── LoginController.ts
 │   │   └── ...
-│   ├── middlewares/          # Request/response middleware
-│   │   ├── AGENTS.md         # Middleware guide
+│   ├── middlewares/          # Request/response middleware 
 │   │   ├── auth.ts
 │   │   ├── csrf.ts
 │   │   └── ...
-│   ├── services/             # Business logic & utilities
-│   │   ├── AGENTS.md         # Service guide
+│   ├── services/             # Business logic & utilities 
 │   │   ├── DB.ts             # Database operations
 │   │   ├── Validator.ts      # Input validation
 │   │   └── ...
-│   └── validators/           # Validation schemas
-│       ├── AGENT.md          # Validator guide
+│   └── validators/           # Validation schemas 
 │       ├── AuthValidator.ts
 │       ├── ProfileValidator.ts
 │       └── ...
-├── routes/                   # Route definitions
-│   ├── AGENTS.md             # Routing guide
+├── routes/                   # Route definitions 
 │   └── web.ts                # Main routes file
-├── migrations/               # Database migrations
-│   ├── AGENTS.md             # Migration guide
+├── migrations/               # Database migrations 
 │   └── *.ts                  # Migration files
 ├── resources/
 │   ├── js/
-│   │   ├── Pages/            # Svelte 5 Inertia pages
-│   │   │   ├── AGENT.md       # Pages guide
+│   │   ├── Pages/            # Svelte 5 Inertia pages 
 │   │   │   ├── home.svelte
 │   │   │   ├── profile.svelte
 │   │   │   └── ...
-│   │   └── Components/       # Reusable Svelte components
-│   │       ├── AGENT.md       # Components guide
+│   │   └── Components/       # Reusable Svelte components 
 │   │       ├── Header.svelte
 │   │       ├── DarkModeToggle.svelte
 │   │       └── ...
-│   └── views/                 # SSR templates (Eta)
-│       ├── AGENTS.md         # Views guide
+│   └── views/                 # SSR templates (Eta) 
 │       ├── index.html
 │       └── ...
 ├── public/                   # Static assets
@@ -218,22 +237,7 @@ laju/
 
 ### Follow Laju Conventions
 Always reference the appropriate AGENTS.md files for detailed patterns:
-
-**Backend:**
-- `app/controllers/AGENTS.md` - Controller patterns (REST API, SSR vs Inertia, validation)
-- `app/validators/AGENT.md` - Validation schemas (Zod, store/update patterns)
-- `app/middlewares/AGENTS.md` - Middleware patterns
-- `app/services/AGENTS.md` - Database operations
-- `migrations/AGENTS.md` - Migration patterns
-
-**Routing:**
-- `routes/AGENTS.md` - Routing patterns (RESTful routes, rate limiting, middleware)
-
-**Frontend:**
-- `resources/js/Pages/AGENT.md` - Svelte 5 pages (Inertia, forms, transitions, frontend rules)
-- `resources/js/Components/AGENT.md` - Reusable components (props, state, events)
-- `resources/views/AGENTS.md` - SSR templates (Eta)
-
+  
 ### Security Best Practices
 - Always validate input
 - Use parameterized queries only
@@ -252,7 +256,7 @@ Don't commit when:
 - User hasn't tested
 - User wants more changes
 
-Update PROGRESS.md and commit after each feature completion.
+Update workflow/PROGRESS.md and commit after each feature completion.
 
 ## Documentation
 
@@ -260,8 +264,8 @@ Encourage documentation when adding new features or making significant changes.
 
 **Files to create/update:**
 - `README.md` - Quick start guide (installation, usage, tech stack, features list)
-- `PRD.md` - Product requirements (objectives, features, success criteria, **design specifications including branding colors/typography**)
-- `PROGRESS.md` - Development progress tracking
+- `workflow/PRD.md` - Product requirements (objectives, features, success criteria, **design specifications including branding colors/typography**)
+- `workflow/PROGRESS.md` - Development progress tracking
  
 
 ## Remember
