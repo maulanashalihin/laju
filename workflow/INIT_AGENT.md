@@ -11,6 +11,7 @@ Panduan lengkap untuk memulai project baru dengan Laju Framework.
 - **TypeScript**: v5.6.3 (backend only)
 - **HyperExpress**: v6.17.3 (backend server)
 - **Knex**: v3.1.0 (database query builder)
+- **better-sqlite3**: v12.4.1 (SQLite database driver)
 - **Zod**: v4.3.5 (validation)
 
 ## Initialization Steps
@@ -135,6 +136,68 @@ git commit -m "Initial commit: Project setup"
 - **Gunakan built-in functionality** - Cek dulu apakah controller/page/service sudah ada sebelum membuat baru
 - **Test sebelum commit** - Pastikan semua berjalan dengan baik sebelum commit
 
+
+
+## Core Principle: Maximize Existing Functionality
+
+**ALWAYS check and use existing controllers, pages, and services before creating new ones.** This is the most important rule in Laju framework development.
+
+**Why?**
+- Avoids redundant code
+- Maintains consistency
+- Reduces maintenance burden
+- Leverages tested, built-in functionality
+
+**Built-in Controllers:**
+- `HomeController` - Home page
+- `LoginController` - User authentication (login)
+- `RegisterController` - User registration
+- `PasswordController` - Password reset (forgot/reset/change)
+- `ProfileController` - User profile management
+- `OAuthController` - OAuth authentication (Google, etc.)
+- `VerificationController` - Email verification
+- `UploadController` - File uploads (local/S3)
+- `StorageController` - Storage management
+- `S3Controller` - AWS S3 operations
+- `AssetController` - Asset serving
+
+**Built-in Services:**
+- `Authenticate` - Password hashing, login/logout, session management
+- `Validator` - Input validation with Zod schemas
+- `DB` - Database operations (Knex) - **Use directly for any table operations**
+- `CacheService` - Caching layer
+- `Mailer` / `Resend` - Email sending
+- `RateLimiter` - Rate limiting
+- `Logger` - Logging
+- `Translation` - Multi-language support
+- `View` - SSR template rendering
+- `S3` - AWS S3 integration
+- `Redis` - Redis client
+- `LocalStorage` - Local file storage
+- `GoogleAuth` - Google OAuth
+
+**Built-in Middlewares:**
+- `auth` - Authentication (checks user session)
+- `inertia` - Inertia.js headers
+- `rateLimit` - Rate limiting
+- `securityHeaders` - Security headers
+
+**Built-in Auth Pages:**
+- `resources/js/Pages/auth/login.svelte` - Login page
+- `resources/js/Pages/auth/register.svelte` - Registration page
+- `resources/js/Pages/auth/forgot-password.svelte` - Forgot password
+- `resources/js/Pages/auth/reset-password.svelte` - Reset password
+
+**Built-in Migrations:**
+- `20230513055909_users.ts` - Users table (id, name, email, phone, avatar, is_verified, membership_date, is_admin, password, remember_me_token, timestamps)
+- `20230514062913_sessions.ts` - Sessions table (id, user_id, user_agent, expires_at)
+- `20240101000001_create_password_reset_tokens.ts` - Password reset tokens (id, email, token, created_at, expires_at)
+- `20240101000002_create_email_verification_tokens.ts` - Email verification tokens (id, user_id, token, created_at, expires_at)
+- `20250110233301_assets.ts` - Assets table (id, name, type, url, mime_type, size, storage_key, user_id, timestamps)
+- `20251023082000_create_backup_files.ts` - Backup files table (id, key, file_name, file_size, compression, storage, checksum, uploaded_at, deleted_at, encryption, enc_iv, enc_tag)
+- `20251210000000_create_cache_table.ts` - Cache table (key, value, expiration)
+
+**Rule:** If functionality exists, **use or modify** existing code instead of creating redundant controllers/services/middlewares/pages.
 
 
 ## Common Implementation Patterns
