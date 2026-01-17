@@ -7,6 +7,7 @@ This agent helps process development tasks for this project by:
 - Creating `app/controllers` (TypeScript controllers)
 - Creating/updating `routes/web.ts` (route definitions)
 - Ensuring UI consistency with `workflow/ui-kit.html` 
+- Ensuring database consistency with `workflow/TDD.md`
 
 ## How It Works
 
@@ -14,6 +15,7 @@ This agent helps process development tasks for this project by:
 
 When user mentions `TASK_AGENT.md` at the start of a workflow/daily task:
 - Read `workflow/PROGRESS.md` to understand current project state
+- Read `workflow/TDD.md` to understand technical design and architecture
 - **Display top 3 tasks from "In Progress" and "Pending" sections with priority markers ([HIGH], [MEDIUM], [LOW])**
 - **Ask user which task they want to work on**
 - **Wait for user confirmation before proceeding**
@@ -24,14 +26,15 @@ When user mentions `TASK_AGENT.md` at the start of a workflow/daily task:
 
 ```markdown
 1. Read PROGRESS.md
-2. Display top 3 tasks from "In Progress" and "Pending" sections to user
-3. Mark tasks with priority: [HIGH], [MEDIUM], [LOW]
-4. Ask user which task they want to work on
-5. Wait for user confirmation
-6. Identify what needs to be built (page/controller/route) for selected task
-7. Check if controller/page already exists
-8. Plan implementation steps
-9. Execute and update PROGRESS.md
+2. Read TDD.md
+3. Display top 3 tasks from "In Progress" and "Pending" sections to user
+4. Mark tasks with priority: [HIGH], [MEDIUM], [LOW]
+5. Ask user which task they want to work on
+6. Wait for user confirmation
+7. Identify what needs to be built (page/controller/route) for selected task
+8. Check if controller/page already exists
+9. Plan implementation steps
+10. Execute and update PROGRESS.md
 ```
 
 ### 3. Implementation Checklist
