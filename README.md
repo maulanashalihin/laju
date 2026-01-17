@@ -36,7 +36,7 @@ Visit `http://localhost:5555`
 ### Modern Stack
 - **Svelte 5** - Reactive UI with runes
 - **Inertia.js** - SPA without client-side routing
-- **TailwindCSS 3** - Utility-first CSS with Vite
+- **TailwindCSS 3 & 4** - Utility-first CSS with Vite (easy migration)
 - **TypeScript** - Full type safety
 
 ### Built-in Services
@@ -112,7 +112,7 @@ resources/
 ├── js/
 │   ├── Pages/       # Svelte/Inertia pages
 │   ├── Components/  # Reusable components
-│   └── index.css    # TailwindCSS 3
+│   └── index.css    # TailwindCSS 3 & 4
 └── views/           # Eta templates
 
 routes/              # Route definitions
@@ -143,7 +143,7 @@ npx knex migrate:latest                  # Run migrations
 | Server | HyperExpress |
 | Database | BetterSQLite3 + Knex |
 | Frontend | Svelte 5 + Inertia.js |
-| Styling | TailwindCSS 3 |
+| Styling | TailwindCSS 3 & 4 |
 | Build | Vite |
 | Templates | Eta |
 
