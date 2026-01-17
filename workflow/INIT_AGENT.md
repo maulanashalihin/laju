@@ -13,6 +13,7 @@ Panduan lengkap untuk memulai project baru dengan Laju Framework.
 - **Knex**: v3.1.0 (database query builder)
 - **better-sqlite3**: v12.4.1 (SQLite database driver)
 - **Zod**: v4.3.5 (validation)
+- **Lucide Icons**: Default icon library for laju.dev
 
 ## Initialization Steps
 

@@ -125,3 +125,27 @@ Add og:title, og:description, og:image for social sharing.
 ### Color Contrast
 - Minimum 4.5:1 for normal text
 - Minimum 3:1 for large text
+
+## Icons
+
+**Lucide Icons** is the default icon library for laju.dev.
+
+### Using Icons in Eta Templates
+
+For SSR templates (index.html, inertia.html), use inline SVG icons:
+
+```html
+<!-- Example inline SVG icon -->
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+  <circle cx="12" cy="12" r="10"></circle>
+  <line x1="12" y1="8" x2="12" y2="12"></line>
+  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+</svg>
+```
+
+### Icon Resources
+- Visit [lucide.dev/icons](https://lucide.dev/icons) to browse available icons
+- Copy SVG code directly from the website
+- Apply Tailwind classes for sizing and styling
+
+**Note:** For Inertia pages (Svelte components), import icons from `lucide-svelte` instead.

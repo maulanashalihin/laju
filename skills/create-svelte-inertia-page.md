@@ -19,7 +19,40 @@
 
 **Tech Stack:** Tailwind CSS v3, Svelte 5, Inertia.js v2
 **Styling:** Always use `focus:outline-none` on form inputs, avoid emojis
-**Icons:** Use SVG icons
+**Icons:** Lucide Icons is the default icon library for laju.dev
+
+### Using Lucide Icons
+
+```svelte
+<script>
+  import { IconName } from 'lucide-svelte'
+</script>
+
+<IconName class="w-5 h-5" />
+```
+
+**Common Icons:**
+- `AlertCircle` - Error messages
+- `CheckCircle` - Success messages
+- `Plus` - Add/create actions
+- `Edit` - Edit actions
+- `Trash2` - Delete actions
+- `User` - User-related
+- `Search` - Search functionality
+- `Settings` - Settings
+- `Menu` - Navigation menu
+- `X` - Close/cancel
+
+**Styling:** Use Tailwind classes for sizing and colors:
+```svelte
+<IconName class="w-4 h-4" />           <!-- Small -->
+<IconName class="w-5 h-5" />           <!-- Medium -->
+<IconName class="w-6 h-6" />           <!-- Large -->
+<IconName class="text-gray-500" />     <!-- Color -->
+<IconName class="w-5 h-5 text-red-500" /> <!-- Combined -->
+```
+
+**Icon Resources:** Visit [lucide.dev/icons](https://lucide.dev/icons) to browse available icons
 
 ## Basic Pattern
 

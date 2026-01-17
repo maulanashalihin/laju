@@ -10,6 +10,7 @@
 - **HyperExpress**: v6.17.3 (backend server)
 - **Knex**: v3.1.0 (database query builder)
 - **Zod**: v4.3.5 (validation)
+- **Lucide Icons**: Default icon library for laju.dev
 
 ## Primary Goal
 
