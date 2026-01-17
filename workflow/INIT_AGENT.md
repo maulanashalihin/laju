@@ -141,17 +141,28 @@ Buat `resources/js/Components/DashboardLayout.svelte`:
 - Include header, sidebar, dan main content area
 - Apply branding colors, typography, dan design tokens dari PRD.md
 
-### 10. Create Migrations
+### 10. Customize Built-in Auth Pages
+
+Update built-in auth pages untuk match design system dari `workflow/ui-kit.html`:
+
+- `resources/js/Pages/auth/login.svelte` - Sesuaikan dengan branding colors, typography, dan design tokens
+- `resources/js/Pages/auth/register.svelte` - Gunakan components dari ui-kit.html
+- `resources/js/Pages/auth/forgot-password.svelte` - Apply visual identity dari PRD.md
+- `resources/js/Pages/auth/reset-password.svelte` - Ikuti layout patterns dari ui-kit.html
+
+**Gunakan DashboardLayout atau AuthLayout** yang sudah dibuat di step 9 untuk konsistensi.
+
+### 11. Create Migrations
 
 Buat migration files untuk database schema berdasarkan `workflow/TDD.md`.
 
-### 11. Run Migrations
+### 12. Run Migrations
 
 ```bash
 npx knex migrate:latest
 ```
 
-### 12. Git Init and First Commit
+### 13. Git Init and First Commit
 
 ```bash
 git init
@@ -159,7 +170,7 @@ git add .
 git commit -m "Initial commit: Project setup"
 ```
 
-### 13. Start Dev Server
+### 14. Start Dev Server
 
 ```bash
 npm run dev
@@ -171,6 +182,7 @@ npm run dev
 - **Tunggu approval user** sebelum melanjutkan setelah step 8 (Review Documentation)
 - **Gunakan built-in functionality** - Cek dulu apakah controller/page/service sudah ada sebelum membuat baru
 - **Test sebelum commit** - Pastikan semua berjalan dengan baik sebelum commit
+- **Default PORT** - laju.dev default PORT adalah 5555 (lihat `.env.example`), user bisa mengganti port di `.env` file jika diperlukan
 
 ## API Action Guidelines
 
@@ -235,10 +247,12 @@ npm run dev
 - `securityHeaders` - Security headers
 
 **Built-in Auth Pages:**
-- `resources/js/Pages/auth/login.svelte` - Login page
-- `resources/js/Pages/auth/register.svelte` - Registration page
-- `resources/js/Pages/auth/forgot-password.svelte` - Forgot password
-- `resources/js/Pages/auth/reset-password.svelte` - Reset password
+- `resources/js/Pages/auth/login.svelte` - Login page (customize according to design system)
+- `resources/js/Pages/auth/register.svelte` - Registration page (customize according to design system)
+- `resources/js/Pages/auth/forgot-password.svelte` - Forgot password (customize according to design system)
+- `resources/js/Pages/auth/reset-password.svelte` - Reset password (customize according to design system)
+
+**Note:** These pages should be customized in step 10 to match the design system from `workflow/ui-kit.html` and branding specifications from `workflow/PRD.md`.
 
 **Built-in Migrations:**
 - `20230513055909_users.ts` - Users table (id, name, email, phone, avatar, is_verified, membership_date, is_admin, password, remember_me_token, timestamps)
