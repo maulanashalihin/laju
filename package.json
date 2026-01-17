@@ -7,6 +7,7 @@
     "dev": "rimraf dist build && concurrently \"vite\" \"nodemon --config nodemon.json\"",
     "build": "vite build && tsc && tsc-alias -p tsconfig.json && cpy \"resources/views/**/*\" dist/views --parents",
     "refresh": "npx tsx commands/native/RefreshDatabase.ts",
+    "tailwind:migrate": "npx tsx commands/native/TailwindMigrate.ts",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage"
