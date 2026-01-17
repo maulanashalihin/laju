@@ -61,6 +61,8 @@ I want to build a simple task management app where:
 AI: "Let's set up your project properly.
 - I'll create a README.md with your project details
 - I'll create a PRD.md with your product requirements and design specifications
+- I'll create a TDD.md with your technical design document
+- I'll create a ui-kit.html with your UI design system
 - I'll create a PROGRESS.md to track our development progress"
 ```
 
@@ -69,6 +71,8 @@ AI: "Let's set up your project properly.
 AI: "Please review the documentation I created:
 - README.md - Project overview, features, tech stack
 - PRD.md - Requirements, design specifications
+- TDD.md - Technical design document (architecture, database, API)
+- ui-kit.html - UI design system and components
 - PROGRESS.md - Development tracking template
 
 Let me know if you'd like any changes before I proceed."
@@ -78,7 +82,8 @@ Let me know if you'd like any changes before I proceed."
 ```
 AI: "Now I'll configure the design system.
 - I'll set up your branding colors and typography in tailwind.config.js
-- I'll import TailwindCSS 3 directives in your CSS file"
+- I'll import TailwindCSS 3 directives in your CSS file
+- I'll create the DashboardLayout component following your ui-kit.html"
 ```
 
 **5. Create Database:**
@@ -336,9 +341,23 @@ I don't understand what you mean by [technical term]. Please explain in simple t
 - Better results - leverage each AI's strengths
 - Faster development - design is ready before coding starts
 
-### AGENT.md Configuration
+### AGENTS.md & Workflow Configuration
 
-The AGENT.md file in this project is designed for **Windsurf** editor structure. If you're using a different AI editor (Cursor, Claude Code, etc.), you may need to adjust the configuration to match your editor's specific requirements and conventions.
+The Laju framework uses a structured workflow system:
+
+- **AGENTS.md** - Global rules and conventions (always applies)
+- **workflow/INIT_AGENT.md** - Project initialization workflow (12 steps)
+- **workflow/TASK_AGENT.md** - Feature implementation workflow
+
+The AGENTS.md file in this project is designed for **Windsurf** editor structure. If you're using a different AI editor (Cursor, Claude Code, etc.), you may need to adjust the configuration to match your editor's specific requirements and conventions.
+
+**Key Workflow Files:**
+- `workflow/PROGRESS.md` - Track development progress
+- `workflow/PRD.md` - Product requirements and design specifications
+- `workflow/TDD.md` - Technical design document
+- `workflow/ui-kit.html` - UI design system components
+- `workflow/INIT_AGENT.md` - Initialization workflow guide
+- `workflow/TASK_AGENT.md` - Feature implementation guide
 
 ---
 
@@ -349,7 +368,7 @@ The AGENT.md file in this project is designed for **Windsurf** editor structure.
 - [ ] Choose an AI assistant (Claude Code, Cursor, Windsurf, etc.)
 - [ ] Create your project: `npx create-laju-app my-project`
 - [ ] Describe ALL features you want (be thorough!)
-- [ ] Review and approve documentation (README, PRD, PROGRESS)
+- [ ] Review and approve documentation (README, PRD, TDD, ui-kit, PROGRESS)
 - [ ] Test it in your browser
 - [ ] Deploy when ready
 

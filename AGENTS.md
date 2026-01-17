@@ -15,109 +15,6 @@
 
 Help users build applications using Laju framework by understanding their needs and implementing them correctly.
 
-## Workflow
-
-1. **Understand Requirements** - Ask clarifying questions, confirm understanding, break down complex ideas
-2. **Check Existing Functionality** - **ALWAYS check if controllers|pages|services already exist before creating new ones**
-3. **Plan Implementation** - Outline what to build, prioritize modifying existing code, get approval
-4. **Build Incrementally** - Build one feature at a time, test before moving on
-5. **Review and Refine** - Explain what was done, test together, commit when working
-
-**After Completing a Feature:**
-When a feature is complete (routes, controllers, pages all implemented):
-- Ask user to test the feature
-- Provide clickable link for testing (e.g., `http://localhost:5555/posts`)
-- Wait for user confirmation before proceeding
-- Update workflow/PROGRESS.md and commit after user confirms it works
-
-## Project Initialization
-
-When user starts a new project, **ALWAYS** follow this sequence:
-
-1. **Initialize project** - Create new Laju project
-
-2. **Create/replace README.md** with project-specific content:
-   - Ask user for project name, description, features
-   - Create custom README.md with:
-     - Project name and description
-     - Quick start guide (installation, usage)
-     - Tech stack
-     - Features list
-
-3. **Create workflow/PRD.md** for product requirements:
-   - Objectives and goals
-   - Features list
-   - Success criteria
-   - **Design specifications** (branding colors, typography, design system, visual identity)
-
-4. **Create workflow/TDD.md** for technical design document:
-   - Technical architecture and system design
-   - Database schema and relationships
-   - API endpoints and routes
-   - Data models and flow
-   - Security considerations
-   - Technical specifications from PRD.md
-
-5. **Create workflow/ui-kit.html** for UI design system:
-   - Color palette and theme tokens
-   - Typography styles (headings, body text)
-   - Button styles and variants
-   - Form input styles
-   - Card and container styles
-   - Status badges and feedback components
-   - Layout patterns and spacing
-   - Icon usage guidelines 
-
-6. **Create workflow/PROGRESS.md** for tracking development:
-   ```markdown
-   # Development Progress
-
-   ## Completed
-   - [x] Initial setup
-   - [x] README.md created
-   - [x] workflow/PRD.md created
-   - [x] workflow/TDD.md created
-   - [x] workflow/ui-kit.html created 
-
-   ## In Progress
-   - [ ] Feature 1
-
-   ## Pending
-   - [ ] Feature 2
-   ```
-
-7. **Create DashboardLayout component** in `resources/js/Components/DashboardLayout.svelte`:
-   - Follow the design system from `workflow/ui-kit.html`
-   - Use as the main layout for the application
-   - Include header, sidebar, and main content area
-   - Apply branding colors, typography, and design tokens from PRD.md
-
-8. **Review documentation** - Ask user to review and approve:
-   - README.md - Project overview, features, tech stack
-   - workflow/PRD.md - Requirements, design specifications
-   - workflow/TDD.md - Technical design document (architecture, database, API)
-   - workflow/ui-kit.html - UI design system and components
-   - workflow/PROGRESS.md - Development tracking template
-   - Wait for user confirmation before proceeding
-
-9. **Setup design system**:
-   - Configure theme in `tailwind.config.js` (branding colors, typography, design tokens from workflow/PRD.md and workflow/ui-kit.html)
-   - Import Tailwind directives in `resources/js/index.css`
-
-10. **Create migrations** for database schema
-
-11. **Run migrations**:
-    ```bash
-    knex migrate:latest
-    ```
-
-12. **Git init and first commit**:
-    ```bash
-    git init
-    git add .
-    git commit -m "Initial commit: Project setup"
-    ```
-
 ## Core Principle: Maximize Existing Functionality
 
 **ALWAYS check and use existing controllers, pages, and services before creating new ones.** This is the most important rule in Laju framework development.
@@ -236,7 +133,9 @@ laju/
 - Use Eta for SSR pages
 
 ### Follow Laju Conventions
-Always reference the appropriate AGENTS.md files for detailed patterns:
+Always reference the appropriate workflow files for detailed patterns:
+- `workflow/INIT_AGENT.md` - Project initialization workflow
+- `workflow/TASK_AGENT.md` - Feature implementation workflow
   
 ### Security Best Practices
 - Always validate input
