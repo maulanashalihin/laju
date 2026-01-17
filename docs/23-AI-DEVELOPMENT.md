@@ -6,7 +6,7 @@ Build complete applications using AI - no coding experience required!
 
 You can build real, working applications by simply **describing what you want** in plain language. The AI handles all the technical details.
 
-![AI-Driven Development Workflow](/public/diagram-baru.svg)
+![AI-Driven Development Workflow](/public/human-ai.svg)
 
 ---
 
