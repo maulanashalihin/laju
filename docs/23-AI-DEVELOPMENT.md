@@ -14,28 +14,38 @@ You can build real, working applications by simply **describing what you want** 
 
 ### Step 1: Start Your Project
 
-```bash
-npx create-laju-app my-project
-cd my-project
-npm run dev
+Simply mention `@[workflow/INIT_AGENT.md]` and the AI will handle everything:
+
+```
+@[workflow/INIT_AGENT.md]
 ```
 
-That's it! Your project is now running at `http://localhost:5555`
+The AI will automatically:
+1. Create/replace README.md with your project details
+2. Create workflow/PRD.md with product requirements and design specifications
+3. Create workflow/TDD.md with technical design document
+4. Create workflow/ui-kit.html with UI design system
+5. Create workflow/PROGRESS.md to track development progress
+6. Setup design system (tailwind.config.js, DashboardLayout component)
+7. Create database migrations
+8. Run migrations
+9. Initialize git and make first commit
 
-### Step 2: Set Up Your Project
+You just need to describe your app and review the documentation!
 
-The AI will help you set up your project in the right order:
- 
-**1. Describe Your App:**
+**Example Chat Conversation:**
+
+**What you say:**
 ```
-AI: "What do you want to build? Please describe your app in simple terms."
+Hai @[workflow/INIT_AGENT.md], let start new projefct
 ```
 
-**Important:** Describe ALL features you want upfront. We use the **Waterfall method** - define everything first, then build everything at once.
+**AI responds:** I'll help you initialize a new Laju project. Let me start by asking about your project.
 
+**What you say:**
 ```
 I want to build a simple task management app where:
-- Users can create projects
+- Users can create projects with name and description
 - Each project has tasks
 - Tasks can be marked as done or not done
 - Show all tasks on a dashboard
@@ -44,64 +54,43 @@ I want to build a simple task management app where:
 - Users can filter tasks by status
 ```
 
-**Optional:** If you have design references, mention them:
-- Design system (e.g., "Use shadcn/ui components")
-- UI kit (e.g., "I have a Figma design I can share")
-- Branding preferences (e.g., "Use blue and purple colors")
-- Similar apps (e.g., "Like Trello but simpler")
+**AI responds:** Great! Let me create the project documentation for you.
 
-**Why Waterfall?**
-- All features are built together concurrently
-- No need to come back and add features later
-- Faster overall development time
-- Better integration between features
+[AI creates README.md, PRD.md, TDD.md, ui-kit.html, PROGRESS.md]
 
-**2. Create Project Documentation:**
-```
-AI: "Let's set up your project properly.
-- I'll create a README.md with your project details
-- I'll create a PRD.md with your product requirements and design specifications
-- I'll create a TDD.md with your technical design document
-- I'll create a ui-kit.html with your UI design system
-- I'll create a PROGRESS.md to track our development progress"
-```
-
-**3. Review Documentation:**
-```
-AI: "Please review the documentation I created:
+**AI responds:** I've created the documentation files. Please review them:
 - README.md - Project overview, features, tech stack
-- PRD.md - Requirements, design specifications
-- TDD.md - Technical design document (architecture, database, API)
-- ui-kit.html - UI design system and components
-- PROGRESS.md - Development tracking template
+- workflow/PRD.md - Requirements, design specifications
+- workflow/TDD.md - Technical design document (architecture, database, API)
+- workflow/ui-kit.html - UI design system and components
+- workflow/PROGRESS.md - Development tracking template
 
-Let me know if you'd like any changes before I proceed."
-```
+Let me know if you'd like any changes before I proceed with setting up the design system and database.
 
-**4. Setup Design System:**
+**What you say:**
 ```
-AI: "Now I'll configure the design system.
-- I'll set up your branding colors and typography in tailwind.config.js
-- I'll import TailwindCSS 3 directives in your CSS file
-- I'll create the DashboardLayout component following your ui-kit.html"
+Looks good! Please proceed.
 ```
 
-**5. Create Database:**
+**AI responds:** Perfect! Now I'll setup the design system, create database migrations, run migrations, and initialize git.
+
+[AI completes the setup]
+
+**AI responds:** Project initialization complete! Your project is ready. You can now mention @[workflow/TASK_AGENT.md] to start building features.
+
+**What you say:**
 ```
-AI: "I'll create the database structure for your app.
-- I'll create migration files for your data tables
-- I'll run the migrations to set up your database"
+Hai @[workflow/TASK_AGENT.md], let start new feature
 ```
 
-**6. Initialize Git:**
-```
-AI: "Now let's set up git so we can save your progress.
-I'll initialize the repository and make the first commit."
+**AI responds:** Let me check PROGRESS.md to see what tasks we have...
+
+[AI displays tasks from PROGRESS.md and starts building]
 ```
 
-You don't need to do anything - the AI handles it automatically!
+### Step 2: Let AI Build It (Concurrent Workflow)
 
-### Step 3: Let AI Build It (Concurrent Workflow)
+**For daily development tasks, mention `@[workflow/TASK_AGENT.md]`**
 
 After git init, your project is ready! The AI can now work on multiple features **simultaneously**:
 
@@ -124,7 +113,7 @@ The AI will adjust based on your feedback immediately while continuing to build 
 
 You just need to review and say "yes" or "make changes".
 
-### Step 4: Test Your App
+### Step 3: Test Your App
 
 Open `http://localhost:5555` in your browser and try it out!
 
@@ -135,7 +124,7 @@ The create project button doesn't work, please fix it
 
 The AI will fix it and save the changes automatically.
 
-### Step 5: Deployment
+### Step 4: Deployment
 
 When all features are working as expected, deploy your app:
 
@@ -145,13 +134,15 @@ How do I deploy this app so others can use it?
 
 The AI will guide you through the deployment process.
 
-**Note:** We use the Waterfall development method - all features are defined upfront in Step 2 and built together. If you discover you need additional features later, you'll need to start a new development cycle from Step 2.
+**Note:** We use the Waterfall development method - all features are defined upfront in Step 1 and built together. If you discover you need additional features later, you'll need to start a new development cycle from Step 1.
 
 ---
 
 ## Resuming Work on Your Project
 
 If you need to take a break and come back later, here's how to continue:
+
+**Always mention `@[workflow/TASK_AGENT.md]` when resuming work**
 
 ### Check Your Progress First
 
