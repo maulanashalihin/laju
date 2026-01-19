@@ -56,8 +56,7 @@ const inertia = () => {
 
          if (!request.header("X-Inertia")) {
             const html = view("inertia.html", {
-               page: JSON.stringify(inertiaObject),
-               title : "Laju - LAJU - Hyper Performance TypeScript Monolith", 
+               page: JSON.stringify(inertiaObject), 
                ...viewProps
             });
 
