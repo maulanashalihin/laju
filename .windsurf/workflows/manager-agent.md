@@ -62,8 +62,6 @@ Update the three key documents in this order:
 
 #### A. Update PRD.md
 
-When updating PRD.md:
-
 1. **Add new features** to Section 4 (Fitur Utama)
 2. **Modify existing features** with clear change notes
 3. **Update roadmap** in Section 7 if timeline changes
@@ -104,7 +102,9 @@ When updating PROGRESS.md:
 3. **Update development phases** if scope changes
 4. **Add notes** about what changed and why
 5. **Update Deployment Approval section** when all features in a phase are completed
-6. **Update version in package.json** when approving deployment
+6. **MANAGER_AGENT updates version in package.json** when approving deployment
+
+**Important:** The version in PROGRESS.md is the source of truth. MANAGER_AGENT is responsible for updating package.json to match the version in PROGRESS.md when approving deployment.
 
 **Example update format:**
 ```markdown
@@ -140,6 +140,8 @@ When updating PROGRESS.md:
   "version": "1.1.0"
 }
 ```
+
+**Note:** MANAGER_AGENT must update package.json version to match PROGRESS.md version when approving deployment. The version in PROGRESS.md is the source of truth.
 
 Use semantic versioning:
 - **Major** (x.0.0): Breaking changes, major features
