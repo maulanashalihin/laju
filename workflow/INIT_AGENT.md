@@ -220,7 +220,7 @@ Update built-in auth pages untuk match design system dari `workflow/ui-kit.html`
 - `resources/js/Pages/auth/forgot-password.svelte` - Apply visual identity dari PRD.md
 - `resources/js/Pages/auth/reset-password.svelte` - Ikuti layout patterns dari ui-kit.html
 
-**Gunakan DashboardLayout atau AuthLayout** yang sudah dibuat di step 9 untuk konsistensi.
+**Gunakan DashboardLayout** yang sudah dibuat di step 9 untuk konsistensi.
 
 ### 13. Git Init and First Commit
 
