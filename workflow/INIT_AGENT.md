@@ -68,9 +68,7 @@ Dokumen UI Design System yang berisi:
 
 ### 6. Create workflow/PROGRESS.md
 
-Template tracking development yang mendukung concurrent work oleh multiple agents:
-
-**PENTING: Struktur PROGRESS.md harus memungkinkan beberapa agent bekerja secara paralel tanpa blocking.**
+Template tracking development:
 
 ```markdown
 # Development Progress
@@ -91,85 +89,32 @@ Template tracking development yang mendukung concurrent work oleh multiple agent
 
 ---
 
-## Concurrent Work Guidelines
-
-**Prinsip untuk concurrent work:**
-1. **Independent Features** - Fitur yang tidak bergantung satu sama lain bisa dikerjakan paralel
-2. **No Blocking** - Tidak perlu tunggu satu fitur selesai untuk mulai fitur lain
-3. **Free to Claim** - Siapapun bisa claim dan kerjakan task yang available
-4. **Status Tracking** - Setiap sub-task punya status sendiri
-
----
-
 ## Features
 
-### Posts System
-**Status:** 🟡 In Progress
-
-- [ ] Migration: create_posts_table
+### Posts
+- [ ] Pages: index.svelte, form.svelte
 - [ ] Controller: PostController (index, create, store, edit, update, destroy)
-- [ ] Pages: index.svelte, form.svelte
 - [ ] Routes: GET /posts, GET /posts/create, POST /posts, GET /posts/:id/edit, PUT /posts/:id, DELETE /posts/:id
-- [ ] Validation: PostValidator.ts
 
-### Users Management
-**Status:** 🔵 Pending
-
-- [ ] Migration: modify_users_table (add fields if needed)
-- [ ] Controller: UserController (index, create, store, edit, update, destroy)
+### Users
 - [ ] Pages: index.svelte, form.svelte
+- [ ] Controller: UserController (index, create, store, edit, update, destroy)
 - [ ] Routes: GET /users, GET /users/create, POST /users, GET /users/:id/edit, PUT /users/:id, DELETE /users/:id
-- [ ] Validation: UserValidator.ts
-
-### Comments System
-**Status:** 🔵 Pending
-
-- [ ] Migration: create_comments_table
-- [ ] Controller: CommentController (index, create, store, destroy)
-- [ ] Pages: form.svelte (embedded in posts)
-- [ ] Routes: POST /posts/:id/comments, DELETE /comments/:id
-- [ ] Validation: CommentValidator.ts
 
 ### [Feature Name]
-**Status:** 🔵 Pending
-
-- [ ] Migration: migration_name
-- [ ] Controller: [Feature]Controller (methods)
-- [ ] Pages: page_name.svelte
-- [ ] Routes: route definitions
-- [ ] Validation: [Feature]Validator.ts
+- [ ] Pages: index.svelte, form.svelte
+- [ ] Controller: [Feature]Controller (index, create, store, edit, update, destroy)
+- [ ] Routes: GET /[feature], GET /[feature]/create, POST /[feature], GET /[feature]/:id/edit, PUT /[feature]/:id, DELETE /[feature]/:id
 
 ---
 
 ## Migrations
-
 ### Completed
-- [ ] create_posts_table
-- [ ] modify_users_table
-- [ ] create_comments_table
+- [ ] migration_name
 
 ### Pending
 - [ ] migration_name
-
----
-
-## Dependencies
-
-**Catat dependencies antar-fitur untuk menghindari blocking:**
-
-- Posts System ← No dependencies (bisa dikerjakan duluan)
-- Users Management ← No dependencies (bisa dikerjakan paralel dengan Posts)
-- Comments System ← Depends on: Posts System (butuh posts.id untuk foreign key)
-- [Feature] ← Depends on: [Other Feature]
 ```
-
-**Tips untuk concurrent work:**
-- Group tasks berdasarkan feature yang independent
-- Setiap feature punya status sendiri (🟢 Done, 🟡 In Progress, 🔵 Pending)
-- Update status saat mulai/selesai kerjakan feature
-- Tandai dependencies jelas untuk menghindari conflict
-- Jika ada conflict di file yang sama, gunakan git branch
-- Siapapun bisa claim task yang available dan langsung kerjakan
 
 
 ### 7. Review Documentation
@@ -202,14 +147,70 @@ Konfigurasi theme:
 
 
 
-### 11. Create DashboardLayout Component
+### 11. Create Layout Components
 
-Buat `resources/js/Components/DashboardLayout.svelte`:
-- secara konsep, kamu bisa tiru amati dan modifikasi dari `resources/js/Components/Header.svelte`
+Buat layout components di `resources/js/Components/Layouts/`:
 - Ikuti design system dari `workflow/ui-kit.html`
-- Gunakan sebagai main layout untuk aplikasi
-- Include header, sidebar, dan main content area
 - Apply branding colors, typography, dan design tokens dari PRD.md
+- **Gunakan group-based navigation pattern** (seperti di `Header.svelte`)
+
+**Group-Based Navigation Pattern:**
+
+Layout components seharusnya menggunakan prop `group` untuk menentukan menu/tab yang aktif, bukan berdasarkan URL path. Ini membuat navigation lebih fleksibel dan konsisten.
+
+**Contoh Pattern:**
+
+```svelte
+<script lang="ts">
+  let { group } = $props();
+  
+  const navigation = [
+    { name: 'Dashboard', href: '/dashboard', icon: Home, group: 'dashboard' },
+    { name: 'Events', href: '/events', icon: Calendar, group: 'events' },
+    { name: 'Settings', href: '/settings', icon: Settings, group: 'settings' },
+  ];
+</script>
+
+<nav class="p-4 space-y-1">
+  {#each navigation as item}
+    <a 
+      href={item.href}
+      class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors {
+        item.group === group 
+          ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400' 
+          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+      }"
+    >
+      {#if item.icon}
+        <svelte:component this={item.icon} class="w-5 h-5" />
+      {/if}
+      {item.name}
+      {#if item.group === group}
+        <ChevronRight class="ml-auto w-4 h-4" />
+      {/if}
+    </a>
+  {/each}
+</nav>
+```
+
+**Cara Penggunaan:**
+
+```svelte
+<!-- Di page yang menggunakan layout -->
+<OrganizationLayout group="events">
+  <!-- Events content -->
+</OrganizationLayout>
+
+<EventLayout group="checkin">
+  <!-- Check-in content -->
+</EventLayout>
+```
+
+**Keuntungan:**
+- Navigation state tidak tergantung URL path
+- Lebih fleksibel untuk nested routes
+- Konsisten dengan pattern di `Header.svelte`
+- Mudah mengontrol active state dari parent component
 
 ### 12. Customize Built-in Auth Pages
 
@@ -220,7 +221,7 @@ Update built-in auth pages untuk match design system dari `workflow/ui-kit.html`
 - `resources/js/Pages/auth/forgot-password.svelte` - Apply visual identity dari PRD.md
 - `resources/js/Pages/auth/reset-password.svelte` - Ikuti layout patterns dari ui-kit.html
 
-**Gunakan DashboardLayout** yang sudah dibuat di step 9 untuk konsistensi.
+**Gunakan Layout Components** yang sudah dibuat di step 11 untuk konsistensi.
 
 ### 13. Git Init and First Commit
 
@@ -461,7 +462,7 @@ export class PostController  {
 **Index Page** (`resources/js/Pages/posts/index.svelte`):
 ```svelte
 <script>
-  import { router, inertia } from '@inertiajs/svelte'
+  import { router } from '@inertiajs/svelte'
   import DashboardLayout from '@/Components/DashboardLayout.svelte'
   let { flash, posts } = $props()
 </script>
@@ -524,7 +525,7 @@ export class PostController  {
 **Form Page** (`resources/js/Pages/posts/form.svelte`):
 ```svelte
 <script>
-  import { router, inertia } from '@inertiajs/svelte'
+  import { router } from '@inertiajs/svelte'
   import DashboardLayout from '@/Components/DashboardLayout.svelte'
   let { flash, post } = $props()
   let isEdit = !!post

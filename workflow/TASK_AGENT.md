@@ -98,6 +98,13 @@ For each feature, ensure:
 - [ ] Use `use:inertia` directive on `<a>` tags
 - [ ] **Import and use DashboardLayout from `@/Components/DashboardLayout.svelte`**
 - [ ] Match UI components from `workflow/ui-kit.html`
+- [ ] **Ensure page is mobile-friendly and visually appealing on both desktop and mobile devices**
+  - Use responsive Tailwind classes (`md:`, `lg:` breakpoints)
+  - Test on mobile viewport (375px+)
+  - Ensure touch targets are at least 44px for mobile
+  - Use proper spacing and padding for mobile screens
+  - Avoid horizontal scrolling on mobile
+  - Use readable font sizes (min 16px for body text on mobile)
 
 **Routes:**
 - [ ] Add route to `routes/web.ts`
@@ -307,7 +314,7 @@ export class PostController  {
 **Form Page** (`resources/js/Pages/posts/form.svelte`):
 ```svelte
 <script>
-  import { router, inertia } from '@inertiajs/svelte'
+  import { router } from '@inertiajs/svelte'
   import DashboardLayout from '@/Components/DashboardLayout.svelte'
   let { flash, post } = $props()
   let isEdit = !!post
@@ -524,16 +531,45 @@ If user reports issues → Fix and retest
 
 ## Important Notes
 
-1. **Always check existing files first** - Don't create duplicates, modify existing controllers/pages
-2. **Follow Laju patterns** - Reference AGENTS.md for built-in controllers and services
-3. **Match UI kit exactly** - Use colors, spacing, components from ui-kit.html
-4. **Use correct layout** - DashboardLayout for admin features
-5. **Update PROGRESS.md** - Mark items as [x] completed with date after testing
-6. **Ask user to test** - Provide clickable link before moving on
-7. **Commit after working features** - Only commit when user confirms it works
-8. **Read MANAGER_AGENT updates** - Check for recent changes marked with dates in PROGRESS.md
-9. **Understand change rationale** - Read WHY changes were made before implementing
-10. **Verify TDD.md updates** - Check if technical specs were updated by MANAGER_AGENT
+1. **Server is already running** - Do NOT run `npm run dev` as the server is already started before you begin working
+2. **Always check existing files first** - Don't create duplicates, modify existing controllers/pages
+3. **Follow Laju patterns** - Reference AGENTS.md for built-in controllers and services
+4. **Match UI kit exactly** - Use colors, spacing, components from ui-kit.html
+5. **Use correct layout** - DashboardLayout for admin features
+6. **Update PROGRESS.md** - Mark items as [x] completed with date after testing
+7. **Ask user to test** - Provide clickable link before moving on
+8. **Commit after working features** - Only commit when user confirms it works
+9. **Read MANAGER_AGENT updates** - Check for recent changes marked with dates in PROGRESS.md
+10. **Understand change rationale** - Read WHY changes were made before implementing
+11. **Verify TDD.md updates** - Check if technical specs were updated by MANAGER_AGENT
+
+## Form Input Styling Best Practices
+
+**Important:** Always use the following input styling pattern to avoid white flash issues on focus:
+
+```svelte
+<!-- CORRECT - No flash -->
+<input 
+  class="w-full px-4 py-3 rounded-xl bg-slate-900/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-primary-500"
+  placeholder="Enter text"
+/>
+
+<!-- INCORRECT - Causes white flash -->
+<input 
+  class="w-full px-4 py-3 rounded-xl bg-slate-900/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200"
+  placeholder="Enter text"
+/>
+```
+
+**Key Rules:**
+- ❌ NEVER include `focus:ring-*` classes (causes white flash)
+- ❌ NEVER include `transition-all` or `transition-*` on inputs
+- ✅ Always use `focus:outline-none`
+- ✅ Use `focus:border-primary-500` for focus indication
+- ✅ Keep input styling simple and direct
+
+**Global CSS Fix:**
+The project has global CSS rules in `resources/js/index.css` to remove all focus outlines and browser auto-fill backgrounds. These rules are already in place and should not be modified.
 
 ## Communication with Manager Agent
 
