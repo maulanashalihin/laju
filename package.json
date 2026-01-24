@@ -32,7 +32,7 @@
     "ioredis": "^5.4.1",
     "knex": "^3.1.0",
     "lucide-svelte": "^0.562.0",
-    "nodemailer": "^6.9.15",
+    "nodemailer": "^7.0.12",
     "postcss": "^8.4.49",
     "resend": "^6.5.2",
     "sharp": "^0.34.4",
@@ -43,7 +43,7 @@
     "zod": "^4.3.5"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "^4.0.0",
+    "@sveltejs/vite-plugin-svelte": "^6.2.4",
     "@tailwindcss/vite": "^4.1.18",
     "@testing-library/svelte": "^5.2.9",
     "@types/better-sqlite3": "^7.6.13",
@@ -65,7 +65,7 @@
     "tsc-alias": "^1.8.16",
     "tsx": "^4.21.0",
     "typescript": "^5.6.3",
-    "vite": "^5.4.10",
+    "vite": "^7.3.1",
     "vitest": "^4.0.10"
   }
 }
