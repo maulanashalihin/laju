@@ -79,16 +79,16 @@ describe('SQLite Service', () => {
       const user = SQLite.get('SELECT * FROM users WHERE id = ?', [insertedUserId]);
       
       expect(user).toBeDefined();
-      expect(user.id).toBe(insertedUserId);
-      expect(user.email).toBe(testUser.email);
-      expect(user.name).toBe(testUser.name);
+      expect(user?.id).toBe(insertedUserId);
+      expect(user?.email).toBe(testUser.email);
+      expect(user?.name).toBe(testUser.name);
     });
 
     it('should get a user by email', () => {
       const user = SQLite.get('SELECT * FROM users WHERE email = ?', [testUser.email]);
       
       expect(user).toBeDefined();
-      expect(user.email).toBe(testUser.email);
+      expect(user?.email).toBe(testUser.email);
     });
 
     it('should return undefined for non-existent user', () => {
@@ -126,7 +126,7 @@ describe('SQLite Service', () => {
       expect(result.changes).toBe(1);
 
       const user = SQLite.get('SELECT * FROM users WHERE id = ?', [insertedUserId]);
-      expect(user.name).toBe(newName);
+      expect(user?.name).toBe(newName);
     });
 
     it('should return 0 changes for non-existent user', () => {

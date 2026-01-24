@@ -17,7 +17,7 @@ const SALT_SIZE = 16;
 /**
  * Authentication class providing core authentication functionality
  */
-class Autenticate {
+class Authenticate {
    /**
     * Hashes a plain text password using PBKDF2
     * @param {string} password - The plain text password to hash
@@ -92,4 +92,4 @@ class Autenticate {
 }
 
 // Export a singleton instance
-export default new Autenticate();
+export default new Authenticate();

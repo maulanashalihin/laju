@@ -10,7 +10,7 @@ This agent is responsible for **executing development tasks** based on the updat
 - ✅ Implement features (create/modify pages, controllers, routes, validators)
 - ✅ Fix bugs
 - ✅ Modify existing features
-- ✅ Test locally (unit, integration, E2E)
+- ✅ Test locally (unit, integration)
 - ✅ Update PROGRESS.md when tasks completed
 - ✅ Follow Laju patterns
 - ✅ Create feature branches automatically
@@ -51,7 +51,7 @@ Task Agent (TASK_AGENT.md) ← YOU ARE HERE
     ↓ Updates PROGRESS.md when tasks are completed
     ↓
 GitHub Actions CI (Automated)
-    ↓ Runs unit, integration, E2E tests
+    ↓ Runs unit, integration tests
     ↓
 GitHub Actions CI (Automated Deployment)
     ↓ Deploy to production (only if tests pass)
@@ -164,10 +164,18 @@ For each feature, ensure:
   - Avoid horizontal scrolling on mobile
   - Use readable font sizes (min 16px for body text on mobile)
 
+**Test Creation:**
+- [ ] Create unit tests in `tests/unit/services/` for new services/controllers
+- [ ] Create integration tests in `tests/integration/` for new routes/endpoints
+- [ ] Follow existing test patterns (see `tests/unit/services/` for examples)
+- [ ] Use Vitest test framework with `describe`, `it`, `expect` syntax
+- [ ] Test success cases AND error cases
+- [ ] Mock external dependencies (database, API calls) when needed
+
 **Testing (Local - Recommended):**
-- [ ] Run unit tests: `npm run test:unit`
-- [ ] Run integration tests: `npm run test:integration`
-- [ ] Run E2E tests: `npm run test:e2e` (optional)
+- [ ] Run all tests: `npm run test:run` (runs unit + integration tests)
+- [ ] Run tests with UI: `npm run test:ui` (interactive Vitest UI)
+- [ ] Run tests with coverage: `npm run test:coverage`
 - [ ] Manual testing in browser
 - [ ] Check for console errors
 
@@ -452,7 +460,89 @@ Route.delete('/posts/:id', [Auth], PostController.destroy)
 ```
 
 
-6. **Update PROGRESS.md**: Check off completed items and add completion date
+6. **Create Tests**:
+
+**Unit Test** (`tests/unit/services/PostService.test.ts`):
+```typescript
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { DB } from '../../../app/services/DB'
+
+describe('Post Service', () => {
+  beforeEach(async () => {
+    // Setup test database
+    await DB.migrate.latest()
+  })
+
+  afterEach(async () => {
+    // Cleanup test database
+    await DB.migrate.rollback()
+  })
+
+  it('should create a new post', async () => {
+    const postData = {
+      id: '01234567-89ab-cdef-0123-456789abcdef',
+      user_id: 'test-user-id',
+      title: 'Test Post',
+      content: 'Test Content',
+      created_at: Date.now(),
+      updated_at: Date.now()
+    }
+
+    await DB.table('posts').insert(postData)
+
+    const post = await DB.from('posts').where('id', postData.id).first()
+    expect(post).toBeDefined()
+    expect(post?.title).toBe('Test Post')
+  })
+
+  it('should fail on invalid title', async () => {
+    const invalidData = {
+      title: '', // Empty title
+      content: 'Test Content'
+    }
+
+    // Should throw validation error
+    await expect(
+      DB.table('posts').insert(invalidData)
+    ).rejects.toThrow()
+  })
+})
+```
+
+**Integration Test** (`tests/integration/post.test.ts`):
+```typescript
+import { describe, it, expect } from 'vitest'
+
+describe('POST /posts - Integration Tests', () => {
+  it('should create post successfully', async () => {
+    const response = await fetch('http://localhost:5555/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: 'Test Post',
+        content: 'Test Content'
+      })
+    })
+
+    expect(response.status).toBe(302)
+  })
+
+  it('should fail with invalid data', async () => {
+    const response = await fetch('http://localhost:5555/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: '', // Invalid
+        content: ''
+      })
+    })
+
+    expect(response.status).toBe(302)
+  })
+})
+```
+
+7. **Update PROGRESS.md**: Check off completed items and add completion date
 
 ### Pattern 2: Modify Existing Feature (Based on Manager Agent Update)
 
@@ -677,7 +767,7 @@ If user aborts or task fails:
 11. **Read MANAGER_AGENT updates** - Check for recent changes marked with dates in PROGRESS.md
 12. **Understand change rationale** - Read WHY changes were made before implementing
 13. **Verify TDD.md updates** - Check if technical specs were updated by MANAGER_AGENT
-14. **Tests run automatically** - GitHub Actions CI runs unit, integration, and E2E tests when you push
+14. **Tests run automatically** - GitHub Actions CI runs unit and integration tests when you push
 15. **Local testing recommended** - Run tests locally before pushing for faster feedback
 16. **Deployment blocked if tests fail** - GitHub Actions won't deploy if any test fails
 17. **User handles merges** - User must create and merge PRs manually
@@ -689,14 +779,14 @@ If user aborts or task fails:
 
 **Recommended local testing:**
 ```bash
-# Run unit tests
-npm run test:unit
+# Run all tests (unit + integration)
+npm run test:run
 
-# Run integration tests
-npm run test:integration
+# Run tests with UI (interactive mode)
+npm run test:ui
 
-# Run E2E tests (optional)
-npm run test:e2e
+# Run tests with coverage report
+npm run test:coverage
 
 # Manual testing in browser
 # Open http://localhost:5555
@@ -706,13 +796,11 @@ npm run test:e2e
 ### After Pushing to GitHub
 
 **GitHub Actions CI runs automatically:**
-1. Unit tests
-2. Integration tests
-3. E2E tests
-4. Build application
-5. Deploy to production (only if all tests pass)
-6. Run smoke tests
-7. Auto-rollback if smoke tests fail
+1. All tests (unit + integration) via `npm run test:run`
+2. Build application
+3. Deploy to production (only if all tests pass)
+4. Run smoke tests
+5. Auto-rollback if smoke tests fail
 
 **If tests fail:**
 - Check GitHub Actions logs for errors

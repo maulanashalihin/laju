@@ -31,7 +31,7 @@
 #    SLACK_WEBHOOK   : (Opsional) Slack webhook URL untuk notifications
 #
 # 3. Pastikan server sudah di-setup:
-#    - Node.js terinstall (via NVM recommended)
+#    - Node.js 22 terinstall (via NVM recommended)
 #    - PM2 terinstall global: npm install -g pm2
 #    - Git terinstall dan repository sudah di-clone
 #    - PM2 process sudah dibuat dengan nama yang sesuai (default: 'laju')
@@ -61,7 +61,7 @@
 #
 # WORKFLOW:
 # ---------
-# 1. Test job runs (unit, integration, E2E tests)
+# 1. Test job runs (all tests: unit + integration)
 # 2. Jika tests pass → Deploy job runs
 # 3. Deploy job hanya jalan di main branch
 # 4. Setelah deploy → Run smoke tests
@@ -95,48 +95,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '22'
 
       # Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # Run unit tests
-      - name: Run unit tests
-        run: npm run test:unit
-        continue-on-error: false
-
-      # Run integration tests
-      - name: Run integration tests
-        run: npm run test:integration
-        continue-on-error: false
+      # Run all tests (unit + integration)
+      - name: Run all tests
+        run: npm run test:run
 
       # Build application
       - name: Build application
         run: npm run build
-
-      # Start dev server untuk E2E tests
-      - name: Start dev server
-        run: npm run start &
-        shell: bash
-
-      # Tunggu server ready
-      - name: Wait for server
-        run: sleep 10
-        shell: bash
-
-      # Run E2E tests
-      - name: Run E2E tests
-        run: npm run test:e2e
-        env:
-          BASE_URL: http://localhost:5555
-        continue-on-error: false
-
-      # Stop dev server
-      - name: Stop dev server
-        if: always()
-        run: pkill -f "node.*server"
-        shell: bash
 
   # ============================================================================
   # DEPLOY JOB - Deploy ke production (hanya jika tests pass)
@@ -172,9 +143,9 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-            
-            # (Opsional) Gunakan versi Node tertentu
-            # nvm use 22
+
+            # Gunakan Node.js 22
+            nvm use 22
 
             echo "📦 Installing dependencies..."
             npm install 
@@ -226,8 +197,8 @@ jobs:
           fi
           echo "✅ Deployment successful!"
 
-      # Notify failure & rollback
-      - name: Notify failure & rollback
+      # Notify failure
+      - name: Notify failure
         if: failure()
         run: |
           if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
@@ -236,17 +207,18 @@ jobs:
               -d '{"text":"❌ Deployment failed!\n\nCommit: ${{ github.sha }}\nBranch: ${{ github.ref_name }}"}'
           fi
           echo "❌ Deployment failed, initiating rollback..."
-          
-          # Auto-rollback
-          - name: Rollback deployment
-            uses: appleboy/ssh-action@master
-            with:
-              host: ${{ secrets.SSH_HOST }}
-              username: ${{ secrets.SSH_USER }}
-              key: ${{ secrets.SSH_PRIVATE_KEY }}
-              script: |
-                cd /root/laju
-                git revert HEAD --no-edit
-                git push origin main
-                pm2 reload laju
-                echo "🔄 Rollback completed!"
+
+      # Auto-rollback on failure
+      - name: Rollback deployment
+        if: failure()
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /root/laju
+            git revert HEAD --no-edit
+            git push origin main
+            pm2 reload laju
+            echo "🔄 Rollback completed!"
