@@ -173,9 +173,9 @@ For each feature, ensure:
 - [ ] Mock external dependencies (database, API calls) when needed
 
 **Testing (Local - Recommended):**
-- [ ] Run all tests: `npm run test:run` (runs unit + integration tests)
-- [ ] Run tests with UI: `npm run test:ui` (interactive Vitest UI)
-- [ ] Run tests with coverage: `npm run test:coverage`
+- [ ] Run all tests: `npm run test:run` ✓ WAJIB (runs unit + integration tests)
+- [ ] Optional: Run tests with UI for debugging: `npm run test:ui`
+- [ ] Optional: Check coverage: `npm run test:coverage`
 - [ ] Manual testing in browser
 - [ ] Check for console errors
 
