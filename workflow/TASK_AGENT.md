@@ -228,6 +228,7 @@ import { Response, Request } from "../../type";
 import { DB } from '../services/DB'
 import { Validator } from '../services/Validator'
 import { storePostSchema } from '../validators/PostValidator'
+import { uuidv7 } from 'uuidv7'
 
 export class PostController  {
   async index() {
@@ -249,8 +250,9 @@ export class PostController  {
     
     const { title, content } = validationResult.data!
     
-    // Create post
+    // Create post with uuidv7
     await DB.table('posts').insert({
+      id: uuidv7(),
       user_id: request.user.id,
       title,
       content,

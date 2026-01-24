@@ -191,7 +191,7 @@ Layout components seharusnya menggunakan prop `group` untuk menentukan menu/tab 
 **Contoh Pattern:**
 
 ```svelte
-<script lang="ts">
+<script>
   let { group } = $props();
   
   const navigation = [
@@ -406,12 +406,12 @@ MANAGER_AGENT (release notes)
 **Note:** These pages should be customized in step 10 to match the design system from `workflow/ui-kit.html` and branding specifications from `workflow/PRD.md`.
 
 **Built-in Migrations:**
-- `20230513055909_users.ts` - Users table (id, name, email, phone, avatar, is_verified, membership_date, is_admin, password, remember_me_token, timestamps)
-- `20230514062913_sessions.ts` - Sessions table (id, user_id, user_agent, expires_at)
-- `20240101000001_create_password_reset_tokens.ts` - Password reset tokens (id, email, token, created_at, expires_at)
-- `20240101000002_create_email_verification_tokens.ts` - Email verification tokens (id, user_id, token, created_at, expires_at)
-- `20250110233301_assets.ts` - Assets table (id, name, type, url, mime_type, size, storage_key, user_id, timestamps)
-- `20251023082000_create_backup_files.ts` - Backup files table (id, key, file_name, file_size, compression, storage, checksum, uploaded_at, deleted_at, encryption, enc_iv, enc_tag)
+- `20230513055909_users.ts` - Users table (id [uuidv7], name, email, phone, avatar, is_verified, membership_date, is_admin, password, remember_me_token, timestamps)
+- `20230514062913_sessions.ts` - Sessions table (id [uuidv7], user_id, user_agent, expires_at)
+- `20240101000001_create_password_reset_tokens.ts` - Password reset tokens (id [uuidv7], email, token, created_at, expires_at)
+- `20240101000002_create_email_verification_tokens.ts` - Email verification tokens (id [uuidv7], user_id, token, created_at, expires_at)
+- `20250110233301_assets.ts` - Assets table (id [uuidv7], name, type, url, mime_type, size, storage_key, user_id, timestamps)
+- `20251023082000_create_backup_files.ts` - Backup files table (id [uuidv7], key, file_name, file_size, compression, storage, checksum, uploaded_at, deleted_at, encryption, enc_iv, enc_tag)
 - `20251210000000_create_cache_table.ts` - Cache table (key, value, expiration)
 
 **Rule:** If functionality exists, **use or modify** existing code instead of creating redundant controllers/services/middlewares/pages.
@@ -447,11 +447,11 @@ When a table needs a file field (e.g., `posts.thumbnail`, `users.avatar`), the f
 // Migration
 export async function up(knex: Knex) {
   await knex.schema.createTable('posts', (table) => {
-    table.increments('id').primary()
+    table.uuid('id').primary().notNullable()
     table.string('title')
     table.text('content')
     table.string('thumbnail')  // ← Store URL here, NOT asset_id
-    table.integer('user_id').unsigned().references('id').inTable('users')
+    table.uuid('user_id').references('id').inTable('users')
     table.timestamps()
   })
 }
@@ -472,6 +472,7 @@ import { Response, Request } from "../../type";
 import { DB } from '../services/DB'
 import { Validator } from '../services/Validator'
 import { storePostSchema } from '../validators/PostValidator'
+import { uuidv7 } from 'uuidv7'
 
 export class PostController  {
   async index() {
@@ -493,8 +494,9 @@ export class PostController  {
     
     const { title, content } = validationResult.data!
     
-    // Create post
+    // Create post with uuidv7
     await DB.table('posts').insert({
+      id: uuidv7(),
       user_id: request.user.id,
       title,
       content,
