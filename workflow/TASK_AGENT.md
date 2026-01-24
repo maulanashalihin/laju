@@ -13,6 +13,9 @@ This agent is responsible for **executing development tasks** based on the updat
 - ✅ Test locally (unit, integration, E2E)
 - ✅ Update PROGRESS.md when tasks completed
 - ✅ Follow Laju patterns
+- ✅ Create feature branches automatically
+- ✅ Commit changes after user confirms feature works
+- ✅ Push changes to trigger CI/CD
 
 **TASK_AGENT CANNOT:**
 - ❌ Manage changes or update PRD/TDD
@@ -21,6 +24,7 @@ This agent is responsible for **executing development tasks** based on the updat
 - ❌ Update version in package.json
 - ❌ Deploy to production
 - ❌ Manage project documentation
+- ❌ Merge branches (user must handle PRs)
 
 **If asked to do something outside scope:**
 ```
@@ -39,8 +43,11 @@ Manager Agent (MANAGER_AGENT.md)
     ↓
 Task Agent (TASK_AGENT.md) ← YOU ARE HERE
     ↓ Reads updated PROGRESS.md
+    ↓ Auto-create feature branch (if needed)
     ↓ Implements features/tasks
     ↓ Tests locally (optional but recommended)
+    ↓ Asks user to test
+    ↓ Auto-commit & push after user confirms
     ↓ Updates PROGRESS.md when tasks are completed
     ↓
 GitHub Actions CI (Automated)
@@ -68,31 +75,43 @@ Manager Agent (MANAGER_AGENT.md)
 ### 1. User Mentions This Agent
 
 When user mentions `TASK_AGENT.md` at the start of a workflow/daily task:
+- **Generate unique Agent ID** - Use timestamp or process ID (e.g., TASK_AGENT_1706072400)
 - Read `workflow/PROGRESS.md` to understand current project state (may have been updated by MANAGER_AGENT)
 - Read `workflow/TDD.md` to understand technical design and architecture
 - **Check for recent changes** - Look for items marked with "(Added: YYYY-MM-DD)" or "(Updated: YYYY-MM-DD)" in PROGRESS.md
-- **Display top 3 tasks from "In Progress" and "Pending" sections with priority markers ([HIGH], [MEDIUM], [LOW])**
+- **Filter out locked tasks** - Exclude tasks marked with `[LOCKED: ...]`
+- **Display top 3 available tasks** from "In Progress" and "Pending" sections with priority markers ([HIGH], [MEDIUM], [LOW])
 - **Ask user which task they want to work on**
 - **Wait for user confirmation before proceeding**
+- **Lock the selected task** in PROGRESS.md with format: `[LOCKED: {AGENT_ID} @ {timestamp}]`
+- **Auto-create feature branch** (check current branch, create if not on feature branch)
 - Break down the selected task into actionable steps
 - Execute implementation one step at a time
-- **Update PROGRESS.md** when tasks are completed
+- **Ask user to test the feature**
+- **Auto-commit & push after user confirms it works**
+- **Unlock and mark task as [x] completed** in PROGRESS.md
 
 ### 2. Task Identification Workflow
 
 ```markdown
-1. Read PROGRESS.md (check for recent changes from MANAGER_AGENT)
-2. Read TDD.md for technical specifications
-3. Display top 3 tasks from "In Progress" and "Pending" sections to user
-4. Mark tasks with priority: [HIGH], [MEDIUM], [LOW]
-5. Highlight recently added/updated tasks (marked with dates)
-6. Ask user which task they want to work on
-7. Wait for user confirmation
-8. Identify what needs to be built (page/controller/route) for selected task
-9. Check if controller/page already exists
-10. Plan implementation steps
-11. Execute and update PROGRESS.md
-12. Mark task as [x] completed after user confirms it works
+1. Generate unique Agent ID (e.g., TASK_AGENT_1706072400)
+2. Read PROGRESS.md (check for recent changes from MANAGER_AGENT)
+3. Filter out locked tasks (exclude [LOCKED: ...])
+4. Read TDD.md for technical specifications
+5. Display top 3 available tasks from "In Progress" and "Pending" sections to user
+6. Mark tasks with priority: [HIGH], [MEDIUM], [LOW]
+7. Highlight recently added/updated tasks (marked with dates)
+8. Ask user which task they want to work on
+9. Wait for user confirmation
+10. Lock the selected task: [LOCKED: {AGENT_ID} @ YYYY-MM-DD HH:MM]
+11. Auto-create feature branch (if needed)
+12. Identify what needs to be built (page/controller/route) for selected task
+13. Check if controller/page already exists
+14. Plan implementation steps
+15. Execute and update PROGRESS.md
+16. Ask user to test the feature
+17. Auto-commit & push after user confirms it works
+18. Unlock task and mark as [x] completed
 ```
 
 ### 3. Working with Manager Agent Updates
@@ -532,20 +551,74 @@ Route.delete('/posts/:id', [Auth], PostController.destroy)
    - [x] Rate limiting
    ```
 
+## Task Locking Mechanism
+
+**Purpose:** Prevent concurrent TASK_AGENT instances from working on the same task.
+
+**Lock Format in PROGRESS.md:**
+```markdown
+### Feature Name
+- [ ] Task 1 [LOCKED: TASK_AGENT_1706072400 @ 2025-01-24 08:30]
+- [ ] Task 2
+- [ ] Task 3
+```
+
+**Agent ID Generation:**
+- Use timestamp: `TASK_AGENT_{timestamp}`
+- Example: `TASK_AGENT_1706072400`
+- Each terminal/session gets unique ID
+
+**Locking Rules:**
+1. **Before displaying tasks** - Filter out all tasks with `[LOCKED: ...]`
+2. **When user selects task** - Immediately lock it with `[LOCKED: {AGENT_ID} @ {timestamp}]`
+3. **When task completed** - Remove lock and mark as `[x] completed`
+4. **If task fails** - Remove lock and return to available pool
+
+**Example Workflow:**
+```
+Terminal 1 (TASK_AGENT_1706072400):
+  User: "Implement Feature 1"
+  TASK_AGENT: Locks "Feature 1" in PROGRESS.md
+  TASK_AGENT: Starts implementation
+
+Terminal 2 (TASK_AGENT_1706072500):
+  User: "Implement Feature 1"
+  TASK_AGENT: Checks PROGRESS.md
+  TASK_AGENT: Sees "Feature 1" is locked by TASK_AGENT_1706072400
+  TASK_AGENT: Does NOT display "Feature 1" in available tasks
+  TASK_AGENT: Shows other available tasks only
+```
+
+**Unlocking Tasks:**
+- **On completion:** Remove `[LOCKED: ...]` and mark as `[x] completed`
+- **On failure:** Remove `[LOCKED: ...]` and keep as `[ ] pending`
+- **On user abort:** Remove `[LOCKED: ...]` and keep as `[ ] pending`
+
 ## Decision Tree
 
 ```
 User mentions @[TASK_AGENT.md]
     ↓
+Generate unique Agent ID (TASK_AGENT_{timestamp})
+    ↓
 Read PROGRESS.md (check for recent changes from MANAGER_AGENT)
     ↓
-Display all tasks from "In Progress" and "Pending" sections
+Filter out locked tasks (exclude [LOCKED: ...])
+    ↓
+Display all available tasks from "In Progress" and "Pending" sections
     ↓
 Highlight recently added/updated tasks (marked with dates)
     ↓
 Ask user which task they want to work on
     ↓
 Wait for user confirmation
+    ↓
+Lock the selected task: [LOCKED: {AGENT_ID} @ {timestamp}]
+    ↓
+Check current Git branch
+    ↓
+If on feature branch → Continue
+If not → Auto-create feature branch (feature/task-name)
     ↓
 What needs to be built for selected task?
     ↓
@@ -570,13 +643,21 @@ Implement the feature
     ↓
 Test thoroughly
     ↓
-Update PROGRESS.md (mark as [x] completed, add completion date)
+Ask user to test in browser
     ↓
-Ask user to test
+If user confirms it works:
+    ├── Auto-commit changes
+    ├── Auto-push to GitHub
+    ├── Unlock task (remove [LOCKED: ...])
+    └── Update PROGRESS.md (mark as [x] completed, add completion date)
     ↓
-If user confirms it works → Ready for next task
+If user reports issues:
+    ├── Fix and retest
+    └── Ask user to test again
     ↓
-If user reports issues → Fix and retest
+If user aborts or task fails:
+    ├── Unlock task (remove [LOCKED: ...])
+    └── Return task to available pool
 ```
 
 ## Important Notes
@@ -586,15 +667,19 @@ If user reports issues → Fix and retest
 3. **Follow Laju patterns** - Reference AGENTS.md for built-in controllers and services
 4. **Match UI kit exactly** - Use colors, spacing, components from ui-kit.html
 5. **Use correct layout** - DashboardLayout for admin features
-6. **Update PROGRESS.md** - Mark items as [x] completed with date after testing
-7. **Ask user to test** - Provide clickable link before moving on
-8. **Commit after working features** - Only commit when user confirms it works
-9. **Read MANAGER_AGENT updates** - Check for recent changes marked with dates in PROGRESS.md
-10. **Understand change rationale** - Read WHY changes were made before implementing
-11. **Verify TDD.md updates** - Check if technical specs were updated by MANAGER_AGENT
-12. **Tests run automatically** - GitHub Actions CI runs unit, integration, and E2E tests when you push
-13. **Local testing recommended** - Run tests locally before pushing for faster feedback
-14. **Deployment blocked if tests fail** - GitHub Actions won't deploy if any test fails
+6. **Task locking required** - Always lock tasks before starting, unlock on completion/failure
+7. **Filter locked tasks** - Never display locked tasks to other agents
+8. **Auto-create feature branches** - Check current branch, create feature branch if needed
+9. **Auto-commit & push** - Only commit after user confirms feature works
+10. **Ask user to test** - Provide clickable link before committing
+11. **Read MANAGER_AGENT updates** - Check for recent changes marked with dates in PROGRESS.md
+12. **Understand change rationale** - Read WHY changes were made before implementing
+13. **Verify TDD.md updates** - Check if technical specs were updated by MANAGER_AGENT
+14. **Tests run automatically** - GitHub Actions CI runs unit, integration, and E2E tests when you push
+15. **Local testing recommended** - Run tests locally before pushing for faster feedback
+16. **Deployment blocked if tests fail** - GitHub Actions won't deploy if any test fails
+17. **User handles merges** - User must create and merge PRs manually
+18. **Unique Agent ID** - Generate unique ID per session to prevent conflicts
 
 ## Testing Workflow
 

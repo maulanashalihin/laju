@@ -449,7 +449,7 @@ REQUEST: Tolong tambah fitur kirim notifikasi WhatsApp"
 1. **Testing runs automatically** - GitHub Actions CI runs unit, integration, E2E tests
 2. **Deployment only if tests pass** - GitHub Actions won't deploy if tests fail
 3. **Auto-rollback on failure** - GitHub Actions akan auto-rollback jika deployment fail
-4. **Branching is manual** - User harus buat feature branches manual
+4. **Branching is automatic** - TASK_AGENT auto-creates feature branches
 5. **Testing reference** - skills/testing-guide.md untuk panduan menulis test
 6. **Deployment reference** - skills/deployment-guide.md untuk panduan deployment
 7. **Release notes by MANAGER_AGENT** - Setelah deployment success
