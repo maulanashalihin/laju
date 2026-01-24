@@ -11,6 +11,9 @@ storage/*
 # Testing
 coverage/
 .vitest/
+test-results/
+playwright-report/
+playwright/.cache/
 
 # Logs
 logs/

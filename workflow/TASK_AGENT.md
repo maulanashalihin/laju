@@ -167,6 +167,7 @@ For each feature, ensure:
 **Test Creation:**
 - [ ] Create unit tests in `tests/unit/services/` for new services/controllers
 - [ ] Create integration tests in `tests/integration/` for new routes/endpoints
+- [ ] Create E2E tests in `tests/e2e/` for critical user flows
 - [ ] Follow existing test patterns (see `tests/unit/services/` for examples)
 - [ ] Use Vitest test framework with `describe`, `it`, `expect` syntax
 - [ ] Test success cases AND error cases
@@ -176,6 +177,8 @@ For each feature, ensure:
 - [ ] Run all tests: `npm run test:run` ✓ WAJIB (runs unit + integration tests)
 - [ ] Optional: Run tests with UI for debugging: `npm run test:ui`
 - [ ] Optional: Check coverage: `npm run test:coverage`
+- [ ] Optional: Run E2E tests: `npm run test:e2e` (requires running server)
+- [ ] Optional: Run E2E tests with UI: `npm run test:e2e:ui`
 - [ ] Manual testing in browser
 - [ ] Check for console errors
 

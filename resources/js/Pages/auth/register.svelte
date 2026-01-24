@@ -26,20 +26,28 @@
     serverError = ''
     isLoading = true
     form.phone = form.phone.toString()
-    
+
     router.post("/register", form, {
-      onFinish: () => isLoading = false,
+      onFinish: () => {
+        // Add small delay to show loading state
+        setTimeout(() => {
+          isLoading = false
+        }, 500)
+      },
       onError: (errors) => {
-        isLoading = false
-        if (errors.email) {
-          serverError = errors.email
-        } else if (errors.password) {
-          serverError = errors.password
-        } else if (errors.name) {
-          serverError = errors.name
-        } else {
-          serverError = 'Terjadi kesalahan. Silakan periksa input Anda.'
-        }
+        // Keep loading state briefly even on error
+        setTimeout(() => {
+          isLoading = false
+          if (errors.email) {
+            serverError = errors.email
+          } else if (errors.password) {
+            serverError = errors.password
+          } else if (errors.name) {
+            serverError = errors.name
+          } else {
+            serverError = 'Terjadi kesalahan. Silakan periksa input Anda.'
+          }
+        }, 500)
       }
     })
   }
