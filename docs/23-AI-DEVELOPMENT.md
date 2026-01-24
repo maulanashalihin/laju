@@ -4,9 +4,7 @@ Build complete applications using AI - no coding experience required!
 
 ## What This Means
 
-You can build real, working applications by simply **describing what you want** in plain language. The AI handles all the technical details.
-
-![AI-Driven Development Workflow](/public/human-ai.svg)
+You can build real, working applications by simply **describing what you want** in plain language. The AI handles all the technical details. 
 
 ---
 
