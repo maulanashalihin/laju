@@ -2,9 +2,33 @@
 
 Build complete applications using AI - no coding experience required!
 
+## TLDR: Quick Start Guide
+
+```mermaid
+graph TD
+    A[Start Project<br/>Mention INIT_AGENT] --> B[AI Setup Project<br/>Create README, PRD, TDD, PROGRESS]
+    B --> C[Implement Features<br/>Mention TASK_AGENT]
+    C --> D[AI Builds Features<br/>In Parallel]
+    D --> E[Test & Review<br/>Browser Testing]
+    E --> F{Need Changes?}
+    F -->|Yes| C
+    F -->|No| G[Merge to Main]
+    G --> H[GitHub Actions CI<br/>Automated Testing]
+    H --> I{Tests Pass?}
+    I -->|Yes| J[Deploy to Production<br/>Automated]
+    I -->|No| K[Fix Issues]
+    K --> G
+    J --> L[Smoke Tests<br/>Automated]
+    L --> M{Tests Pass?}
+    M -->|Yes| N[Deployment Successful]
+    M -->|No| O[Auto-Rollback]
+    O --> P[MANAGER_AGENT<br/>Release Notes]
+    P --> Q[Done! 🎉]
+```
+
 ## What This Means
 
-You can build real, working applications by simply **describing what you want** in plain language. The AI handles all the technical details. 
+You can build real, working applications by simply **describing what you want** in plain language. The AI handles all the technical details.
 
 ---
 
