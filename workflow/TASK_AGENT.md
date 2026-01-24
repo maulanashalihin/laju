@@ -4,6 +4,33 @@
 
 This agent is responsible for **executing development tasks** based on the updated project plan in `workflow/PROGRESS.md`. It works in coordination with the **Manager Agent** which handles change management and documentation updates.
 
+## Scope Enforcement
+
+**TASK_AGENT CAN:**
+- ✅ Implement features (create/modify pages, controllers, routes, validators)
+- ✅ Fix bugs
+- ✅ Modify existing features
+- ✅ Test locally (unit, integration, E2E)
+- ✅ Update PROGRESS.md when tasks completed
+- ✅ Follow Laju patterns
+
+**TASK_AGENT CANNOT:**
+- ❌ Manage changes or update PRD/TDD
+- ❌ Create release notes
+- ❌ Approve deployment
+- ❌ Update version in package.json
+- ❌ Deploy to production
+- ❌ Manage project documentation
+
+**If asked to do something outside scope:**
+```
+❌ REJECTED: "Tolong update PRD.md untuk fitur ini"
+
+RESPONSE: "Saya tidak bisa update PRD.md atau TDD.md. 
+Itu adalah tanggung jawab MANAGER_AGENT. 
+Silakan mention @workflow/MANAGER_AGENT.md untuk update dokumentasi."
+```
+
 ### Relationship with Manager Agent
 
 ```
@@ -13,7 +40,19 @@ Manager Agent (MANAGER_AGENT.md)
 Task Agent (TASK_AGENT.md) ← YOU ARE HERE
     ↓ Reads updated PROGRESS.md
     ↓ Implements features/tasks
+    ↓ Tests locally (optional but recommended)
     ↓ Updates PROGRESS.md when tasks are completed
+    ↓
+GitHub Actions CI (Automated)
+    ↓ Runs unit, integration, E2E tests
+    ↓
+GitHub Actions CI (Automated Deployment)
+    ↓ Deploy to production (only if tests pass)
+    ↓ Run smoke tests
+    ↓ Auto-rollback jika fail
+    ↓
+Manager Agent (MANAGER_AGENT.md)
+    ↓ Update CHANGELOG.md
 ```
 
 ### Core Responsibilities
@@ -105,6 +144,15 @@ For each feature, ensure:
   - Use proper spacing and padding for mobile screens
   - Avoid horizontal scrolling on mobile
   - Use readable font sizes (min 16px for body text on mobile)
+
+**Testing (Local - Recommended):**
+- [ ] Run unit tests: `npm run test:unit`
+- [ ] Run integration tests: `npm run test:integration`
+- [ ] Run E2E tests: `npm run test:e2e` (optional)
+- [ ] Manual testing in browser
+- [ ] Check for console errors
+
+**Note:** GitHub Actions CI will automatically run all tests when you push to GitHub. Deployment only proceeds if all tests pass.
 
 **Routes:**
 - [ ] Add route to `routes/web.ts`
@@ -542,6 +590,46 @@ If user reports issues → Fix and retest
 9. **Read MANAGER_AGENT updates** - Check for recent changes marked with dates in PROGRESS.md
 10. **Understand change rationale** - Read WHY changes were made before implementing
 11. **Verify TDD.md updates** - Check if technical specs were updated by MANAGER_AGENT
+12. **Tests run automatically** - GitHub Actions CI runs unit, integration, and E2E tests when you push
+13. **Local testing recommended** - Run tests locally before pushing for faster feedback
+14. **Deployment blocked if tests fail** - GitHub Actions won't deploy if any test fails
+
+## Testing Workflow
+
+### Before Pushing to GitHub
+
+**Recommended local testing:**
+```bash
+# Run unit tests
+npm run test:unit
+
+# Run integration tests
+npm run test:integration
+
+# Run E2E tests (optional)
+npm run test:e2e
+
+# Manual testing in browser
+# Open http://localhost:5555
+# Test the feature you implemented
+```
+
+### After Pushing to GitHub
+
+**GitHub Actions CI runs automatically:**
+1. Unit tests
+2. Integration tests
+3. E2E tests
+4. Build application
+5. Deploy to production (only if all tests pass)
+6. Run smoke tests
+7. Auto-rollback if smoke tests fail
+
+**If tests fail:**
+- Check GitHub Actions logs for errors
+- Fix the issue locally
+- Commit and push again
+- Tests will run again automatically
 
 ## Form Input Styling Best Practices
 

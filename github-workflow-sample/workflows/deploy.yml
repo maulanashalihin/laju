@@ -10,7 +10,7 @@
 #
 # FLOW DEPLOYMENT:
 # ----------------
-# Push code → GitHub Actions → SSH ke server → Pull → Install → Build → Migrate → Reload
+# Push code → GitHub Actions → Run Tests → Deploy → Smoke Tests
 #
 # Dengan flow ini, Anda TIDAK PERLU build di local sebelum push.
 # Cukup push source code, server yang akan melakukan build.
@@ -28,6 +28,7 @@
 #    SSH_USER        : Username SSH server (contoh: root, ubuntu, atau user lain)
 #    SSH_PRIVATE_KEY : Private key SSH untuk autentikasi (isi lengkap termasuk 
 #                      -----BEGIN OPENSSH PRIVATE KEY----- dan -----END...)
+#    SLACK_WEBHOOK   : (Opsional) Slack webhook URL untuk notifications
 #
 # 3. Pastikan server sudah di-setup:
 #    - Node.js terinstall (via NVM recommended)
@@ -39,6 +40,7 @@
 #    - Ganti path '/root/laju' dengan path project di server Anda
 #    - Ganti 'pm2 reload laju' dengan nama PM2 process Anda
 #    - Ganti branch 'main' jika menggunakan branch lain
+#    - Ganti 'http://your-domain.com' dengan domain production Anda
 #
 # CARA GENERATE SSH KEY:
 # ----------------------
@@ -57,70 +59,194 @@
 # - Jika PM2 tidak ditemukan, tambahkan: export PATH="$PATH:$(npm bin -g)"
 # - Cek logs di GitHub Actions tab untuk melihat error detail
 #
+# WORKFLOW:
+# ---------
+# 1. Test job runs (unit, integration, E2E tests)
+# 2. Jika tests pass → Deploy job runs
+# 3. Deploy job hanya jalan di main branch
+# 4. Setelah deploy → Run smoke tests
+# 5. Jika smoke tests fail → Auto-rollback
+#
 # ============================================================================
 
-name: Deploy to Production
+name: Test & Deploy
 
-# Pemicu: Jalankan workflow ini setiap kali ada push ke branch 'main'
+# Pemicu: Jalankan workflow ini setiap kali ada push ke branch apapun
 on:
   push:
-    branches:
-      - main  # Ganti 'main' jika Anda menggunakan branch lain (misal: 'production')
+    branches: [main, develop, '*']
+  pull_request:
+    branches: [main, develop]
 
 # Pekerjaan yang harus dilakukan
 jobs:
-  deploy:
-    # Menggunakan OS runner terbaru dari GitHub
+  # ============================================================================
+  # TEST JOB - Run all tests before deployment
+  # ============================================================================
+  test:
     runs-on: ubuntu-latest
 
     steps:
-    # Langkah 1: Checkout kode (tidak wajib jika Anda hanya ssh)
-    # - name: Checkout code
-    #   uses: actions/checkout@v3
+      # Checkout kode
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # Langkah 2: SSH ke server dan jalankan perintah deploy
-    - name: SSH and run deploy commands
-      uses: appleboy/ssh-action@master # Menggunakan Action populer untuk SSH
-      with:
-        host: ${{ secrets.SSH_HOST }}         # Ambil IP/host dari GitHub Secrets
-        username: ${{ secrets.SSH_USER }}     # Ambil username dari GitHub Secrets
-        key: ${{ secrets.SSH_PRIVATE_KEY }}   # Ambil kunci privat SSH dari GitHub Secrets
-        script: |
-          # ================================================================
-          # DEPLOYMENT SCRIPT
-          # Sesuaikan perintah di bawah dengan kebutuhan project Anda
-          # ================================================================
-          
-          echo "🚀 Starting deployment..."
-          
-          # [SESUAIKAN] Ganti dengan path ke direktori proyek Anda
-          cd /root/laju
-          
-          echo "📥 Pulling code from GitHub..."
-          git pull origin main
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-          # Load NVM (diperlukan karena SSH non-interactive shell)
-          # Mengasumsikan NVM diinstal di lokasi default (~/.nvm)
-          echo "⚙️ Loading NVM..."
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-          
-          # (Opsional) Gunakan versi Node tertentu
-          # nvm use 22
+      # Install dependencies
+      - name: Install dependencies
+        run: npm ci
 
-          echo "📦 Installing dependencies..."
-          npm install 
+      # Run unit tests
+      - name: Run unit tests
+        run: npm run test:unit
+        continue-on-error: false
 
-          echo "🔨 Building application..."
-          npm run build
- 
+      # Run integration tests
+      - name: Run integration tests
+        run: npm run test:integration
+        continue-on-error: false
 
-          echo "🗄️ Running database migrations..."
-          npx knex migrate:latest --env production
+      # Build application
+      - name: Build application
+        run: npm run build
+
+      # Start dev server untuk E2E tests
+      - name: Start dev server
+        run: npm run start &
+        shell: bash
+
+      # Tunggu server ready
+      - name: Wait for server
+        run: sleep 10
+        shell: bash
+
+      # Run E2E tests
+      - name: Run E2E tests
+        run: npm run test:e2e
+        env:
+          BASE_URL: http://localhost:5555
+        continue-on-error: false
+
+      # Stop dev server
+      - name: Stop dev server
+        if: always()
+        run: pkill -f "node.*server"
+        shell: bash
+
+  # ============================================================================
+  # DEPLOY JOB - Deploy ke production (hanya jika tests pass)
+  # ============================================================================
+  deploy:
+    needs: test  # Hanya jalan jika test job pass
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'  # Hanya deploy di main branch
+
+    steps:
+      # Checkout kode
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # SSH ke server dan jalankan perintah deploy
+      - name: SSH and run deploy commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "🚀 Starting deployment..."
+            
+            # [SESUAIKAN] Ganti dengan path ke direktori proyek Anda
+            cd /root/laju
+            
+            echo "📥 Pulling code from GitHub..."
+            git pull origin main
+
+            # Load NVM (diperlukan karena SSH non-interactive shell)
+            echo "⚙️ Loading NVM..."
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            
+            # (Opsional) Gunakan versi Node tertentu
+            # nvm use 22
+
+            echo "📦 Installing dependencies..."
+            npm install 
+
+            echo "🔨 Building application..."
+            npm run build
+
+            echo "🗄️ Running database migrations..."
+            npx knex migrate:latest --env production
         
-          # [SESUAIKAN] Ganti 'laju' dengan nama PM2 process Anda
-          echo "🔄 Reloading PM2 process..."
-          pm2 reload laju
+            # [SESUAIKAN] Ganti 'laju' dengan nama PM2 process Anda
+            echo "🔄 Reloading PM2 process..."
+            pm2 reload laju
+            
+            echo "✅ Deployment finished!"
+
+      # Run smoke tests setelah deployment
+      - name: Run smoke tests
+        run: |
+          echo "🧪 Running smoke tests..."
           
-          echo "✅ Deployment finished!"
+          # Cek health endpoint
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://your-domain.com/health)
+          if [ $response -ne 200 ]; then
+            echo "❌ Health endpoint failed: $response"
+            exit 1
+          fi
+          echo "✅ Health endpoint OK"
+          
+          # Cek login page
+          response=$(curl -s -o /dev/null -w "%{http_code}" http://your-domain.com/login)
+          if [ $response -ne 200 ]; then
+            echo "❌ Login page failed: $response"
+            exit 1
+          fi
+          echo "✅ Login page OK"
+          
+          echo "✅ All smoke tests passed!"
+        continue-on-error: false
+
+      # Notify success (opsional)
+      - name: Notify success
+        if: success()
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            curl -X POST ${{ secrets.SLACK_WEBHOOK }} \
+              -H 'Content-Type: application/json' \
+              -d '{"text":"✅ Deployment successful!\n\nCommit: ${{ github.sha }}\nBranch: ${{ github.ref_name }}"}'
+          fi
+          echo "✅ Deployment successful!"
+
+      # Notify failure & rollback
+      - name: Notify failure & rollback
+        if: failure()
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            curl -X POST ${{ secrets.SLACK_WEBHOOK }} \
+              -H 'Content-Type: application/json' \
+              -d '{"text":"❌ Deployment failed!\n\nCommit: ${{ github.sha }}\nBranch: ${{ github.ref_name }}"}'
+          fi
+          echo "❌ Deployment failed, initiating rollback..."
+          
+          # Auto-rollback
+          - name: Rollback deployment
+            uses: appleboy/ssh-action@master
+            with:
+              host: ${{ secrets.SSH_HOST }}
+              username: ${{ secrets.SSH_USER }}
+              key: ${{ secrets.SSH_PRIVATE_KEY }}
+              script: |
+                cd /root/laju
+                git revert HEAD --no-edit
+                git push origin main
+                pm2 reload laju
+                echo "🔄 Rollback completed!"

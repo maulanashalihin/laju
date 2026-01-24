@@ -2,6 +2,36 @@
 
 Panduan lengkap untuk memulai project baru dengan Laju Framework.
 
+## Scope Enforcement
+
+**INIT_AGENT CAN:**
+- ✅ Create project infrastructure
+- ✅ Setup GitHub Actions workflow
+- ✅ Setup testing infrastructure
+- ✅ Create documentation (README, PRD, TDD, PROGRESS, ui-kit)
+- ✅ Setup design system
+- ✅ Create layout components
+- ✅ Customize auth pages
+- ✅ Git init and first commit
+
+**INIT_AGENT CANNOT:**
+- ❌ Implement features or write code
+- ❌ Create controllers, pages, routes
+- ❌ Manage changes or update PRD/TDD after initialization
+- ❌ Deploy to production
+- ❌ Create release notes
+
+**If asked to do something outside scope:**
+```
+❌ REJECTED: "Tolong implementasi fitur ini"
+
+RESPONSE: "Saya tidak bisa implementasi fitur atau menulis code. 
+Itu adalah tanggung jawab TASK_AGENT. 
+Silakan mention @workflow/TASK_AGENT.md untuk implementasi fitur."
+```
+
+**Note:** INIT_AGENT hanya untuk setup project awal. Setelah initialization selesai, gunakan TASK_AGENT untuk implementasi fitur.
+
 ## Tech Stack
 
 - **Svelte**: v5.41.3 (with runes `$state`, `$props`)
@@ -223,7 +253,33 @@ Update built-in auth pages untuk match design system dari `workflow/ui-kit.html`
 
 **Gunakan Layout Components** yang sudah dibuat di step 11 untuk konsistensi.
 
-### 13. Git Init and First Commit
+### 13. Setup GitHub Actions Workflow
+
+Setup automated testing dan deployment workflow:
+
+**Copy GitHub Actions workflow:**
+```bash
+# Copy workflow sample ke .github/workflows
+cp -r github-workflow-sample/workflows .github/
+```
+
+**Setup GitHub Secrets:**
+1. Buka repository di GitHub
+2. Settings → Secrets and variables → Actions
+3. Tambahkan secrets:
+   - `SSH_HOST` - IP address server Anda
+   - `SSH_USER` - Username SSH server
+   - `SSH_PRIVATE_KEY` - Private key SSH
+   - `SLACK_WEBHOOK` - (Opsional) Slack webhook URL
+
+**Testing infrastructure sudah termasuk:**
+- Vitest (unit tests)
+- Supertest (integration tests)
+- Playwright (E2E tests)
+
+**Note:** GitHub Actions akan otomatis run tests setiap kali Anda push ke GitHub. Deployment hanya akan terjadi jika semua tests pass.
+
+### 14. Git Init and First Commit
 
 ```bash
 git init
@@ -231,13 +287,13 @@ git add .
 git commit -m "Initial commit: Project setup"
 ```
 
-### 14. Start Dev Server
+### 15. Start Dev Server
 
 ```bash
 npm run dev
 ```
 
-### 15. Complete Initialization
+### 16. Complete Initialization
 
 **Proses INIT AGENT selesai!**
 
@@ -246,6 +302,28 @@ Setelah dev server berjalan dengan baik:
 2. Buka session baru dan mulai dengan: **"Hai @[workflow/TASK_AGENT.md] yuk kita kerja"**
 3. Lanjutkan implementasi fitur sesuai `workflow/PROGRESS.md`
 
+**Workflow setelah initialization:**
+```
+TASK_AGENT (implement fitur)
+    ↓ Test lokal (opsional)
+    ↓ Push ke GitHub
+    ↓
+GitHub Actions CI (automated testing)
+    ↓ Runs unit, integration, E2E tests
+    ↓
+GitHub Actions CI (automated deployment)
+    ↓ Deploy ke production (hanya jika tests pass)
+    ↓ Run smoke tests
+    ↓ Auto-rollback jika fail
+    ↓
+MANAGER_AGENT (release notes)
+    ↓ Update CHANGELOG.md
+```
+
+**Note:** Referensi:
+- `skills/testing-guide.md` - Panduan menulis test
+- `skills/deployment-guide.md` - Panduan deployment
+
 ## Important Notes
 
 - **Selalu ikuti urutan ini** - Jangan skip steps
@@ -253,6 +331,9 @@ Setelah dev server berjalan dengan baik:
 - **Gunakan built-in functionality** - Cek dulu apakah controller/page/service sudah ada sebelum membuat baru
 - **Test sebelum commit** - Pastikan semua berjalan dengan baik sebelum commit
 - **Default PORT** - laju.dev default PORT adalah 5555 (lihat `.env.example`), user bisa mengganti port di `.env` file jika diperlukan
+- **GitHub Actions Testing** - Tests run otomatis via GitHub Actions CI setiap kali push
+- **Deployment Automation** - Deployment hanya terjadi jika semua tests pass
+- **Auto-rollback** - GitHub Actions akan auto-rollback jika deployment fail
 
 ## API Action Guidelines
 

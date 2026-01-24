@@ -1,116 +1,58 @@
-# Deployment Agent - Production Deployment Workflow
+# Deployment Guide - Production Deployment Reference
 
 ## Purpose
 
-This agent handles the **routine deployment workflow** when pushing the application to production server. It coordinates with **Task Agent** (which implements features) and **Manager Agent** (which manages changes).
+This guide provides comprehensive reference for deploying applications to production. It serves as documentation for deployment workflow, monitoring, troubleshooting, and rollback procedures.
 
-### When to Use This Agent
-
-Use DEPLOYMENT_AGENT when:
-- You're ready to deploy completed features to production
-- You need to push updates to the server
-- You want to ensure deployment readiness
-- You need to verify deployment was successful
-
-### Workflow Sequence
-
-```
-TASK_AGENT (Implement Features)
-    ↓ Completes features
-    ↓ Updates PROGRESS.md
-    ↓
-MANAGER_AGENT (Review Changes)
-    ↓ Reviews documentation
-    ↓ Approves deployment
-    ↓
-DEPLOYMENT_AGENT (Deploy to Production) ← YOU ARE HERE
-    ↓ Run pre-deployment checks
-    ↓ Push to GitHub
-    ↓ Auto-deploy triggers
-    ↓ Verify deployment
-```
+**Note:** Deployment runs automatically via GitHub Actions CI when you merge to main branch. This guide is for reference when monitoring or troubleshooting deployment.
 
 ---
 
 ## Deployment Workflow
 
-### Step 1: Pre-Deployment Checklist
+### Step 1: Pre-Deployment Checklist (Simplified)
 
-Before pushing to server, verify:
+Most checks are now automated via GitHub Actions. Verify:
 
 **Code Quality:**
 - [ ] All features in PROGRESS.md marked as completed
-- [ ] No console errors or warnings in dev server
-- [ ] Code tested locally
 - [ ] No debug code or console.log statements left
 
 **Documentation:**
 - [ ] README.md is up to date
 - [ ] PROGRESS.md reflects current state
-- [ ] PRD.md and TDD.md are synchronized (if changes made)
-
-**Configuration:**
-- [ ] `.env` file ready (copy from `.env.example`)
-- [ ] Database migrations ready (check `migrations/` folder)
-- [ ] No hardcoded credentials in code
-- [ ] Environment variables documented in `.env.example`
 
 **Git Status:**
 - [ ] All changes committed
-- [ ] Commit messages are clear
+- [ ] Commit messages are clear (use semantic commits)
 - [ ] No uncommitted changes
-- [ ] Branch is clean
 
-### Step 2: Build and Test Locally
+**Note:** Tests, build, and most checks are automated via GitHub Actions CI.
+
+### Step 2: Merge to Main
 
 ```bash
-# 1. Pull latest changes
+# 1. Switch to main branch
+git checkout main
 git pull origin main
 
-# 2. Install dependencies
-npm install
+# 2. Merge feature branch
+git merge feature/your-feature
 
-# 3. Build for production
-npm run build
-
-# 4. Test build locally
-npm run start
-
-# 5. Verify no errors
-# Check console for errors
-# Test key features
-# Verify database operations
-```
-
-**If build fails:**
-- Fix the errors
-- Test again
-- Don't proceed until build succeeds
-
-**If pre-deployment checks fail:**
-- Stop deployment process
-- Report issues to MANAGER_AGENT
-- Wait for fix before proceeding
-
-### Step 3: Push to GitHub
-
-```bash
-# 1. Commit changes (if not already)
-git add .
-git commit -m "feat: [description of changes]"
-
-# 2. Push to main branch
+# 3. Push to main (triggers automated deployment)
 git push origin main
 ```
 
 **What happens next:**
-- GitHub Actions workflow triggers automatically
-- Server pulls latest changes
-- Application builds on server
-- Migrations run automatically
-- PM2 reloads application
+1. GitHub Actions runs automated tests (unit, integration, E2E)
+2. If tests pass → Deployment proceeds
+3. If tests fail → Deployment blocked, fix required
+4. Deployment to production server
+5. Automated smoke tests run
+6. If smoke tests pass → Deployment successful
+7. If smoke tests fail → Auto-rollback
 
-### Step 4: Monitor Deployment
+### Step 3: Monitor Deployment
 
 **Check GitHub Actions:**
 1. Go to repository on GitHub
@@ -119,25 +61,29 @@ git push origin main
 4. Monitor the deployment progress
 
 **Expected workflow steps:**
-1. ✅ Checkout code
-2. ✅ Setup Node.js
-3. ✅ Install dependencies
-4. ✅ Build application
-5. ✅ SSH to server
-6. ✅ Pull latest changes
-7. ✅ Install dependencies on server
-8. ✅ Build on server
-9. ✅ Run migrations
-10. ✅ Reload PM2
+1. ✅ Test job runs (unit, integration, E2E tests)
+2. ✅ Build application
+3. ✅ Checkout code
+4. ✅ Setup Node.js
+5. ✅ Install dependencies
+6. ✅ SSH to server
+7. ✅ Pull latest changes
+8. ✅ Install dependencies on server
+9. ✅ Build on server
+10. ✅ Run migrations
+11. ✅ Reload PM2
+12. ✅ Run smoke tests (health check, login page)
+13. ✅ Notify success/failure
 
 **If deployment fails:**
 - Check error logs in GitHub Actions
-- SSH to server to investigate
+- GitHub Actions auto-rollbacks if smoke tests fail
+- SSH to server to investigate (if needed)
 - Check PM2 logs: `pm2 logs laju`
 - Fix the issue
 - Push again
 
-### Step 5: Post-Deployment Verification
+### Step 4: Post-Deployment Verification
 
 After deployment completes, verify:
 
@@ -156,20 +102,13 @@ pm2 logs laju --lines 50
 curl http://localhost:5555
 ```
 
-**Functionality Tests:**
+**Functionality Tests (Manual):**
 - [ ] Application loads in browser
 - [ ] Login works
 - [ ] Key features work
-- [ ] Database operations work
-- [ ] File uploads work (if applicable)
 - [ ] No console errors in browser
 
-**Performance:**
-- [ ] Page load time acceptable
-- [ ] No 500 errors
-- [ ] API responses fast
-
-### Step 6: Update PROGRESS.md (Post-Deployment)
+### Step 5: Update PROGRESS.md (Post-Deployment)
 
 After successful deployment, update `workflow/PROGRESS.md`:
 
@@ -198,10 +137,6 @@ After successful deployment, update `workflow/PROGRESS.md`:
    - Version number
    - Date
    - Status: ✅ Deployed successfully
-
-5. Report to MANAGER_AGENT: "Deployment v1.1.0 berhasil"
-
-After reporting, MANAGER_AGENT will create release notes in CHANGELOG.md.
 
 ---
 
@@ -350,16 +285,24 @@ DEPLOYMENT_AGENT:
 
 ## Rollback Procedure
 
-### When to Rollback
+### Auto-Rollback (Automated)
 
-- Critical bugs discovered after deployment
-- Application crashes
-- Data corruption
-- Major functionality broken
+GitHub Actions now includes auto-rollback functionality:
 
-### Rollback Steps
+**When auto-rollback triggers:**
+- Smoke tests fail after deployment
+- Deployment encounters critical errors
 
-**Option 1: Revert Commit (Recommended)**
+**Auto-rollback process:**
+1. GitHub Actions detects failure
+2. Automatically reverts last commit
+3. Pushes revert to main
+4. Reloads PM2 on server
+5. Sends notification (if Slack webhook configured)
+
+### Manual Rollback (If Needed)
+
+**Option 1: Revert Commit**
 
 ```bash
 # 1. Revert the problematic commit
@@ -439,13 +382,12 @@ For detailed technical setup and configuration:
 
 ## Summary
 
-Deployment Agent handles the **routine workflow** of pushing updates to production:
+Deployment workflow handles the **routine deployment** of pushing updates to production:
 
-1. **Pre-deployment checks** - Verify code quality and configuration
-2. **Build and test locally** - Ensure everything works
-3. **Push to GitHub** - Trigger auto-deploy
-4. **Monitor deployment** - Watch GitHub Actions
-5. **Verify deployment** - Test application on server
-6. **Update documentation** - Record deployment
+1. **Pre-deployment checks** - Simplified (most checks automated)
+2. **Merge to main** - Triggers automated testing & deployment
+3. **Monitor deployment** - Watch GitHub Actions
+4. **Verify deployment** - Test application on server
+5. **Update documentation** - Record deployment
 
-This is a **repeatable workflow** that you follow every time you deploy updates to production.
+This is a **reference guide** for monitoring and troubleshooting deployment. Deployment runs automatically via GitHub Actions CI when you merge to main branch.

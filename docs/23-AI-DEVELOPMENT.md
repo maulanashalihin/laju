@@ -132,7 +132,60 @@ When all features are working as expected, deploy your app:
 How do I deploy this app so others can use it?
 ```
 
-The AI will guide you through the deployment process.
+**The AI will guide you through the deployment process:**
+
+1. **Merge to main branch:**
+   ```bash
+   git checkout main
+   git merge feature/your-feature
+   git push origin main
+   ```
+
+2. **GitHub Actions runs automatically:**
+   - Run tests (unit, integration, E2E)
+   - Deploy ke production (hanya jika tests pass)
+   - Run smoke tests
+   - Auto-rollback jika fail
+
+3. **Monitor deployment:**
+   - Buka GitHub Actions tab
+   - Lihat workflow progress
+
+4. **Post-deployment verification:**
+   ```bash
+   ssh root@server
+   pm2 status
+   pm2 logs laju --lines 50
+   curl http://localhost:5555
+   ```
+
+**Note:** Deployment is automated via GitHub Actions CI. You don't need to manually deploy - just merge to main and GitHub Actions handles the rest.
+
+### Step 5: MANAGE_CHANGES
+
+Untuk manage perubahan dan release notes:
+
+```
+Hai @workflow/MANAGER_AGENT.md, ada change request:
+SOURCE: Client
+TYPE: Feature Request
+REQUEST: Tolong tambah fitur kirim notifikasi WhatsApp
+```
+
+MANAGER_AGENT akan:
+- Analyze impact
+- Update documentation (PRD, TDD, PROGRESS)
+- Approve deployment
+- Create release notes
+
+**Code Review (Optional):**
+```
+Hai @workflow/MANAGER_AGENT.md, tolong code review:
+- Code quality check
+- Test coverage review
+- Documentation verification
+- Deployment readiness approval
+```
 
 **Note:** We use the Waterfall development method - all features are defined upfront in Step 1 and built together. If you discover you need additional features later, you'll need to start a new development cycle from Step 1.
 
@@ -299,7 +352,50 @@ When you're happy with your app, ask the AI:
 How do I deploy this app so others can use it?
 ```
 
-The AI will guide you through the process.
+The AI will guide you through the process:
+1. Merge to main branch
+2. GitHub Actions runs automatically
+3. Tests run (unit, integration, E2E)
+4. Deploy ke production (hanya jika tests pass)
+5. Run smoke tests
+6. Auto-rollback jika fail
+
+### Apakah perlu mention TESTING_AGENT?
+
+**Tidak perlu.** TESTING_AGENT berjalan otomatis via GitHub Actions CI setiap kali Anda push ke GitHub. Tests run otomatis (unit, integration, E2E).
+
+### Apakah perlu mention DEPLOYMENT_AGENT?
+
+**Tidak perlu.** DEPLOYMENT_AGENT berjalan otomatis via GitHub Actions CI saat Anda merge ke main branch. Deployment otomatis jalan jika tests pass.
+
+### Bagaimana cara code review?
+
+Code review ditangani oleh MANAGER_AGENT. Untuk code review:
+```
+Hai @workflow/MANAGER_AGENT.md, tolong code review:
+- Code quality check
+- Test coverage review
+- Documentation verification
+- Deployment readiness approval
+```
+
+MANAGER_AGENT akan:
+- Review code quality
+- Check test coverage (70%+)
+- Verify documentation
+- Approve deployment
+
+### Apakah deployment otomatis?
+
+**Ya, deployment otomatis via GitHub Actions CI.** Cukup merge ke main branch dan GitHub Actions akan:
+- Run tests (unit, integration, E2E)
+- Deploy ke production (hanya jika tests pass)
+- Run smoke tests
+- Auto-rollback jika fail
+
+### Apakah ada auto-rollback?
+
+**Ya, auto-rollback otomatis via GitHub Actions CI.** Jika smoke tests fail setelah deployment, GitHub Actions akan otomatis rollback ke versi sebelumnya.
 
 ### What if I don't understand something the AI says?
 
@@ -339,16 +435,83 @@ The Laju framework uses a structured workflow system:
 - **AGENTS.md** - Global rules and conventions (always applies)
 - **workflow/INIT_AGENT.md** - Project initialization workflow (12 steps)
 - **workflow/TASK_AGENT.md** - Feature implementation workflow
+- **workflow/MANAGER_AGENT.md** - Change management and release notes
+- **skills/testing-guide.md** - Testing reference (unit, integration, E2E)
+- **skills/deployment-guide.md** - Deployment reference
 
-The AGENTS.md file in this project is designed for **Windsurf** editor structure. If you're using a different AI editor (Cursor, Claude Code, etc.), you may need to adjust the configuration to match your editor's specific requirements and conventions.
+### New Workflow Structure
+
+**Active Agents (3):**
+- INIT_AGENT - Setup project infrastructure
+- TASK_AGENT - Implementasi fitur
+- MANAGER_AGENT - Manajemen perubahan dan release notes
+
+**Reference Guides (skills/):**
+- testing-guide.md - Panduan menulis test
+- deployment-guide.md - Panduan deployment ke production
+
+**Automation (GitHub Actions CI):**
+- Automated testing (unit, integration, E2E)
+- Automated deployment (only if tests pass)
+- Auto-rollback on failure
 
 **Key Workflow Files:**
 - `workflow/PROGRESS.md` - Track development progress
 - `workflow/PRD.md` - Product requirements and design specifications
 - `workflow/TDD.md` - Technical design document
 - `workflow/ui-kit.html` - UI design system components
-- `workflow/INIT_AGENT.md` - Initialization workflow guide
-- `workflow/TASK_AGENT.md` - Feature implementation guide
+
+### Benefits of New Workflow
+
+**Untuk Solo Developer:**
+- ✅ Automated testing - Tests run otomatis, tidak perlu manual
+- ✅ Automated deployment - Deploy otomatis, tidak perlu manual
+- ✅ Auto-rollback - Otomatis rollback jika ada masalah
+- ✅ Simplified workflow - Hanya 3 agents, bukan 5
+- ✅ Industry-standard GitHub Flow - Best practice untuk solo developer
+- ✅ Quality gates - Deployment hanya jika tests pass
+- ✅ Less manual work - Banyak hal otomatis
+
+**Untuk Code Quality:**
+- ✅ Code review otomatis (opsional) - MANAGER_AGENT handle
+- ✅ Test coverage tracking - GitHub Actions CI track coverage
+- ✅ Smoke tests otomatis - Post-deployment verification
+- ✅ Release notes otomatis - MANAGER_AGENT create
+
+**Untuk Development Speed:**
+- ✅ Less manual intervention - Banyak hal otomatis
+- ✅ Faster feedback loop - Tests run otomatis setiap push
+- ✅ Prevent broken deployments - Auto-rollback jika fail
+- ✅ Focus on development - Tidak perlu khawatir deployment manual
+
+### Workflow Flowchart
+
+```mermaid
+graph TD
+    A[INIT_AGENT<br/>Setup Project] --> B[TASK_AGENT<br/>Implement Features]
+    B --> C[GitHub Actions CI<br/>Automated Testing]
+    C -->|Tests Pass| D[GitHub Actions CI<br/>Automated Deployment]
+    C -->|Tests Fail| B
+    D -->|Smoke Tests Pass| E[Deployment Successful]
+    D -->|Smoke Tests Fail| F[Auto-Rollback]
+    E --> G[MANAGER_AGENT<br/>Release Notes]
+    F --> B
+```
+
+### Deployment Workflow
+
+```mermaid
+graph TD
+    A[Developer Push to GitHub] --> B[GitHub Actions CI]
+    B --> C[Run Tests]
+    C -->|Tests Pass| D[Deploy to Production]
+    C -->|Tests Fail| E[Deployment Blocked]
+    D --> F[Run Smoke Tests]
+    F -->|Tests Pass| G[Deployment Successful]
+    F -->|Tests Fail| H[Auto-Rollback]
+    H --> I[Developer Fix Issues]
+    I --> A
+```
 
 ---
 
@@ -360,8 +523,12 @@ The AGENTS.md file in this project is designed for **Windsurf** editor structure
 - [ ] Create your project: `npx create-laju-app my-project`
 - [ ] Describe ALL features you want (be thorough!)
 - [ ] Review and approve documentation (README, PRD, TDD, ui-kit, PROGRESS)
+- [ ] Setup GitHub Actions workflow (copy from github-workflow-sample/workflows/deploy.yml)
 - [ ] Test it in your browser
-- [ ] Deploy when ready
+- [ ] Merge to main branch (triggers GitHub Actions CI)
+- [ ] GitHub Actions runs tests otomatis
+- [ ] GitHub Actions deploys otomatis (hanya jika tests pass)
+- [ ] MANAGER_AGENT creates release notes
 
 ---
 
@@ -386,12 +553,29 @@ The AI will teach you at your own pace.
 **To build an app with Laju + AI:**
 
 1. Create project (1 command)
-2. Set up project with AI (describe ALL features upfront)
-3. Let AI build everything concurrently
+2. Set up project with AI (INIT_AGENT - describe ALL features upfront)
+3. Let AI build everything concurrently (TASK_AGENT)
 4. Test in browser
-5. Deploy
+5. Merge ke main branch (triggers GitHub Actions CI)
+6. GitHub Actions runs tests otomatis
+7. GitHub Actions deploys otomatis (hanya jika tests pass)
+8. MANAGER_AGENT creates release notes
 
 **No coding required. Just describe thoroughly and let AI build it.**
+
+**New Workflow:**
+- 3 Active Agents (INIT, TASK, MANAGER)
+- GitHub Actions CI (automated testing & deployment)
+- Reference Guides (skills/testing-guide.md, skills/deployment-guide.md)
+- Auto-rollback on failure
+
+**Key Benefits:**
+- Automated testing via GitHub Actions CI
+- Automated deployment (only if tests pass)
+- Auto-rollback on failure
+- Simplified pre-deployment checklist
+- Industry-standard GitHub Flow
+- Cocok untuk solo developer
 
 ---
 
