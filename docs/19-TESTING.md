@@ -1,15 +1,16 @@
 # Testing Guide
 
-Complete guide for testing Laju applications with Vitest.
+Complete guide for testing Laju applications with Vitest and Playwright.
 
 ## Table of Contents
 
 1. [Setup](#setup)
 2. [Unit Tests](#unit-tests)
 3. [Integration Tests](#integration-tests)
-4. [Component Tests](#component-tests)
-5. [Test Utilities](#test-utilities)
-6. [Best Practices](#best-practices)
+4. [E2E Tests](#e2e-tests)
+5. [Component Tests](#component-tests)
+6. [Test Utilities](#test-utilities)
+7. [Best Practices](#best-practices)
 
 ---
 
@@ -64,17 +65,17 @@ beforeEach(async () => {
 ### Commands
 
 ```bash
-# Run all tests
-npm run test:run
+# Unit & Integration Tests (Vitest)
+npm run test:run              # Run all tests
+npm run test:ui               # Run with UI mode
+npm run test:coverage         # Run with coverage report
+npx vitest                    # Watch mode
 
-# Run tests with UI
-npm run test:ui
-
-# Run with coverage
-npm run test:coverage
-
-# Watch mode
-npx vitest
+# E2E Tests (Playwright)
+npm run test:e2e               # Run all E2E tests
+npm run test:e2e:ui            # Run with UI mode (recommended)
+npm run test:e2e:debug         # Run with debug mode
+npm run test:e2e:install        # Install Playwright browsers
 ```
 
 ---
@@ -327,6 +328,333 @@ describe('Posts CRUD', () => {
 
 ---
 
+## E2E Tests
+
+End-to-end testing with Playwright for testing user flows in real browsers.
+
+### Setup
+
+#### Installation
+
+```bash
+# Install Playwright
+npm install -D @playwright/test
+
+# Install browsers (only required once)
+npm run test:e2e:install
+```
+
+#### Configuration
+
+Playwright is configured in `playwright.config.ts`:
+
+```typescript
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests/e2e',
+  fullyParallel: false, // Run tests sequentially for E2E
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: 1, // Run tests one at a time
+  reporter: 'html',
+
+  use: {
+    baseURL: 'http://localhost:5555',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+  },
+
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    // Uncomment after installing browsers:
+    // {
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
+    // },
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    // },
+  ],
+
+  // Auto-start server in CI
+  webServer: process.env.CI ? {
+    command: 'npm run build && npm run start',
+    url: 'http://localhost:5553',
+    timeout: 120 * 1000,
+  } : undefined,
+});
+```
+
+### Commands
+
+```bash
+# Run all E2E tests
+npm run test:e2e
+
+# Run with UI mode (recommended for debugging)
+npm run test:e2e:ui
+
+# Run with debug mode (step-by-step)
+npm run test:e2e:debug
+
+# Run specific test file
+npx playwright test homepage.spec.ts
+
+# Run in specific browser
+npx playwright test --project=chromium
+```
+
+### Local Development
+
+For local development, start the server manually before running tests:
+
+**Terminal 1:**
+```bash
+npm run dev
+```
+
+**Terminal 2:**
+```bash
+npm run test:e2e:ui
+```
+
+### Test Structure
+
+```
+tests/e2e/
+├── homepage.spec.ts     # Homepage tests
+├── login.spec.ts        # Login page tests
+├── register.spec.ts     # Registration page tests
+└── README.md           # E2E documentation
+```
+
+### Testing Authentication Flows
+
+```typescript
+// tests/e2e/login.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Login Page', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/login');
+  });
+
+  test('should display login form', async ({ page }) => {
+    const emailInput = page.locator('input[name="email"]');
+    const passwordInput = page.locator('input[name="password"]');
+    const submitButton = page.locator('button[type="submit"]');
+
+    await expect(emailInput).toBeVisible();
+    await expect(passwordInput).toBeVisible();
+    await expect(submitButton).toBeVisible();
+  });
+
+  test('should toggle password visibility', async ({ page }) => {
+    const passwordInput = page.locator('input[name="password"]');
+    const toggleButton = passwordInput.locator('xpath=../button');
+
+    // Initially password should be hidden
+    await expect(passwordInput).toHaveAttribute('type', 'password');
+
+    // Click toggle button
+    await toggleButton.click();
+
+    // Password should now be visible
+    await expect(passwordInput).toHaveAttribute('type', 'text');
+  });
+
+  test('should disable submit button during submission', async ({ page }) => {
+    const submitButton = page.locator('button[type="submit"]');
+
+    // Fill form with credentials
+    await page.fill('input[name="email"]', 'test@example.com');
+    await page.fill('input[name="password"]', 'password123');
+
+    // Submit form
+    await submitButton.click();
+
+    // Button should be disabled during submission
+    await expect(submitButton).toBeDisabled();
+
+    // Check for loading text
+    await expect(submitButton).toContainText('Signing in');
+  });
+
+  test('should navigate to register page', async ({ page }) => {
+    // Use text-based selector for Inertia links
+    const registerLink = page.getByText('Create one');
+
+    // Click register link
+    await registerLink.click();
+
+    // Should navigate to register page
+    await page.waitForURL('**/register', { timeout: 5000 });
+    expect(page.url()).toContain('/register');
+  });
+});
+```
+
+### Testing Forms
+
+```typescript
+// tests/e2e/register.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Registration Form', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/register');
+  });
+
+  test('should validate password mismatch', async ({ page }) => {
+    const passwordInput = page.locator('input[name="password"]');
+    const confirmPasswordInput = page.locator('input[name="confirm-password"]');
+    const submitButton = page.locator('button[type="submit"]');
+
+    // Fill with mismatched passwords
+    await page.fill('input[name="name"]', 'Test User');
+    await page.fill('input[name="email"]', 'test@example.com');
+    await passwordInput.fill('password123');
+    await confirmPasswordInput.fill('different123');
+
+    // Submit form
+    await submitButton.click();
+
+    // Check for password mismatch error
+    const errorText = page.locator('.text-red-400');
+    await expect(errorText.first()).toBeVisible();
+    await expect(errorText.first()).toContainText('do not match');
+  });
+
+  test('should generate password', async ({ page }) => {
+    const generateButton = page.locator('button:has-text("Generate secure password")');
+    const passwordInput = page.locator('input[name="password"]');
+    const confirmPasswordInput = page.locator('input[name="confirm-password"]');
+
+    // Click generate button
+    await generateButton.click();
+
+    // Password fields should be filled
+    const passwordValue = await passwordInput.inputValue();
+    const confirmValue = await confirmPasswordInput.inputValue();
+
+    expect(passwordValue.length).toBeGreaterThan(0);
+    expect(confirmValue).toBe(passwordValue);
+  });
+
+  test('should show loading state during submission', async ({ page }) => {
+    const submitButton = page.locator('button[type="submit"]');
+
+    // Fill form with valid data
+    await page.fill('input[name="name"]', 'Test User');
+    await page.fill('input[name="email"]', 'test@example.com');
+    await page.fill('input[name="password"]', 'password123');
+    await page.fill('input[name="confirm-password"]', 'password123');
+
+    // Submit form
+    await submitButton.click();
+
+    // Button should be disabled during submission
+    await expect(submitButton).toBeDisabled();
+
+    // Check for loading text
+    await expect(submitButton).toContainText('Creating account');
+  });
+});
+```
+
+### Testing Inertia.js Applications
+
+When testing Inertia.js applications, use text-based selectors for links:
+
+```typescript
+// ❌ Bad - href selector may not work with Inertia
+const link = page.locator('a[href="/login"]');
+
+// ✅ Good - text-based selector works with Inertia
+const link = page.getByText('Sign in').or(page.locator('a[href="/login"]'));
+await expect(link.first()).toBeVisible();
+```
+
+### Best Practices for E2E
+
+1. **Test Critical User Flows**
+   - Focus on important user journeys (login, registration, checkout)
+   - Test success paths AND error paths
+   - Verify form validation
+
+2. **Use Selective Testing**
+   - Don't test every single field
+   - Test key interactions and edge cases
+   - Prioritize critical functionality
+
+3. **Wait Properly**
+   - ❌ `await page.waitForTimeout(5000)` - flaky
+   - ✅ `await page.waitForURL('**/dashboard')` - reliable
+   - ✅ `await expect(element).toBeVisible()` - auto-waiting
+
+4. **Use Descriptive Test Names**
+   ```typescript
+   // Good
+   test('should redirect to dashboard after successful login', () => {});
+
+   // Bad
+   test('test login redirect', () => {});
+   ```
+
+5. **Test Real Scenarios**
+   - Use realistic data
+   - Test like a real user would interact
+   - Include edge cases (empty fields, invalid data)
+
+6. **Keep Tests Independent**
+   - Each test should work alone
+   - Don't rely on state from previous tests
+   - Use `beforeEach` to set up fresh state
+
+### Debugging E2E Tests
+
+**Run with UI Mode:**
+```bash
+npm run test:e2e:ui
+```
+
+**Run with Debug Mode:**
+```bash
+npm run test:e2e:debug
+```
+
+**Run Specific Test:**
+```bash
+npx playwright test --grep "should display login form"
+```
+
+**View Test Reports:**
+```bash
+npx playwright show-report
+```
+
+**Screenshots and Videos:**
+- Screenshots are captured automatically on test failure
+- Videos are recorded for failed tests
+- Check `test-results/` directory after test runs
+
+### CI/CD Integration
+
+E2E tests run automatically in GitHub Actions CI:
+- Tests run after unit and integration tests
+- Server is auto-started before tests
+- Tests run in Chromium (can be extended to Firefox and WebKit)
+- Deployment only proceeds if all tests pass
+- Failed tests include screenshots and video for debugging
+
+---
+
 ## Component Tests
 
 ### Testing Svelte Components
@@ -506,6 +834,7 @@ it('should update user profile', async () => {
 
 ## Next Steps
 
+- [E2E Testing Guide](../../tests/e2e/README.md) - Detailed E2E testing documentation
 - [Best Practices](09-BEST-PRACTICES.md)
 - [API Reference](07-API-REFERENCE.md)
 - [Tutorials](11-TUTORIALS.md)
