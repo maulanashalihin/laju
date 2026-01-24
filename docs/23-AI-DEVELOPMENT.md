@@ -2,6 +2,33 @@
 
 Build complete applications using AI - no coding experience required!
 
+---
+
+## 📋 Table of Contents
+
+**For Beginners:**
+- [TLDR: Quick Start Guide](#tldr-quick-start-guide) - 5-minute overview
+- [Glossary of Terms](#glossary-of-terms) - Important technical terms explained
+- [Simple Workflow](#simple-workflow-non-coder-friendly) - Step-by-step guide
+- [Tips for Non-Coders](#tips-for-non-coders) - Best practices
+- [Common Questions](#common-questions) - FAQ
+
+**For Experts:**
+- [Advanced: Technical Architecture](#advanced-technical-architecture) - Deep dive
+- [Reference Guides](#reference-guides) - Testing & Deployment
+
+**Both:**
+- [Resuming Work](#resuming-work-on-your-project) - Continue where you left off
+- [Practical Tips](#practical-tips-from-practitioners) - Real-world advice
+- [Getting Started Checklist](#getting-started-checklist) - Pre-flight checklist
+
+**Quick Links:**
+- 🚀 [Start New Project](#step-1-start-your-project) - Use INIT_AGENT
+- 💻 [Implement Features](#step-2-let-ai-build-it-concurrent-workflow) - Use TASK_AGENT
+- 🔧 [Manage Changes](#step-5-manage_changes) - Use MANAGER_AGENT
+
+---
+
 ## TLDR: Quick Start Guide
 
 ```mermaid
