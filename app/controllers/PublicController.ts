@@ -18,6 +18,11 @@ class Controller {
  
         return response.send("test");
     }
+
+    public async test2 (request : Request,response : Response) {
+ 
+        return    response.type("html").send(view("test.html"));
+    }
 }
 
 export default new Controller()

@@ -163,25 +163,7 @@ For each feature, ensure:
   - Use proper spacing and padding for mobile screens
   - Avoid horizontal scrolling on mobile
   - Use readable font sizes (min 16px for body text on mobile)
-
-**Test Creation:**
-- [ ] Create unit tests in `tests/unit/services/` for new services/controllers
-- [ ] Create integration tests in `tests/integration/` for new routes/endpoints
-- [ ] Create E2E tests in `tests/e2e/` for critical user flows
-- [ ] Follow existing test patterns (see `tests/unit/services/` for examples)
-- [ ] Use Vitest test framework with `describe`, `it`, `expect` syntax
-- [ ] Test success cases AND error cases
-- [ ] Mock external dependencies (database, API calls) when needed
-
-**Testing (Local - Recommended):**
-- [ ] Run all tests: `npm run test:run` ✓ WAJIB (runs unit + integration tests)
-- [ ] Optional: Run tests with UI for debugging: `npm run test:ui`
-- [ ] Optional: Check coverage: `npm run test:coverage`
-- [ ] Optional: Run E2E tests: `npm run test:e2e` (requires running server)
-- [ ] Optional: Run E2E tests with UI: `npm run test:e2e:ui`
-- [ ] Manual testing in browser
-- [ ] Check for console errors
-
+ 
 **Note:** GitHub Actions CI will automatically run all tests when you push to GitHub. Deployment only proceeds if all tests pass.
 
 **Routes:**

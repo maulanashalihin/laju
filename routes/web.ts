@@ -30,6 +30,7 @@ const Route = new HyperExpress.Router();
  */
 Route.get("/", PublicController.index);
 Route.get("/test", PublicController.test);
+Route.get("/test2", PublicController.test2);
 
 /**
  * Upload Routes

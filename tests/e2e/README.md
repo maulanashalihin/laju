@@ -30,12 +30,17 @@ npm run test:e2e:ui
 # Atau dengan debug mode (step-by-step)
 npm run test:e2e:debug
 
+# Atau dengan headed mode (lihat browser saat test berjalan)
+npx playwright test --headed
+
 # Run test spesifik
 npx playwright test homepage.spec.ts
 
 # Run di browser spesifik
 npx playwright test --project=chromium
-npx playwright test --project=firefox
+
+# Run test spesifik dengan headed mode
+npx playwright test homepage.spec.ts --headed
 ```
 
 ## Struktur Test
