@@ -36,7 +36,7 @@ Uses **Eta** templating engine for server-side rendering.
 
 ### Partials
 ```eta
-<%~ include('partials/header') %>
+<%~ include('partials/header.html') %>
 ```
 
 ### Unescaped Output (Raw HTML)

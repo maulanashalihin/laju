@@ -83,6 +83,13 @@ class Command {
             stdio: "inherit",
             env: { ...process.env, NODE_ENV: selectedDb.env }
          });
+         console.log("\n✅ Migrations completed!");
+
+         console.log("\n🌱 Running seeders...\n");
+         execSync("knex seed:run", {
+            stdio: "inherit",
+            env: { ...process.env, NODE_ENV: selectedDb.env }
+         });
          console.log("\n✅ Database refreshed successfully!");
       } catch (error) {
          console.error("\n❌ Migration failed:", error);
