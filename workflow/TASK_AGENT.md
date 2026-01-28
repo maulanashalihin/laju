@@ -163,8 +163,7 @@ For each feature, ensure:
   - Use proper spacing and padding for mobile screens
   - Avoid horizontal scrolling on mobile
   - Use readable font sizes (min 16px for body text on mobile)
- 
-**Note:** GitHub Actions CI will automatically run all tests when you push to GitHub. Deployment only proceeds if all tests pass.
+  
 
 **Routes:**
 - [ ] Add route to `routes/web.ts`
@@ -444,88 +443,7 @@ Route.put('/posts/:id', [Auth], PostController.update)
 Route.delete('/posts/:id', [Auth], PostController.destroy)
 ```
 
-
-6. **Create Tests**:
-
-**Unit Test** (`tests/unit/services/PostService.test.ts`):
-```typescript
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { DB } from '../../../app/services/DB'
-
-describe('Post Service', () => {
-  beforeEach(async () => {
-    // Setup test database
-    await DB.migrate.latest()
-  })
-
-  afterEach(async () => {
-    // Cleanup test database
-    await DB.migrate.rollback()
-  })
-
-  it('should create a new post', async () => {
-    const postData = {
-      id: '01234567-89ab-cdef-0123-456789abcdef',
-      user_id: 'test-user-id',
-      title: 'Test Post',
-      content: 'Test Content',
-      created_at: Date.now(),
-      updated_at: Date.now()
-    }
-
-    await DB.table('posts').insert(postData)
-
-    const post = await DB.from('posts').where('id', postData.id).first()
-    expect(post).toBeDefined()
-    expect(post?.title).toBe('Test Post')
-  })
-
-  it('should fail on invalid title', async () => {
-    const invalidData = {
-      title: '', // Empty title
-      content: 'Test Content'
-    }
-
-    // Should throw validation error
-    await expect(
-      DB.table('posts').insert(invalidData)
-    ).rejects.toThrow()
-  })
-})
-```
-
-**Integration Test** (`tests/integration/post.test.ts`):
-```typescript
-import { describe, it, expect } from 'vitest'
-
-describe('POST /posts - Integration Tests', () => {
-  it('should create post successfully', async () => {
-    const response = await fetch('http://localhost:5555/posts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: 'Test Post',
-        content: 'Test Content'
-      })
-    })
-
-    expect(response.status).toBe(302)
-  })
-
-  it('should fail with invalid data', async () => {
-    const response = await fetch('http://localhost:5555/posts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: '', // Invalid
-        content: ''
-      })
-    })
-
-    expect(response.status).toBe(302)
-  })
-})
-```
+ 
 
 7. **Update PROGRESS.md**: Check off completed items and add completion date
 
