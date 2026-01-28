@@ -4,7 +4,7 @@
  * It uses Eta as the templating engine and supports hot reloading in development.
  */
 
-import { readFileSync, readdirSync, statSync, watch, existsSync } from "fs";
+import { readFileSync, existsSync } from "fs";
 import { Eta } from 'eta'
 import path from "path";
 import "dotenv/config";  
