@@ -7,11 +7,10 @@
 import { readFileSync, readdirSync, statSync, watch, existsSync } from "fs";
 import { Eta } from 'eta'
 import path from "path";
-import "dotenv/config"; 
-import { t } from "./Translation"
+import "dotenv/config";  
 
 // Set views directory based on environment
-let directory = process.env.NODE_ENV !== 'production' ? "resources/views" : "dist/views";
+let directory = "resources/views";
 
 // Configure Eta instance
 const eta = new Eta({
@@ -68,8 +67,7 @@ if(process.env.NODE_ENV === 'production')
  * @returns Rendered HTML string
  */
 export function view(filename: string, view_data?: Record<string, unknown>) {
-   view_data = view_data || {}; 
-   view_data.t = t
+   view_data = view_data || {};  
    view_data.base_url = process.env.APP_URL; 
    view_data.current_year = new Date().getFullYear(); 
    view_data.asset = function(file: string){

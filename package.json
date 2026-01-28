@@ -5,7 +5,7 @@
   "main": "server.ts",
   "scripts": {
     "dev": "rimraf dist build && concurrently \"vite\" \"nodemon --config nodemon.json\"",
-    "build": "vite build && tsc && tsc-alias -p tsconfig.json && cpy \"resources/views/**/*\" dist/views --parents",
+    "build": "vite build && tsc && tsc-alias -p tsconfig.json",
     "start": "node dist/server.js",
     "refresh": "npx tsx commands/native/RefreshDatabase.ts",
     "tailwind:migrate": "npx tsx commands/native/TailwindMigrate.ts",
@@ -60,8 +60,6 @@
     "@vitest/coverage-v8": "4.0.17",
     "@vitest/ui": "^4.0.10",
     "autoprefixer": "^10.4.23",
-    "cpy": "^10.0.0",
-    "cpy-cli": "^6.0.0",
     "happy-dom": "^20.0.10",
     "mkdirp": "^3.0.0",
     "nodemon": "^3.1.7",
