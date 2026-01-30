@@ -32,12 +32,13 @@ function createSqliteExecutor(db: Database.Database): IGenericSqlite<Database.Da
 
   return {
     db,
-    query: (_isSelect, sql, parameters) => {
+    query: (_isSelect: boolean, sql: string, parameters?: unknown[] | readonly unknown[]) => {
       const stmt = getStmt(sql);
+      const params = parameters ?? [];
       if (stmt.reader) {
-        return { rows: stmt.all(parameters) as Record<string, unknown>[] };
+        return { rows: stmt.all(params) as Record<string, unknown>[] };
       }
-      const { changes, lastInsertRowid } = stmt.run(parameters);
+      const { changes, lastInsertRowid } = stmt.run(params);
       return {
         rows: [],
         numAffectedRows: BigInt(changes ?? 0),
@@ -45,11 +46,12 @@ function createSqliteExecutor(db: Database.Database): IGenericSqlite<Database.Da
       };
     },
     close: () => db.close(),
-    iterator: (isSelect, sql, parameters) => {
+    iterator: (isSelect: boolean, sql: string, parameters?: unknown[] | readonly unknown[]) => {
       if (!isSelect) {
         throw new Error("Only support select in stream()");
       }
-      return getStmt(sql).iterate(parameters) as any;
+      const params = parameters ?? [];
+      return getStmt(sql).iterate(params) as any;
     },
   };
 }

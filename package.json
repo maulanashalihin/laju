@@ -37,6 +37,7 @@
     "hyper-express": "^6.17.3",
     "ioredis": "^5.4.1",
     "kysely": "^0.28.10",
+    "kysely-generic-sqlite": "^1.2.1",
     "lucide-svelte": "^0.562.0",
     "nodemailer": "^7.0.12",
     "postcss": "^8.4.49",
