@@ -329,7 +329,7 @@ class UploadController {
                                 updated_at: Date.now()
                             };
 
-                            await DB.from("assets").insert(uploadedAsset);
+                            await DB.insertInto("assets").values(uploadedAsset).execute();
                             response.json({ success: true, data: uploadedAsset });
                         } catch (err) {
                             response.status(500).json({ 
@@ -430,7 +430,7 @@ class UploadController {
                                 updated_at: Date.now()
                             };
 
-                            await DB.from("assets").insert(uploadedAsset);
+                            await DB.insertInto("assets").values(uploadedAsset).execute();
                             response.json({ success: true, data: uploadedAsset });
                         } catch (err) {
                             response.status(500).json({ 

@@ -55,7 +55,7 @@ class PostController {
     // Business logic
     const slug = data.title.toLowerCase().replace(/\s/g, '-');
     // Database logic
-    const post = await DB.table("posts").insert({ ...data, slug });
+    const post = await DB.insertInto("posts").values({ ...data, slug }).execute();
     return response.json(post);
   }
 }
@@ -71,7 +71,7 @@ class PostService {
   async create(data: PostData) {
     this.validate(data);
     const slug = this.generateSlug(data.title);
-    return await DB.table("posts").insert({ ...data, slug });
+    return await DB.insertInto("posts").values({ ...data, slug }).execute();
   }
   
   private validate(data: PostData) {
@@ -168,9 +168,10 @@ public async store(request: Request, response: Response) {
 
 ```typescript
 // ✅ Good - Parameterized
-const user = await DB.from("users")
-  .where("email", email)
-  .first();
+const user = await DB.selectFrom("users")
+  .selectAll()
+  .where("email", "=", email)
+  .executeTakeFirst();
 
 const user = SQLite.get(
   "SELECT * FROM users WHERE email = ?",
@@ -287,15 +288,19 @@ await DB.transaction(async (trx) => {
 
 ```typescript
 // ❌ Bad - N+1 query problem
-const posts = await DB.from("posts").select("*");
+const posts = await DB.selectFrom("posts").selectAll().execute();
 for (const post of posts) {
-  post.author = await DB.from("users").where("id", post.user_id).first();
+  post.author = await DB.selectFrom("users")
+    .selectAll()
+    .where("id", "=", post.user_id)
+    .executeTakeFirst();
 }
 
 // ✅ Good - Single query with JOIN
-const posts = await DB.from("posts")
-  .join("users", "posts.user_id", "users.id")
-  .select("posts.*", "users.name as author");
+const posts = await DB.selectFrom("posts")
+  .innerJoin("users", "posts.user_id", "users.id")
+  .selectAll()
+  .execute();
 ```
 
 ### Caching
@@ -308,7 +313,10 @@ async function getUser(id: number) {
   const cached = await Redis.get(`user:${id}`);
   if (cached) return JSON.parse(cached);
   
-  const user = await DB.from("users").where("id", id).first();
+  const user = await DB.selectFrom("users")
+    .selectAll()
+    .where("id", "=", id)
+    .executeTakeFirst();
   await Redis.set(`user:${id}`, JSON.stringify(user), "EX", 3600);
   
   return user;
@@ -483,11 +491,11 @@ table.bigInteger('created_at').notNullable();
 table.bigInteger('updated_at').notNullable();
 
 // When inserting
-await DB.table("posts").insert({
+await DB.insertInto("posts").values({
   title: "Hello",
   created_at: Date.now(),
   updated_at: Date.now()
-});
+}).execute();
 ```
 
 ---

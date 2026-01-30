@@ -66,12 +66,12 @@ class PostController {
     if (!validatedData) return;
 
     // validatedData is now type-safe!
-    const post = await DB.table("posts").insert({
+    const post = await DB.insertInto("posts").values({
       title: validatedData.title,
       content: validatedData.content,
       published: validatedData.published ?? false,
       user_id: request.user.id,
-    });
+    }).execute();
 
     return response.json({ success: true, data: post });
   }
@@ -133,7 +133,10 @@ class ProfileController {
     const { name, email } = validationResult.data!;
 
     // Update profile
-    await DB.from("users").where("id", request.user.id).update({ name, email });
+    await DB.updateTable("users")
+      .set({ name, email })
+      .where("id", "=", request.user.id)
+      .execute();
 
     return response
       .flash("success", "Profile updated successfully")
@@ -175,11 +178,11 @@ class ApiController {
     const { title, content } = validationResult.data!;
 
     // Create post
-    const post = await DB.table("posts").insert({
+    const post = await DB.insertInto("posts").values({
       title,
       content,
       user_id: request.user.id,
-    });
+    }).execute();
 
     return response.json({ success: true, data: post });
   }
@@ -270,7 +273,10 @@ const userSchema = z.object({
 ```typescript
 const emailSchema = z.string().email().refine(
   async (email) => {
-    const exists = await DB.from('users').where('email', email).first();
+    const exists = await DB.selectFrom('users')
+      .selectAll()
+      .where('email', '=', email)
+      .executeTakeFirst();
     return !exists;
   },
   { message: 'Email already registered' }

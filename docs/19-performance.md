@@ -71,15 +71,19 @@ export async function up(db: Kysely<any>) {
 
 ```typescript
 // SLOW - N+1 problem (1 + N queries)
-const posts = await DB.from("posts");
+const posts = await DB.selectFrom("posts").selectAll().execute();
 for (const post of posts) {
-  post.author = await DB.from("users").where("id", post.user_id).first();
+  post.author = await DB.selectFrom("users")
+    .selectAll()
+    .where("id", "=", post.user_id)
+    .executeTakeFirst();
 }
 
 // FAST - Single query with JOIN
-const posts = await DB.from("posts")
-  .join("users", "posts.user_id", "users.id")
-  .select("posts.*", "users.name as author_name", "users.email as author_email");
+const posts = await DB.selectFrom("posts")
+  .innerJoin("users", "posts.user_id", "users.id")
+  .selectAll()
+  .execute();
 ```
 
 ### Use Transactions for Bulk Operations
@@ -87,18 +91,18 @@ const posts = await DB.from("posts")
 ```typescript
 // SLOW - Individual inserts
 for (const item of items) {
-  await DB.table("items").insert(item);
+  await DB.insertInto("items").values(item).execute();
 }
 
 // FAST - Transaction (atomic, faster)
-await DB.transaction(async (trx) => {
+await DB.transaction().execute(async (trx) => {
   for (const item of items) {
-    await trx.table("items").insert(item);
+    await trx.insertInto("items").values(item).execute();
   }
 });
 
 // FASTEST - Batch insert
-await DB.table("items").insert(items);
+await DB.insertInto("items").values(items).execute();
 ```
 
 ### WAL Mode (Enabled by Default)
@@ -115,20 +119,27 @@ nativeDb.pragma('synchronous = NORMAL');
 
 ```typescript
 // SLOW - Select all columns
-const users = await DB.from("users");
+const users = await DB.selectFrom("users").selectAll().execute();
 
 // FAST - Select only needed columns
-const users = await DB.from("users").select("id", "name", "email");
+const users = await DB.selectFrom("users").select(["id", "name", "email"]).execute();
 ```
 
 ### Use .first() for Single Records
 
 ```typescript
 // Correct
-const user = await DB.from("users").where("id", id).first();
+const user = await DB.selectFrom("users")
+  .selectAll()
+  .where("id", "=", id)
+  .executeTakeFirst();
 
 // Avoid
-const [user] = await DB.from("users").where("id", id).limit(1);
+const [user] = await DB.selectFrom("users")
+  .selectAll()
+  .where("id", "=", id)
+  .limit(1)
+  .execute();
 ```
 
 ---
@@ -148,7 +159,10 @@ async function getUser(id: string) {
   }
   
   // 2. Cache miss - fetch from DB
-  const user = await DB.from("users").where("id", id).first();
+  const user = await DB.selectFrom("users")
+    .selectAll()
+    .where("id", "=", id)
+    .executeTakeFirst();
   
   // 3. Store in cache (1 hour TTL)
   if (user) {
@@ -164,7 +178,10 @@ async function getUser(id: string) {
 ```typescript
 // After update, invalidate cache
 async function updateUser(id: string, data: object) {
-  await DB.table("users").where("id", id).update(data);
+  await DB.updateTable("users")
+    .set(data)
+    .where("id", "=", id)
+    .execute();
   await Redis.del(`user:${id}`);  // Invalidate
 }
 
@@ -182,9 +199,11 @@ async function invalidateUserCaches(userId: string) {
 ```typescript
 // Pre-populate cache on startup
 async function warmCache() {
-  const popularPosts = await DB.from("posts")
+  const popularPosts = await DB.selectFrom("posts")
+    .selectAll()
     .where("views", ">", 1000)
-    .limit(100);
+    .limit(100)
+    .execute();
   
   for (const post of popularPosts) {
     await Redis.set(`post:${post.id}`, JSON.stringify(post), "EX", 3600);
@@ -407,7 +426,7 @@ Route.get("/health", async (request, response) => {
 
 async function checkDatabase(): Promise<boolean> {
   try {
-    await DB.raw('SELECT 1');
+    await DB.selectFrom("users").select(({ fn }) => fn.count("*")).execute();
     return true;
   } catch {
     return false;

@@ -257,7 +257,10 @@ async function getUser(id: string) {
   }
   
   // 2. Cache miss - fetch from DB
-  const user = await DB.from("users").where("id", id).first();
+  const user = await DB.selectFrom("users")
+    .selectAll()
+    .where("id", "=", id)
+    .executeTakeFirst();
   
   // 3. Store in cache
   if (user) {

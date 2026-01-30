@@ -73,7 +73,10 @@ Route.get("/posts/:postId/comments/:commentId", CommentController.show);
 // Controller
 public async show(request: Request, response: Response) {
   const { id } = request.params;
-  const user = await DB.from("users").where("id", id).first();
+  const user = await DB.selectFrom("users")
+  .selectAll()
+  .where("id", "=", id)
+  .executeTakeFirst();
   return response.json({ user });
 }
 ```
@@ -86,10 +89,12 @@ public async show(request: Request, response: Response) {
 public async search(request: Request, response: Response) {
   const { q, page } = request.query;
   
-  const results = await DB.from("posts")
+  const results = await DB.selectFrom("posts")
+    .selectAll()
     .where("title", "like", `%${q}%`)
     .limit(10)
-    .offset((page - 1) * 10);
+    .offset((page - 1) * 10)
+    .execute();
   
   return response.json({ results });
 }
@@ -115,7 +120,10 @@ import DB from "../services/DB";
 class PostController {
   // List all posts
   public async index(request: Request, response: Response) {
-    const posts = await DB.from("posts").orderBy("created_at", "desc");
+    const posts = await DB.selectFrom("posts")
+      .selectAll()
+      .orderBy("created_at", "desc")
+      .execute();
     return response.inertia("posts/index", { posts });
   }
 
@@ -128,13 +136,13 @@ class PostController {
   public async store(request: Request, response: Response) {
     const { title, content } = await request.json();
     
-    await DB.table("posts").insert({
+    await DB.insertInto("posts").values({
       title,
       content,
       user_id: request.user.id,
       created_at: Date.now(),
       updated_at: Date.now()
-    });
+    }).execute();
     
     return response.redirect("/posts");
   }
@@ -142,7 +150,10 @@ class PostController {
   // Show single post
   public async show(request: Request, response: Response) {
     const { id } = request.params;
-    const post = await DB.from("posts").where("id", id).first();
+    const post = await DB.selectFrom("posts")
+      .selectAll()
+      .where("id", "=", id)
+      .executeTakeFirst();
     
     if (!post) {
       return response.status(404).json({ error: "Post not found" });
@@ -154,7 +165,10 @@ class PostController {
   // Show edit form
   public async edit(request: Request, response: Response) {
     const { id } = request.params;
-    const post = await DB.from("posts").where("id", id).first();
+    const post = await DB.selectFrom("posts")
+      .selectAll()
+      .where("id", "=", id)
+      .executeTakeFirst();
     
     if (!post) {
       return response.status(404).json({ error: "Post not found" });
@@ -168,11 +182,14 @@ class PostController {
     const { id } = request.params;
     const { title, content } = await request.json();
     
-    await DB.from("posts").where("id", id).update({
-      title,
-      content,
-      updated_at: Date.now()
-    });
+    await DB.updateTable("posts")
+      .set({
+        title,
+        content,
+        updated_at: Date.now()
+      })
+      .where("id", "=", id)
+      .execute();
     
     return response.redirect("/posts");
   }
@@ -180,7 +197,7 @@ class PostController {
   // Delete post
   public async destroy(request: Request, response: Response) {
     const { id } = request.params;
-    await DB.from("posts").where("id", id).delete();
+    await DB.deleteFrom("posts").where("id", "=", id).execute();
     return response.json({ success: true });
   }
 }
@@ -218,7 +235,7 @@ class UserController {
     // This will fail because 'this' doesn't work with exported instances
     const validated = this.validateUser(body);
 
-    await DB.table("users").insert(validated);
+    await DB.insertInto("users").values(validated).execute();
     return response.json({ success: true });
   }
 
@@ -242,7 +259,7 @@ class UserController {
     // Call static method
     const validated = UserController.validateUser(body);
 
-    await DB.table("users").insert(validated);
+    await DB.insertInto("users").values(validated).execute();
     return response.json({ success: true });
   }
 
@@ -268,7 +285,7 @@ class UserController {
     // Call utility function
     const validated = validateUser(body);
 
-    await DB.table("users").insert(validated);
+    await DB.insertInto("users").values(validated).execute();
     return response.json({ success: true });
   }
 }
@@ -348,11 +365,14 @@ class UserService {
     const hashedPassword = await Authenticate.hash(data.password);
     const user = { ...data, password: hashedPassword };
 
-    return await DB.table("users").insert(user);
+    return await DB.insertInto("users").values(user).execute();
   }
 
   async findByEmail(email: string) {
-    return await DB.table("users").where("email", email).first();
+    return await DB.selectFrom("users")
+      .selectAll()
+      .where("email", "=", email)
+      .executeTakeFirst();
   }
 }
 
@@ -458,7 +478,10 @@ public async update(request: Request, response: Response) {
     return response.flash("error", firstError).redirect("/profile", 303);
   }
   
-  await DB.from("users").where("id", request.user.id).update(body);
+  await DB.updateTable("users")
+    .set(body)
+    .where("id", "=", request.user.id)
+    .execute();
   
   return response
     .flash("success", "Profile updated successfully")
@@ -467,7 +490,10 @@ public async update(request: Request, response: Response) {
 
 // ❌ WRONG - Don't use default 302 for form submissions
 public async update(request: Request, response: Response) {
-  await DB.from("users").where("id", id).update(data);
+  await DB.updateTable("users")
+    .set(data)
+    .where("id", "=", id)
+    .execute();
   return response.flash("success", "Updated!").redirect("/profile"); // Uses 302
 }
 ```
@@ -567,7 +593,10 @@ public async processRegister(request: Request, response: Response) {
     const { email, password, name } = validationResult.data!;
     
     // Business logic
-    const existingUser = await DB.from("users").where("email", email).first();
+    const existingUser = await DB.selectFrom("users")
+      .selectAll()
+      .where("email", "=", email)
+      .executeTakeFirst();
     if (existingUser) {
       return response
          .flash("error", "Email sudah terdaftar")
@@ -614,7 +643,10 @@ public async processRequest(request: Request, response: Response) {
     const { email } = validationResult.data!;
     
     // 3. Database operations
-    const existing = await DB.from("users").where("email", email).first();
+    const existing = await DB.selectFrom("users")
+      .selectAll()
+      .where("email", "=", email)
+      .executeTakeFirst();
     if (existing) {
       return response.flash("error", "Email sudah terdaftar").redirect("/path");
     }
@@ -659,12 +691,16 @@ public async index(request: Request, response: Response) {
   const perPage = 10;
   const offset = (page - 1) * perPage;
   
-  const posts = await DB.from("posts")
+  const posts = await DB.selectFrom("posts")
+    .selectAll()
     .orderBy("created_at", "desc")
     .limit(perPage)
-    .offset(offset);
+    .offset(offset)
+    .execute();
   
-  const total = await DB.from("posts").count("* as count").first();
+  const total = await DB.selectFrom("posts")
+    .select(({ fn }) => [fn.count("*").as("count")])
+    .executeTakeFirst();
   
   return response.inertia("posts/index", {
     posts,
@@ -684,23 +720,23 @@ public async index(request: Request, response: Response) {
 public async index(request: Request, response: Response) {
   const { search, status, sort } = request.query;
   
-  let query = DB.from("posts");
+  let query = DB.selectFrom("posts").selectAll();
   
   // Search
   if (search) {
-    query = query.where("title", "like", `%${search}%`);
+    query = query.where("title", "like", `%${search}%`) as any;
   }
   
   // Filter
   if (status) {
-    query = query.where("status", status);
+    query = query.where("status", "=", status) as any;
   }
   
   // Sort
   const sortBy = sort || "created_at";
-  query = query.orderBy(sortBy, "desc");
+  query = query.orderBy(sortBy, "desc") as any;
   
-  const posts = await query;
+  const posts = await query.execute();
   
   return response.inertia("posts/index", { posts, search, status, sort });
 }
@@ -731,12 +767,12 @@ public async store(request: Request, response: Response) {
   }
   
   // Store
-  await DB.table("posts").insert({
+  await DB.insertInto("posts").values({
     title,
     content,
     created_at: Date.now(),
     updated_at: Date.now()
-  });
+  }).execute();
   
   return response.redirect("/posts");
 }
@@ -747,7 +783,7 @@ public async store(request: Request, response: Response) {
 ```typescript
 public async index(request: Request, response: Response) {
   try {
-    const posts = await DB.from("posts");
+    const posts = await DB.selectFrom("posts").selectAll().execute();
     
     return response.json({
       success: true,
@@ -854,7 +890,7 @@ public async uploadImage(request: Request, response: Response) {
             updated_at: Date.now()
          };
 
-         await DB.from("assets").insert(uploadedAsset);
+         await DB.insertInto("assets").values(uploadedAsset).execute();
          response.json({ success: true, data: uploadedAsset });
       }
    });
@@ -926,7 +962,7 @@ public async uploadFile(request: Request, response: Response) {
             updated_at: Date.now()
          };
 
-         await DB.from("assets").insert(uploadedAsset);
+         await DB.insertInto("assets").values(uploadedAsset).execute();
          response.json({ success: true, data: uploadedAsset });
       }
    });
@@ -985,7 +1021,7 @@ public async store(request: Request, response: Response) {
 public async store(request: Request, response: Response) {
   try {
     const data = await request.json();
-    await DB.table("posts").insert(data);
+    await DB.insertInto("posts").values(data).execute();
     return response.json({ success: true });
   } catch (error) {
     return response.status(500).json({ error: "Failed to create post" });
@@ -1036,7 +1072,7 @@ public async store(request: Request, response: Response) {
   // Complex validation logic
   // Complex business rules
   // Complex data transformation
-  await DB.table("posts").insert(data);
+  await DB.insertInto("posts").values(data).execute();
 }
 ```
 
@@ -1045,7 +1081,7 @@ public async store(request: Request, response: Response) {
 // ❌ Bad - No error handling
 public async store(request: Request, response: Response) {
   const data = await request.json();
-  await DB.table("posts").insert(data);
+  await DB.insertInto("posts").values(data).execute();
   return response.json({ success: true });
 }
 ```
@@ -1053,14 +1089,17 @@ public async store(request: Request, response: Response) {
 **3. Don't expose sensitive data**
 ```typescript
 // ❌ Bad
-const user = await DB.from("users").where("id", id).first();
+const user = await DB.selectFrom("users")
+  .selectAll()
+  .where("id", "=", id)
+  .executeTakeFirst();
 return response.json({ user }); // Includes password hash!
 
 // ✅ Good
-const user = await DB.from("users")
-  .where("id", id)
-  .select("id", "name", "email")
-  .first();
+const user = await DB.selectFrom("users")
+  .select(["id", "name", "email"])
+  .where("id", "=", id)
+  .executeTakeFirst();
 return response.json({ user });
 ```
 
@@ -1095,7 +1134,7 @@ Route.post("/posts", PostController.store);
 
 // Controller method
 public async index(request: Request, response: Response) {
-  const posts = await DB.from("posts");
+  const posts = await DB.selectFrom("posts").selectAll().execute();
   return response.inertia("posts/index", { posts });
 }
 

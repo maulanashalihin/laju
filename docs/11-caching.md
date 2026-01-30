@@ -150,7 +150,10 @@ const user = await Cache.get<User>("user:123");
 
 // Remember pattern (cache-aside)
 const user = await Cache.remember("user:123", 10, async () => {
-  return await DB.from("users").where("id", 123).first();
+  return await DB.selectFrom("users")
+    .selectAll()
+    .where("id", "=", 123)
+    .executeTakeFirst();
 });
 
 // Delete from cache
@@ -185,12 +188,18 @@ import DB from "./DB";
 class UserService {
   async getUser(id: string) {
     return await Cache.remember(`user:${id}`, 60, async () => {
-      return await DB.from("users").where("id", id).first();
+      return await DB.selectFrom("users")
+        .selectAll()
+        .where("id", "=", id)
+        .executeTakeFirst();
     });
   }
   
   async updateUser(id: string, data: any) {
-    await DB.table("users").where("id", id).update(data);
+    await DB.updateTable("users")
+      .set(data)
+      .where("id", "=", id)
+      .execute();
     await Cache.forget(`user:${id}`); // Invalidate cache
   }
 }
@@ -256,7 +265,10 @@ async function getUser(id: string) {
   }
   
   // 2. Cache miss - fetch from DB
-  const user = await DB.from("users").where("id", id).first();
+  const user = await DB.selectFrom("users")
+    .selectAll()
+    .where("id", "=", id)
+    .executeTakeFirst();
   
   // 3. Store in cache (1 hour)
   if (user) {
@@ -277,13 +289,13 @@ async function getUser(id: string) {
 ```typescript
 // Cache complex aggregations
 const stats = await Cache.remember("dashboard:stats", 5, async () => {
-  return await DB.raw(`
-    SELECT 
-      COUNT(*) as total_users,
-      SUM(orders.total) as revenue
-    FROM users
-    LEFT JOIN orders ON users.id = orders.user_id
-  `);
+  return await DB.selectFrom("users")
+    .leftJoin("orders", "users.id", "orders.user_id")
+    .select(({ fn }) => [
+      fn.count("users.id").as("total_users"),
+      fn.sum("orders.total").as("revenue")
+    ])
+    .execute();
 });
 ```
 
@@ -300,7 +312,10 @@ const weather = await Cache.remember("weather:jakarta", 30, async () => {
 ```typescript
 // Cache processed results
 const report = await Cache.remember("report:monthly", 1440, async () => {
-  const data = await DB.from("transactions").where("month", currentMonth);
+  const data = await DB.selectFrom("transactions")
+    .selectAll()
+    .where("month", "=", currentMonth)
+    .execute();
   return processReport(data); // Expensive computation
 });
 ```
@@ -309,10 +324,12 @@ const report = await Cache.remember("report:monthly", 1440, async () => {
 ```typescript
 // Cache hot data
 const popularPosts = await Cache.remember("posts:popular", 60, async () => {
-  return await DB.from("posts")
+  return await DB.selectFrom("posts")
+    .selectAll()
     .where("views", ">", 1000)
     .orderBy("views", "desc")
-    .limit(10);
+    .limit(10)
+    .execute();
 });
 ```
 
@@ -321,25 +338,37 @@ const popularPosts = await Cache.remember("posts:popular", 60, async () => {
 **1. Real-time Data**
 ```typescript
 // Don't cache - needs to be real-time
-const liveScore = await DB.from("games").where("id", id).first();
+const liveScore = await DB.selectFrom("games")
+  .selectAll()
+  .where("id", "=", id)
+  .executeTakeFirst();
 ```
 
 **2. User-specific Sensitive Data**
 ```typescript
 // Don't cache - security risk
-const userPassword = await DB.from("users").where("id", id).first();
+const userPassword = await DB.selectFrom("users")
+  .selectAll()
+  .where("id", "=", id)
+  .executeTakeFirst();
 ```
 
 **3. Frequently Changing Data**
 ```typescript
 // Don't cache - changes too often
-const cartItems = await DB.from("cart_items").where("user_id", userId);
+const cartItems = await DB.selectFrom("cart_items")
+  .selectAll()
+  .where("user_id", "=", userId)
+  .execute();
 ```
 
 **4. Small/Fast Queries**
 ```typescript
 // Don't cache - query is already fast
-const user = await DB.from("users").where("id", id).first();
+const user = await DB.selectFrom("users")
+  .selectAll()
+  .where("id", "=", id)
+  .executeTakeFirst();
 // Only cache if this query is called very frequently
 ```
 
@@ -417,7 +446,10 @@ await Cache.put("settings:app", settings, 1440); // 24 hours
 
 ```typescript
 async function updateUser(id: string, data: any) {
-  await DB.table("users").where("id", id).update(data);
+  await DB.updateTable("users")
+    .set(data)
+    .where("id", "=", id)
+    .execute();
   await Cache.forget(`user:${id}`); // Clear cache
 }
 ```
@@ -444,12 +476,18 @@ if (!data) {
 async function getUser(id: string) {
   try {
     return await Cache.remember(`user:${id}`, 60, async () => {
-      return await DB.from("users").where("id", id).first();
+      return await DB.selectFrom("users")
+        .selectAll()
+        .where("id", "=", id)
+        .executeTakeFirst();
     });
   } catch (error) {
     console.error("Cache error:", error);
     // Fallback to direct DB query
-    return await DB.from("users").where("id", id).first();
+    return await DB.selectFrom("users")
+      .selectAll()
+      .where("id", "=", id)
+      .executeTakeFirst();
   }
 }
 ```

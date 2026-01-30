@@ -60,16 +60,16 @@ function validatePassword(password: string): string[] {
 
 ```typescript
 // WRONG
-await DB.table("users").insert({
+await DB.insertInto("users").values({
   email,
   password: password  // Plaintext!
-});
+}).execute();
 
 // CORRECT
-await DB.table("users").insert({
+await DB.insertInto("users").values({
   email,
   password: await Authenticate.hash(password)
-});
+}).execute();
 ```
 
 ---
@@ -146,9 +146,10 @@ const isActive = request.query.active === 'true';
 
 ```typescript
 // CORRECT - Kysely (auto-parameterized)
-const user = await DB.from("users")
-  .where("email", email)
-  .first();
+const user = await DB.selectFrom("users")
+  .selectAll()
+  .where("email", "=", email)
+  .executeTakeFirst();
 
 // CORRECT - Native SQLite (parameterized)
 const user = SQLite.get(
@@ -179,17 +180,17 @@ const query = "SELECT * FROM users WHERE " + userInput;
 
 ```typescript
 // Safe way to build dynamic queries
-let query = DB.from("posts");
+let query = DB.selectFrom("posts").selectAll();
 
 if (status) {
-  query = query.where("status", status);
+  query = query.where("status", "=", status) as any;
 }
 
 if (userId) {
-  query = query.where("user_id", userId);
+  query = query.where("user_id", "=", userId) as any;
 }
 
-const posts = await query.orderBy("created_at", "desc");
+const posts = await query.orderBy("created_at", "desc").execute();
 ```
 
 ---

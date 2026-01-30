@@ -377,7 +377,10 @@ This makes debugging easier - you can directly see which keys haven't been trans
 response.cookie('lang', 'id', 1000 * 60 * 60 * 24 * 365); // 1 year
 
 // Or save to database
-await DB.from('users').where('id', userId).update({ language: 'id' });
+await DB.updateTable('users')
+  .set({ language: 'id' })
+  .where('id', '=', userId)
+  .execute();
 ```
 
 **Client-Side (Svelte/Inertia):**

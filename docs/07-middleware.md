@@ -230,7 +230,10 @@ export default async (request: Request, response: Response) => {
 ```typescript
 public async show(request: Request, response: Response) => {
    const userId = request.user.id; // Available after Auth middleware
-   const user = await DB.from("users").where("id", userId).first();
+   const user = await DB.selectFrom("users")
+     .selectAll()
+     .where("id", "=", userId)
+     .executeTakeFirst();
    return response.json({ user });
 }
 ```
@@ -617,7 +620,7 @@ webserver.use(inertia());
 
 // Now you can use response.inertia() in controllers
 public async index(request: Request, response: Response) => {
-  const posts = await DB.from("posts");
+  const posts = await DB.selectFrom("posts").selectAll().execute();
   return response.inertia("posts/index", { posts });
 }
 ```
@@ -1044,7 +1047,10 @@ import DB from "../services/DB";
 export default async (request: Request, response: Response) => {
   const { id } = request.params;
   
-  const post = await DB.from("posts").where("id", id).first();
+  const post = await DB.selectFrom("posts")
+    .selectAll()
+    .where("id", "=", id)
+    .executeTakeFirst();
   
   if (!post) {
     return response.status(404).json({ error: "Post not found" });

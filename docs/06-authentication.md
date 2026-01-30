@@ -87,7 +87,7 @@ public async processRegister(request: Request, response: Response) {
   };
   
   try {
-    await DB.table("users").insert(user);
+    await DB.insertInto("users").values(user).execute();
     return Authenticate.process(user, request, response);
   } catch (error) {
     // Handle duplicate email
@@ -106,9 +106,10 @@ public async processLogin(request: Request, response: Response) {
   const { email, password } = await request.json();
   
   // Find user
-  const user = await DB.from("users")
-    .where("email", email.toLowerCase())
-    .first();
+  const user = await DB.selectFrom("users")
+    .selectAll()
+    .where("email", "=", email.toLowerCase())
+    .executeTakeFirst();
   
   if (!user) {
     return response
@@ -192,11 +193,11 @@ public async store(request: Request, response: Response) {
   const userName = request.user.name;
   const isAdmin = request.user.is_admin;
   
-  await DB.table("posts").insert({
+  await DB.insertInto("posts").values({
     title: "New Post",
     user_id: userId,
     created_at: Date.now()
-  });
+  }).execute();
   
   return response.redirect("/posts");
 }
@@ -313,7 +314,10 @@ class OAuthController {
     const { email, name, verified_email } = result.data;
 
     // Find or create user
-    let user = await DB.from("users").where("email", email.toLowerCase()).first();
+    let user = await DB.selectFrom("users")
+      .selectAll()
+      .where("email", "=", email.toLowerCase())
+      .executeTakeFirst();
 
     if (!user) {
       user = {
@@ -325,7 +329,7 @@ class OAuthController {
         created_at: Date.now(),
         updated_at: Date.now()
       };
-      await DB.table("users").insert(user);
+      await DB.insertInto("users").values(user).execute();
     }
 
     return Authenticate.process(user, request, response);
@@ -359,18 +363,21 @@ Route.get("/google/callback", OAuthController.googleCallback);
 public async sendResetPassword(request: Request, response: Response) {
   const { email } = await request.json();
   
-  const user = await DB.from("users").where("email", email).first();
+  const user = await DB.selectFrom("users")
+    .selectAll()
+    .where("email", "=", email)
+    .executeTakeFirst();
   if (!user) {
     return response.status(404).send("Email not found");
   }
 
   const token = randomUUID();
   
-  await DB.from("password_reset_tokens").insert({
+  await DB.insertInto("password_reset_tokens").values({
     email: user.email,
     token: token,
     expires_at: dayjs().add(24, 'hours').toDate()
-  });
+  }).execute();
 
   await MailTo({
     to: email,
@@ -384,22 +391,27 @@ public async sendResetPassword(request: Request, response: Response) {
 public async resetPassword(request: Request, response: Response) {
   const { id, password } = await request.json();
 
-  const token = await DB.from("password_reset_tokens")
-    .where("token", id)
+  const token = await DB.selectFrom("password_reset_tokens")
+    .selectAll()
+    .where("token", "=", id)
     .where("expires_at", ">", new Date())
-    .first();
+    .executeTakeFirst();
 
   if (!token) {
     return response.status(404).send("Invalid or expired link");
   }
 
-  const user = await DB.from("users").where("email", token.email).first();
+  const user = await DB.selectFrom("users")
+    .selectAll()
+    .where("email", "=", token.email)
+    .executeTakeFirst();
 
-  await DB.from("users")
-    .where("id", user.id)
-    .update({ password: await Authenticate.hash(password) });
+  await DB.updateTable("users")
+    .set({ password: await Authenticate.hash(password) })
+    .where("id", "=", user.id)
+    .execute();
 
-  await DB.from("password_reset_tokens").where("token", id).delete();
+  await DB.deleteFrom("password_reset_tokens").where("token", "=", id).execute();
 
   return Authenticate.process(user, request, response);
 }
@@ -423,15 +435,15 @@ public async resetPassword(request: Request, response: Response) {
 public async verify(request: Request, response: Response) {
   const token = randomUUID();
 
-  await DB.from("email_verification_tokens")
-    .where("user_id", request.user.id)
-    .delete();
+  await DB.deleteFrom("email_verification_tokens")
+    .where("user_id", "=", request.user.id)
+    .execute();
 
-  await DB.from("email_verification_tokens").insert({
+  await DB.insertInto("email_verification_tokens").values({
     user_id: request.user.id,
     token: token,
     expires_at: dayjs().add(24, 'hours').toDate()
-  });
+  }).execute();
 
   await MailTo({
     to: request.user.email,
@@ -445,19 +457,22 @@ public async verify(request: Request, response: Response) {
 public async verifyPage(request: Request, response: Response) {
   const { id } = request.params;
 
-  const verificationToken = await DB.from("email_verification_tokens")
-    .where({ user_id: request.user.id, token: id })
+  const verificationToken = await DB.selectFrom("email_verification_tokens")
+    .selectAll()
+    .where("user_id", "=", request.user.id)
+    .where("token", "=", id)
     .where("expires_at", ">", new Date())
-    .first();
+    .executeTakeFirst();
 
   if (verificationToken) {
-    await DB.from("users")
-      .where("id", request.user.id)
-      .update({ is_verified: true });
+    await DB.updateTable("users")
+      .set({ is_verified: true })
+      .where("id", "=", request.user.id)
+      .execute();
 
-    await DB.from("email_verification_tokens")
-      .where("id", verificationToken.id)
-      .delete();
+    await DB.deleteFrom("email_verification_tokens")
+      .where("id", "=", verificationToken.id)
+      .execute();
   }
 
   return response.redirect("/home?verified=true");

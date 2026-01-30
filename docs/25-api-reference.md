@@ -83,32 +83,38 @@ import DB from "../services/DB";
 
 class Controller {
   public async index(request: Request, response: Response) {
-    const items = await DB.from("items");
+    const items = await DB.selectFrom("items").selectAll().execute();
     return response.inertia("items/index", { items });
   }
 
   public async store(request: Request, response: Response) {
     const data = await request.json();
-    await DB.table("items").insert(data);
+    await DB.insertInto("items").values(data).execute();
     return response.redirect("/items");
   }
 
   public async show(request: Request, response: Response) {
     const { id } = request.params;
-    const item = await DB.from("items").where("id", id).first();
+    const item = await DB.selectFrom("items")
+      .selectAll()
+      .where("id", "=", id)
+      .executeTakeFirst();
     return response.json({ item });
   }
 
   public async update(request: Request, response: Response) {
     const { id } = request.params;
     const data = await request.json();
-    await DB.from("items").where("id", id).update(data);
+    await DB.updateTable("items")
+      .set(data)
+      .where("id", "=", id)
+      .execute();
     return response.json({ success: true });
   }
 
   public async destroy(request: Request, response: Response) {
     const { id } = request.params;
-    await DB.from("items").where("id", id).delete();
+    await DB.deleteFrom("items").where("id", "=", id).execute();
     return response.json({ success: true });
   }
 }
@@ -128,27 +134,34 @@ Kysely type-safe query builder for complex queries.
 import DB from "app/services/DB";
 
 // Select
-const users = await DB.from("users").select("*");
-const user = await DB.from("users").where("id", 1).first();
+const users = await DB.selectFrom("users").selectAll().execute();
+const user = await DB.selectFrom("users")
+  .selectAll()
+  .where("id", "=", 1)
+  .executeTakeFirst();
 
 // Insert
-await DB.table("users").insert({ name: "John", email: "john@example.com" });
+await DB.insertInto("users").values({ name: "John", email: "john@example.com" }).execute();
 
 // Update
-await DB.from("users").where("id", 1).update({ name: "Jane" });
+await DB.updateTable("users")
+  .set({ name: "Jane" })
+  .where("id", "=", 1)
+  .execute();
 
 // Delete
-await DB.from("users").where("id", 1).delete();
+await DB.deleteFrom("users").where("id", "=", 1).execute();
 
 // Join
-const posts = await DB.from("posts")
-  .join("users", "posts.user_id", "users.id")
-  .select("posts.*", "users.name as author");
+const posts = await DB.selectFrom("posts")
+  .innerJoin("users", "posts.user_id", "users.id")
+  .selectAll()
+  .execute();
 
 // Transaction
-await DB.transaction(async (trx) => {
-  await trx.table("users").insert({ name: "John" });
-  await trx.table("profiles").insert({ user_id: 1 });
+await DB.transaction().execute(async (trx) => {
+  await trx.insertInto("users").values({ name: "John" }).execute();
+  await trx.insertInto("profiles").values({ user_id: 1 }).execute();
 });
 ```
 
