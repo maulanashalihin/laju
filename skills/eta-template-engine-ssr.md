@@ -1,14 +1,63 @@
 # Laju Views (Eta Templates)
 
-## Template Engine
+## Overview
 
-Uses **Eta** templating engine for server-side rendering.
+Laju uses **Eta** templating engine for server-side rendering (SSR). Use SSR for:
+- Public pages needing SEO (landing pages, marketing pages, blogs)
+- Routes WITHOUT `auth` middleware
+
+For protected/admin routes, use **Inertia.js** (see `skills/create-controller.md` and `skills/create-svelte-inertia-page.md`).
 
 ## File Types
 
-- **index.html**: Landing page and SEO pages
-- **inertia.html**: Inertia.js app shell
-- **partials/**: Reusable template components
+| File | Purpose |
+|------|---------|
+| `resources/views/index.html` | Landing page, SEO pages |
+| `resources/views/inertia.html` | Inertia.js app shell |
+| `resources/views/partials/*.html` | Reusable template components |
+
+## Quick Example
+
+**Controller** (`app/controllers/HomeController.ts`):
+```typescript
+import { view } from '../services/View'
+
+export class HomeController {
+  async index(request: Request, response: Response) {
+    const posts = await DB.selectFrom('posts')
+      .selectAll()
+      .orderBy('created_at', 'desc')
+      .limit(10)
+      .execute()
+    
+    return response.type('html').send(view('home', { posts, title: 'Welcome' }))
+  }
+}
+```
+
+**Template** (`resources/views/home.html`):
+```eta
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <h1><%= title %></h1>
+  
+  <% for (const post of posts) { %>
+    <article>
+      <h2><%= post.title %></h2>
+      <p><%= post.content %></p>
+    </article>
+  <% } %>
+</body>
+</html>
+```
+
+See `skills/create-controller.md` for SSR vs Inertia decision guide.
 
 ## Eta Syntax
 
@@ -149,3 +198,18 @@ For SSR templates (index.html, inertia.html), use inline SVG icons:
 - Apply Tailwind classes for sizing and styling
 
 **Note:** For Inertia pages (Svelte components), import icons from `lucide-svelte` instead.
+
+## When to Use SSR vs Inertia
+
+| Use Case | Solution | See |
+|----------|----------|-----|
+| Public SEO pages | SSR (Eta) | This guide |
+| Protected admin routes | Inertia + Svelte | `skills/create-svelte-inertia-page.md` |
+| Authentication pages | SSR (Eta) | Built-in controllers |
+| Dashboard/CRUD | Inertia + Svelte | `skills/create-controller.md` |
+
+## Related Guides
+
+- `skills/create-controller.md` - Controller patterns (SSR vs Inertia)
+- `skills/create-svelte-inertia-page.md` - Inertia.js page patterns
+- `skills/kysely.md` - Database queries for controllers

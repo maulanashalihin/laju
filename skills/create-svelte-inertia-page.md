@@ -216,3 +216,20 @@ import { fly } from 'svelte/transition'
 4. **Use transitions** - Add smooth animations
 5. **Reuse components** - Import from Components folder
 6. **Match controller naming** - Page paths match controller inertia calls
+
+## When to Use Inertia vs SSR
+
+| Use Case | Solution | File Extension |
+|----------|----------|----------------|
+| Protected routes (auth) | Inertia | `.svelte` |
+| Admin dashboard | Inertia | `.svelte` |
+| CRUD operations | Inertia | `.svelte` |
+| Public SEO pages | SSR (Eta) | `.html` |
+| Landing pages | SSR (Eta) | `.html` |
+
+## Related Guides
+
+- `skills/create-controller.md` - Controller patterns (REST methods)
+- `skills/eta-template-engine-ssr.md` - SSR templates for public pages
+- `skills/kysely.md` - Database queries for controllers
+- `skills/repository-pattern.md` - Repository vs Direct DB decisions
