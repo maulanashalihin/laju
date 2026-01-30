@@ -417,3 +417,18 @@ Coverage: 87% → 89%
    - Lock task before starting
    - Unlock after completion
    - Include coverage numbers
+
+---
+
+## Technical Reference
+
+For detailed testing patterns, code examples, and best practices, refer to:
+
+**`skills/testing-guide.md`** - Comprehensive testing reference covering:
+- Unit test examples with Vitest
+- Integration test patterns
+- E2E test examples with Playwright
+- Test mocking strategies
+- Coverage configuration
+- Common testing patterns
+- Bug verification workflows
