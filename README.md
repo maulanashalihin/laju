@@ -59,7 +59,7 @@ Visit `http://localhost:5555`
 
 ## 📚 Documentation
 
-**[Complete Documentation →](docs/README.md)**
+**[Complete Documentation →](https://docs.laju.dev/)**
 
 Documentation is organized for progressive learning from beginner to advanced.
 
