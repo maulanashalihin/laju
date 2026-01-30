@@ -154,7 +154,7 @@ jobs:
             npm run build
 
             echo "🗄️ Running database migrations..."
-            npx knex migrate:latest --env production
+            npm run migrate
         
             # [SESUAIKAN] Ganti 'laju' dengan nama PM2 process Anda
             echo "🔄 Reloading PM2 process..."

@@ -1,17 +1,17 @@
 /**
- * Unit Tests for DB Service (Knex)
- * Testing Knex query builder operations
+ * Unit Tests for DB Service (Kysely)
+ * Testing Kysely query builder operations
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import DB from '../../../app/services/DB';
+import DB, { sql } from '../../../app/services/DB';
 import { randomUUID } from 'crypto';
 
-describe('DB Service (Knex)', () => {
+describe('DB Service (Kysely)', () => {
   const testUser = {
     id: randomUUID(),
-    name: 'Knex Test User',
-    email: 'knex@example.com',
+    name: 'Kysely Test User',
+    email: 'kysely@example.com',
     password: 'hashed_password',
     created_at: Date.now(),
     updated_at: Date.now()
@@ -21,70 +21,94 @@ describe('DB Service (Knex)', () => {
 
   beforeEach(async () => {
     // Clean up before each test
-    await DB('users').where('email', testUser.email).delete();
+    await DB.deleteFrom('users').where('email', '=', testUser.email).execute();
   });
 
   afterEach(async () => {
     // Clean up after each test
     if (insertedUserId) {
-      await DB('users').where('id', insertedUserId).delete();
+      await DB.deleteFrom('users').where('id', '=', insertedUserId).execute();
     }
   });
 
   describe('INSERT operations', () => {
     it('should insert a new user', async () => {
       const userId = randomUUID();
-      await DB('users').insert({ ...testUser, id: userId });
+      await DB.insertInto('users')
+        .values({ ...testUser, id: userId })
+        .execute();
       
       insertedUserId = userId;
       
-      const user = await DB('users').where('id', userId).first();
+      const user = await DB.selectFrom('users')
+        .selectAll()
+        .where('id', '=', userId)
+        .executeTakeFirst();
       expect(user).toBeDefined();
     });
 
     it('should insert and return the user', async () => {
       const userId = randomUUID();
-      await DB('users').insert({ ...testUser, id: userId });
+      await DB.insertInto('users')
+        .values({ ...testUser, id: userId })
+        .execute();
       insertedUserId = userId;
 
-      const user = await DB('users').where('id', userId).first();
+      const user = await DB.selectFrom('users')
+        .selectAll()
+        .where('id', '=', userId)
+        .executeTakeFirst();
       
       expect(user).toBeDefined();
-      expect(user.email).toBe(testUser.email);
-      expect(user.name).toBe(testUser.name);
+      expect(user?.email).toBe(testUser.email);
+      expect(user?.name).toBe(testUser.name);
     });
   });
 
   describe('SELECT operations', () => {
     beforeEach(async () => {
       const userId = randomUUID();
-      await DB('users').insert({ ...testUser, id: userId });
+      await DB.insertInto('users')
+        .values({ ...testUser, id: userId })
+        .execute();
       insertedUserId = userId;
     });
 
     it('should select user by id', async () => {
-      const user = await DB('users').where('id', insertedUserId).first();
+      const user = await DB.selectFrom('users')
+        .selectAll()
+        .where('id', '=', insertedUserId)
+        .executeTakeFirst();
       
       expect(user).toBeDefined();
-      expect(user.id).toBe(insertedUserId);
-      expect(user.email).toBe(testUser.email);
+      expect(user?.id).toBe(insertedUserId);
+      expect(user?.email).toBe(testUser.email);
     });
 
     it('should select user by email', async () => {
-      const user = await DB('users').where('email', testUser.email).first();
+      const user = await DB.selectFrom('users')
+        .selectAll()
+        .where('email', '=', testUser.email)
+        .executeTakeFirst();
       
       expect(user).toBeDefined();
-      expect(user.email).toBe(testUser.email);
+      expect(user?.email).toBe(testUser.email);
     });
 
     it('should return undefined for non-existent user', async () => {
-      const user = await DB('users').where('id', 999999).first();
+      const user = await DB.selectFrom('users')
+        .selectAll()
+        .where('id', '=', 'non-existent-id')
+        .executeTakeFirst();
       
       expect(user).toBeUndefined();
     });
 
     it('should select all users with filter', async () => {
-      const users = await DB('users').where('email', testUser.email);
+      const users = await DB.selectFrom('users')
+        .selectAll()
+        .where('email', '=', testUser.email)
+        .execute();
       
       expect(Array.isArray(users)).toBe(true);
       expect(users.length).toBeGreaterThan(0);
@@ -92,29 +116,38 @@ describe('DB Service (Knex)', () => {
     });
 
     it('should count users', async () => {
-      const result = await DB('users').where('email', testUser.email).count('* as count');
+      const result = await DB.selectFrom('users')
+        .select((eb) => eb.fn.countAll().as('count'))
+        .where('email', '=', testUser.email)
+        .executeTakeFirst();
       
-      expect(result[0].count).toBeGreaterThan(0);
+      expect(Number(result?.count)).toBeGreaterThan(0);
     });
   });
 
   describe('UPDATE operations', () => {
     beforeEach(async () => {
       const userId = randomUUID();
-      await DB('users').insert({ ...testUser, id: userId });
+      await DB.insertInto('users')
+        .values({ ...testUser, id: userId })
+        .execute();
       insertedUserId = userId;
     });
 
     it('should update user name', async () => {
-      const newName = 'Updated Knex Name';
-      const updated = await DB('users')
-        .where('id', insertedUserId)
-        .update({ name: newName });
+      const newName = 'Updated Kysely Name';
+      const updated = await DB.updateTable('users')
+        .set({ name: newName })
+        .where('id', '=', insertedUserId)
+        .executeTakeFirst();
 
-      expect(updated).toBe(1);
+      expect(updated.numUpdatedRows).toBe(BigInt(1));
 
-      const user = await DB('users').where('id', insertedUserId).first();
-      expect(user.name).toBe(newName);
+      const user = await DB.selectFrom('users')
+        .selectAll()
+        .where('id', '=', insertedUserId)
+        .executeTakeFirst();
+      expect(user?.name).toBe(newName);
     });
 
     it('should update multiple fields', async () => {
@@ -124,27 +157,40 @@ describe('DB Service (Knex)', () => {
         updated_at: Date.now()
       };
 
-      await DB('users').where('id', insertedUserId).update(updates);
+      await DB.updateTable('users')
+        .set(updates)
+        .where('id', '=', insertedUserId)
+        .execute();
 
-      const user = await DB('users').where('id', insertedUserId).first();
-      expect(user.name).toBe(updates.name);
-      expect(user.phone).toBe(updates.phone);
+      const user = await DB.selectFrom('users')
+        .selectAll()
+        .where('id', '=', insertedUserId)
+        .executeTakeFirst();
+      expect(user?.name).toBe(updates.name);
+      expect(user?.phone).toBe(updates.phone);
     });
   });
 
   describe('DELETE operations', () => {
     beforeEach(async () => {
       const userId = randomUUID();
-      await DB('users').insert({ ...testUser, id: userId });
+      await DB.insertInto('users')
+        .values({ ...testUser, id: userId })
+        .execute();
       insertedUserId = userId;
     });
 
     it('should delete a user', async () => {
-      const deleted = await DB('users').where('id', insertedUserId).delete();
+      const deleted = await DB.deleteFrom('users')
+        .where('id', '=', insertedUserId)
+        .executeTakeFirst();
       
-      expect(deleted).toBe(1);
+      expect(deleted.numDeletedRows).toBe(BigInt(1));
 
-      const user = await DB('users').where('id', insertedUserId).first();
+      const user = await DB.selectFrom('users')
+        .selectAll()
+        .where('id', '=', insertedUserId)
+        .executeTakeFirst();
       expect(user).toBeUndefined();
       
       // Prevent double cleanup
@@ -154,20 +200,20 @@ describe('DB Service (Knex)', () => {
     it('should delete multiple users', async () => {
       // Insert another user
       const id2 = randomUUID();
-      await DB('users').insert({
+      await DB.insertInto('users').values({
         id: id2,
         name: 'User 2',
-        email: 'user2@knex.com',
+        email: 'user2@kysely.com',
         password: 'pass',
         created_at: Date.now(),
         updated_at: Date.now()
-      });
+      }).execute();
 
-      const deleted = await DB('users')
-        .whereIn('id', [insertedUserId, id2])
-        .delete();
+      const deleted = await DB.deleteFrom('users')
+        .where('id', 'in', [insertedUserId, id2])
+        .executeTakeFirst();
       
-      expect(deleted).toBe(2);
+      expect(deleted.numDeletedRows).toBe(BigInt(2));
       insertedUserId = '';
     });
   });
@@ -175,54 +221,68 @@ describe('DB Service (Knex)', () => {
   describe('QUERY BUILDER features', () => {
     beforeEach(async () => {
       // Insert multiple test users
-      await DB('users').insert([
-        { id: randomUUID(), name: 'Alice', email: 'alice@test.com', password: 'pass', is_verified: true, created_at: Date.now(), updated_at: Date.now() },
-        { id: randomUUID(), name: 'Bob', email: 'bob@test.com', password: 'pass', is_verified: false, created_at: Date.now(), updated_at: Date.now() },
-        { id: randomUUID(), name: 'Charlie', email: 'charlie@test.com', password: 'pass', is_verified: true, created_at: Date.now(), updated_at: Date.now() }
-      ]);
+      await DB.insertInto('users').values([
+        { id: randomUUID(), name: 'Alice', email: 'alice@test.com', password: 'pass', is_verified: 1, created_at: Date.now(), updated_at: Date.now() },
+        { id: randomUUID(), name: 'Bob', email: 'bob@test.com', password: 'pass', is_verified: 0, created_at: Date.now(), updated_at: Date.now() },
+        { id: randomUUID(), name: 'Charlie', email: 'charlie@test.com', password: 'pass', is_verified: 1, created_at: Date.now(), updated_at: Date.now() }
+      ]).execute();
     });
 
     afterEach(async () => {
-      await DB('users').whereIn('email', ['alice@test.com', 'bob@test.com', 'charlie@test.com']).delete();
+      await DB.deleteFrom('users')
+        .where('email', 'in', ['alice@test.com', 'bob@test.com', 'charlie@test.com'])
+        .execute();
     });
 
     it('should filter with WHERE clause', async () => {
-      const verified = await DB('users').where('is_verified', true);
+      const verified = await DB.selectFrom('users')
+        .selectAll()
+        .where('is_verified', '=', 1)
+        .execute();
       
       expect(verified.length).toBeGreaterThanOrEqual(2);
     });
 
     it('should use LIKE operator', async () => {
-      const users = await DB('users').where('name', 'like', '%li%');
+      const users = await DB.selectFrom('users')
+        .selectAll()
+        .where('name', 'like', '%li%')
+        .execute();
       
       expect(users.length).toBeGreaterThan(0);
       expect(users.some(u => u.name.toLowerCase().includes('li'))).toBe(true);
     });
 
     it('should use ORDER BY', async () => {
-      const users = await DB('users')
-        .whereIn('email', ['alice@test.com', 'bob@test.com', 'charlie@test.com'])
-        .orderBy('name', 'asc');
+      const users = await DB.selectFrom('users')
+        .selectAll()
+        .where('email', 'in', ['alice@test.com', 'bob@test.com', 'charlie@test.com'])
+        .orderBy('name', 'asc')
+        .execute();
       
       expect(users[0].name).toBe('Alice');
     });
 
     it('should use LIMIT and OFFSET', async () => {
-      const users = await DB('users')
-        .whereIn('email', ['alice@test.com', 'bob@test.com', 'charlie@test.com'])
+      const users = await DB.selectFrom('users')
+        .selectAll()
+        .where('email', 'in', ['alice@test.com', 'bob@test.com', 'charlie@test.com'])
         .limit(2)
-        .offset(0);
+        .offset(0)
+        .execute();
       
       expect(users.length).toBe(2);
     });
 
     it('should use complex WHERE conditions', async () => {
-      const users = await DB('users')
-        .where(function() {
-          this.where('name', 'like', '%li%')
-            .orWhere('name', 'like', '%ob%');
-        })
-        .andWhere('is_verified', true);
+      const users = await DB.selectFrom('users')
+        .selectAll()
+        .where((eb) => eb.or([
+          eb('name', 'like', '%li%'),
+          eb('name', 'like', '%ob%')
+        ]))
+        .where('is_verified', '=', 1)
+        .execute();
       
       expect(users.length).toBeGreaterThan(0);
     });
@@ -230,27 +290,27 @@ describe('DB Service (Knex)', () => {
 
   describe('TRANSACTION operations', () => {
     it('should execute transaction successfully', async () => {
-      const result = await DB.transaction(async (trx) => {
+      const result = await DB.transaction().execute(async (trx) => {
         const id1 = randomUUID();
         const id2 = randomUUID();
         
-        await trx('users').insert({
+        await trx.insertInto('users').values({
           id: id1,
           name: 'Transaction User 1',
           email: 'trx1@test.com',
           password: 'pass',
           created_at: Date.now(),
           updated_at: Date.now()
-        });
+        }).execute();
 
-        await trx('users').insert({
+        await trx.insertInto('users').values({
           id: id2,
           name: 'Transaction User 2',
           email: 'trx2@test.com',
           password: 'pass',
           created_at: Date.now(),
           updated_at: Date.now()
-        });
+        }).execute();
 
         return { id1, id2 };
       });
@@ -259,20 +319,22 @@ describe('DB Service (Knex)', () => {
       expect(result.id2).toBeDefined();
 
       // Cleanup
-      await DB('users').whereIn('email', ['trx1@test.com', 'trx2@test.com']).delete();
+      await DB.deleteFrom('users')
+        .where('email', 'in', ['trx1@test.com', 'trx2@test.com'])
+        .execute();
     });
 
     it('should rollback on error', async () => {
       try {
-        await DB.transaction(async (trx) => {
-          await trx('users').insert({
+        await DB.transaction().execute(async (trx) => {
+          await trx.insertInto('users').values({
             id: randomUUID(),
             name: 'Rollback User',
             email: 'rollback@test.com',
             password: 'pass',
             created_at: Date.now(),
             updated_at: Date.now()
-          });
+          }).execute();
 
           // Force error
           throw new Error('Intentional error');
@@ -281,7 +343,10 @@ describe('DB Service (Knex)', () => {
         // Expected error
       }
 
-      const user = await DB('users').where('email', 'rollback@test.com').first();
+      const user = await DB.selectFrom('users')
+        .selectAll()
+        .where('email', '=', 'rollback@test.com')
+        .executeTakeFirst();
       expect(user).toBeUndefined();
     });
   });

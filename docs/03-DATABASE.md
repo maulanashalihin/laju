@@ -5,7 +5,7 @@ Complete guide for database operations in Laju framework.
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [DB Service (Knex.js)](#db-service-knexjs)
+2. [DB Service (Kysely)](#db-service-kysely)
 3. [SQLite Service (Native)](#sqlite-service-native)
 4. [Migrations](#migrations)
 5. [Database Refresh](#database-refresh)
@@ -19,52 +19,16 @@ Laju provides two database services:
 
 | Service | Use Case | Performance |
 |---------|----------|-------------|
-| **DB (Knex.js)** | Complex queries, migrations | Standard |
+| **DB (Kysely)** | Complex queries, migrations | Standard |
 | **SQLite (Native)** | Simple reads, performance-critical | 2-4x faster |
 
 Both use **BetterSQLite3** with WAL mode enabled by default.
 
 ---
 
-## DB Service (Knex.js)
+## DB Service (Kysely)
 
-### Configuration
-
-```typescript
-// knexfile.ts
-import type { Knex } from "knex"; 
-
-const config: { [key: string]: Knex.Config } = {
-  development: {
-    client: "better-sqlite3",
-    connection: {
-      filename: "./data/dev.sqlite3"
-    },
-    useNullAsDefault: true
-  },
-
-  production: {
-    client: "better-sqlite3",
-    connection: {
-      filename: "./data/production.sqlite3"
-    },
-    useNullAsDefault: true
-  },
-
-  test: {
-    client: "better-sqlite3",
-    connection: {
-      filename: "./data/test.sqlite3"
-    },
-    useNullAsDefault: true,
-    migrations: {
-      directory: './migrations'
-    }
-  }
-};
-
-export default config;
-```
+Kysely is a type-safe SQL query builder for TypeScript. It provides unparalleled autocompletion and compile-time type safety for complex queries.
 
 ### Basic Queries
 
@@ -72,159 +36,215 @@ export default config;
 import DB from "app/services/DB";
 
 // SELECT all
-const users = await DB.from("users").select("*");
+const users = await DB.selectFrom("users").selectAll().execute();
 
 // SELECT with WHERE
-const user = await DB.from("users").where("email", email).first();
-const activeUsers = await DB.from("users").where("is_active", true);
+const user = await DB.selectFrom("users")
+  .selectAll()
+  .where("email", "=", email)
+  .executeTakeFirst();
+
+const activeUsers = await DB.selectFrom("users")
+  .selectAll()
+  .where("is_active", "=", true)
+  .execute();
 
 // SELECT with multiple conditions
-const results = await DB.from("posts")
-  .where("status", "published")
+const results = await DB.selectFrom("posts")
+  .selectAll()
+  .where("status", "=", "published")
   .where("views", ">", 1000)
   .orderBy("created_at", "desc")
-  .limit(10);
+  .limit(10)
+  .execute();
 ```
 
 ### INSERT
 
 ```typescript
 // Basic insert
-await DB.table("posts").insert({
-  title: "Hello World",
-  content: "Post content",
-  created_at: Date.now(),
-  updated_at: Date.now()
-});
+await DB.insertInto("posts")
+  .values({
+    title: "Hello World",
+    content: "Post content",
+    created_at: Date.now(),
+    updated_at: Date.now()
+  })
+  .execute();
 
-// Insert with returning ID
-const [id] = await DB.table("users").insert({
-  name: "John Doe",
-  email: "john@example.com"
-}).returning("id");
+// Insert and get result
+const result = await DB.insertInto("users")
+  .values({
+    name: "John Doe",
+    email: "john@example.com"
+  })
+  .executeTakeFirst();
+console.log(result.insertId); // Inserted row ID
 
 // Batch insert
-await DB.table("logs").insert([
+await DB.insertInto("logs").values([
   { message: "Log 1", created_at: Date.now() },
   { message: "Log 2", created_at: Date.now() },
   { message: "Log 3", created_at: Date.now() }
-]);
+]).execute();
 ```
 
 ### UPDATE
 
 ```typescript
-await DB.table("users")
-  .where("id", userId)
-  .update({
+await DB.updateTable("users")
+  .set({
     name: "New Name",
     updated_at: Date.now()
-  });
+  })
+  .where("id", "=", userId)
+  .execute();
 
 // Update multiple rows
-await DB.table("posts")
-  .where("status", "draft")
-  .update({ status: "archived" });
+await DB.updateTable("posts")
+  .set({ status: "archived" })
+  .where("status", "=", "draft")
+  .execute();
 ```
 
 ### DELETE
 
 ```typescript
-await DB.from("sessions")
-  .where("id", sessionId)
-  .delete();
+await DB.deleteFrom("sessions")
+  .where("id", "=", sessionId)
+  .execute();
 
 // Delete with multiple conditions
-await DB.from("tokens")
-  .where("expires_at", "<", new Date())
-  .delete();
+await DB.deleteFrom("tokens")
+  .where("expires_at", "<", new Date().toISOString())
+  .execute();
 ```
 
 ### JOIN
 
 ```typescript
-const posts = await DB.from("posts")
-  .join("users", "posts.user_id", "users.id")
-  .select("posts.*", "users.name as author");
+const posts = await DB.selectFrom("posts")
+  .innerJoin("users", "posts.user_id", "users.id")
+  .select(["posts.id", "posts.title", "users.name as author"])
+  .execute();
 
 // Left join
-const users = await DB.from("users")
+const users = await DB.selectFrom("users")
   .leftJoin("profiles", "users.id", "profiles.user_id")
-  .select("users.*", "profiles.bio");
+  .select(["users.id", "users.name", "profiles.bio"])
+  .execute();
 ```
 
 ### WHERE Variations
 
 ```typescript
 // OR WHERE
-const results = await DB.from("users")
-  .where("role", "admin")
-  .orWhere("role", "moderator");
+const results = await DB.selectFrom("users")
+  .selectAll()
+  .where((eb) => eb.or([
+    eb("role", "=", "admin"),
+    eb("role", "=", "moderator")
+  ]))
+  .execute();
 
 // WHERE IN
-const results = await DB.from("posts")
-  .whereIn("category_id", [1, 2, 3]);
+const results = await DB.selectFrom("posts")
+  .selectAll()
+  .where("category_id", "in", [1, 2, 3])
+  .execute();
 
 // WHERE NOT
-const results = await DB.from("users")
-  .whereNot("status", "banned");
+const results = await DB.selectFrom("users")
+  .selectAll()
+  .where("status", "!=", "banned")
+  .execute();
 
 // WHERE NULL
-const results = await DB.from("users")
-  .whereNull("deleted_at");
-
-// WHERE BETWEEN
-const results = await DB.from("orders")
-  .whereBetween("created_at", [startDate, endDate]);
+const results = await DB.selectFrom("users")
+  .selectAll()
+  .where("deleted_at", "is", null)
+  .execute();
 
 // LIKE search
-const results = await DB.from("users")
-  .where("name", "like", "%john%");
+const results = await DB.selectFrom("users")
+  .selectAll()
+  .where("name", "like", "%john%")
+  .execute();
 ```
 
 ### Aggregates
 
 ```typescript
 // COUNT
-const count = await DB.from("users").count("* as total");
+const result = await DB.selectFrom("users")
+  .select((eb) => eb.fn.countAll().as("count"))
+  .executeTakeFirst();
+console.log(result?.count);
 
 // SUM
-const total = await DB.from("orders").sum("amount as total");
+const result = await DB.selectFrom("orders")
+  .select((eb) => eb.fn.sum("amount").as("total"))
+  .executeTakeFirst();
 
 // AVG
-const avg = await DB.from("products").avg("price as average");
+const result = await DB.selectFrom("products")
+  .select((eb) => eb.fn.avg("price").as("average"))
+  .executeTakeFirst();
 
 // MIN/MAX
-const min = await DB.from("products").min("price as lowest");
-const max = await DB.from("products").max("price as highest");
+const minResult = await DB.selectFrom("products")
+  .select((eb) => eb.fn.min("price").as("lowest"))
+  .executeTakeFirst();
+
+const maxResult = await DB.selectFrom("products")
+  .select((eb) => eb.fn.max("price").as("highest"))
+  .executeTakeFirst();
 ```
 
 ### Transactions
 
 ```typescript
-await DB.transaction(async (trx) => {
-  const userId = await trx.table("users").insert({ name: "John" });
-  await trx.table("profiles").insert({ user_id: userId, bio: "Hello" });
-  await trx.table("settings").insert({ user_id: userId, theme: "dark" });
+await DB.transaction().execute(async (trx) => {
+  const userResult = await trx.insertInto("users")
+    .values({ name: "John" })
+    .executeTakeFirst();
+  
+  const userId = userResult.insertId?.toString();
+  
+  await trx.insertInto("profiles")
+    .values({ user_id: userId, bio: "Hello" })
+    .execute();
+    
+  await trx.insertInto("settings")
+    .values({ user_id: userId, theme: "dark" })
+    .execute();
 });
 ```
 
 ### Raw Queries
 
 ```typescript
-const results = await DB.raw("SELECT * FROM users WHERE email = ?", [email]);
+import { sql } from "kysely";
+
+const results = await sql<{
+  id: string;
+  name: string;
+}>`SELECT * FROM users WHERE email = ${email}`.execute(DB);
 
 // Raw in select
-const users = await DB.from("users")
-  .select(DB.raw("COUNT(*) as post_count"))
-  .groupBy("id");
+const users = await DB.selectFrom("users")
+  .select([
+    "id",
+    sql<number>`COUNT(*) OVER()`.as("total_count")
+  ])
+  .execute();
 ```
 
 ### Multiple Connections
 
 ```typescript
 const stagingDB = DB.connection("staging");
-const users = await stagingDB.from("users").select("*");
+const users = await stagingDB.selectFrom("users").selectAll().execute();
 ```
 
 ---
@@ -235,12 +255,12 @@ Direct better-sqlite3 access for maximum performance.
 
 ### When to Use
 
-| Use Native SQLite | Use Knex.js |
-|-------------------|-------------|
+| Use Native SQLite | Use Kysely |
+|-------------------|------------|
 | Simple reads (2-4x faster) | Complex query building |
-| Performance-critical paths | Database migrations |
+| Performance-critical paths | Type-safe queries |
 | Bulk operations | Developer productivity |
-| Direct SQL control | Cross-database compatibility |
+| Direct SQL control | Complex joins and subqueries |
 
 ### Basic Methods
 
@@ -306,36 +326,50 @@ const stats = SQLite.get(`
 
 ## Migrations
 
+Laju uses Kysely's built-in migration system.
+
 ### Create Migration
 
-```bash
-npx knex migrate:make create_posts_table
+Create a new file in the `migrations/` folder with the naming convention:
+```
+migrations/YYYYMMDDhhmmss_description.ts
 ```
 
-### Migration Structure
-
+Example:
 ```typescript
 // migrations/20240101000000_create_posts_table.ts
-import { Knex } from "knex";
+import { Kysely, sql } from "kysely";
 
-export async function up(knex: Knex): Promise<void> {
-  await knex.schema.createTable('posts', (table) => {
-    table.increments('id').primary();
-    table.string('title').notNullable();
-    table.text('content');
-    table.integer('user_id').unsigned().references('id').inTable('users');
-    table.boolean('is_published').defaultTo(false);
-    table.bigInteger('created_at');
-    table.bigInteger('updated_at');
+export async function up(db: Kysely<any>): Promise<void> {
+  await db.schema
+    .createTable("posts")
+    .addColumn("id", "serial", (col) => col.primaryKey())
+    .addColumn("title", "varchar", (col) => col.notNull())
+    .addColumn("content", "text")
+    .addColumn("user_id", "integer", (col) =>
+      col.references("users.id").onDelete("cascade")
+    )
+    .addColumn("is_published", "boolean", (col) => col.defaultTo(false))
+    .addColumn("created_at", "bigint")
+    .addColumn("updated_at", "bigint")
+    .execute();
     
-    // Indexes
-    table.index(['user_id']);
-    table.index(['is_published', 'created_at']);
-  });
+  // Add indexes
+  await db.schema
+    .createIndex("posts_user_id_idx")
+    .on("posts")
+    .column("user_id")
+    .execute();
+    
+  await db.schema
+    .createIndex("posts_is_published_created_at_idx")
+    .on("posts")
+    .columns(["is_published", "created_at"])
+    .execute();
 }
 
-export async function down(knex: Knex): Promise<void> {
-  await knex.schema.dropTable('posts');
+export async function down(db: Kysely<any>): Promise<void> {
+  await db.schema.dropTable("posts").execute();
 }
 ```
 
@@ -343,13 +377,52 @@ export async function down(knex: Knex): Promise<void> {
 
 ```bash
 # Run all pending migrations
-npx knex migrate:latest
+npm run migrate
 
-# Rollback last batch
-npx knex migrate:rollback
+# Database refresh (interactive)
+npm run refresh
+```
 
-# Check migration status
-npx knex migrate:status
+### Rollback Migrations
+
+```bash
+# Rollback 1 migration (default)
+npm run migrate:down
+
+# Rollback N migrations
+npm run migrate:down 3
+
+# Rollback to specific migration 
+npm run migrate:down 20230514062913_sessions
+npm run migrate:down 20230514062913_sessions.ts
+```
+ 
+
+#### Programmatic Usage
+
+```typescript
+import DB from "../app/services/DB";
+import Migrator from "../app/services/Migrator";
+
+async function rollback() {
+  const migrator = new Migrator(DB);
+  
+  // Rollback one migration
+  const result = await migrator.migrateDown(1);
+  
+  // Or rollback to specific migration
+  // const result = await migrator.migrateTo("20230514062913_sessions");
+  
+  if (result.success) {
+    console.log("✅ Rollback completed");
+  } else {
+    console.error("❌ Rollback failed:", result.error);
+  }
+  
+  await DB.destroy();
+}
+
+rollback();
 ```
 
 ---
@@ -372,7 +445,7 @@ npm run refresh 3    # Test
 
 ### How It Works
 
-1. **Lists available databases** - Shows all databases configured in `knexfile.ts`
+1. **Lists available databases** - Shows all databases configured in DB service
 2. **Displays status** - Shows which database files exist (✓) or not (✗)
 3. **Deletes selected database** - Removes only the specified `.sqlite3` file
 4. **Recreates directory** - Ensures the `data` directory exists
@@ -399,9 +472,13 @@ Select database number (1-3): 1
 
 🚀 Running migrations...
 
-Requiring external module ts-node/register
-Using environment: development
-Batch 1 run: 7 migrations
+✓ 20230513055909_users
+✓ 20230514062913_sessions
+✓ 20240101000001_create_password_reset_tokens
+✓ 20240101000002_create_email_verification_tokens
+✓ 20250110233301_assets
+✓ 20251023082000_create_backup_files
+✓ 20251210000000_create_cache_table
 
 ✅ Database refreshed successfully!
 ```
@@ -410,24 +487,24 @@ Batch 1 run: 7 migrations
 
 - **Selective refresh** - Only refresh the database you need, not all of them
 - **Safe** - Doesn't delete the entire `data` folder, only the specific SQLite file
-- **Automatic migrations** - Runs migrations with the correct `NODE_ENV` set
+- **Automatic migrations** - Runs migrations with the correct `DB_CONNECTION` set
 - **Interactive or direct** - Use prompts for convenience or pass arguments for scripts
 
 ### Configuration
 
-The command reads database configurations from `knexfile.ts`:
+Database configurations are defined in `app/services/DB.ts`:
 
 ```typescript
-// knexfile.ts
-const config: { [key: string]: Knex.Config } = {
+const dbConfig: Record<string, { filename: string }> = {
   development: {
-    client: "better-sqlite3",
-    connection: {
-      filename: "./data/dev.sqlite3"
-    },
-    useNullAsDefault: true
+    filename: "./data/dev.sqlite3",
   },
-  // ... production, test
+  production: {
+    filename: "./data/production.sqlite3",
+  },
+  test: {
+    filename: "./data/test.sqlite3",
+  },
 };
 ```
 
@@ -442,11 +519,14 @@ const config: { [key: string]: Knex.Config } = {
 
 ## Performance Tips
 
-### 1. Use Native SQLite for Reads
+### 1. Use Native SQLite for Simple Reads
 
 ```typescript
-// Slow (Knex)
-const user = await DB.from("users").where("id", id).first();
+// Standard (Kysely)
+const user = await DB.selectFrom("users")
+  .selectAll()
+  .where("id", "=", id)
+  .executeTakeFirst();
 
 // Fast (Native) - 2-4x faster
 const user = SQLite.get("SELECT * FROM users WHERE id = ?", [id]);
@@ -456,9 +536,26 @@ const user = SQLite.get("SELECT * FROM users WHERE id = ?", [id]);
 
 ```typescript
 // In migration
-table.index(['email']);  // Single column
-table.index(['user_id', 'created_at']);  // Composite
-table.unique(['email']);  // Unique index
+await db.schema
+  .createIndex("users_email_idx")
+  .on("users")
+  .column("email")
+  .execute();
+
+// Composite index
+await db.schema
+  .createIndex("posts_user_id_created_at_idx")
+  .on("posts")
+  .columns(["user_id", "created_at"])
+  .execute();
+
+// Unique index
+await db.schema
+  .createIndex("users_email_unique_idx")
+  .on("users")
+  .column("email")
+  .unique()
+  .execute();
 ```
 
 ### 3. Use Transactions for Bulk Operations
@@ -466,35 +563,49 @@ table.unique(['email']);  // Unique index
 ```typescript
 // Slow - individual inserts
 for (const item of items) {
-  await DB.table("items").insert(item);
+  await DB.insertInto("items").values(item).execute();
 }
 
-// Fast - transaction
-await DB.transaction(async (trx) => {
+// Fast - batch insert
+await DB.insertInto("items").values(items).execute();
+
+// Or use transaction
+await DB.transaction().execute(async (trx) => {
   for (const item of items) {
-    await trx.table("items").insert(item);
+    await trx.insertInto("items").values(item).execute();
   }
 });
 ```
 
-### 4. Use .first() for Single Records
+### 4. Use executeTakeFirst() for Single Records
 
 ```typescript
 // Correct
-const user = await DB.from("users").where("id", id).first();
+const user = await DB.selectFrom("users")
+  .selectAll()
+  .where("id", "=", id)
+  .executeTakeFirst();
 
-// Avoid
-const [user] = await DB.from("users").where("id", id).limit(1);
+// Avoid - returns array
+const [user] = await DB.selectFrom("users")
+  .selectAll()
+  .where("id", "=", id)
+  .limit(1)
+  .execute();
 ```
 
 ### 5. Select Only Needed Columns
 
 ```typescript
 // Good - select specific columns
-const users = await DB.from("users").select("id", "name", "email");
+const users = await DB.selectFrom("users")
+  .select(["id", "name", "email"])
+  .execute();
 
-// Avoid - select all when not needed
-const users = await DB.from("users").select("*");
+// Acceptable when you need all columns
+const users = await DB.selectFrom("users")
+  .selectAll()
+  .execute();
 ```
 
 ---

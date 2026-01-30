@@ -14,6 +14,7 @@ The **Manager Agent** is responsible for **managing project changes** and coordi
 - Update version in package.json
 - Create release notes in CHANGELOG.md
 - Communicate changes to development team
+- Request test coverage improvements from TEST_AGENT
 
 **MANAGER_AGENT CANNOT:**
 - Implement features or write code
@@ -552,7 +553,48 @@ Please review and provide feedback on feasibility.
 - `workflow/PRD.md` - Product Requirements Document
 - `workflow/TDD.md` - Technical Design Document
 - `workflow/PROGRESS.md` - Development Progress Tracking
-- `workflow/AGENT-WORKFLOW.md` - Complete agent workflow and data flow
+- `workflow/TASK_AGENT.md` - Feature implementation workflow
+- `workflow/TEST_AGENT.md` - Testing & QA workflow
+- `workflow/MANAGER_AGENT.md` - Project management workflow
+
+### Agent Workflow Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     AGENT WORKFLOW                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  MANAGER_AGENT (Project Management)                             │
+│  ├── Update PRD.md (requirements)                               │
+│  ├── Update TDD.md (technical design)                           │
+│  ├── Update PROGRESS.md (task tracking)                         │
+│  └── Approve deployment                                         │
+│       ↓                                                          │
+│  TASK_AGENT (Implementation)                                    │
+│  ├── Implement features                                         │
+│  ├── Basic manual testing                                       │
+│  └── Push to GitHub                                             │
+│       ↓                                                          │
+│  GitHub Actions CI                                              │
+│  ├── Run tests                                                  │
+│  └── Report coverage                                            │
+│       ↓                                                          │
+│  TEST_AGENT (Testing & QA) ← 🆕                                  │
+│  ├── Write missing unit tests                                   │
+│  ├── Write integration tests                                    │
+│  ├── Write E2E tests                                            │
+│  └── Fix broken tests                                           │
+│       ↓                                                          │
+│  GitHub Actions CI (re-run)                                     │
+│  ├── All tests pass                                             │
+│  └── Coverage acceptable                                        │
+│       ↓                                                          │
+│  MANAGER_AGENT                                                  │
+│  ├── Update version                                             │
+│  └── Create CHANGELOG.md                                        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ### Related Files
 - `README.md` - Project overview
@@ -668,6 +710,86 @@ NEXT STEPS:
 
 ---
 
+## Testing Coordination with TEST_AGENT
+
+### Responsibilities
+
+MANAGER_AGENT coordinates testing efforts and ensures quality standards are met before deployment.
+
+**MANAGER_AGENT Testing Responsibilities:**
+- Request test coverage improvements when coverage drops below threshold
+- Review test coverage reports in PROGRESS.md
+- Approve deployment based on test results
+- Define testing requirements for new features
+
+**TEST_AGENT Testing Responsibilities:**
+- Write unit tests for services and controllers
+- Write integration tests for business flows
+- Write E2E tests for critical user paths
+- Report coverage metrics to PROGRESS.md
+- Fix failing tests due to implementation changes
+
+### Coverage Thresholds
+
+| Component | Minimum Coverage | Target Coverage |
+|-----------|------------------|-----------------|
+| Services | 80% | 90% |
+| Controllers | 70% | 80% |
+| Repositories | 85% | 90% |
+| Overall | 75% | 85% |
+
+### Testing Workflow
+
+```
+TASK_AGENT completes feature
+        ↓
+    Updates PROGRESS.md (Implementation ✅)
+        ↓
+TEST_AGENT picks up from handoff queue
+        ↓
+    Writes comprehensive tests
+        ↓
+    Updates PROGRESS.md (Testing ✅)
+        ↓
+MANAGER_AGENT reviews coverage report
+        ↓
+    Approve deployment (if thresholds met)
+    OR Request more tests (if below thresholds)
+```
+
+### Reviewing Test Results
+
+When reviewing PROGRESS.md for deployment approval:
+
+1. **Check Test Status Section**:
+   ```markdown
+   ## Testing Status
+   - **Overall Coverage**: 85% ✅
+   - **Services**: 92% ✅
+   - **Controllers**: 78% ⚠️
+   ```
+
+2. **Verify All Features Tested**:
+   - Implementation section marked [x] complete
+   - Testing section marked [x] complete
+   - No pending tests in handoff queue
+
+3. **Request More Tests if Needed**:
+   > "@TEST_AGENT - Coverage for UserController is at 65%, below 70% threshold. 
+   > Please add more integration tests for update and delete methods."
+
+### Testing Handoff Queue
+
+Maintain in PROGRESS.md:
+```markdown
+## Testing Handoff Queue
+- [x] Feature A (Completed: 2025-01-30, Tested: 2025-01-31)
+- [x] Feature B (Completed: 2025-01-31, Tested: 2025-02-01)
+- [ ] Feature C (Completed: 2025-02-01) - Pending TEST_AGENT
+```
+
+---
+
 ## Summary
 
 The Manager Agent is the central coordinator for all project changes. By following this structured approach, the project maintains:
@@ -676,6 +798,7 @@ The Manager Agent is the central coordinator for all project changes. By followi
 - **Consistent technical design** aligned with business needs
 - **Accurate progress tracking** that adapts to changes
 - **Effective communication** across all stakeholders
+- **Quality assurance** through testing coordination
 
 Key principles:
 1. Document everything
@@ -683,3 +806,4 @@ Key principles:
 3. Keep all documents synchronized
 4. Communicate clearly
 5. Collaborate with the team
+6. Ensure test coverage before deployment

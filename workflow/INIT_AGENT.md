@@ -40,7 +40,8 @@ Silakan mention @workflow/TASK_AGENT.md untuk implementasi fitur."
 - **Vite**: v5.4.10
 - **TypeScript**: v5.6.3 (backend only)
 - **HyperExpress**: v6.17.3 (backend server)
-- **Knex**: v3.1.0 (database query builder)
+- **Kysely**: v0.28.10 (type-safe SQL query builder)
+- **kysely-generic-sqlite**: v1.2.1 (Kysely SQLite dialect)
 - **better-sqlite3**: v12.4.1 (SQLite database driver)
 - **Zod**: v4.3.5 (validation)
 - **Lucide Icons**: Default icon library for laju.dev
@@ -122,19 +123,37 @@ Template tracking development:
 ## Features
 
 ### Posts
-- [ ] Pages: index.svelte, form.svelte
-- [ ] Controller: PostController (index, create, store, edit, update, destroy)
-- [ ] Routes: GET /posts, GET /posts/create, POST /posts, GET /posts/:id/edit, PUT /posts/:id, DELETE /posts/:id
+- [ ] Implementation
+  - [ ] Pages: index.svelte, form.svelte
+  - [ ] Controller: PostController (index, create, store, edit, update, destroy)
+  - [ ] Routes: GET /posts, GET /posts/create, POST /posts, GET /posts/:id/edit, PUT /posts/:id, DELETE /posts/:id
+- [ ] Testing
+  - [ ] Unit tests for services
+  - [ ] Integration tests for controller
+  - [ ] E2E tests for critical flows
+  - [ ] Coverage > 80%
 
 ### Users
-- [ ] Pages: index.svelte, form.svelte
-- [ ] Controller: UserController (index, create, store, edit, update, destroy)
-- [ ] Routes: GET /users, GET /users/create, POST /users, GET /users/:id/edit, PUT /users/:id, DELETE /users/:id
+- [ ] Implementation
+  - [ ] Pages: index.svelte, form.svelte
+  - [ ] Controller: UserController (index, create, store, edit, update, destroy)
+  - [ ] Routes: GET /users, GET /users/create, POST /users, GET /users/:id/edit, PUT /users/:id, DELETE /users/:id
+- [ ] Testing
+  - [ ] Unit tests for services
+  - [ ] Integration tests for controller
+  - [ ] E2E tests for critical flows
+  - [ ] Coverage > 80%
 
 ### [Feature Name]
-- [ ] Pages: index.svelte, form.svelte
-- [ ] Controller: [Feature]Controller (index, create, store, edit, update, destroy)
-- [ ] Routes: GET /[feature], GET /[feature]/create, POST /[feature], GET /[feature]/:id/edit, PUT /[feature]/:id, DELETE /[feature]/:id
+- [ ] Implementation
+  - [ ] Pages: index.svelte, form.svelte
+  - [ ] Controller: [Feature]Controller (index, create, store, edit, update, destroy)
+  - [ ] Routes: GET /[feature], GET /[feature]/create, POST /[feature], GET /[feature]/:id/edit, PUT /[feature]/:id, DELETE /[feature]/:id
+- [ ] Testing
+  - [ ] Unit tests for services
+  - [ ] Integration tests for controller
+  - [ ] E2E tests for critical flows (if applicable)
+  - [ ] Coverage > 80%
 
 ---
 
@@ -144,6 +163,29 @@ Template tracking development:
 
 ### Pending
 - [ ] migration_name
+
+---
+
+## Testing Status
+
+### Coverage Report
+- **Overall**: 0% (target: 80%)
+- **Services**: 0% (target: 90%)
+- **Controllers**: 0% (target: 70%)
+- **Repositories**: 0% (target: 85%)
+
+### Test Files Status
+#### Unit Tests
+- [ ] tests/unit/services/ (0/10 services tested)
+- [ ] tests/unit/repositories/ (0/5 repositories tested)
+
+#### Integration Tests
+- [ ] tests/integration/auth.test.ts
+- [ ] tests/integration/api.test.ts
+
+#### E2E Tests
+- [ ] tests/e2e/auth.spec.ts
+- [ ] tests/e2e/critical-flows.spec.ts
 ```
 
 
@@ -166,7 +208,28 @@ Buat migration files untuk database schema berdasarkan `workflow/TDD.md`.
 ### 9. Run Migrations
 
 ```bash
-npx knex migrate:latest
+npm run migrate
+```
+
+**Migration Naming:**
+Migration files should follow pattern: `YYYYMMDDhhmmss_description.ts`
+
+**Migration Template:**
+```typescript
+import { Kysely } from "kysely";
+
+export async function up(db: Kysely<any>): Promise<void> {
+  await db.schema
+    .createTable("table_name")
+    .addColumn("id", "text", (col) => col.primaryKey().notNull())
+    .addColumn("name", "text")
+    .addColumn("created_at", "integer")
+    .execute();
+}
+
+export async function down(db: Kysely<any>): Promise<void> {
+  await db.schema.dropTable("table_name").execute();
+}
 ```
 
 ### 10. Setup Design System
@@ -379,7 +442,7 @@ MANAGER_AGENT (release notes)
 **Built-in Services:**
 - `Authenticate` - Password hashing, login/logout, session management
 - `Validator` - Input validation with Zod schemas
-- `DB` - Database operations (Knex) - **Use directly for any table operations**
+- `DB` - Database operations (Kysely) - **Use directly for simple CRUD**
 - `CacheService` - Caching layer
 - `Mailer` / `Resend` - Email sending
 - `RateLimiter` - Rate limiting
@@ -390,6 +453,11 @@ MANAGER_AGENT (release notes)
 - `Redis` - Redis client
 - `LocalStorage` - Local file storage
 - `GoogleAuth` - Google OAuth
+
+**Repository Pattern (Optional):**
+- For simple CRUD: Use `DB` directly in controller
+- For complex queries (JOINs, aggregations): Create Repository in `app/repositories/`
+- See TASK_AGENT.md for detailed guidelines on when to use Repository
 
 **Built-in Middlewares:**
 - `auth` - Authentication (checks user session)
@@ -445,15 +513,19 @@ When a table needs a file field (e.g., `posts.thumbnail`, `users.avatar`), the f
 **Database Schema Example:**
 ```typescript
 // Migration
-export async function up(knex: Knex) {
-  await knex.schema.createTable('posts', (table) => {
-    table.uuid('id').primary().notNullable()
-    table.string('title')
-    table.text('content')
-    table.string('thumbnail')  // ← Store URL here, NOT asset_id
-    table.uuid('user_id').references('id').inTable('users')
-    table.timestamps()
-  })
+import { Kysely } from 'kysely'
+
+export async function up(db: Kysely<any>) {
+  await db.schema
+    .createTable('posts')
+    .addColumn('id', 'text', (col) => col.primaryKey().notNull())
+    .addColumn('title', 'text')
+    .addColumn('content', 'text')
+    .addColumn('thumbnail', 'text')  // ← Store URL here, NOT asset_id
+    .addColumn('user_id', 'text', (col) => col.references('users.id'))
+    .addColumn('created_at', 'integer')
+    .addColumn('updated_at', 'integer')
+    .execute()
 }
 ```
 
@@ -469,22 +541,23 @@ export async function up(knex: Knex) {
 3. **Create Controller** (following `skills/create-controller.md`):
 ```typescript
 import { Response, Request } from "../../type";
-import { DB } from '../services/DB'
-import { Validator } from '../services/Validator'
+import DB from '../services/DB'
+import Validator from '../services/Validator'
 import { storePostSchema } from '../validators/PostValidator'
 import { uuidv7 } from 'uuidv7'
 
 export class PostController  {
-  async index() {
-    const posts = await DB.from('posts')
-      .join('users', 'posts.user_id', 'users.id')
-      .select('posts.*', 'users.name')
+  async index(request: Request, response: Response) {
+    const posts = await DB.selectFrom('posts')
+      .innerJoin('users', 'posts.user_id', 'users.id')
+      .select(['posts.id', 'posts.title', 'posts.content', 'users.name'])
       .orderBy('posts.created_at', 'desc')
+      .execute()
     
     return response.inertia('posts/index', { posts })
   }
 
-  async store() {
+  async store(request: Request, response: Response) {
     const body = await request.json()
     const validationResult = Validator.validate(storePostSchema, body)
     if (!validationResult.success) {
@@ -495,19 +568,19 @@ export class PostController  {
     const { title, content } = validationResult.data!
     
     // Create post with uuidv7
-    await DB.table('posts').insert({
+    await DB.insertInto('posts').values({
       id: uuidv7(),
       user_id: request.user.id,
       title,
       content,
       created_at: Date.now(),
       updated_at: Date.now()
-    })
+    }).execute()
     
     return response.flash('success', 'Post berhasil dibuat').redirect('/posts', 302)
   }
 
-  async update() {
+  async update(request: Request, response: Response) {
     const body = await request.json()
     const id = request.params.id
     
@@ -520,20 +593,19 @@ export class PostController  {
     const { title, content } = validationResult.data!
     
     // Update post
-    await DB.from('posts').where('id', id).update({
-      title,
-      content,
-      updated_at: Date.now()
-    })
+    await DB.updateTable('posts')
+      .set({ title, content, updated_at: Date.now() })
+      .where('id', '=', id)
+      .execute()
     
     return response.flash('success', 'Post berhasil diupdate').redirect('/posts', 303)
   }
 
-  async destroy() {
+  async destroy(request: Request, response: Response) {
     const id = request.params.id
     
     // Delete post
-    await DB.from('posts').where('id', id).delete()
+    await DB.deleteFrom('posts').where('id', '=', id).execute()
     
     return response.flash('success', 'Post berhasil dihapus').redirect('/posts', 303)
   }

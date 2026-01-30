@@ -10,7 +10,7 @@ This agent is responsible for **executing development tasks** based on the updat
 - ✅ Implement features (create/modify pages, controllers, routes, validators)
 - ✅ Fix bugs
 - ✅ Modify existing features
-- ✅ Test locally (unit, integration)
+- ✅ Basic manual testing (happy path only)
 - ✅ Update PROGRESS.md when tasks completed
 - ✅ Follow Laju patterns
 - ✅ Create feature branches automatically
@@ -140,7 +140,7 @@ For each feature, ensure:
 - [ ] Check if controller exists in `app/controllers/`
 - [ ] If exists, modify existing controller (don't create duplicate)
 - [ ] If not, create new controller following `skills/create-controller.mdd`
-- [ ] Use `DB.from("table")` directly for database operations
+- [ ] **DECISION: Use Repository vs Direct DB Access** (see Repository Guidelines below)
 - [ ] Validate input using `Validator.validate()`
 - [ ] Return proper responses (Inertia for protected routes)
 - [ ] Use correct HTTP status codes (302 for store, 303 for update/delete)
@@ -181,6 +181,187 @@ For each feature, ensure:
 - [ ] Mark items as [x] completed
 - [ ] Add completion date if needed
 - [ ] Move from "In Progress" to "Completed" section
+
+## Repository Pattern Guidelines
+
+**Repository Pattern** = Layer abstraction antara Controller dan Database. Semua query database ditempatkan di `app/repositories/`.
+
+### Decision Tree: Repository vs Direct DB Access
+
+```
+Implementing a feature with database operations
+    ↓
+Is this a simple CRUD operation (SELECT, INSERT, UPDATE, DELETE basic)?
+    ↓ YES
+Use DB directly in controller:
+  await DB.selectFrom('posts').where('id', '=', id).execute()
+    ↓
+Done ✅
+
+    ↓ NO (complex query)
+Does this query involve JOINs with 3+ tables?
+    ↓ YES
+Create/use Repository:
+  await PostRepository.findWithAuthorAndComments(id)
+    ↓
+Done ✅
+
+    ↓ NO
+Is this same query used in 3+ different controllers?
+    ↓ YES
+Create/use Repository:
+  await UserRepository.findByEmail(email)
+    ↓
+Done ✅
+
+    ↓ NO
+Is this query likely to change schema soon?
+    ↓ YES
+Create/use Repository
+    ↓
+Done ✅
+
+    ↓ NO
+Use DB directly in controller
+    ↓
+Done ✅
+```
+
+### When to USE Repository
+
+| Scenario | Example | Action |
+|----------|---------|--------|
+| **Complex JOINs** | Query posts with author, comments, and tags | ✅ Create Repository |
+| **Reusable query** | `findByEmail()` used in Login, Register, PasswordReset | ✅ Create Repository |
+| **Query aggregation** | Dashboard stats with multiple aggregations | ✅ Create Repository |
+| **Likely schema changes** | Feature still in active development | ✅ Create Repository |
+| **Testability needed** | Need to mock database for unit tests | ✅ Create Repository |
+
+### When NOT to Use Repository
+
+| Scenario | Example | Action |
+|----------|---------|--------|
+| **Simple CRUD** | Basic SELECT/INSERT/UPDATE/DELETE | ❌ Use DB directly |
+| **One-time query** | Query only used in one controller method | ❌ Use DB directly |
+| **Simple WHERE** | `.where('status', '=', 'active')` | ❌ Use DB directly |
+| **MVP/Prototype** | Rapid development, quick validation | ❌ Use DB directly |
+
+### Examples
+
+#### ❌ DON'T Use Repository (Simple CRUD)
+```typescript
+// PostController.ts - Simple operations
+class PostController {
+  async show(request: Request, response: Response) {
+    const post = await DB.selectFrom('posts')
+      .selectAll()
+      .where('id', '=', request.params.id)
+      .executeTakeFirst()
+    
+    return response.inertia('posts/show', { post })
+  }
+  
+  async store(request: Request, response: Response) {
+    await DB.insertInto('posts')
+      .values({ id: uuidv7(), ...request.body })
+      .execute()
+    
+    return response.redirect('/posts')
+  }
+}
+```
+
+#### ✅ USE Repository (Complex Query)
+```typescript
+// repositories/PostRepository.ts
+export class PostRepository {
+  static async findWithDetails(id: string) {
+    return DB.selectFrom('posts')
+      .innerJoin('users', 'posts.user_id', 'users.id')
+      .leftJoin('comments', 'posts.id', 'comments.post_id')
+      .select([
+        'posts.id',
+        'posts.title',
+        'posts.content',
+        'users.name as author_name',
+        'users.avatar as author_avatar',
+        (eb) => eb.fn.count('comments.id').as('comment_count')
+      ])
+      .where('posts.id', '=', id)
+      .groupBy('posts.id')
+      .executeTakeFirst()
+  }
+  
+  static async findByUserWithStats(userId: string) {
+    // Complex aggregation query
+    return DB.selectFrom('posts')
+      .selectAll()
+      .select((eb) => [
+        eb.fn.count('posts.id').as('total_posts'),
+        eb.fn.avg('posts.views').as('avg_views')
+      ])
+      .where('user_id', '=', userId)
+      .execute()
+  }
+}
+
+// PostController.ts
+class PostController {
+  async show(request: Request, response: Response) {
+    // Use Repository for complex query
+    const post = await PostRepository.findWithDetails(request.params.id)
+    return response.inertia('posts/show', { post })
+  }
+}
+```
+
+#### ✅ USE Repository (Reusable Query)
+```typescript
+// repositories/UserRepository.ts
+export class UserRepository {
+  static async findByEmail(email: string) {
+    return DB.selectFrom('users')
+      .selectAll()
+      .where('email', '=', email.toLowerCase())
+      .executeTakeFirst()
+  }
+  
+  static async findByPhone(phone: string) {
+    return DB.selectFrom('users')
+      .selectAll()
+      .where('phone', '=', phone)
+      .executeTakeFirst()
+  }
+}
+
+// Used in multiple controllers:
+// LoginController.ts, RegisterController.ts, PasswordController.ts
+const user = await UserRepository.findByEmail(email)
+```
+
+### Repository Naming Convention
+
+- **File**: `app/repositories/{Entity}Repository.ts`
+- **Class**: `{Entity}Repository`
+- **Methods**: 
+  - `findBy{Field}` - Find single by field
+  - `findAll` - Find all records
+  - `findAllBy{Field}` - Find multiple by field
+  - `create` - Insert new record
+  - `update` - Update existing record
+  - `delete` - Delete record
+  - `findWith{Relations}` - Complex query with joins
+
+### Quick Decision Checklist
+
+Before creating a Repository, ask:
+1. [ ] Is this query used in 3+ places? → Repository
+2. [ ] Does it have JOINs with 3+ tables? → Repository
+3. [ ] Does it have complex aggregations? → Repository
+4. [ ] Is this a one-time simple query? → Direct DB
+5. [ ] Is this for MVP/prototype? → Direct DB
+
+**Default Rule**: Start with Direct DB. Refactor to Repository when needed (when query complexity grows or reuse needed).
  
 ## UI Kit Consistency
 
@@ -236,22 +417,23 @@ Use Tailwind classes for sizing and colors:
 3. **Create Controller** (following `skills/create-controller.md`):
 ```typescript
 import { Response, Request } from "../../type";
-import { DB } from '../services/DB'
-import { Validator } from '../services/Validator'
+import DB from '../services/DB'
+import Validator from '../services/Validator'
 import { storePostSchema } from '../validators/PostValidator'
 import { uuidv7 } from 'uuidv7'
 
 export class PostController  {
-  async index() {
-    const posts = await DB.from('posts')
-      .join('users', 'posts.user_id', 'users.id')
-      .select('posts.*', 'users.name')
+  async index(request: Request, response: Response) {
+    const posts = await DB.selectFrom('posts')
+      .innerJoin('users', 'posts.user_id', 'users.id')
+      .select(['posts.id', 'posts.title', 'posts.content', 'users.name'])
       .orderBy('posts.created_at', 'desc')
+      .execute()
     
     return response.inertia('posts/index', { posts })
   }
 
-  async store() {
+  async store(request: Request, response: Response) {
     const body = await request.json()
     const validationResult = Validator.validate(storePostSchema, body)
     if (!validationResult.success) {
@@ -262,19 +444,19 @@ export class PostController  {
     const { title, content } = validationResult.data!
     
     // Create post with uuidv7
-    await DB.table('posts').insert({
+    await DB.insertInto('posts').values({
       id: uuidv7(),
       user_id: request.user.id,
       title,
       content,
       created_at: Date.now(),
       updated_at: Date.now()
-    })
+    }).execute()
     
     return response.flash('success', 'Post berhasil dibuat').redirect('/posts', 302)
   }
 
-  async update() {
+  async update(request: Request, response: Response) {
     const body = await request.json()
     const id = request.params.id
     
@@ -287,20 +469,19 @@ export class PostController  {
     const { title, content } = validationResult.data!
     
     // Update post
-    await DB.from('posts').where('id', id).update({
-      title,
-      content,
-      updated_at: Date.now()
-    })
+    await DB.updateTable('posts')
+      .set({ title, content, updated_at: Date.now() })
+      .where('id', '=', id)
+      .execute()
     
     return response.flash('success', 'Post berhasil diupdate').redirect('/posts', 303)
   }
 
-  async destroy() {
+  async destroy(request: Request, response: Response) {
     const id = request.params.id
     
     // Delete post
-    await DB.from('posts').where('id', id).delete()
+    await DB.deleteFrom('posts').where('id', '=', id).execute()
     
     return response.flash('success', 'Post berhasil dihapus').redirect('/posts', 303)
   }
@@ -626,7 +807,7 @@ What needs to be built for selected task?
 ├── New Controller?
 │   ├── Check if controller exists
 │   ├── Create/modify following skills/create-controller.md
-│   ├── Use DB.from() for queries
+│   ├── Use DB.selectFrom() / DB.insertInto() / DB.updateTable() / DB.deleteFrom() for queries
 │   └── Validate with Validator
 │
 └── New Route?
@@ -776,10 +957,19 @@ When updating PROGRESS.md after completing a task:
 *Issue: [Original issue description]*
 ```
 
+## Handoff to TEST_AGENT
+
+Setelah fitur selesai diimplementasi, TASK_AGENT menyerahkan ke TEST_AGENT untuk testing.
+
+### Process
+1. Update PROGRESS.md - tandai implementasi selesai
+2. Selesai - TEST_AGENT akan handle semua testing
+
 ## Quick Reference Files
 
 - `workflow/PROGRESS.md` - Project progress tracking
 - `workflow/ui-kit.html` - UI components reference
+- `workflow/TEST_AGENT.md` - Testing agent workflow
 - `skills/create-controller.md` - Controller patterns
 - `skills/create-svelte-inertia-page.md` - Page patterns
 - `resources/js/Components/AdminLayout.svelte` - Admin layout

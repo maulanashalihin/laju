@@ -1,20 +1,16 @@
-import { Knex } from "knex";
+import { Kysely, sql } from "kysely";
 
-export async function up(knex: Knex): Promise<void> {
-    return knex.schema.createTable('email_verification_tokens', (table) => {
-        table.increments('id').primary();
-        table.integer('user_id').notNullable().index();
-        table.string('token').notNullable().unique();
-        table.timestamp('created_at').defaultTo(knex.fn.now());
-        table.timestamp('expires_at').notNullable();
-        
-        table.foreign('user_id')
-            .references('id')
-            .inTable('users')
-            .onDelete('CASCADE');
-    });
+export async function up(db: Kysely<any>): Promise<void> {
+  await db.schema
+    .createTable("email_verification_tokens")
+    .addColumn("id", "integer", (col) => col.primaryKey().autoIncrement())
+    .addColumn("user_id", "text", (col) => col.notNull())
+    .addColumn("token", "text", (col) => col.notNull())
+    .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+    .addColumn("expires_at", "text", (col) => col.notNull())
+    .execute();
 }
 
-export async function down(knex: Knex): Promise<void> {
-    return knex.schema.dropTable('email_verification_tokens');
+export async function down(db: Kysely<any>): Promise<void> {
+  await db.schema.dropTable("email_verification_tokens").execute();
 }

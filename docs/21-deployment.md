@@ -30,7 +30,7 @@ cp .env.example .env
 nano .env  # Edit as needed
 
 # 6. Run migrations (data folder already exists with .gitkeep)
-npx knex migrate:latest --env production
+DB_CONNECTION=production npm run migrate
 
 # 7. Start with PM2
 pm2 start build/server.js --name laju

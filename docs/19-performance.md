@@ -17,18 +17,21 @@ Optimization strategies for Laju applications.
 
 ### Use Native SQLite for Reads
 
-Native SQLite is 2-4x faster than Knex for simple queries.
+Native SQLite is 2-4x faster than Kysely for simple queries.
 
 ```typescript
-// Slow - Knex (convenience)
-const user = await DB.from("users").where("id", id).first();
+// Standard - Kysely (convenience)
+const user = await DB.selectFrom("users")
+  .selectAll()
+  .where("id", "=", id)
+  .executeTakeFirst();
 
 // Fast - Native SQLite (performance)
 const user = SQLite.get("SELECT * FROM users WHERE id = ?", [id]);
 ```
 
 **Benchmark Results:**
-| Operation | Knex | Native SQLite | Improvement |
+| Operation | Kysely | Native SQLite | Improvement |
 |-----------|------|---------------|-------------|
 | Single read | 0.8ms | 0.2ms | 4x faster |
 | Multiple reads | 5ms | 1.3ms | 3.8x faster |
@@ -37,16 +40,25 @@ const user = SQLite.get("SELECT * FROM users WHERE id = ?", [id]);
 
 ```typescript
 // In migration
-export async function up(knex: Knex) {
-  await knex.schema.createTable('posts', (table) => {
-    table.increments('id').primary();
-    table.string('slug').notNullable();
-    table.integer('user_id').unsigned();
-    table.string('status').defaultTo('draft');
-    table.bigInteger('created_at');
+import { Kysely } from "kysely";
+
+export async function up(db: Kysely<any>) {
+  await db.schema
+    .createTable('posts')
+    .addColumn('id', 'serial', (col) => col.primaryKey())
+    .addColumn('slug', 'varchar', (col) => col.notNull().unique())
+    .addColumn('user_id', 'integer')
+    .addColumn('status', 'varchar', (col) => col.defaultTo('draft'))
+    .addColumn('created_at', 'bigint')
+    .execute();
     
-    // Indexes for frequently queried columns
-    table.unique('slug');
+  // Indexes for frequently queried columns
+  await db.schema
+    .createIndex('posts_slug_idx')
+    .on('posts')
+    .column('slug')
+    .unique()
+    .execute();
     table.index('user_id');
     table.index('status');
     table.index('created_at');

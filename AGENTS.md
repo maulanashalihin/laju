@@ -8,7 +8,7 @@
 - **Vite**: v5.4.10
 - **TypeScript**: v5.6.3 (backend only)
 - **HyperExpress**: v6.17.3 (backend server)
-- **Knex**: v3.1.0 (database query builder)
+- **Kysely**: v0.28.10 (type-safe SQL query builder)
 - **Zod**: v4.3.5 (validation)
 - **Lucide Icons**: Default icon library for laju.dev
 
@@ -42,7 +42,7 @@ Help users build applications using Laju framework by understanding their needs 
 **Built-in Services:**
 - `Authenticate` - Password hashing, login/logout, session management
 - `Validator` - Input validation with Zod schemas
-- `DB` - Database operations (Knex) - **Use directly for any table operations**
+- `DB` - Database operations (Kysely) - **Use directly for any table operations**
 - `CacheService` - Caching layer
 - `Mailer` / `Resend` - Email sending
 - `RateLimiter` - Rate limiting
@@ -73,7 +73,7 @@ Help users build applications using Laju framework by understanding their needs 
 - Need login? → Modify `LoginController.ts`, don't create new
 - Need profile? → Modify `ProfileController.ts`, don't create new
 - Need password reset? → Modify `PasswordController.ts`, don't create new
-- Need database operations? → Use `DB.from("table")` directly, don't create service
+- Need database operations? → Use `DB.selectFrom("table")` directly, don't create service
 - Need create/edit form? → Use single `form.svelte` page for both (pass `post` prop for edit)
 
 ## Project Structure
@@ -129,7 +129,7 @@ laju/
 - Controllers → Services → Database
 - NO `this` in controllers
 - NO `next()` in middlewares
-- Use Knex for database operations
+- Use Kysely for database operations
 - Use Inertia for interactive pages
 - Use Eta for SSR pages
 
@@ -167,6 +167,58 @@ Encourage documentation when adding new features or making significant changes.
 - `workflow/PRD.md` - Product requirements (objectives, features, success criteria, **design specifications including branding colors/typography**)
 - `workflow/PROGRESS.md` - Development progress tracking
  
+
+## Agent Ecosystem
+
+Laju framework uses a multi-agent workflow for different responsibilities:
+
+### Agent Roles
+
+| Agent | Responsibility | When to Use |
+|-------|---------------|-------------|
+| **INIT_AGENT** | Project initialization | Starting a new project |
+| **TASK_AGENT** | Feature implementation | Building pages, controllers, routes |
+| **TEST_AGENT** | Testing & coverage | After feature implementation |
+| **MANAGER_AGENT** | Documentation & coordination | Change requests, deployment approval |
+
+### Agent Workflow
+
+```
+Project Start
+    ↓
+INIT_AGENT → Setup project structure
+    ↓
+MANAGER_AGENT → Create PRD, TDD
+    ↓
+TASK_AGENT ← → TEST_AGENT
+    ↓
+MANAGER_AGENT → Approve deployment
+```
+
+### Handoff Protocol
+
+1. **INIT_AGENT → MANAGER_AGENT**
+   - After project setup complete
+   - Handoff: PRD.md, TDD.md, PROGRESS.md ready
+
+2. **MANAGER_AGENT → TASK_AGENT**
+   - After requirements documented
+   - Handoff: PROGRESS.md with features to implement
+
+3. **TASK_AGENT → TEST_AGENT**
+   - After feature implementation complete
+   - Handoff: PROGRESS.md updated with [x] implementation
+
+4. **TEST_AGENT → MANAGER_AGENT**
+   - After tests complete and passing
+   - Handoff: PROGRESS.md with coverage report
+
+### Workflow Files Reference
+
+- `workflow/INIT_AGENT.md` - Project initialization workflow
+- `workflow/TASK_AGENT.md` - Feature implementation workflow
+- `workflow/TEST_AGENT.md` - Testing workflow
+- `workflow/MANAGER_AGENT.md` - Change management & deployment
 
 ## Remember
 

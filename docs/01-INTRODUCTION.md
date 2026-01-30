@@ -7,7 +7,7 @@
 
 ## What is Laju?
 
-**Laju** (Indonesian for "fast/swift") is a high-performance TypeScript web framework that combines the best of modern web technologies to deliver exceptional speed and developer experience.
+**Laju** (Indonesian for 'fast/swift') is a high-performance TypeScript web framework that combines the best of modern web technologies to deliver exceptional speed and developer experience.
 
 ### Core Technologies
 
@@ -41,7 +41,7 @@
 
 ✅ **High-Performance Database**
 - BetterSQLite3 with WAL mode (19.9x faster writes)
-- Knex.js query builder
+- Kysely type-safe query builder
 - Native SQLite for maximum performance
 - Database migrations
 
@@ -72,10 +72,10 @@
 | Batch Insert | 2,895 ops/sec | 8,542 ops/sec | **2.95x faster** |
 | Concurrent Writes | 89 ops/sec | 1,302 ops/sec | **14.6x faster** |
 
-#### Native SQLite vs Knex.js
+#### Native SQLite vs Kysely
 
-| Operation | Native | Knex.js | Native Advantage |
-|-----------|--------|---------|------------------|
+| Operation | Native | Kysely | Native Advantage |
+|-----------|--------|--------|------------------|
 | Select All | 70,501 ops/sec | 35,960 ops/sec | **96% faster** |
 | Select By ID | 290,020 ops/sec | 59,816 ops/sec | **385% faster** |
 | Delete | 227,006 ops/sec | 80,821 ops/sec | **181% faster** |
@@ -105,7 +105,7 @@ npm install
 cp .env.example .env
 
 # Run migrations
-npx knex migrate:latest
+npm run migrate
 
 # Start development server
 npm run dev

@@ -141,7 +141,7 @@ Business logic and external integrations.
 
 ```
 app/services/
-├── DB.ts                   # Knex.js database service
+├── DB.ts                   # Kysely database service
 │   └── Query builder with WAL optimizations
 │
 ├── SQLite.ts               # Native better-sqlite3 service
@@ -368,7 +368,7 @@ data/
 ```
 laju/
 ├── server.ts               # Server entry point
-├── knexfile.ts             # Database configuration
+├── app/services/DB.ts      # Database configuration (Kysely)
 ├── vite.config.mjs         # Vite configuration
 ├── tsconfig.json           # TypeScript configuration
 ├── svelte.config.mjs       # Svelte configuration

@@ -1,13 +1,14 @@
-import { Knex } from "knex";
+import { Kysely } from "kysely";
 
-export async function up(knex: Knex): Promise<void> {
-    await knex.schema.createTable("cache", (table) => {
-        table.string("key").primary();
-        table.text("value").notNullable();
-        table.bigInteger("expiration").notNullable(); // Unix timestamp in seconds
-    });
+export async function up(db: Kysely<any>): Promise<void> {
+  await db.schema
+    .createTable("cache")
+    .addColumn("key", "text", (col) => col.primaryKey())
+    .addColumn("value", "text", (col) => col.notNull())
+    .addColumn("expiration", "integer", (col) => col.notNull())
+    .execute();
 }
 
-export async function down(knex: Knex): Promise<void> {
-    await knex.schema.dropTable("cache");
+export async function down(db: Kysely<any>): Promise<void> {
+  await db.schema.dropTable("cache").execute();
 }

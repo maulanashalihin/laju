@@ -36,40 +36,41 @@ BACKUP_RETENTION_DAYS=30
 Create the `backup_files` table for metadata:
 
 ```bash
-npx knex migrate:make create_backup_files_table
+# Create file manually in migrations/ folder
 ```
 
 Migration content:
 
 ```typescript
-import { Knex } from "knex";
+import { Kysely } from "kysely";
 
-export async function up(knex: Knex): Promise<void> {
-  await knex.schema.createTable("backup_files", (table) => {
-    table.string("id").primary();
-    table.string("key").notNullable().unique();
-    table.string("file_name").notNullable();
-    table.bigInteger("file_size").notNullable();
-    table.string("compression").notNullable();
-    table.string("storage").notNullable();
-    table.string("checksum").notNullable();
-    table.bigInteger("uploaded_at").notNullable();
-    table.bigInteger("deleted_at").nullable();
-    table.string("encryption").notNullable();
-    table.string("enc_iv").notNullable();
-    table.string("enc_tag").notNullable();
-  });
+export async function up(db: Kysely<any>): Promise<void> {
+  await db.schema
+    .createTable("backup_files")
+    .addColumn("id", "text", (col) => col.primaryKey())
+    .addColumn("key", "text", (col) => col.notNull().unique())
+    .addColumn("file_name", "text", (col) => col.notNull())
+    .addColumn("file_size", "integer", (col) => col.notNull())
+    .addColumn("compression", "text", (col) => col.notNull())
+    .addColumn("storage", "text", (col) => col.notNull())
+    .addColumn("checksum", "text", (col) => col.notNull())
+    .addColumn("uploaded_at", "integer", (col) => col.notNull())
+    .addColumn("deleted_at", "integer")
+    .addColumn("encryption", "text", (col) => col.notNull())
+    .addColumn("enc_iv", "text", (col) => col.notNull())
+    .addColumn("enc_tag", "text", (col) => col.notNull())
+    .execute();
 }
 
-export async function down(knex: Knex): Promise<void> {
-  await knex.schema.dropTable("backup_files");
+export async function down(db: Kysely<any>): Promise<void> {
+  await db.schema.dropTable("backup_files").execute();
 }
 ```
 
 Run migration:
 
 ```bash
-npx knex migrate:latest
+npm run migrate
 ```
 
 ## Usage

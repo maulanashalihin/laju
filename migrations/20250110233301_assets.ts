@@ -1,26 +1,24 @@
-import type { Knex } from "knex";
+import { Kysely, sql } from "kysely";
 
-export async function up(knex: Knex): Promise<void> {
-    return knex.schema.createTable('assets', (table) => {
-        table.string('id').primary();
-        
-        // Asset Information
-        table.string('name');
-        table.string('type').notNullable(); // image, video, document, etc
-        table.string('url').notNullable();
-        table.string('mime_type');
-        table.integer('size').unsigned(); // file size in bytes
-        table.string('storage_key').nullable().index(); // Storage key (S3 or LocalStorage)
-        // Ownership and Organization 
-        table.string('user_id').index(); 
-        
-         
-        // Timestamps
-        table.timestamp('created_at').defaultTo(knex.fn.now());
-        table.timestamp('updated_at').defaultTo(knex.fn.now());
-    });
+export async function up(db: Kysely<any>): Promise<void> {
+  await db.schema
+    .createTable("assets")
+    .addColumn("id", "text", (col) => col.primaryKey())
+    .addColumn("name", "text")
+    .addColumn("type", "text", (col) => col.notNull()) // image, video, document, etc
+    .addColumn("url", "text", (col) => col.notNull())
+    .addColumn("mime_type", "text")
+    .addColumn("size", "integer") // file size in bytes
+    .addColumn("storage_key", "text")
+    .addColumn("user_id", "text")
+    .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+    .addColumn("updated_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+    .execute();
+
+  await db.schema.createIndex("assets_storage_key_idx").on("assets").column("storage_key").execute();
+  await db.schema.createIndex("assets_user_id_idx").on("assets").column("user_id").execute();
 }
 
-export async function down(knex: Knex): Promise<void> {
-    return knex.schema.dropTable('assets');
+export async function down(db: Kysely<any>): Promise<void> {
+  await db.schema.dropTable("assets").execute();
 }

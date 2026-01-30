@@ -257,9 +257,8 @@ DEPLOYMENT_AGENT:
 
 **Solutions:**
 1. SSH to server
-2. Check migration status: `npx knex migrate:status --env production`
-3. Run migrations manually: `npx knex migrate:latest --env production`
-4. Check database file: `ls -lh data/production.sqlite3`
+2. Run migrations manually: `npm run migrate`
+3. Check database file: `ls -lh data/production.sqlite3`
 
 ### Issue 4: Application Won't Start
 

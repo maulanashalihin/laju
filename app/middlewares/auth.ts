@@ -12,19 +12,15 @@ export default async (request: Request, response: Response) => {
 
    try {
       const user = await SQLite.get(`
-               SELECT u.id, u.name, u.email, u.phone, u.avatar, u.is_admin
+               SELECT u.*
                FROM sessions s
                JOIN users u ON s.user_id = u.id
                WHERE s.id = ? AND s.expires_at > datetime('now')
-            `, [request.cookies.auth_id]) as User;
+            `, [request.cookies.auth_id]) as User | undefined;
 
       if (!user) {
          return redirectToLogin();
       }
-
-      user.is_admin = Boolean(user.is_admin);
-      
-      user.is_verified = Boolean(user.is_verified);
 
       request.user = user; 
 

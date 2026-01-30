@@ -1,101 +1,123 @@
 import * as fs from "fs";
 import * as path from "path";
-import { execSync } from "child_process";
 import * as readline from "readline";
-import knexfile from "../../knexfile";
+import DB from "../../app/services/DB";
+import Migrator from "../../app/services/Migrator";
+
+// Database configuration
+const dbConfig: Record<string, { filename: string }> = {
+  development: {
+    filename: "./data/dev.sqlite3",
+  },
+  production: {
+    filename: "./data/production.sqlite3",
+  },
+  test: {
+    filename: "./data/test.sqlite3",
+  },
+};
 
 class Command {
-   public args: string[] = [];
-   public commandName = "db:refresh";
+  public args: string[] = [];
+  public commandName = "db:refresh";
 
-   public run() {
-      const databases = Object.entries(knexfile).map(([env, config]: [string, any]) => ({
-         name: env.charAt(0).toUpperCase() + env.slice(1),
-         file: config.connection.filename,
-         env: env
-      }));
+  public run() {
+    const databases = Object.entries(dbConfig).map(([env, config]) => ({
+      name: env.charAt(0).toUpperCase() + env.slice(1),
+      file: config.filename,
+      env: env,
+    }));
 
-      console.log("\n📦 Available Databases:");
-      console.log("─────────────────────────");
-      databases.forEach((db, index) => {
-         const exists = fs.existsSync(db.file);
-         const status = exists ? "✓" : "✗";
-         console.log(`${index + 1}. ${db.name} (${db.file}) ${status}`);
+    console.log("\n📦 Available Databases:");
+    console.log("─────────────────────────");
+    databases.forEach((db, index) => {
+      const exists = fs.existsSync(db.file);
+      const status = exists ? "✓" : "✗";
+      console.log(`${index + 1}. ${db.name} (${db.file}) ${status}`);
+    });
+    console.log("─────────────────────────\n");
+
+    const selection = this.args[1];
+
+    if (!selection) {
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
       });
-      console.log("─────────────────────────\n");
 
-      const selection = this.args[1];
+      rl.question("Select database number (1-3): ", (answer) => {
+        rl.close();
+        const index = parseInt(answer) - 1;
 
-      if (!selection) {
-         const rl = readline.createInterface({
-            input: process.stdin,
-            output: process.stdout
-         });
+        if (isNaN(index) || index < 0 || index >= databases.length) {
+          console.log("❌ Invalid selection");
+          process.exit(1);
+        }
 
-         rl.question("Select database number (1-3): ", (answer) => {
-            rl.close();
-            const index = parseInt(answer) - 1;
-            
-            if (isNaN(index) || index < 0 || index >= databases.length) {
-               console.log("❌ Invalid selection");
-               process.exit(1);
-            }
+        this.refreshDatabase(databases[index]);
+      });
+      return;
+    }
 
-            this.refreshDatabase(databases[index]);
-         });
-         return;
-      }
+    const index = parseInt(selection) - 1;
 
-      const index = parseInt(selection) - 1;
+    if (isNaN(index) || index < 0 || index >= databases.length) {
+      console.log("❌ Invalid selection");
+      process.exit(1);
+    }
 
-      if (isNaN(index) || index < 0 || index >= databases.length) {
-         console.log("❌ Invalid selection");
-         process.exit(1);
-      }
+    this.refreshDatabase(databases[index]);
+  }
 
-      this.refreshDatabase(databases[index]);
-   }
+  private async refreshDatabase(selectedDb: { name: string; file: string; env: string }) {
+    console.log(`\n🔄 Refreshing ${selectedDb.name} database...`);
+    console.log(`   File: ${selectedDb.file}\n`);
 
-   private refreshDatabase(selectedDb: { name: string; file: string; env: string }) {
+    const dbPath = path.resolve(selectedDb.file);
 
-      console.log(`\n🔄 Refreshing ${selectedDb.name} database...`);
-      console.log(`   File: ${selectedDb.file}\n`);
+    if (fs.existsSync(dbPath)) {
+      fs.unlinkSync(dbPath);
+      console.log("✅ Database file deleted");
+    } else {
+      console.log("ℹ️  Database file doesn't exist, skipping deletion");
+    }
 
-      const dbPath = path.resolve(selectedDb.file);
+    const dataDir = path.resolve("./data");
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+      console.log("✅ Data directory created");
+    }
 
-      if (fs.existsSync(dbPath)) {
-         fs.unlinkSync(dbPath);
-         console.log("✅ Database file deleted");
+    console.log("\n🚀 Running migrations...\n");
+
+    try {
+      // Set environment variable for the connection
+      process.env.DB_CONNECTION = selectedDb.env;
+
+      // Create a new DB connection for the selected environment
+      const db = DB.getConnection(selectedDb.env);
+
+      // Run migrations
+      const migrator = new Migrator(db);
+      const result = await migrator.migrateToLatest();
+
+      if (result.success) {
+        console.log("\n✅ Migrations completed!");
+        console.log("\n✅ Database refreshed successfully!");
       } else {
-         console.log("ℹ️  Database file doesn't exist, skipping deletion");
+        console.error("\n❌ Migration failed:", result.error);
+        process.exit(1);
       }
 
-      const dataDir = path.resolve("./data");
-      if (!fs.existsSync(dataDir)) {
-         fs.mkdirSync(dataDir, { recursive: true });
-         console.log("✅ Data directory created");
-      }
+      // Close database connection
+      await db.destroy();
 
-      console.log("\n🚀 Running migrations...\n");
-
-      try {
-         execSync("knex migrate:latest", {
-            stdio: "inherit",
-            env: { ...process.env, NODE_ENV: selectedDb.env }
-         });
-         console.log("\n✅ Migrations completed!");
-
-         console.log("\n🌱 Running seeders...\n");
-         execSync("knex seed:run", {
-            stdio: "inherit",
-            env: { ...process.env, NODE_ENV: selectedDb.env }
-         });
-         console.log("\n✅ Database refreshed successfully!");
-      } catch (error) {
-         console.error("\n❌ Migration failed:", error);
-         process.exit(1);
-      }
-   }
+      process.exit(0);
+    } catch (error) {
+      console.error("\n❌ Migration failed:", error);
+      process.exit(1);
+    }
+  }
 }
 
 const cmd = new Command();

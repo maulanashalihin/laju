@@ -58,31 +58,84 @@ Laju provides two caching options:
 
 ---
 
-## Database Cache (Default)
+## In-Memory Cache (Default) - Recommended
 
-### Migration
+Laju provides a high-performance **in-memory cache** using JavaScript Map with TTL (Time To Live).
+
+### Why In-Memory?
+
+| Storage | Latency | Best For |
+|---------|---------|----------|
+| **In-Memory (Map)** | ~0.001ms | High-frequency cache, session data, config |
+| **Redis** | ~0.1-1ms | Distributed cache, persistence needed |
+| **SQLite** | ~1-5ms | ❌ Too slow for cache use case |
+
+**Performance improvement: 1000x+ faster than SQLite-based cache**
+
+### Usage
 
 ```typescript
-// migrations/20251210000000_create_cache_table.ts
-import { Knex } from "knex";
+import Cache from "app/services/CacheService";
 
-export async function up(knex: Knex): Promise<void> {
-    await knex.schema.createTable("cache", (table) => {
-        table.string("key").primary();
-        table.text("value").notNullable();
-        table.bigInteger("expiration").notNullable();
-    });
+// Store value (5 minutes TTL)
+await Cache.put('user:123', userData, 5);
+
+// Retrieve value
+const user = Cache.get('user:123');
+
+// Check existence
+if (Cache.has('user:123')) {
+  // ...
 }
 
-export async function down(knex: Knex): Promise<void> {
-    await knex.schema.dropTable("cache");
-}
+// Remove value
+Cache.forget('user:123');
+
+// Remember pattern (cache or compute)
+const data = await Cache.remember('expensive-query', 10, async () => {
+  return await fetchExpensiveData();
+});
 ```
 
-Run migration:
-```bash
-npx knex migrate:latest
+### Methods
+
+```typescript
+// Basic operations
+Cache.get<T>(key: string): T | null
+Cache.put<T>(key: string, value: T, minutes: number): void
+Cache.forget(key: string): void
+Cache.has(key: string): boolean
+
+// Remember patterns
+Cache.remember<T>(key: string, minutes: number, callback: () => Promise<T>): Promise<T>
+Cache.rememberSync<T>(key: string, minutes: number, callback: () => T): T
+
+// Utilities
+Cache.ttl(key: string): number  // Get remaining TTL in seconds
+Cache.flush(): void             // Clear all cache
+Cache.stats(): { size: number, keys: string[] }
+Cache.cleanup(): number         // Remove expired entries
 ```
+
+### Important Notes
+
+⚠️ **In-Memory Cache Characteristics:**
+- **Fastest** option (~0.001ms per operation)
+- **Non-persistent** - cleared on server restart
+- **Single-node** - not shared between multiple server instances
+- **Memory limit** - depends on your server's RAM
+
+✅ **Best Use Cases:**
+- Session data (short-lived)
+- Configuration values
+- Database query results
+- API response caching
+- Rate limit tracking
+
+❌ **Don't Use For:**
+- Critical data that must survive restart
+- Multi-server setups (use Redis instead)
+- Very large datasets (use Redis instead)
 
 ### Usage
 
@@ -432,7 +485,7 @@ setInterval(() => {
 
 1. Run migration:
 ```bash
-npx knex migrate:latest
+npm run migrate
 ```
 
 2. Start using cache:

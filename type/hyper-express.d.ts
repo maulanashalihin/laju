@@ -13,12 +13,12 @@ declare module 'hyper-express' {
      */
     user?: {
       id: string;
-      name: string;
+      name: string | null;
       email: string;
-      phone?: string;
-      avatar?: string;
-      is_admin: boolean;
-      is_verified: boolean;
+      phone: string | null;
+      avatar: string | null;
+      is_admin: number;
+      is_verified: number;
     };
 
     /**

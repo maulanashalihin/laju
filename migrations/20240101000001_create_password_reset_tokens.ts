@@ -1,15 +1,18 @@
-import { Knex } from "knex";
+import { Kysely, sql } from "kysely";
 
-export async function up(knex: Knex): Promise<void> {
-    return knex.schema.createTable('password_reset_tokens', (table) => {
-        table.increments('id').primary();
-        table.string('email').notNullable().index();
-        table.string('token').notNullable().unique();
-        table.timestamp('created_at').defaultTo(knex.fn.now());
-        table.timestamp('expires_at').notNullable();
-    });
+export async function up(db: Kysely<any>): Promise<void> {
+  await db.schema
+    .createTable("password_reset_tokens")
+    .addColumn("id", "integer", (col) => col.primaryKey().autoIncrement())
+    .addColumn("email", "text", (col) => col.notNull())
+    .addColumn("token", "text", (col) => col.unique().notNull())
+    .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
+    .addColumn("expires_at", "text", (col) => col.notNull())
+    .execute();
+
+  await db.schema.createIndex("password_reset_tokens_email_idx").on("password_reset_tokens").column("email").execute();
 }
 
-export async function down(knex: Knex): Promise<void> {
-    return knex.schema.dropTable('password_reset_tokens');
+export async function down(db: Kysely<any>): Promise<void> {
+  await db.schema.dropTable("password_reset_tokens").execute();
 }

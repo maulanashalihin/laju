@@ -229,13 +229,16 @@ User is automatically passed to all Inertia pages:
 
 ```typescript
 // migrations/20230514062913_sessions.ts
-export async function up(knex: Knex): Promise<void> {
-  await knex.schema.createTable('sessions', (table) => {
-    table.string('id').primary();  // UUID token
-    table.integer('user_id').unsigned().references('id').inTable('users');
-    table.string('user_agent');
-    table.timestamp('created_at').defaultTo(knex.fn.now());
-  });
+import { Kysely } from "kysely";
+
+export async function up(db: Kysely<any>): Promise<void> {
+  await db.schema
+    .createTable('sessions')
+    .addColumn('id', 'text', (col) => col.primaryKey())  // UUID token
+    .addColumn('user_id', 'text', (col) => col.references('users.id'))
+    .addColumn('user_agent', 'text')
+    .addColumn('expires_at', 'text')
+    .execute();
 }
 ```
 

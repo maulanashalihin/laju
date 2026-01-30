@@ -145,7 +145,7 @@ const isActive = request.query.active === 'true';
 ### Use Parameterized Queries
 
 ```typescript
-// CORRECT - Knex (auto-parameterized)
+// CORRECT - Kysely (auto-parameterized)
 const user = await DB.from("users")
   .where("email", email)
   .first();

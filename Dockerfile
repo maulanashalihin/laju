@@ -38,4 +38,4 @@ RUN mkdir -p data
 EXPOSE 5555
 
 # Run migrations and start with PM2
-CMD ["sh", "-c", "npx knex migrate:latest --env production && pm2-runtime start build/server.js --name laju"]
+CMD ["sh", "-c", "npm run migrate && pm2-runtime start build/server.js --name laju"]

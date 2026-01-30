@@ -1,74 +1,67 @@
 import DB from "../services/DB";
-import Authenticate from "../services/Authenticate";
 import { MailTo } from "../services/Resend";
 import { Response, Request } from "../../type";
 import { randomUUID } from "crypto";
 import dayjs from "dayjs";
 
 class VerificationController {
-   public async verify(request: Request, response: Response) {
-      if (!request.user) {
-         return response.redirect("/login");
-      }
+  public async verify(request: Request, response: Response) {
+    if (!request.user) {
+      return response.redirect("/login");
+    }
 
-      const token = randomUUID();
+    const token = randomUUID();
 
-      await DB.from("email_verification_tokens")
-         .where("user_id", request.user.id)
-         .delete();
+    await DB.deleteFrom("email_verification_tokens").where("user_id", "=", request.user.id).execute();
 
-      await DB.from("email_verification_tokens").insert({
-         user_id: request.user.id,
-         token: token,
-         expires_at: dayjs().add(24, "hours").toDate(),
-      });
+    await DB.insertInto("email_verification_tokens").values({
+      user_id: request.user.id,
+      token: token,
+      expires_at: dayjs().add(24, "hours").toISOString(),
+    }).execute();
 
-      try {
-         await MailTo({
-            to: request.user.email,
-            subject: "Verifikasi Akun",
-            text: `Klik link berikut untuk verifikasi email anda:
+    try {
+      await MailTo({
+        to: request.user.email,
+        subject: "Verifikasi Akun",
+        text: `Klik link berikut untuk verifikasi email anda:
 ${process.env.APP_URL}/verify/${token}
 
 Link ini akan kadaluarsa dalam 24 jam.`,
-         });
-      } catch (error) {
-         console.log(error);
-         return response.redirect("/home");
-      }
-
+      });
+    } catch (error) {
+      console.log(error);
       return response.redirect("/home");
-   }
+    }
 
-   public async verifyPage(request: Request, response: Response) {
-      if (!request.user) {
-         return response.redirect("/login");
-      }
+    return response.redirect("/home");
+  }
 
-      const { id } = request.params;
+  public async verifyPage(request: Request, response: Response) {
+    if (!request.user) {
+      return response.redirect("/login");
+    }
 
-      const verificationToken = await DB.from("email_verification_tokens")
-         .where({
-            user_id: request.user.id,
-            token: id,
-         })
-         .where("expires_at", ">", new Date())
-         .first();
+    const { id } = request.params;
 
-      if (verificationToken) {
-         await DB.from("users")
-            .where("id", request.user.id)
-            .update({ is_verified: true });
+    const verificationToken = await DB.selectFrom("email_verification_tokens")
+      .selectAll()
+      .where("user_id", "=", request.user.id)
+      .where("token", "=", id)
+      .where("expires_at", ">", dayjs().toISOString())
+      .executeTakeFirst();
 
-         await DB.from("email_verification_tokens")
-            .where("id", verificationToken.id)
-            .delete();
+    if (verificationToken) {
+      await DB.updateTable("users")
+        .set({ is_verified: 1 })
+        .where("id", "=", request.user.id)
+        .execute();
 
-         await Authenticate.invalidateUserSessions(request.user.id);
-      }
+      await DB.deleteFrom("email_verification_tokens").where("id", "=", verificationToken.id).execute();
+    }
 
-      return response.redirect("/home?verified=true");
-   }
+    return response.redirect("/home?verified=true");
+  }
 }
 
 export default new VerificationController();

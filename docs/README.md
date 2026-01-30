@@ -14,7 +14,7 @@ Start here if you're new to Laju. Learn the basics and set up your first project
 
 1. **[Introduction](01-INTRODUCTION.md)** - Framework overview, tech stack, quick start
 2. **[Project Structure](02-PROJECT-STRUCTURE.md)** - Directory layout, conventions, imports
-3. **[Database Guide](03-DATABASE.md)** - Knex.js, Native SQLite, Migrations, Performance
+3. **[Database Guide](03-DATABASE.md)** - Kysely, Native SQLite, Migrations, Performance
 
 ---
 
@@ -83,7 +83,7 @@ npx create-laju-app my-project
 cd my-project
 npm install
 cp .env.example .env
-npx knex migrate:latest
+npm run migrate
 npm run dev
 ```
 
@@ -156,7 +156,7 @@ Visit `http://localhost:5555`
 ## 💡 Common Tasks
 
 ### Create a CRUD Feature
-1. [Create migration](03-DATABASE.md#migrations) - `npx knex migrate:make create_posts`
+1. [Create migration](03-DATABASE.md#migrations) - Create file in `migrations/` folder
 2. [Create controller](04-ROUTING-CONTROLLERS.md#creating-a-controller) - `node laju make:controller PostController`
 3. [Define routes](04-ROUTING-CONTROLLERS.md#restful-routes)
 4. [Create Svelte pages](05-FRONTEND-SVELTE.md)

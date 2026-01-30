@@ -122,7 +122,7 @@ export default new Controller();
 
 ### Database (DB)
 
-Knex.js query builder for complex queries.
+Kysely type-safe query builder for complex queries.
 
 ```typescript
 import DB from "app/services/DB";

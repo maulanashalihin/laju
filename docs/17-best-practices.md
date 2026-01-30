@@ -461,15 +461,17 @@ table.integer('user_id')
 
 ```typescript
 // ✅ Good
-export async function up(knex: Knex) {
-  await knex.schema.createTable('posts', (table) => {
-    table.increments('id').primary();
-    table.string('title').notNullable();
-  });
+import { Kysely } from "kysely";
+
+export async function up(db: Kysely<any>) {
+  await db.schema.createTable('posts')
+    .addColumn('id', 'serial', (col) => col.primaryKey())
+    .addColumn('title', 'varchar', (col) => col.notNull())
+    .execute();
 }
 
-export async function down(knex: Knex) {
-  await knex.schema.dropTable('posts');
+export async function down(db: Kysely<any>) {
+  await db.schema.dropTable('posts').execute();
 }
 ```
 

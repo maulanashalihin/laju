@@ -18,7 +18,7 @@ cd my-project
 
 # Setup database
 cp .env.example .env
-npx knex migrate:latest
+npm run migrate
 
 # Start development
 npm run dev
@@ -66,7 +66,7 @@ Documentation is organized for progressive learning from beginner to advanced.
 ### Getting Started
 - [Introduction](docs/01-INTRODUCTION.md) - Framework overview, quick start
 - [Project Structure](docs/02-PROJECT-STRUCTURE.md) - Directory layout
-- [Database](docs/03-DATABASE.md) - Knex.js + SQLite
+- [Database](docs/03-DATABASE.md) - Kysely + SQLite
 
 ### Core Features
 - [Routing & Controllers](docs/04-ROUTING-CONTROLLERS.md) - Handle requests
@@ -106,6 +106,7 @@ app/
 ├── controllers/     # Request handlers
 ├── middlewares/     # Auth, rate limiting, CSRF
 ├── services/        # DB, Mailer, Storage, Cache
+├── repositories/    # Database query layer (optional)
 └── validators/      # Input validation
 
 resources/
@@ -132,8 +133,11 @@ type/                # TypeScript definitions
 npm run dev                              # Development
 npm run build                            # Production build
 node laju make:controller UserController # Generate controller
-npx knex migrate:make create_posts       # Create migration
-npx knex migrate:latest                  # Run migrations
+npm run migrate                          # Run migrations
+npm run migrate:down                     # Rollback last migration
+npm run migrate:down 3                   # Rollback 3 migrations
+npm run migrate:down 20230514062913      # Rollback to specific migration
+npm run refresh                          # Refresh database
 ```
 
 ## Tech Stack
@@ -141,7 +145,7 @@ npx knex migrate:latest                  # Run migrations
 | Layer | Technology |
 |-------|------------|
 | Server | HyperExpress |
-| Database | BetterSQLite3 + Knex |
+| Database | BetterSQLite3 + Kysely |
 | Frontend | Svelte 5 + Inertia.js |
 | Styling | TailwindCSS 3 & 4 |
 | Build | Vite |

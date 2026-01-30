@@ -274,7 +274,7 @@ test: {
 
 - [Vitest Documentation](https://vitest.dev/)
 - [Testing Best Practices](https://github.com/goldbergyoni/javascript-testing-best-practices)
-- [Knex Testing Guide](https://knexjs.org/guide/migrations.html)
+- [Kysely Documentation](https://kysely.dev/)
 
 ## 🎓 Contoh Test Cases
 

@@ -1,30 +1,23 @@
-import { Knex } from "knex";
+import { Kysely, sql } from "kysely";
 
-
-export async function up(knex: Knex): Promise<void> {
-    await knex.schema.createTable('users', function (table) {
-        table.uuid('id').primary().notNullable()
-        table.string('name', 255) 
-        table.string('email', 255).unique().notNullable()
-        table.string('phone', 255) 
-        table.string('avatar').nullable()
-        table.boolean("is_verified").defaultTo(false) 
-        table.dateTime('membership_date');
-        table.boolean("is_admin").defaultTo(false);
-        table.string('password', 180).notNullable()
-        table.string('remember_me_token').nullable()
-   
-        /**
-         * Uses timestampz for PostgreSQL and DATETIME2 for MSSQL
-         */
-        table.bigInteger("created_at")
-        table.bigInteger("updated_at")
-      
-    }) 
+export async function up(db: Kysely<any>): Promise<void> {
+  await db.schema
+    .createTable("users")
+    .addColumn("id", "text", (col) => col.primaryKey().notNull())
+    .addColumn("name", "text")
+    .addColumn("email", "text", (col) => col.unique().notNull())
+    .addColumn("phone", "text")
+    .addColumn("avatar", "text")
+    .addColumn("is_verified", "integer", (col) => col.defaultTo(0))
+    .addColumn("membership_date", "integer")
+    .addColumn("is_admin", "integer", (col) => col.defaultTo(0))
+    .addColumn("password", "text", (col) => col.notNull())
+    .addColumn("remember_me_token", "text")
+    .addColumn("created_at", "integer")
+    .addColumn("updated_at", "integer")
+    .execute();
 }
 
-
-export async function down(knex: Knex): Promise<void> {
-    await knex.schema.dropTable('users')
+export async function down(db: Kysely<any>): Promise<void> {
+  await db.schema.dropTable("users").execute();
 }
-

@@ -474,7 +474,7 @@ jobs:
           npm run build
           
           cd build
-          npx knex migrate:latest --env production
+          DB_CONNECTION=production npm run migrate
           pm2 reload laju
           
           # Health check
