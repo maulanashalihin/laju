@@ -5,6 +5,23 @@
 > **License:** MIT  
 > **Website:** [https://laju.dev](https://laju.dev)
 
+## 🚀 Choose Your Path
+
+Laju supports two development workflows:
+
+<div align="center">
+
+| 🤖 AI-Assisted | 💻 Manual Coding |
+|---------------|------------------|
+| Describe what you want | Write code yourself |
+| AI generates everything | Full control |
+| 5-minute setup | 15-20 minute setup |
+| **[Start with AI →](00-quickstart.md#option-1-ai-assisted-recommended)** | **[Start Manual →](00-quickstart.md#option-2-manual-coding)** |
+
+</div>
+
+---
+
 ## What is Laju?
 
 **Laju** (Indonesian for 'fast/swift') is a high-performance TypeScript web framework that combines the best of modern web technologies to deliver exceptional speed and developer experience.
@@ -91,27 +108,51 @@ Laju is perfect for:
 - **Content management** - Fast reads with SQLite
 - **Prototypes & MVPs** - Rapid development with modern stack
 
-### Quick Start
+### Quick Start — 30 Seconds Setup
 
 ```bash
-# Create new project
-npx create-laju-app my-project
-cd my-project
-
-# Install dependencies
-npm install
-
-# Setup environment
-cp .env.example .env
-
-# Run migrations
-npm run migrate
-
-# Start development server
-npm run dev
+npx create-laju-app my-project && cd my-project
+npm run migrate && npm run dev
 ```
 
-Visit `http://localhost:5555` to see your app running!
+Visit `http://localhost:5555` — your app is running!
+
+---
+
+### 🚀 Start with AI (Easiest)
+
+Mention in your AI assistant:
+```
+@workflow/INIT_AGENT.md
+
+"I want to build a blog with posts, categories, and comments"
+```
+
+AI will:
+- ✅ Create project documentation
+- ✅ Setup design system
+- ✅ Create database migrations
+- ✅ Initialize git
+
+Then build features:
+```
+@workflow/TASK_AGENT.md
+"Create the blog index page with pagination"
+```
+
+**[Learn AI Development →](24-ai-development.md)**
+
+---
+
+### 💻 Start Manual (Full Control)
+
+Follow the manual path:
+1. [Project Structure](02-project-structure.md) — Understand the layout
+2. [Routing & Controllers](04-routing-controllers.md) — Build backend
+3. [Frontend (Svelte 5)](05-frontend-svelte.md) — Build UI
+4. [Authentication](06-authentication.md) — Add auth
+
+**[5-Minute Tutorial →](00-quickstart.md#option-2-manual-coding)**
 
 ### Architecture Overview
 
@@ -154,3 +195,11 @@ Laju follows these principles:
 ### License
 
 MIT License - free for personal and commercial use.
+
+---
+
+## 🆘 Need Help?
+
+- **[Troubleshooting](99-troubleshooting.md)** — Common errors and fixes
+- **[GitHub Issues](https://github.com/maulanashalihin/laju/issues)** — Report bugs
+- **[AI Assistant](24-ai-development.md)** — Get AI help with `@workflow/TASK_AGENT.md`
