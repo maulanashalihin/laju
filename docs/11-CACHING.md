@@ -525,6 +525,6 @@ const value = cached ? JSON.parse(cached) : null;
 
 ## Next Steps
 
-- [Performance Guide](09b-PERFORMANCE.md)
-- [Database Guide](03-DATABASE.md)
-- [Best Practices](09-BEST-PRACTICES.md)
+- [Performance Guide](19-performance.md)
+- [Database Guide](03-database.md)
+- [Best Practices](17-best-practices.md)

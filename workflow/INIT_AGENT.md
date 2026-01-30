@@ -457,7 +457,7 @@ MANAGER_AGENT (release notes)
 **Repository Pattern (Optional):**
 - For simple CRUD: Use `DB` directly in controller
 - For complex queries (JOINs, aggregations): Create Repository in `app/repositories/`
-- See TASK_AGENT.md for detailed guidelines on when to use Repository
+- See `skills/repository-pattern.md` for detailed guidelines on when to use Repository
 
 **Built-in Middlewares:**
 - `auth` - Authentication (checks user session)

@@ -834,7 +834,5 @@ it('should update user profile', async () => {
 
 ## Next Steps
 
-- [E2E Testing Guide](../../tests/e2e/README.md) - Detailed E2E testing documentation
-- [Best Practices](09-BEST-PRACTICES.md)
-- [API Reference](07-API-REFERENCE.md)
-- [Tutorials](11-TUTORIALS.md)
+- [Best Practices](17-best-practices.md)
+- [API Reference](25-api-reference.md)

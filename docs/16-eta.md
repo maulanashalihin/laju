@@ -228,13 +228,13 @@ const html = view("page.html", {
 ### Including Partials
 
 ```html
-<%~ include('partials/navbar') %>
+<%~ include('partials/navbar.html') %>
 ```
 
 ### Include with Data
 
 ```html
-<%~ include('partials/navbar', { active: 'home' }) %>
+<%~ include('partials/navbar.html', { active: 'home' }) %>
 ```
 
 ### Using Layouts
@@ -523,6 +523,8 @@ const eta = new Eta({
 
 ## Resources
 
+- [Translation Guide](15-translation.md) - Multi-language support
+- [Frontend (Svelte 5)](05-frontend-svelte.md) - Inertia.js integration
 - [Official Eta Documentation](https://eta.js.org)
 - [Eta GitHub Repository](https://github.com/bgub/eta)
 - [Eta Playground](https://eta.js.org/playground)

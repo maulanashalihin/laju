@@ -479,6 +479,8 @@ public async verifyPage(request: Request, response: Response) {
 
 ## Next Steps
 
-- [Storage & Email Guide](05-STORAGE.md)
-- [API Reference](07-API-REFERENCE.md)
-- [Best Practices](09-BEST-PRACTICES.md)
+- [Storage Guide](10-storage.md)
+- [Email Guide](09-email.md)
+- [API Reference](25-api-reference.md)
+- [Best Practices](17-best-practices.md)
+- [Security Guide](18-security.md)

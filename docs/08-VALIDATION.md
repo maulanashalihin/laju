@@ -506,4 +506,5 @@ Laju already provides validators for existing controllers:
 
 ---
 
-**Previous**: [Caching](17-CACHING.md)
+**Previous**: [Caching](11-caching.md)
+**Next**: [Email](09-email.md)

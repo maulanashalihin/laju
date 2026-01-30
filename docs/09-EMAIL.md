@@ -315,6 +315,6 @@ await MailTo({ to, subject, text });
 
 ## Next Steps
 
-- [Storage Guide](05-STORAGE.md)
-- [API Reference](07-API-REFERENCE.md)
-- [Authentication Guide](04-AUTHENTICATION.md)
+- [Storage Guide](10-storage.md)
+- [API Reference](25-api-reference.md)
+- [Authentication Guide](06-authentication.md)

@@ -64,40 +64,40 @@ Visit `http://localhost:5555`
 Documentation is organized for progressive learning from beginner to advanced.
 
 ### Getting Started
-- [Introduction](docs/01-INTRODUCTION.md) - Framework overview, quick start
-- [Project Structure](docs/02-PROJECT-STRUCTURE.md) - Directory layout
-- [Database](docs/03-DATABASE.md) - Kysely + SQLite
+- [Introduction](docs/01-introduction.md) - Framework overview, quick start
+- [Project Structure](docs/02-project-structure.md) - Directory layout
+- [Database](docs/03-database.md) - Kysely + SQLite
 
 ### Core Features
-- [Routing & Controllers](docs/04-ROUTING-CONTROLLERS.md) - Handle requests
-- [Frontend (Svelte 5)](docs/05-FRONTEND-SVELTE.md) - Build reactive UI
-- [Authentication](docs/06-AUTHENTICATION.md) - Sessions + OAuth
-- [Middleware](docs/07-MIDDLEWARE.md) - Auth, Rate limiting
-- [Validation](docs/08-VALIDATION.md) - Input validation
-- [Email](docs/09-EMAIL.md) - Send emails
-- [Templates (Eta)](docs/15-ETA.md) - Server-side rendering
-- [Performance](docs/18-PERFORMANCE.md) - Optimization tips
+- [Routing & Controllers](docs/04-routing-controllers.md) - Handle requests
+- [Frontend (Svelte 5)](docs/05-frontend-svelte.md) - Build reactive UI
+- [Authentication](docs/06-authentication.md) - Sessions + OAuth
+- [Middleware](docs/07-middleware.md) - Auth, Rate limiting
+- [Validation](docs/08-validation.md) - Input validation
+- [Email](docs/09-email.md) - Send emails
+- [Templates (Eta)](docs/16-eta.md) - Server-side rendering
+- [Performance](docs/19-performance.md) - Optimization tips
 
 ### Advanced Features
-- [Storage (S3)](docs/10-STORAGE.md) - File uploads
-- [Caching](docs/11-CACHING.md) - Redis + Database cache
-- [Redis](docs/11b-REDIS.md) - Redis configuration
-- [Background Jobs](docs/12-BACKGROUND-JOBS.md) - Cron jobs, Scheduling
-- [CSRF Protection](docs/13-CSRF.md) - Security
-- [Translation](docs/14-TRANSLATION.md) - Multi-language
-- [Backup & Restore](docs/22-BACKUP-RESTORE.md) - Database backup
+- [Storage (S3)](docs/10-storage.md) - File uploads
+- [Caching](docs/11-caching.md) - Redis + Database cache
+- [Redis](docs/12-redis.md) - Redis configuration
+- [Background Jobs](docs/13-background-jobs.md) - Cron jobs, Scheduling
+- [CSRF Protection](docs/14-csrf.md) - Security
+- [Translation](docs/15-translation.md) - Multi-language
+- [Backup & Restore](docs/23-backup-restore.md) - Database backup
 
 ### Production
-- [Best Practices](docs/16-BEST-PRACTICES.md) - Code quality
-- [Security Guide](docs/17-SECURITY.md) - Secure your app
-- [Testing](docs/19-TESTING.md) - Unit + Integration tests
-- [Deployment](docs/20-DEPLOYMENT.md) - Production setup
-- [GitHub Actions](docs/21-GITHUB-ACTIONS.md) - CI/CD workflows
-- [AI Development](docs/23-AI-DEVELOPMENT.md) - AI integration
+- [Best Practices](docs/17-best-practices.md) - Code quality
+- [Security Guide](docs/18-security.md) - Secure your app
+- [Testing](docs/20-testing.md) - Unit + Integration tests
+- [Deployment](docs/21-deployment.md) - Production setup
+- [GitHub Actions](docs/22-github-actions.md) - CI/CD workflows
+- [AI Development](docs/24-ai-development.md) - AI integration
 
 ### Reference
-- [API Reference](docs/24-API-REFERENCE.md) - Framework API
-- [TypeScript Guide](docs/25-TYPESCRIPT.md) - TypeScript patterns
+- [API Reference](docs/25-api-reference.md) - Framework API
+- [TypeScript Guide](docs/26-typescript.md) - TypeScript patterns
 
 ## Project Structure
 

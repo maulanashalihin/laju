@@ -875,7 +875,6 @@ crontab -e
 
 ## Next Steps
 
-- [Backup & Restore](13-BACKUP-RESTORE.md) - Database backup automation
-- [Deployment Guide](08-DEPLOYMENT.md) - Production setup with PM2
-- [Logging Guide](24-LOGGING.md) - Structured logging patterns
-- [Testing Guide](14-TESTING.md) - Testing background jobs
+- [Backup & Restore](23-backup-restore.md) - Database backup automation
+- [Deployment Guide](21-deployment.md) - Production setup with PM2
+- [Testing Guide](20-testing.md) - Testing background jobs

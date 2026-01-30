@@ -6,8 +6,8 @@ Guidelines and best practices for building production-ready Laju applications.
 
 For in-depth documentation, see these focused guides:
 
-- **[Security Guide](09a-SECURITY.md)** - Authentication, Validation, SQL Injection, XSS, CSRF
-- **[Performance Guide](09b-PERFORMANCE.md)** - Database, Caching, File Uploads, Monitoring
+- **[Security Guide](18-security.md)** - Authentication, Validation, SQL Injection, XSS, CSRF
+- **[Performance Guide](19-performance.md)** - Database, Caching, File Uploads, Monitoring
 
 ---
 
@@ -774,6 +774,6 @@ process.on("SIGTERM", async () => {
 
 ## Next Steps
 
-- [Deployment Guide](08-DEPLOYMENT.md)
-- [Testing Guide](14-TESTING.md)
-- [API Reference](07-API-REFERENCE.md)
+- [Deployment Guide](21-deployment.md)
+- [Testing Guide](20-testing.md)
+- [API Reference](25-api-reference.md)

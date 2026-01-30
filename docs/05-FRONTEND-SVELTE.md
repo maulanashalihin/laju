@@ -783,6 +783,5 @@ return response
 
 ## Next Steps
 
-- [Tutorials](11-TUTORIALS.md)
-- [Best Practices](09-BEST-PRACTICES.md)
-- [API Reference](07-API-REFERENCE.md)
+- [Best Practices](17-best-practices.md)
+- [API Reference](25-api-reference.md)

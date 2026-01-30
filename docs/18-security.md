@@ -571,6 +571,6 @@ webserver.use('/api', apiRouter);
 
 ## Next Steps
 
-- [Performance Guide](09b-PERFORMANCE.md)
-- [Best Practices](09-BEST-PRACTICES.md)
-- [Deployment Guide](08-DEPLOYMENT.md)
+- [Performance Guide](19-performance.md)
+- [Best Practices](17-best-practices.md)
+- [Deployment Guide](21-deployment.md)

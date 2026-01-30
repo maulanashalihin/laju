@@ -427,7 +427,7 @@ interface InertiaProps {
 
 ## Next Steps
 
-- [Routing & Controllers](04-ROUTING-CONTROLLERS.md) - Learn routing basics
-- [Middleware Guide](07-MIDDLEWARE.md) - Create custom middleware
-- [Database Guide](03-DATABASE.md) - Database operations
-- [Authentication Guide](06-AUTHENTICATION.md) - User authentication
+- [Routing & Controllers](04-routing-controllers.md) - Learn routing basics
+- [Middleware Guide](07-middleware.md) - Create custom middleware
+- [Database Guide](03-database.md) - Database operations
+- [Authentication Guide](06-authentication.md) - User authentication

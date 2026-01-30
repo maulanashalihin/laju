@@ -177,7 +177,7 @@ public async index(request: Request, response: Response) {
 <p><%= it.t('description', it.lang) %></p>
 ```
 
-For more detailed examples, see the [Eta Template Guide](./15-ETA.md#translation).
+For more detailed examples, see the [Eta Template Guide](./16-eta.md#translation).
 
 ## Usage in Inertia Pages (Svelte)
 

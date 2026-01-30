@@ -426,6 +426,6 @@ docker-compose logs -f
 
 ## Next Steps
 
-- [GitHub Actions Deploy Details](21-GITHUB-ACTIONS.md)
-- [Backup & Restore](12-BACKUP-RESTORE.md)
-- [Best Practices](09-BEST-PRACTICES.md)
+- [GitHub Actions Deploy Details](22-github-actions.md)
+- [Backup & Restore](23-backup-restore.md)
+- [Best Practices](17-best-practices.md)

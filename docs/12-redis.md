@@ -471,6 +471,6 @@ redis-cli --latency
 
 ## Next Steps
 
-- [Caching Guide](11-CACHING.md) - Compare Redis with Database Cache
-- [Performance Guide](09b-PERFORMANCE.md) - Performance optimization
-- [Best Practices](09-BEST-PRACTICES.md) - General best practices
+- [Caching Guide](11-caching.md) - Compare Redis with Database Cache
+- [Performance Guide](19-performance.md) - Performance optimization
+- [Best Practices](17-best-practices.md) - General best practices

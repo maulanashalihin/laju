@@ -431,8 +431,8 @@ Configured in `tsconfig.json`:
 
 ## Next Steps
 
-- [Database Guide](03-DATABASE.md) - Learn database operations
-- [Routing & Controllers](04-ROUTING-CONTROLLERS.md) - Handle HTTP requests
-- [Frontend (Svelte 5)](05-FRONTEND-SVELTE.md) - Build reactive UI
-- [Authentication](06-AUTHENTICATION.md) - User authentication
-- [Middleware Guide](07-MIDDLEWARE.md) - Custom middleware patterns
+- [Database Guide](03-database.md) - Learn database operations
+- [Routing & Controllers](04-routing-controllers.md) - Handle HTTP requests
+- [Frontend (Svelte 5)](05-frontend-svelte.md) - Build reactive UI
+- [Authentication](06-authentication.md) - User authentication
+- [Middleware Guide](07-middleware.md) - Custom middleware patterns

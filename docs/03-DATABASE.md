@@ -612,6 +612,7 @@ const users = await DB.selectFrom("users")
 
 ## Next Steps
 
-- [Authentication Guide](04-AUTHENTICATION.md)
-- [Storage & Email Guide](05-STORAGE.md)
-- [API Reference](07-API-REFERENCE.md)
+- [Authentication Guide](06-authentication.md)
+- [Storage & Email Guide](10-storage.md)
+- [Email Guide](09-email.md)
+- [API Reference](25-api-reference.md)

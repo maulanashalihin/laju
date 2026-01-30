@@ -12,9 +12,9 @@ Complete documentation for the Laju high-performance TypeScript web framework.
 
 Start here if you're new to Laju. Learn the basics and set up your first project.
 
-1. **[Introduction](01-INTRODUCTION.md)** - Framework overview, tech stack, quick start
-2. **[Project Structure](02-PROJECT-STRUCTURE.md)** - Directory layout, conventions, imports
-3. **[Database Guide](03-DATABASE.md)** - Kysely, Native SQLite, Migrations, Performance
+1. **[Introduction](01-introduction.md)** - Framework overview, tech stack, quick start
+2. **[Project Structure](02-project-structure.md)** - Directory layout, conventions, imports
+3. **[Database Guide](03-database.md)** - Kysely, Native SQLite, Migrations, Performance
 
 ---
 
@@ -22,12 +22,12 @@ Start here if you're new to Laju. Learn the basics and set up your first project
 
 Build your first features with routing, frontend, and authentication.
 
-4. **[Routing & Controllers](04-ROUTING-CONTROLLERS.md)** - Routes, controllers, request/response
-5. **[Frontend (Svelte 5)](05-FRONTEND-SVELTE.md)** - Runes, State, Forms, Inertia.js
-6. **[Authentication](06-AUTHENTICATION.md)** - Sessions, OAuth, Password Reset, Email Verification
-7. **[Middleware](07-MIDDLEWARE.md)** - Auth, Rate limiting, Custom middleware, Patterns
-8. **[Validation](08-VALIDATION.md)** - Zod schemas, Input validation, Type-safe forms
-9. **[Email](09-EMAIL.md)** - Nodemailer, Resend, Email Templates
+4. **[Routing & Controllers](04-routing-controllers.md)** - Routes, controllers, request/response
+5. **[Frontend (Svelte 5)](05-frontend-svelte.md)** - Runes, State, Forms, Inertia.js
+6. **[Authentication](06-authentication.md)** - Sessions, OAuth, Password Reset, Email Verification
+7. **[Middleware](07-middleware.md)** - Auth, Rate limiting, Custom middleware, Patterns
+8. **[Validation](08-validation.md)** - Zod schemas, Input validation, Type-safe forms
+9. **[Email](09-email.md)** - Nodemailer, Resend, Email Templates
 
 ---
 
@@ -35,44 +35,44 @@ Build your first features with routing, frontend, and authentication.
 
 Add file uploads, caching, background jobs, and internationalization.
 
-10. **[Storage (S3)](10-STORAGE.md)** - S3/Wasabi, Presigned URLs, File Uploads
-11. **[Caching](11-CACHING.md)** - Database Cache vs Redis, Strategies, Performance
-12. **[Background Jobs](12-BACKGROUND-JOBS.md)** - Cron jobs, Task scheduling, Commands
-13. **[CSRF Protection](13-CSRF.md)** - Token generation, Form protection, AJAX requests
-14. **[Translation (i18n)](14-TRANSLATION.md)** - Multi-language, Interpolation, Nested keys
-15. **[Eta Templates](15-ETA.md)** - SSR, Partials, Filters, Helpers
+10. **[Storage (S3)](10-storage.md)** - S3/Wasabi, Presigned URLs, File Uploads
+11. **[Caching](11-caching.md)** - Database Cache vs Redis, Strategies, Performance
+12. **[Background Jobs](13-background-jobs.md)** - Cron jobs, Task scheduling, Commands
+13. **[CSRF Protection](14-csrf.md)** - Token generation, Form protection, AJAX requests
+14. **[Translation (i18n)](15-translation.md)** - Multi-language, Interpolation, Nested keys
+15. **[Eta Templates](16-eta.md)** - SSR, Partials, Filters, Helpers
 
 ---
 
 ### **Phase 4: Best Practices** (16-18)
 
-Learn production-ready patterns, TypeScript, security, and performance optimization.
+Learn production-ready patterns, security, and performance optimization.
 
-16. **[Best Practices](16-BEST-PRACTICES.md)** - Code organization, patterns, conventions
-17. **[TypeScript Guide](25-TYPESCRIPT.md)** - Configuration, Strict mode, Type safety, Custom types
-    - **[Security Guide](17-SECURITY.md)** - Authentication, Validation, XSS, CSRF, CSP, SQL Injection
-    - **[Performance Guide](18-PERFORMANCE.md)** - Database, Caching, File Uploads, Monitoring
+16. **[Best Practices](17-best-practices.md)** - Code organization, patterns, conventions
+17. **[Security Guide](18-security.md)** - Authentication, Validation, XSS, CSRF, CSP, SQL Injection
+18. **[Performance Guide](19-performance.md)** - Database, Caching, File Uploads, Monitoring
 
 ---
 
-### **Phase 5: Testing & Deployment** (19-21)
+### **Phase 5: Testing & Deployment** (19-22)
 
 Test your application and deploy to production.
 
-19. **[Testing Guide](19-TESTING.md)** - Unit tests, Integration tests, Vitest, Best practices
-20. **[Deployment Guide](20-DEPLOYMENT.md)** - Production build, server setup, PM2, HTTPS
-21. **[GitHub Actions](21-GITHUB-ACTIONS.md)** - CI/CD, Auto deploy, Testing automation
+19. **[Testing Guide](20-testing.md)** - Unit tests, Integration tests, Vitest, Best practices
+20. **[Deployment Guide](21-deployment.md)** - Production build, server setup, PM2, HTTPS
+21. **[GitHub Actions](22-github-actions.md)** - CI/CD, Auto deploy, Testing automation
+22. **[Backup & Restore](23-backup-restore.md)** - Database backup automation, S3 storage
 
 ---
 
-### **Phase 6: Advanced Topics** (22-25)
+### **Phase 6: Advanced Topics** (23-26)
 
-Deep dive into advanced features and API reference.
+Deep dive into advanced features, API reference, and guides.
 
-22. **[Backup & Restore](22-BACKUP-RESTORE.md)** - Database backup automation, S3 storage
-23. **[AI Development](23-AI-DEVELOPMENT.md)** - Build apps with AI assistants
-24. **[API Reference](24-API-REFERENCE.md)** - Complete API documentation, Types, Methods
-25. **[TypeScript Guide](25-TYPESCRIPT.md)** - TypeScript configuration, Strict mode, Type safety
+23. **[AI Development](24-ai-development.md)** - Build apps with AI assistants
+24. **[API Reference](25-api-reference.md)** - Complete API documentation, Types, Methods
+25. **[TypeScript Guide](26-typescript.md)** - TypeScript configuration, Strict mode, Type safety
+26. **[Tailwind CSS Migration](27-tailwind-migration.md)** - Migrate between Tailwind v3 and v4
 
 ---
 
@@ -94,84 +94,84 @@ Visit `http://localhost:5555`
 ## 📖 Recommended Learning Order
 
 ### **For Complete Beginners:**
-1. Read [Introduction](01-INTRODUCTION.md)
-2. Understand [Project Structure](02-PROJECT-STRUCTURE.md)
-3. Learn [TypeScript Guide](25-TYPESCRIPT.md) - Type safety fundamentals
-4. Learn [Database Basics](03-DATABASE.md)
-5. Build your first feature with [Routing & Controllers](04-ROUTING-CONTROLLERS.md)
-6. Create UI with [Frontend (Svelte 5)](05-FRONTEND-SVELTE.md)
-7. Add [Authentication](06-AUTHENTICATION.md)
-8. Protect routes with [Middleware](07-MIDDLEWARE.md)
+1. Read [Introduction](01-introduction.md)
+2. Understand [Project Structure](02-project-structure.md)
+3. Learn [TypeScript Guide](26-typescript.md) - Type safety fundamentals
+4. Learn [Database Basics](03-database.md)
+5. Build your first feature with [Routing & Controllers](04-routing-controllers.md)
+6. Create UI with [Frontend (Svelte 5)](05-frontend-svelte.md)
+7. Add [Authentication](06-authentication.md)
+8. Protect routes with [Middleware](07-middleware.md)
 
 ### **For Experienced Developers:**
-1. Skim [Introduction](01-INTRODUCTION.md) and [Project Structure](02-PROJECT-STRUCTURE.md)
-2. Review [TypeScript Guide](25-TYPESCRIPT.md) for strict mode configuration
+1. Skim [Introduction](01-introduction.md) and [Project Structure](02-project-structure.md)
+2. Review [TypeScript Guide](26-typescript.md) for strict mode configuration
 3. Jump to specific topics you need
-4. Reference [API Reference](24-API-REFERENCE.md) as needed
-5. Check [Best Practices](16-BEST-PRACTICES.md) before production
+4. Reference [API Reference](25-api-reference.md) as needed
+5. Check [Best Practices](17-best-practices.md) before production
 
 ### **For Production Deployment:**
-1. Review [Security Guide](17-SECURITY.md)
-2. Optimize with [Performance Guide](18-PERFORMANCE.md)
-3. Set up [Testing](19-TESTING.md)
-4. Follow [Deployment Guide](20-DEPLOYMENT.md)
-5. Automate with [GitHub Actions](21-GITHUB-ACTIONS.md)
+1. Review [Security Guide](18-security.md)
+2. Optimize with [Performance Guide](19-performance.md)
+3. Set up [Testing](20-testing.md)
+4. Follow [Deployment Guide](21-deployment.md)
+5. Automate with [GitHub Actions](22-github-actions.md)
 
 ---
 
 ## 🎯 Quick Reference by Topic
 
 ### **Building Features**
-- [Routing & Controllers](04-ROUTING-CONTROLLERS.md) - Handle HTTP requests
-- [Frontend (Svelte 5)](05-FRONTEND-SVELTE.md) - Build reactive UI
-- [Database](03-DATABASE.md) - Store and query data
-- [Validation](08-VALIDATION.md) - Validate user input
-- [Email](09-EMAIL.md) - Send emails
+- [Routing & Controllers](04-routing-controllers.md) - Handle HTTP requests
+- [Frontend (Svelte 5)](05-frontend-svelte.md) - Build reactive UI
+- [Database](03-database.md) - Store and query data
+- [Validation](08-validation.md) - Validate user input
+- [Email](09-email.md) - Send emails
 
 ### **User Management**
-- [Authentication](06-AUTHENTICATION.md) - Login, register, OAuth
-- [Middleware](07-MIDDLEWARE.md) - Protect routes
-- [CSRF Protection](13-CSRF.md) - Prevent CSRF attacks
+- [Authentication](06-authentication.md) - Login, register, OAuth
+- [Middleware](07-middleware.md) - Protect routes
+- [CSRF Protection](14-csrf.md) - Prevent CSRF attacks
 
 ### **File & Data Management**
-- [Storage (S3)](10-STORAGE.md) - Upload files
-- [Caching](11-CACHING.md) - Speed up queries
-- [Background Jobs](12-BACKGROUND-JOBS.md) - Run scheduled tasks
-- [Backup & Restore](22-BACKUP-RESTORE.md) - Backup database
+- [Storage (S3)](10-storage.md) - Upload files
+- [Caching](11-caching.md) - Speed up queries
+- [Background Jobs](13-background-jobs.md) - Run scheduled tasks
+- [Backup & Restore](23-backup-restore.md) - Backup database
 
 ### **Internationalization**
-- [Translation](14-TRANSLATION.md) - Multi-language support
-- [Eta Templates](15-ETA.md) - Server-side rendering
+- [Translation](15-translation.md) - Multi-language support
+- [Eta Templates](16-eta.md) - Server-side rendering
 
 ### **Production Ready**
-- [TypeScript Guide](25-TYPESCRIPT.md) - Type safety & configuration
-- [Best Practices](16-BEST-PRACTICES.md) - Code quality
-- [Security Guide](17-SECURITY.md) - Secure your app (includes CSP)
-- [Performance Guide](18-PERFORMANCE.md) - Optimize speed
-- [Testing](19-TESTING.md) - Test your code
-- [Deployment](20-DEPLOYMENT.md) - Deploy to production
+- [TypeScript Guide](26-typescript.md) - Type safety & configuration
+- [Best Practices](17-best-practices.md) - Code quality
+- [Security Guide](18-security.md) - Secure your app (includes CSP)
+- [Performance Guide](19-performance.md) - Optimize speed
+- [Testing](20-testing.md) - Test your code
+- [Deployment](21-deployment.md) - Deploy to production
 
 ---
 
 ## 💡 Common Tasks
 
 ### Create a CRUD Feature
-1. [Create migration](03-DATABASE.md#migrations) - Create file in `migrations/` folder
-2. [Create controller](04-ROUTING-CONTROLLERS.md#creating-a-controller) - `node laju make:controller PostController`
-3. [Define routes](04-ROUTING-CONTROLLERS.md#restful-routes)
-4. [Create Svelte pages](05-FRONTEND-SVELTE.md)
+1. [Create migration](03-database.md#migrations) - Create file in `migrations/` folder
+2. [Create controller](04-routing-controllers.md#creating-a-controller) - `node laju make:controller PostController`
+3. [Define routes](04-routing-controllers.md#restful-routes)
+4. [Create Svelte pages](05-frontend-svelte.md)
 
 ### Add Authentication
-1. [Set up auth routes](06-AUTHENTICATION.md#basic-authentication)
-2. [Protect routes with middleware](07-MIDDLEWARE.md#auth-middleware)
-3. [Add rate limiting](07-MIDDLEWARE.md#rate-limit-middleware)
+1. [Set up auth routes](06-authentication.md#basic-authentication)
+2. [Protect routes with middleware](07-middleware.md#auth-middleware)
+3. [Add rate limiting](07-middleware.md#rate-limit-middleware)
 
 ### Deploy to Production
-1. [Build for production](20-DEPLOYMENT.md#building-for-production)
-2. [Set up server](20-DEPLOYMENT.md#server-setup)
-3. [Configure PM2](20-DEPLOYMENT.md#pm2-process-manager)
-4. [Set up HTTPS](20-DEPLOYMENT.md#https-setup)
-5. [Automate with GitHub Actions](21-GITHUB-ACTIONS.md)
+1. [Build for production](21-deployment.md#building-for-production)
+2. [Set up server](21-deployment.md#server-setup)
+3. [Configure PM2](21-deployment.md#pm2-process-manager)
+4. [Set up HTTPS](21-deployment.md#https-setup)
+5. [Automate with GitHub Actions](22-github-actions.md)
 
 ---
 

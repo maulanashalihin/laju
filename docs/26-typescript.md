@@ -400,6 +400,8 @@ The type augmentation is in `type/hyper-express.d.ts`. If you see errors about m
 
 ## Additional Resources
 
+- [API Reference](25-api-reference.md) - Framework API reference
+- [Best Practices](17-best-practices.md) - Development best practices
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
 - [TypeScript 5 Release Notes](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html)
 - [HyperExpress Documentation](https://hyper-express.js.org/)
