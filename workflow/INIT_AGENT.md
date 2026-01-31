@@ -123,37 +123,19 @@ Template tracking development:
 ## Features
 
 ### Posts
-- [ ] Implementation
-  - [ ] Pages: index.svelte, form.svelte
-  - [ ] Controller: PostController (index, create, store, edit, update, destroy)
-  - [ ] Routes: GET /posts, GET /posts/create, POST /posts, GET /posts/:id/edit, PUT /posts/:id, DELETE /posts/:id
-- [ ] Testing
-  - [ ] Unit tests for services
-  - [ ] Integration tests for controller
-  - [ ] E2E tests for critical flows
-  - [ ] Coverage > 80%
+- [ ] Pages: index.svelte, form.svelte
+- [ ] Controller: PostController (index, create, store, edit, update, destroy)
+- [ ] Routes: GET /posts, GET /posts/create, POST /posts, GET /posts/:id/edit, PUT /posts/:id, DELETE /posts/:id
 
 ### Users
-- [ ] Implementation
-  - [ ] Pages: index.svelte, form.svelte
-  - [ ] Controller: UserController (index, create, store, edit, update, destroy)
-  - [ ] Routes: GET /users, GET /users/create, POST /users, GET /users/:id/edit, PUT /users/:id, DELETE /users/:id
-- [ ] Testing
-  - [ ] Unit tests for services
-  - [ ] Integration tests for controller
-  - [ ] E2E tests for critical flows
-  - [ ] Coverage > 80%
+- [ ] Pages: index.svelte, form.svelte
+- [ ] Controller: UserController (index, create, store, edit, update, destroy)
+- [ ] Routes: GET /users, GET /users/create, POST /users, GET /users/:id/edit, PUT /users/:id, DELETE /users/:id
 
 ### [Feature Name]
-- [ ] Implementation
-  - [ ] Pages: index.svelte, form.svelte
-  - [ ] Controller: [Feature]Controller (index, create, store, edit, update, destroy)
-  - [ ] Routes: GET /[feature], GET /[feature]/create, POST /[feature], GET /[feature]/:id/edit, PUT /[feature]/:id, DELETE /[feature]/:id
-- [ ] Testing
-  - [ ] Unit tests for services
-  - [ ] Integration tests for controller
-  - [ ] E2E tests for critical flows (if applicable)
-  - [ ] Coverage > 80%
+- [ ] Pages: index.svelte, form.svelte
+- [ ] Controller: [Feature]Controller (index, create, store, edit, update, destroy)
+- [ ] Routes: GET /[feature], GET /[feature]/create, POST /[feature], GET /[feature]/:id/edit, PUT /[feature]/:id, DELETE /[feature]/:id
 
 ---
 
@@ -163,29 +145,6 @@ Template tracking development:
 
 ### Pending
 - [ ] migration_name
-
----
-
-## Testing Status
-
-### Coverage Report
-- **Overall**: 0% (target: 80%)
-- **Services**: 0% (target: 90%)
-- **Controllers**: 0% (target: 70%)
-- **Repositories**: 0% (target: 85%)
-
-### Test Files Status
-#### Unit Tests
-- [ ] tests/unit/services/ (0/10 services tested)
-- [ ] tests/unit/repositories/ (0/5 repositories tested)
-
-#### Integration Tests
-- [ ] tests/integration/auth.test.ts
-- [ ] tests/integration/api.test.ts
-
-#### E2E Tests
-- [ ] tests/e2e/auth.spec.ts
-- [ ] tests/e2e/critical-flows.spec.ts
 ```
 
 
@@ -370,22 +329,11 @@ Setelah dev server berjalan dengan baik:
 TASK_AGENT (implement fitur)
     ↓ Test lokal (opsional)
     ↓ Push ke GitHub
-    ↓
-GitHub Actions CI (automated testing)
-    ↓ Runs unit, integration, E2E tests
-    ↓
-GitHub Actions CI (automated deployment)
-    ↓ Deploy ke production (hanya jika tests pass)
-    ↓ Run smoke tests
-    ↓ Auto-rollback jika fail
-    ↓
+    ↓ 
 MANAGER_AGENT (release notes)
     ↓ Update CHANGELOG.md
 ```
-
-**Note:** Referensi:
-- `skills/testing-guide.md` - Panduan menulis test
-- `skills/deployment-guide.md` - Panduan deployment
+ 
 
 ## Important Notes
 

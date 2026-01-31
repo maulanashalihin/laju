@@ -75,11 +75,26 @@ class Command {
 
     const dbPath = path.resolve(selectedDb.file);
 
+    // Delete main database file
     if (fs.existsSync(dbPath)) {
       fs.unlinkSync(dbPath);
       console.log("✅ Database file deleted");
     } else {
       console.log("ℹ️  Database file doesn't exist, skipping deletion");
+    }
+
+    // Delete WAL and SHM files if exist
+    const walPath = dbPath + "-wal";
+    const shmPath = dbPath + "-shm";
+
+    if (fs.existsSync(walPath)) {
+      fs.unlinkSync(walPath);
+      console.log("✅ WAL file deleted");
+    }
+
+    if (fs.existsSync(shmPath)) {
+      fs.unlinkSync(shmPath);
+      console.log("✅ SHM file deleted");
     }
 
     const dataDir = path.resolve("./data");
