@@ -13,6 +13,7 @@ Panduan lengkap untuk memulai project baru dengan Laju Framework.
 - ✅ Create layout components
 - ✅ Customize auth pages
 - ✅ Git init and first commit
+- ✅ **MUST STOP and wait for user approval after Step 7 (Review Documentation)**
 
 **INIT_AGENT CANNOT:**
 - ❌ Implement features or write code
@@ -148,16 +149,47 @@ Template tracking development:
 ```
 
 
-### 7. Review Documentation
+### 7. Review Documentation ⛔ MANDATORY
 
-Minta user review dan approve:
+**🚨 CRITICAL: DO NOT SKIP THIS STEP 🚨**
+
+Step ini **WAJIB** dan **TIDAK BOLEH DILEWATI**. INIT_AGENT harus **BERHENTI** di sini dan menunggu user review.
+
+**Yang harus direview user:**
 - `README.md` - Project overview, features, tech stack
 - `workflow/PRD.md` - Requirements, design specifications
 - `workflow/TDD.md` - Technical design document (architecture, database, API)
 - `workflow/ui-kit.html` - UI design system dan components
 - `workflow/PROGRESS.md` - Development tracking template
 
-**Tunggu konfirmasi user sebelum melanjutkan ke step berikutnya**
+**Format permintaan review ke user:**
+```
+## 📋 Review Required
+
+Saya sudah membuat dokumentasi awal project. Mohon review dan konfirmasi sebelum lanjut:
+
+### 📁 Files yang perlu direview:
+1. **README.md** - Project overview dan fitur
+2. **workflow/PRD.md** - Product requirements dan design specs  
+3. **workflow/TDD.md** - Technical design dan database schema
+4. **workflow/ui-kit.html** - UI design system (buka di browser)
+5. **workflow/PROGRESS.md** - Development tracking
+
+### ✅ Apa yang perlu dicek:
+- [ ] Nama project dan deskripsi sudah benar?
+- [ ] Fitur-fitur sudah lengkap?
+- [ ] Design specifications (warna, typography) sesuai branding?
+- [ ] Database schema sudah sesuai kebutuhan?
+- [ ] Ada yang perlu diubah/ditambah?
+
+**Silakan reply:**
+- "Lanjutkan" / "Oke" / "👍" - jika sudah OK
+- Atau beritahu apa yang perlu diubah
+
+⛔ **Saya akan menunggu konfirmasi Anda sebelum melanjutkan ke step berikutnya.**
+```
+
+**⛔ STOP - DO NOT PROCEED UNTIL USER CONFIRMS ⛔**
 
 
 ### 8. Create Migrations
@@ -338,7 +370,8 @@ MANAGER_AGENT (release notes)
 ## Important Notes
 
 - **Selalu ikuti urutan ini** - Jangan skip steps
-- **Tunggu approval user** sebelum melanjutkan setelah step 8 (Review Documentation)
+- **⛔ STEP 7 (Review Documentation) WAJIB** - INIT_AGENT harus BERHENTI dan menunggu user review & approve sebelum lanjut ke step 8
+- **Jangan auto-lanjut setelah buat dokumentasi** - Tunggu explicit confirmation dari user
 - **Gunakan built-in functionality** - Cek dulu apakah controller/page/service sudah ada sebelum membuat baru
 - **Test sebelum commit** - Pastikan semua berjalan dengan baik sebelum commit
 - **Default PORT** - laju.dev default PORT adalah 5555 (lihat `.env.example`), user bisa mengganti port di `.env` file jika diperlukan
