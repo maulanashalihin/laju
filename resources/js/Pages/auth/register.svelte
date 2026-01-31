@@ -181,7 +181,7 @@
                 type="text" 
                 name="name" 
                 id="name" 
-                class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-900/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200" 
+                class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-colors duration-200" 
                 placeholder="John Doe"
               />
             </div>
@@ -201,7 +201,7 @@
                 type="email" 
                 name="email" 
                 id="email" 
-                class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-900/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200" 
+                class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-colors duration-200" 
                 placeholder="you@example.com"
               />
             </div>
@@ -222,7 +222,7 @@
                 name="password" 
                 id="password" 
                 placeholder="••••••••" 
-                class="w-full pl-12 pr-12 py-3 rounded-xl bg-slate-900/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200"
+                class="w-full pl-12 pr-12 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-colors duration-200"
               />
               <button 
                 type="button" 
@@ -268,7 +268,7 @@
                 name="confirm-password" 
                 id="confirm-password" 
                 placeholder="••••••••" 
-                class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-900/50 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200"
+                class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-colors duration-200"
               />
             </div>
             {#if passwordError}
