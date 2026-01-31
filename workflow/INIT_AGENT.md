@@ -618,6 +618,7 @@ export class PostController  {
 ```svelte
 <script>
   import { router } from '@inertiajs/svelte'
+  import { CircleX, CircleCheck, Plus, User } from 'lucide-svelte'
   import DashboardLayout from '@/Components/DashboardLayout.svelte'
   let { flash, posts } = $props()
 </script>
@@ -626,7 +627,7 @@ export class PostController  {
   <!-- Flash Messages -->
   {#if flash?.error}
     <div class="flex items-start gap-4 p-4 rounded-xl bg-danger-surface border border-danger/20 mb-4">
-      <i class="fa-solid fa-circle-exclamation text-danger mt-0.5 text-lg"></i>
+      <CircleX class="text-danger mt-0.5 w-5 h-5 flex-shrink-0" />
       <div>
         <h4 class="text-sm font-bold text-danger">Error</h4>
         <p class="text-xs text-danger/80 mt-1">{flash.error}</p>
@@ -636,7 +637,7 @@ export class PostController  {
 
   {#if flash?.success}
     <div class="flex items-start gap-4 p-4 rounded-xl bg-success-surface border border-success/20 mb-4">
-      <i class="fa-solid fa-circle-check text-success mt-0.5 text-lg"></i>
+      <CircleCheck class="text-success mt-0.5 w-5 h-5 flex-shrink-0" />
       <div>
         <h4 class="text-sm font-bold text-success">Success</h4>
         <p class="text-xs text-success/80 mt-1">{flash.success}</p>
@@ -645,8 +646,9 @@ export class PostController  {
   {/if}
 
   <!-- Create Button -->
-  <a href="/posts/create" use:inertia class="inline-block px-6 py-3 rounded-2xl font-bold text-sm bg-[#065F46] text-white shadow-lg shadow-primary/20 mb-6">
-    <i class="fa-solid fa-plus mr-2"></i>Buat Post
+  <a href="/posts/create" use:inertia class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm bg-[#065F46] text-white shadow-lg shadow-primary/20 mb-6">
+    <Plus class="w-4 h-4" />
+    Buat Post
   </a>
 
   <!-- Post Cards -->
@@ -657,7 +659,7 @@ export class PostController  {
           <div>
             <h3 class="font-serif text-xl font-bold text-gray-900 mb-1">{post.title}</h3>
             <div class="flex items-center gap-2 text-sm text-gray-500">
-              <i class="fa-solid fa-user"></i>
+              <User class="w-4 h-4" />
               {post.name} • {new Date(post.created_at).toLocaleDateString()}
             </div>
           </div>
@@ -681,6 +683,7 @@ export class PostController  {
 ```svelte
 <script>
   import { router } from '@inertiajs/svelte'
+  import { CircleX } from 'lucide-svelte'
   import DashboardLayout from '@/Components/DashboardLayout.svelte'
   let { flash, post } = $props()
   let isEdit = !!post
@@ -694,7 +697,7 @@ export class PostController  {
   <!-- Flash Messages -->
   {#if flash?.error}
     <div class="flex items-start gap-4 p-4 rounded-xl bg-danger-surface border border-danger/20 mb-4">
-      <i class="fa-solid fa-circle-exclamation text-danger mt-0.5 text-lg"></i>
+      <CircleX class="text-danger mt-0.5 w-5 h-5 flex-shrink-0" />
       <div>
         <h4 class="text-sm font-bold text-danger">Error</h4>
         <p class="text-xs text-danger/80 mt-1">{flash.error}</p>
