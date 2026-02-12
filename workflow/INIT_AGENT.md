@@ -99,6 +99,13 @@ Development tracking template:
 - [ ] Routes: GET/POST/PUT/DELETE /[feature]
 - [ ] Validator: [Feature]Validator
 
+## Database Types
+### Completed
+- [ ] type/db-types.ts updated
+
+### Pending
+- [ ] New table interfaces
+
 ## Migrations
 ### Completed
 - [ ] migration_name
@@ -171,35 +178,73 @@ Reply "Lanjutkan" or tell me what to change.
 
 **⛔ STOP - DO NOT PROCEED UNTIL USER CONFIRMS ⛔**
 
-### 9. Create Migrations
+### 9. Update Database Types
 
-Based on `workflow/TDD.md` database schema.
+Based on `workflow/TDD.md` database schema, update `type/db-types.ts` BEFORE creating migrations.
+
+**Why?** Kysely is type-safe. Types must exist before migrations can use them.
+
+**Pattern:**
+```typescript
+// type/db-types.ts - Add new table interface
+export interface PostTable {
+  id: string;
+  title: string;
+  content?: string;
+  user_id: string;
+  status: 'draft' | 'published' | 'archived';
+  created_at: number;
+  updated_at?: number;
+}
+
+// Add to DB interface
+export interface DB {
+  users: UserTable;
+  sessions: SessionTable;
+  // ... existing tables
+  posts: PostTable;  // <-- Add new table
+}
+
+// Helper types
+export type Post = Selectable<PostTable>;
+export type NewPost = Insertable<PostTable>;
+export type PostUpdate = Updateable<PostTable>;
+```
+
+### 10. Create Migrations
+
+Create migration files in `migrations/` folder.
 
 **Migration template:**
 ```typescript
 import { Kysely } from "kysely";
+import { DB } from "../type/db-types";  // Use proper types
 
-export async function up(db: Kysely<any>): Promise<void> {
+export async function up(db: Kysely<DB>): Promise<void> {
   await db.schema
-    .createTable("table_name")
+    .createTable("posts")
     .addColumn("id", "text", (col) => col.primaryKey().notNull())
-    .addColumn("name", "text")
-    .addColumn("created_at", "integer")
+    .addColumn("title", "text", (col) => col.notNull())
+    .addColumn("content", "text")
+    .addColumn("user_id", "text", (col) => col.notNull().references("users.id"))
+    .addColumn("status", "text", (col) => col.notNull().defaultTo("draft"))
+    .addColumn("created_at", "integer", (col) => col.notNull())
+    .addColumn("updated_at", "integer")
     .execute();
 }
 
-export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable("table_name").execute();
+export async function down(db: Kysely<DB>): Promise<void> {
+  await db.schema.dropTable("posts").execute();
 }
 ```
 
-### 10. Run Migrations
+### 11. Run Migrations
 
 ```bash
 npm run migrate
 ```
 
-### 11. Setup Design System
+### 12. Setup Design System
 
 Update `tailwind.config.js` with branding from `workflow/PRD.md` and `workflow/ui-kit.html`.
 
@@ -210,7 +255,7 @@ Update `tailwind.config.js` with branding from `workflow/PRD.md` and `workflow/u
 - Persist preference to localStorage
 - ALL components must use `dark:` classes
 
-### 12. Create Layout Components
+### 13. Create Layout Components
 
 Create in `resources/js/Components/Layouts/`:
 - Use design system from `workflow/ui-kit.html`
@@ -232,7 +277,7 @@ Create in `resources/js/Components/Layouts/`:
 {/each}
 ```
 
-### 13. Customize Auth Pages
+### 14. Customize Auth Pages
 
 Update built-in auth pages to match `workflow/ui-kit.html`:
 - `resources/js/Pages/auth/login.svelte`
@@ -242,7 +287,7 @@ Update built-in auth pages to match `workflow/ui-kit.html`:
 
 **IMPORTANT: All auth pages MUST support dark mode** using `dark:` classes.
 
-### 14. Setup GitHub Actions
+### 15. Setup GitHub Actions
 
 ```bash
 cp -r github-workflow-sample/workflows .github/
@@ -254,7 +299,7 @@ cp -r github-workflow-sample/workflows .github/
 - `SSH_PRIVATE_KEY` - SSH private key
 - `SLACK_WEBHOOK` - (Optional)
 
-### 15. Git Init and First Commit
+### 16. Git Init and First Commit
 
 ```bash
 git init
@@ -262,7 +307,7 @@ git add .
 git commit -m "Initial commit: Project setup"
 ```
 
-### 16. Start Dev Server
+### 17. Start Dev Server
 
 ```bash
 npm run dev
