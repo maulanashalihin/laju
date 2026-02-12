@@ -367,6 +367,7 @@ See `skills/file-upload-pattern.md` for complete guide.
 ## References
 
 - `skills/create-controller.md`
+- `skills/hyper-express.md`
 - `skills/create-svelte-inertia-page.md`
 - `skills/feature-implementation-patterns.md`
 - `skills/file-upload-pattern.md`

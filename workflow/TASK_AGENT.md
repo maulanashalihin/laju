@@ -43,6 +43,7 @@ Execute single feature per session based on `PROGRESS.md`.
 |-------|------|
 | Patterns | `skills/feature-implementation-patterns.md` |
 | Controller | `skills/create-controller.md` |
+| Request/Response | `skills/hyper-express.md` |
 | Svelte Page | `skills/create-svelte-inertia-page.md` |
 | Database | `skills/kysely.md` |
 | UI Kit | `workflow/ui-kit.html` |
