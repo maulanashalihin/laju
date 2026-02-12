@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Agent ini adalah **alternatif dari TASK_AGENT.md** yang dirancang untuk **mengerjakan SEMUA fitur dari `workflow/PROGRESS.md` dalam 1 sesi eksekusi** (1 terminal/tab Kimi). 
+Agent ini adalah **alternatif dari TASK_AGENT.md** yang dirancang untuk **mengerjakan SEMUA fitur dari `workflow/PROGRESS.md` dalam 1 sesi eksekusi** (1 terminal/tab). 
 
 **Perbedaan dengan TASK_AGENT.md:**
 
