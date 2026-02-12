@@ -279,8 +279,15 @@ grep '"tailwindcss"' package.json
     --color-brand-500: #f97316;
     --font-sans: 'Inter', sans-serif;
   }
+  
+  /* Enable dark mode with class strategy */
+  @custom-variant dark {
+    &:where(.dark, .dark *) {
+      @slot;
+    }
+  }
   ```
-- Dark mode: Use `dark` variant or `data-theme="dark"` attribute
+- Dark mode: Uses `dark` variant with `.dark` class (configured above)
 - No `tailwind.config.js` needed (or minimal)
 
 **If version starts with `^3` (v3):**
@@ -369,16 +376,19 @@ module.exports = {
 }
 ```
 
-**For Tailwind CSS v4** (in your CSS file):
+**For Tailwind CSS v4** (in your CSS file, e.g., `resources/js/index.css`):
 ```css
 @import "tailwindcss";
 
-/* Option 1: Using class strategy */
-@variant dark (&:where(.dark, .dark *));
-
-/* Option 2: Using data-attribute strategy (alternative) */
-/* @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *)); */
+/* Enable dark mode with class strategy */
+@custom-variant dark {
+  &:where(.dark, .dark *) {
+    @slot;
+  }
+}
 ```
+
+**Note:** The `@custom-variant` rule is REQUIRED in Tailwind v4 to enable the `dark:` classes. Without this, dark mode won't work even if the component adds the `.dark` class to `<html>`.
 
 **Implementation Notes:**
 - Add DarkModeToggle to Header/Layout component
