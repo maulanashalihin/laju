@@ -21,7 +21,7 @@ Setup project baru dengan Laju Framework.
 ## Tech Stack
 
 - **Svelte**: v5.41.3 (runes: `$state`, `$props`)
-- **Tailwind CSS**: v3.4.17
+- **Tailwind CSS**: v3.4.17 or v4.x (check package.json)
 - **Inertia.js**: v2.2.10
 - **TypeScript**: v5.6.3 (backend)
 - **HyperExpress**: v6.17.3
@@ -257,10 +257,44 @@ npm run migrate
 
 ### 12. Setup Design System
 
-Update `tailwind.config.js` with branding from `workflow/PRD.md` and `workflow/ui-kit.html`.
+**⚠️ FIRST: Check Tailwind CSS Version**
 
-**Dark Mode Setup (REQUIRED):**
+Check `package.json` to determine Tailwind version:
+
+```bash
+# Check tailwindcss version
+grep '"tailwindcss"' package.json
+```
+
+**If version starts with `^4` (v4):**
+- Tailwind CSS 4 uses CSS-first configuration
+- Check main CSS file (e.g., `resources/js/app.css` or `resources/js/index.css`):
+  - Should have `@import "tailwindcss"` instead of `@tailwind` directives
+- Configuration is done in CSS using `@theme` directive:
+  ```css
+  @import "tailwindcss";
+  
+  @theme {
+    --color-primary-500: #f97316;
+    --color-brand-500: #f97316;
+    --font-sans: 'Inter', sans-serif;
+  }
+  ```
+- Dark mode: Use `dark` variant or `data-theme="dark"` attribute
+- No `tailwind.config.js` needed (or minimal)
+
+**If version starts with `^3` (v3):**
+- Uses `tailwind.config.js` for configuration
+- CSS file uses `@tailwind` directives:
+  ```css
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+  ```
+- Update `tailwind.config.js` with branding from `workflow/PRD.md` and `workflow/ui-kit.html`
 - Configure `darkMode: 'class'` in tailwind.config.js
+
+**Dark Mode Setup (REQUIRED for both versions):**
 - Create DarkModeToggle component
 - Add to Header/Layout
 - Persist preference to localStorage
