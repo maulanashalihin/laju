@@ -61,3 +61,4 @@ Execute single feature per session based on `PROGRESS.md`.
 - Use Svelte 5 runes: `$state`, `$props`
 - Use `router.post/put/delete` from `@inertiajs/svelte`
 - HTTP codes: 302 (store), 303 (update/delete)
+- **Import types from `type/index`, NOT `hyper-express`**: `import { Request, Response } from "type/index"`

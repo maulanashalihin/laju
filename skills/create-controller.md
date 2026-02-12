@@ -1,5 +1,24 @@
 # Controller Guide for AI
 
+## Import Pattern (CRITICAL)
+
+**ALWAYS import Request and Response from `type/index`, NOT from `hyper-express` directly:**
+
+```typescript
+// ✅ CORRECT - Uses augmented types with custom methods
+import { Request, Response } from "type/index";
+
+// ❌ WRONG - Missing custom methods like inertia(), flash(), request.user
+import { Request, Response } from "hyper-express";
+```
+
+The `type/index` exports augmented types that include:
+- `request.user` - Authenticated user object
+- `request.share` - Shared data across middlewares  
+- `response.inertia()` - Render Inertia.js pages
+- `response.flash()` - Flash messages
+- `response.view()` - Render SSR templates
+
 ## Core Principles
 
 1. **Use built-in controllers first** - Modify existing `app/controllers/*.ts` before creating new ones

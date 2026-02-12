@@ -2,6 +2,18 @@
 
 Quick reference for HyperExpress Request and Response objects in Laju Framework.
 
+## ⚠️ Import Pattern (CRITICAL)
+
+**ALWAYS import Request and Response from `type/index`:**
+
+```typescript
+// ✅ CORRECT
+import { Request, Response } from "type/index";
+
+// ❌ WRONG - Will miss augmented methods
+import { Request, Response } from "hyper-express";
+```
+
 ## Request
 
 ### Body & Data

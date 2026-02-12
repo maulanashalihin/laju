@@ -165,6 +165,25 @@ laju/
 - Use Inertia for interactive pages
 - Use Eta for SSR pages
 
+### Type Imports (CRITICAL)
+
+**ALWAYS import Request and Response from `type/index`, NOT from `hyper-express`:**
+
+```typescript
+// ✅ CORRECT - Augmented types with custom methods
+import { Request, Response } from "type/index";
+
+// ❌ WRONG - Native types missing Laju extensions
+import { Request, Response } from "hyper-express";
+```
+
+The augmented types include:
+- `request.user` - Authenticated user (id, email, name, is_admin, etc.)
+- `request.share` - Shared data across middlewares
+- `response.inertia(component, props)` - Render Inertia pages
+- `response.flash(type, message)` - Flash messages
+- `response.view(view, data)` - Render SSR templates
+
 ### Follow Laju Conventions
 Always reference the appropriate workflow files for detailed patterns:
 - `workflow/INIT_AGENT.md` - Project initialization workflow

@@ -72,3 +72,4 @@ FOR each feature in PROGRESS.md:
 - Server already running - Don't run `npm run dev`
 - Use Svelte 5 runes: `$state`, `$props`
 - Commit message: `feat: implement [Feature Name]`
+- **Import types from `type/index`, NOT `hyper-express`**: `import { Request, Response } from "type/index"`
