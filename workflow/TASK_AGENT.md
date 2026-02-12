@@ -14,8 +14,9 @@ Execute single feature per session based on `PROGRESS.md`.
 1. ✅ **Maximize existing** - Check controllers/pages first
 2. ✅ **Single form pattern** - Create/edit in one file
 3. ✅ **Use DashboardLayout** - For admin features
-4. ✅ **Commit after confirm** - User tests first, then commit
-5. ❌ **Never update PRD/TDD** - Manager Agent only
+4. ✅ **Dark mode support** - ALL pages must use `dark:` classes
+5. ✅ **Commit after confirm** - User tests first, then commit
+6. ❌ **Never update PRD/TDD** - Manager Agent only
 
 ## Execution Checklist
 

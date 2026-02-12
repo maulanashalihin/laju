@@ -39,6 +39,7 @@ None yet.
 - Check existing controllers first
 - Use single form pattern (create/edit one file)
 - Use DashboardLayout for admin pages
+- **Dark mode REQUIRED** - All pages use `dark:` classes
 - Commit after user confirms it works
 
 ---

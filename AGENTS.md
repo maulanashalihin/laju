@@ -14,6 +14,23 @@
 
 > ⚠️ **IMPORTANT**: This project uses **SQLite** (better-sqlite3), NOT PostgreSQL or other databases.
 
+## Design System Requirements
+
+### Dark Mode Support (MANDATORY)
+
+**ALL projects MUST implement dark mode/light mode toggle.**
+
+- Use Tailwind `dark:` classes for all components
+- Provide toggle mechanism (usually in Header or Settings)
+- Persist user preference (localStorage or database)
+- Default to system preference (`prefers-color-scheme`)
+- ALL pages must support both modes (no exceptions)
+
+**Implementation:**
+- CSS: `dark:bg-gray-900 dark:text-white`
+- Toggle: See `skills/dark-mode-implementation.md`
+- Storage: Save preference to localStorage or user settings
+
 ## Primary Goal
 
 Help users build applications using Laju framework by understanding their needs and implementing them correctly.

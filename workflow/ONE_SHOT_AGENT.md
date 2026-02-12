@@ -15,7 +15,8 @@ Execute ALL features from `PROGRESS.md` in one session.
 2. ✅ **Auto-commit every feature** - Don't wait until end
 3. ✅ **Continue until done** - Don't stop unless critical error
 4. ✅ **Handle dependencies first** - Reorder if needed
-5. ❌ **Never update PRD/TDD** - Manager Agent only
+5. ✅ **Dark mode support** - ALL pages must use `dark:` classes
+6. ❌ **Never update PRD/TDD** - Manager Agent only
 
 ## Execution Loop
 

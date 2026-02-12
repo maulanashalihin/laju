@@ -203,6 +203,13 @@ npm run migrate
 
 Update `tailwind.config.js` with branding from `workflow/PRD.md` and `workflow/ui-kit.html`.
 
+**Dark Mode Setup (REQUIRED):**
+- Configure `darkMode: 'class'` in tailwind.config.js
+- Create DarkModeToggle component
+- Add to Header/Layout
+- Persist preference to localStorage
+- ALL components must use `dark:` classes
+
 ### 12. Create Layout Components
 
 Create in `resources/js/Components/Layouts/`:
@@ -232,6 +239,8 @@ Update built-in auth pages to match `workflow/ui-kit.html`:
 - `resources/js/Pages/auth/register.svelte`
 - `resources/js/Pages/auth/forgot-password.svelte`
 - `resources/js/Pages/auth/reset-password.svelte`
+
+**IMPORTANT: All auth pages MUST support dark mode** using `dark:` classes.
 
 ### 14. Setup GitHub Actions
 
