@@ -179,6 +179,16 @@ Reply "Lanjutkan" or tell me what to change.
 
 **⛔ STOP - DO NOT PROCEED UNTIL USER CONFIRMS ⛔**
 
+---
+
+## ⬇️ AFTER USER CONFIRMS: Continue Infrastructure Setup
+
+**⚠️ IMPORTANT:** Steps 9-16 are INFRASTRUCTURE SETUP only (types, migrations, design system, layouts).  
+**🚫 DO NOT implement any feature from PROGRESS.md here.**  
+**✅ Feature implementation is handled by TASK_AGENT or ONE_SHOT_AGENT after init completes.**
+
+---
+
 ### 9. Update Database Types
 
 Based on `workflow/TDD.md` database schema, update `type/db-types.ts` BEFORE creating migrations.
@@ -304,7 +314,13 @@ npm run dev
 
 **Initialization complete!**
 
-## Choose Implementation Method
+## ⚠️ DO NOT IMPLEMENT FEATURES YET
+
+INIT_AGENT scope ends here. **Infrastructure setup only.**
+
+## Choose Feature Implementation Method
+
+**🔄 HANDOFF:** Now switch to TASK_AGENT or ONE_SHOT_AGENT to implement features from `workflow/PROGRESS.md`.
 
 **Option A: TASK_AGENT** (per feature, multi-tab)
 ```
@@ -315,6 +331,8 @@ npm run dev
 ```
 "@workflow/ONE_SHOT_AGENT.md"
 ```
+
+**⚠️ DO NOT start implementing features yourself. Your job is DONE.**
 
 ## Important Notes
 
