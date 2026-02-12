@@ -27,9 +27,9 @@
 - ALL pages must support both modes (no exceptions)
 
 **Implementation:**
-- CSS: `dark:bg-gray-900 dark:text-white`
-- Toggle: See `skills/dark-mode-implementation.md`
-- Storage: Save preference to localStorage or user settings
+- CSS: Use `dark:bg-gray-900 dark:text-white` classes
+- Toggle: Create DarkModeToggle component with localStorage persistence
+- Default: Use system preference (`prefers-color-scheme`)
 
 ## Primary Goal
 
