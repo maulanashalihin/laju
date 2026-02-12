@@ -60,6 +60,7 @@ Gunakan **INIT_AGENT** saat:
 ### Output
 
 - Project infrastructure siap
+- Documentation created: README, PRD, TDD, ui-kit, IMPLEMENTATION_BRIEF, PROGRESS
 - GitHub Actions workflow ter-setup
 - Testing infrastructure (Vitest, Playwright, Supertest) ter-setup
 - Dev server berjalan di http://localhost:5555
@@ -214,6 +215,7 @@ Gunakan **MANAGER_AGENT** saat:
 # - Update PRD.md (requirements, design)
 # - Update TDD.md (technical specs)
 # - Update PROGRESS.md (tasks)
+# - Update IMPLEMENTATION_BRIEF.md (execution summary)
 
 # 5. Approve deployment:
 # - Review test results
@@ -435,6 +437,7 @@ Silakan mention @[workflow/CORRECT_AGENT.md] untuk [task]."
 **Reference Guides:**
 - `skills/testing-guide.md` - Panduan menulis test (unit, integration, E2E)
 - `skills/deployment-guide.md` - Panduan deployment ke production
+- `workflow/IMPLEMENTATION_BRIEF.md` - Ringkasan eksekusi untuk agents
 
 ### Workflow Commands
 
