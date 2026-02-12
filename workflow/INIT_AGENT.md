@@ -295,10 +295,96 @@ grep '"tailwindcss"' package.json
 - Configure `darkMode: 'class'` in tailwind.config.js
 
 **Dark Mode Setup (REQUIRED for both versions):**
-- Create DarkModeToggle component
-- Add to Header/Layout
-- Persist preference to localStorage
-- ALL components must use `dark:` classes
+
+Create `resources/js/Components/DarkModeToggle.svelte`:
+
+```svelte
+<script>
+import { onMount } from 'svelte';
+import { Sun, Moon } from 'lucide-svelte';
+
+let darkMode = $state(false);
+let mounted = $state(false);
+
+onMount(() => {
+    // Check system preference
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // Check localStorage or fallback to system preference
+    const savedMode = localStorage.getItem('darkMode');
+    darkMode = savedMode === null ? systemPrefersDark : savedMode === 'true';
+    
+    // Apply saved preference
+    applyDarkMode(darkMode);
+
+    // Add transition class after initial load to prevent flash
+    setTimeout(() => {
+        document.documentElement.classList.add('transition-colors');
+        mounted = true;
+    }, 100);
+
+    // Listen for system preference changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        if (localStorage.getItem('darkMode') === null) {
+            darkMode = e.matches;
+            applyDarkMode(darkMode);
+        }
+    });
+});
+
+function applyDarkMode(isDark) {
+    if (isDark) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+}
+
+function toggleDarkMode() {
+    darkMode = !darkMode;
+    applyDarkMode(darkMode);
+    localStorage.setItem('darkMode', darkMode);
+}
+</script>
+
+<button 
+    onclick={toggleDarkMode}
+    class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700"
+    aria-label="Toggle dark mode"
+>
+    {#if darkMode}
+        <Sun class="w-5 h-5 text-slate-800 dark:text-slate-200" />
+    {:else}
+        <Moon class="w-5 h-5 text-slate-800 dark:text-slate-200" />
+    {/if}
+</button>
+```
+
+**CSS Configuration:**
+
+**For Tailwind CSS v3** (`tailwind.config.js`):
+```javascript
+module.exports = {
+  darkMode: 'class',
+  // ... rest of config
+}
+```
+
+**For Tailwind CSS v4** (in your CSS file):
+```css
+@import "tailwindcss";
+
+/* Option 1: Using class strategy */
+@variant dark (&:where(.dark, .dark *));
+
+/* Option 2: Using data-attribute strategy (alternative) */
+/* @variant dark (&:where([data-theme="dark"], [data-theme="dark"] *)); */
+```
+
+**Implementation Notes:**
+- Add DarkModeToggle to Header/Layout component
+- ALL pages must use `dark:` classes for dark mode support
+- The component persists preference to localStorage
+- Falls back to system preference if no saved preference exists
 
 ### 13. Create Layout Components
 
