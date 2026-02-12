@@ -8,9 +8,11 @@
 - **Vite**: v5.4.10
 - **TypeScript**: v5.6.3 (backend only)
 - **HyperExpress**: v6.17.3 (backend server)
-- **Kysely**: v0.28.10 (type-safe SQL query builder)
+- **Database**: **better-sqlite3** v12.4.1 (SQLite via Kysely)
 - **Zod**: v4.3.5 (validation)
 - **Lucide Icons**: Default icon library for laju.dev
+
+> ⚠️ **IMPORTANT**: This project uses **SQLite** (better-sqlite3), NOT PostgreSQL or other databases.
 
 ## Primary Goal
 

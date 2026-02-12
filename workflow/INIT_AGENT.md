@@ -24,9 +24,12 @@ Setup project baru dengan Laju Framework.
 - **Inertia.js**: v2.2.10
 - **TypeScript**: v5.6.3 (backend)
 - **HyperExpress**: v6.17.3
-- **Kysely**: v0.28.10
+- **Database**: **better-sqlite3** v12.4.1 (SQLite)
+- **Query Builder**: Kysely v0.28.10
 - **Zod**: v4.3.5 (validation)
 - **Lucide Icons**: Default icon library
+
+> ⚠️ **IMPORTANT**: Project ini menggunakan **SQLite** (better-sqlite3), BUKAN PostgreSQL atau database lain.
 
 ## Initialization Steps
 
@@ -125,7 +128,7 @@ None yet.
 <!-- From TDD.md -->
 - Frontend: Svelte 5 + Inertia
 - Backend: HyperExpress
-- Database: [type]
+- Database: **better-sqlite3** (SQLite)
 
 ## UI Essentials
 <!-- From ui-kit.html -->
