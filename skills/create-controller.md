@@ -10,7 +10,7 @@
 6. **Validate first** - Use `app/services/Validator.ts` before any DB operations
 7. **Separate concerns** - Complete business logic, then create response
 8. **Use proper HTTP status codes** - 302 for store, 303 for update/delete
-9. **Never use `this`** - Controllers are exported as instances
+9. **Plain object pattern** - Controllers are plain objects, not classes
 
 ## SSR vs Inertia Decision
 

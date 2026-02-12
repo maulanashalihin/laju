@@ -34,21 +34,21 @@ For in-depth documentation, see these focused guides:
 
 ```typescript
 // ✅ Good - Controller delegates to services
-class PostController {
-  public async store(request: Request, response: Response) {
+export const PostController = {
+  async store(request: Request, response: Response) {
     const data = await request.json();
     const post = await PostService.create(data);
     return response.json({ success: true, data: post });
   }
-}
+};
 ```
 
 ❌ **DON'T: Put business logic in controllers**
 
 ```typescript
 // ❌ Bad - Business logic in controller
-class PostController {
-  public async store(request: Request, response: Response) {
+export const PostController = {
+  async store(request: Request, response: Response) {
     const data = await request.json();
     // Validation logic
     if (!data.title) throw new Error("Title required");
@@ -58,7 +58,7 @@ class PostController {
     const post = await DB.insertInto("posts").values({ ...data, slug }).execute();
     return response.json(post);
   }
-}
+};
 ```
 
 ### Service Layer
@@ -67,24 +67,24 @@ class PostController {
 
 ```typescript
 // app/services/PostService.ts
-class PostService {
+export const PostService = {
   async create(data: PostData) {
-    this.validate(data);
-    const slug = this.generateSlug(data.title);
+    validate(data);
+    const slug = generateSlug(data.title);
     return await DB.insertInto("posts").values({ ...data, slug }).execute();
   }
-  
-  private validate(data: PostData) {
-    if (!data.title) throw new Error("Title required");
-    if (!data.content) throw new Error("Content required");
-  }
-  
-  private generateSlug(title: string): string {
-    return title.toLowerCase().replace(/\s/g, '-');
-  }
+};
+
+function validate(data: PostData) {
+  if (!data.title) throw new Error("Title required");
+  if (!data.content) throw new Error("Content required");
 }
 
-export default new PostService();
+function generateSlug(title: string): string {
+  return title.toLowerCase().replace(/\s/g, '-');
+}
+
+export default PostService;
 ```
 
 ### File Naming
@@ -144,11 +144,11 @@ const hash = crypto.createHash('md5').update(password).digest('hex');
 
 ```typescript
 // ✅ Good
-public async store(request: Request, response: Response) {
+async store(request: Request, response: Response) {
   const { email, password } = await request.json();
   
   // Validate
-  if (!email || !this.isValidEmail(email)) {
+  if (!email || !isValidEmail(email)) {
     return response.status(400).json({ error: "Invalid email" });
   }
   
@@ -385,7 +385,7 @@ return response.status(400).json({
 
 ```typescript
 // ✅ Good
-public async store(request: Request, response: Response) {
+async store(request: Request, response: Response) {
   try {
     const data = await request.json();
     const post = await PostService.create(data);

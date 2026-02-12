@@ -4,8 +4,8 @@ import { Response, Request } from "../../type";
 import { randomUUID } from "crypto";
 import dayjs from "dayjs";
 
-class VerificationController {
-  public async verify(request: Request, response: Response) {
+export const VerificationController = {
+  async verify(request: Request, response: Response) {
     if (!request.user) {
       return response.redirect("/login");
     }
@@ -35,9 +35,9 @@ Link ini akan kadaluarsa dalam 24 jam.`,
     }
 
     return response.redirect("/home");
-  }
+  },
 
-  public async verifyPage(request: Request, response: Response) {
+  async verifyPage(request: Request, response: Response) {
     if (!request.user) {
       return response.redirect("/login");
     }
@@ -61,7 +61,7 @@ Link ini akan kadaluarsa dalam 24 jam.`,
     }
 
     return response.redirect("/home?verified=true");
-  }
-}
+  },
+};
 
-export default new VerificationController();
+export default VerificationController;

@@ -70,32 +70,34 @@ await Authenticate.logout(request, response);
 
 ```typescript
 // app/controllers/RegisterController.ts
-public async processRegister(request: Request, response: Response) {
-  const { name, email, password } = await request.json();
-  
-  // Hash password
-  const hashedPassword = await Authenticate.hash(password);
-  
-  // Create user
-  const user = {
-    id: randomUUID(),
-    name,
-    email: email.toLowerCase(),
-    password: hashedPassword,
-    created_at: Date.now(),
-    updated_at: Date.now()
-  };
-  
-  try {
-    await DB.insertInto("users").values(user).execute();
-    return Authenticate.process(user, request, response);
-  } catch (error) {
-    // Handle duplicate email
-    return response
-      .cookie("error", "Email already registered", 3000)
-      .redirect("/register");
+export const RegisterController = {
+  async processRegister(request: Request, response: Response) {
+    const { name, email, password } = await request.json();
+    
+    // Hash password
+    const hashedPassword = await Authenticate.hash(password);
+    
+    // Create user
+    const user = {
+      id: randomUUID(),
+      name,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      created_at: Date.now(),
+      updated_at: Date.now()
+    };
+    
+    try {
+      await DB.insertInto("users").values(user).execute();
+      return Authenticate.process(user, request, response);
+    } catch (error) {
+      // Handle duplicate email
+      return response
+        .cookie("error", "Email already registered", 3000)
+        .redirect("/register");
+    }
   }
-}
+};
 ```
 
 ### Login Example

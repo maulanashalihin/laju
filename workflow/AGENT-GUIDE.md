@@ -2,11 +2,20 @@
 
 ## Overview
 
-Laju Framework memiliki 3 agent yang bekerja sama untuk membangun aplikasi dengan kualitas tinggi:
+Laju Framework memiliki 4 agent yang bekerja sama untuk membangun aplikasi dengan kualitas tinggi:
 
 1. **INIT_AGENT** - Memulai project baru
-2. **TASK_AGENT** - Implementasi fitur
-3. **MANAGER_AGENT** - Manajemen perubahan dan release notes
+2. **TASK_AGENT** - Implementasi fitur (concurrent, per fitur)
+3. **ONE_SHOT_AGENT** - Implementasi fitur (sequential, semua fitur sekaligus)
+4. **MANAGER_AGENT** - Manajemen perubahan dan release notes
+
+**Pilih TASK_AGENT vs ONE_SHOT_AGENT:**
+- **TASK_AGENT** - Untuk project besar, perlu review per fitur, bisa multi-tab concurrent
+- **ONE_SHOT_AGENT** - Untuk project kecil-menengah, auto-execute semua fitur dalam 1 sesi
+
+**Note:** Testing dan deployment berjalan otomatis via GitHub Actions CI. Referensi:
+- `skills/testing-guide.md` - Panduan menulis test (unit, integration, E2E)
+- `skills/deployment-guide.md` - Panduan deployment ke production
 
 **Note:** Testing dan deployment berjalan otomatis via GitHub Actions CI. Referensi:
 - `skills/testing-guide.md` - Panduan menulis test (unit, integration, E2E)
@@ -57,7 +66,7 @@ Gunakan **INIT_AGENT** saat:
 
 ---
 
-## 2. TASK_AGENT - Implementasi Fitur
+## 2. TASK_AGENT - Implementasi Fitur (Concurrent)
 
 ### Kapan Menggunakan?
 
@@ -66,6 +75,9 @@ Gunakan **TASK_AGENT** saat:
 - Ingin modifikasi fitur yang ada
 - Ingin fix bug
 - Selesai dengan INIT_AGENT
+- Project besar (20+ fitur)
+- Perlu review per fitur
+- Mau kerja concurrent di multi-tab
 
 ### Workflow
 
@@ -98,7 +110,10 @@ git add .
 git commit -m "feat: add feature"
 git push origin feature/your-feature
 
-# 7. GitHub Actions run tests otomatis
+# 7. (Optional) Continue to next feature di tab/session baru
+"Hai @workflow/TASK_AGENT.md, lanjut fitur berikutnya"
+
+# 8. GitHub Actions run tests otomatis
 # - Jika pass → Lanjut
 # - Jika fail → Fix → Re-push
 ```
@@ -113,7 +128,61 @@ git push origin feature/your-feature
 
 ---
 
-## 3. MANAGER_AGENT - Manajemen Perubahan
+## 3. ONE_SHOT_AGENT - Implementasi Fitur (Sequential)
+
+### Kapan Menggunakan?
+
+Gunakan **ONE_SHOT_AGENT** saat:
+- Project kecil-menengah (< 20 fitur)
+- Mau semua fitur dikerjakan dalam 1 sesi
+- Tidak perlu review per fitur
+- Ingin efisiensi tanpa switching tab
+- Clear requirements, standard CRUD
+
+### Workflow
+
+```bash
+# 1. Mention ONE_SHOT_AGENT setelah INIT_AGENT selesai
+"Hai @workflow/ONE_SHOT_AGENT.md, tolong kerjakan semua fitur di PROGRESS.md"
+
+# 2. ONE_SHOT_AGENT akan:
+# - Baca semua tasks dari PROGRESS.md
+# - Tampilkan summary: total fitur dan estimasi waktu
+# - Mulai eksekusi sequential (1 fitur → commit → next fitur)
+# - Auto-commit setiap fitur selesai
+# - Continue sampai SEMUA fitur selesai
+# - Display completion summary
+
+# 3. Setelah selesai:
+# - Semua fitur sudah diimplementasi
+# - PROGRESS.md semua marked complete
+# - Multiple commits created (1 per fitur)
+# - Ready untuk push ke GitHub
+```
+
+### Perbedaan dengan TASK_AGENT
+
+| Aspek | TASK_AGENT | ONE_SHOT_AGENT |
+|-------|-----------|----------------|
+| Execution | Concurrent (multi-tab) | Sequential (1 tab) |
+| User Input | Pilih task satu per satu | Auto-execute semua |
+| Stopping Point | Setiap fitur minta test | Jalan sampai selesai |
+| Best For | Project besar | Project kecil-menengah |
+| Commit | Manual/setelah user confirm | Auto per fitur |
+
+### Contoh Penggunaan
+
+```bash
+# Setelah INIT_AGENT selesai
+"Hai @workflow/ONE_SHOT_AGENT.md, tolong kerjakan semua fitur"
+
+# Agent akan jalan terus:
+# Fitur 1 → Commit → Fitur 2 → Commit → ... → Fitur N → Commit → Done
+```
+
+---
+
+## 4. MANAGER_AGENT - Manajemen Perubahan
 
 ### Kapan Menggunakan?
 
@@ -359,7 +428,8 @@ Silakan mention @[workflow/CORRECT_AGENT.md] untuk [task]."
 | Agent | Responsibilities | When Involved |
 |-------|----------------|---------------|
 | **INIT_AGENT** | Project initialization, setup infrastructure | Memulai project baru |
-| **TASK_AGENT** | Implement features, fix bugs | Implementasi fitur |
+| **TASK_AGENT** | Implement features, fix bugs (concurrent) | Implementasi fitur per-fitur |
+| **ONE_SHOT_AGENT** | Implement all features (sequential) | Implementasi semua fitur sekaligus |
 | **MANAGER_AGENT** | Manage changes, create release notes | Change requests, deployment approval |
 
 **Reference Guides:**
@@ -372,8 +442,11 @@ Silakan mention @[workflow/CORRECT_AGENT.md] untuk [task]."
 # Start new project
 "Hai @workflow/INIT_AGENT.md, yuk kita mulai project baru"
 
-# Implement features
+# Implement features (concurrent, per-fitur)
 "Hai @workflow/TASK_AGENT.md, yuk kita kerja"
+
+# Implement all features (sequential, 1 sesi)
+"Hai @workflow/ONE_SHOT_AGENT.md, tolong kerjakan semua fitur"
 
 # Manage changes
 "Hai @workflow/MANAGER_AGENT.md, ada change request"
@@ -498,15 +571,16 @@ git push origin main
 
 ## Summary
 
-3 Agent Laju Framework bekerja sama untuk membangun aplikasi dengan kualitas tinggi:
+4 Agent Laju Framework bekerja sama untuk membangun aplikasi dengan kualitas tinggi:
 
 1. **INIT_AGENT** - Setup project infrastructure
-2. **TASK_AGENT** - Implementasi fitur
-3. **MANAGER_AGENT** - Manajemen perubahan
+2. **TASK_AGENT** - Implementasi fitur (concurrent, per-fitur)
+3. **ONE_SHOT_AGENT** - Implementasi fitur (sequential, semua fitur)
+4. **MANAGER_AGENT** - Manajemen perubahan
 
 **Workflow:**
 ```
-INIT_AGENT → TASK_AGENT → GitHub Actions CI → MANAGER_AGENT
+INIT_AGENT → TASK_AGENT/ONE_SHOT_AGENT → GitHub Actions CI → MANAGER_AGENT
 ```
 
 **GitHub Actions CI:**

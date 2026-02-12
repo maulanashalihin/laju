@@ -68,7 +68,7 @@ Done ✅
 
 ```typescript
 // PostController.ts - Simple operations
-class PostController {
+export const PostController = {
   async show(request: Request, response: Response) {
     const post = await DB.selectFrom('posts')
       .selectAll()
@@ -76,7 +76,7 @@ class PostController {
       .executeTakeFirst()
     
     return response.inertia('posts/show', { post })
-  }
+  },
   
   async store(request: Request, response: Response) {
     await DB.insertInto('posts')
@@ -124,7 +124,7 @@ export class PostRepository {
 }
 
 // PostController.ts
-class PostController {
+export const PostController = {
   async show(request: Request, response: Response) {
     // Use Repository for complex query
     const post = await PostRepository.findWithDetails(request.params.id)

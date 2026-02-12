@@ -9,21 +9,21 @@ import Validator from "../services/Validator";
 import { loginSchema } from "../validators/AuthValidator";
 import { Response, Request } from "../../type";
 
-class LoginController {
+export const LoginController = {
   /**
    * Display login page
    */
-  public async loginPage(request: Request, response: Response) {
+  async loginPage(request: Request, response: Response) {
     if (request.cookies.auth_id) {
       return response.redirect("/home");
     }
     return response.inertia("auth/login");
-  }
+  },
 
   /**
    * Process login form submission
    */
-  public async processLogin(request: Request, response: Response) {
+  async processLogin(request: Request, response: Response) {
     try {
       const body = await request.json();
 
@@ -63,16 +63,16 @@ class LoginController {
         .flash("error", "An error occurred during login. Please try again later.")
         .redirect("/login");
     }
-  }
+  },
 
   /**
    * Handle logout
    */
-  public async logout(request: Request, response: Response) {
+  async logout(request: Request, response: Response) {
     if (request.cookies.auth_id) {
       await Authenticate.logout(request, response);
     }
-  }
-}
+  },
+};
 
-export default new LoginController();
+export default LoginController;

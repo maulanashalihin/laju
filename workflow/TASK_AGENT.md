@@ -141,6 +141,12 @@ When MANAGER_AGENT updates PROGRESS.md with new features or changes:
 
 For each feature, ensure:
 
+**Pre-Implementation:**
+- [ ] Check if this feature depends on other features (dependencies)
+- [ ] If dependencies exist, ensure they are completed first
+- [ ] Check if database table exists (migration already run)
+- [ ] If table doesn't exist, create migration first or ask user
+
 **Backend (Controller):**
 - [ ] Check if controller exists in `app/controllers/`
 - [ ] If exists, modify existing controller (don't create duplicate)
@@ -149,6 +155,7 @@ For each feature, ensure:
 - [ ] Validate input using `Validator.validate()`
 - [ ] Return proper responses (Inertia for protected routes)
 - [ ] Use correct HTTP status codes (302 for store, 303 for update/delete)
+- [ ] For file uploads: use `UploadController` pattern (see File Upload Pattern below)
 
 **Frontend (Page):**
 - [ ] Check if page exists in `resources/js/Pages/`
@@ -162,6 +169,7 @@ For each feature, ensure:
 - [ ] **Import and use DashboardLayout from `@/Components/DashboardLayout.svelte`**
 - [ ] Match UI components from `workflow/ui-kit.html`
 - [ ] **Ensure page is mobile-friendly and visually appealing**
+- [ ] **Use Single Form Pattern**: Create `form.svelte` for both create and edit (pass `post` prop for edit mode)
 
 **Routes:**
 - [ ] Add route to `routes/web.ts`
@@ -173,6 +181,13 @@ For each feature, ensure:
 - [ ] Check if validator exists in `app/validators/`
 - [ ] Create/update validator following Zod schema patterns
 - [ ] Import and use in controller
+- [ ] For create/edit form, use same validator with optional fields for edit
+
+**Error Handling During Implementation:**
+- [ ] If compile error: Read error message, fix the code
+- [ ] If runtime error: Check console, identify file, fix issue
+- [ ] If test fails: Read test output, fix related code
+- [ ] If stuck > 3 attempts: Ask user for help
 
 **Progress Tracking:**
 - [ ] Update PROGRESS.md when task is completed
@@ -217,6 +232,88 @@ Always reference `workflow/ui-kit.html` for consistent UI components.
 ```
 
 Common icons: `AlertCircle`, `CheckCircle`, `Plus`, `Edit`, `Trash2`, `User`, `Search`
+
+## Special Implementation Patterns
+
+### 1. Single Form Pattern (Create + Edit in One File)
+
+**Instead of creating separate files:**
+- ❌ `create.svelte` and `edit.svelte`
+
+**Use single file:**
+- ✅ `form.svelte` with `isEdit` mode detection
+
+**Example:**
+```svelte
+<script>
+  let { post } = $props()  // post is undefined for create, object for edit
+  let isEdit = !!post
+  let formData = $state({
+    title: post?.title || '',
+    content: post?.content || ''
+  })
+</script>
+
+<form onsubmit={(e) => {
+  e.preventDefault()
+  if (isEdit) {
+    router.put(`/posts/${post.id}`, formData)
+  } else {
+    router.post('/posts', formData)
+  }
+}}>
+  <!-- form fields -->
+</form>
+```
+
+### 2. File Upload Pattern
+
+**For features requiring file uploads (images, documents):**
+
+1. **Database field stores URL**, not asset_id:
+```typescript
+// Migration
+.addColumn('thumbnail', 'text')  // Store URL, NOT asset_id
+```
+
+2. **Use UploadController for handling uploads:**
+```typescript
+// In your controller
+const body = await request.json()
+const thumbnail = body.thumbnail  // This is the URL from upload
+```
+
+3. **Frontend uses UploadController endpoint:**
+```svelte
+<!-- Upload happens first, returns URL, then form submission -->
+<input type="file" onchange={handleUpload} />
+<input type="hidden" name="thumbnail" value={uploadedUrl} />
+```
+
+See `skills/file-upload-pattern.md` for complete guide.
+
+### 3. Feature Dependencies Handling
+
+**When feature B depends on feature A:**
+
+1. Check PROGRESS.md for dependency status:
+```markdown
+### User Management (Required by: Payment, Reports)
+- [x] UserController
+- [x] User pages
+```
+
+2. If dependency not complete:
+   - **Option 1**: Ask user which to do first
+   - **Option 2**: Complete dependency first, then return to original task
+   - **Option 3**: Create mock/stub if dependency is in progress
+
+3. Document dependencies in PROGRESS.md:
+```markdown
+### Payment Integration (Depends on: User Management)
+- [ ] PaymentController
+- [ ] Payment pages
+```
 
 ## Task Locking Mechanism
 

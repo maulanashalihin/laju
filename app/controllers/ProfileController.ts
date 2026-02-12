@@ -8,18 +8,18 @@ import Validator from "../services/Validator";
 import { updateProfileSchema, deleteUsersSchema } from "../validators/ProfileValidator";
 import { Response, Request } from "../../type";
 
-class ProfileController {
+export const ProfileController = {
   /**
    * Display profile page
    */
-  public async profilePage(request: Request, response: Response) {
+  async profilePage(request: Request, response: Response) {
     return response.inertia("profile", { user: request.user });
-  }
+  },
 
   /**
    * Update user profile
    */
-  public async changeProfile(request: Request, response: Response) {
+  async changeProfile(request: Request, response: Response) {
     if (!request.user) {
       return response.status(401).json({ error: "Unauthorized" });
     }
@@ -43,19 +43,19 @@ class ProfileController {
     });
 
     return response.flash("success", "Profile updated successfully").redirect("/profile", 303);
-  }
+  },
 
   /**
    * Display home page
    */
-  public async homePage(request: Request, response: Response) {
+  async homePage(request: Request, response: Response) {
     return response.inertia("home");
-  }
+  },
 
   /**
    * Delete multiple users (admin only)
    */
-  public async deleteUsers(request: Request, response: Response) {
+  async deleteUsers(request: Request, response: Response) {
     if (!request.user) {
       return response.status(401).json({ error: "Unauthorized" });
     }
@@ -79,7 +79,7 @@ class ProfileController {
     await UserRepository.deleteMany(ids);
 
     return response.redirect("/home");
-  }
-}
+  },
+};
 
-export default new ProfileController();
+export default ProfileController;

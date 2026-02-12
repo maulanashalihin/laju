@@ -22,7 +22,7 @@ import Validator from '../services/Validator'
 import { storePostSchema } from '../validators/PostValidator'
 import { uuidv7 } from 'uuidv7'
 
-export class PostController  {
+export const PostController = {
   async index(request: Request, response: Response) {
     const posts = await DB.selectFrom('posts')
       .innerJoin('users', 'posts.user_id', 'users.id')
@@ -31,7 +31,7 @@ export class PostController  {
       .execute()
     
     return response.inertia('posts/index', { posts })
-  }
+  },
 
   async store(request: Request, response: Response) {
     const body = await request.json()
@@ -53,7 +53,7 @@ export class PostController  {
     }).execute()
     
     return response.flash('success', 'Post berhasil dibuat').redirect('/posts', 302)
-  }
+  },
 
   async update(request: Request, response: Response) {
     const body = await request.json()
@@ -73,7 +73,7 @@ export class PostController  {
       .execute()
     
     return response.flash('success', 'Post berhasil diupdate').redirect('/posts', 303)
-  }
+  },
 
   async destroy(request: Request, response: Response) {
     const id = request.params.id

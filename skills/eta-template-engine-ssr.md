@@ -22,7 +22,7 @@ For protected/admin routes, use **Inertia.js** (see `skills/create-controller.md
 ```typescript
 import { view } from '../services/View'
 
-export class HomeController {
+export const HomeController = {
   async index(request: Request, response: Response) {
     const posts = await DB.selectFrom('posts')
       .selectAll()

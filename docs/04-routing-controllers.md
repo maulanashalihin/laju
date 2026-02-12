@@ -71,7 +71,7 @@ Route.get("/users/:id", UserController.show);
 Route.get("/posts/:postId/comments/:commentId", CommentController.show);
 
 // Controller
-public async show(request: Request, response: Response) {
+async show(request: Request, response: Response) {
   const { id } = request.params;
   const user = await DB.selectFrom("users")
   .selectAll()
@@ -86,7 +86,7 @@ public async show(request: Request, response: Response) {
 ```typescript
 // URL: /search?q=hello&page=2
 
-public async search(request: Request, response: Response) {
+async search(request: Request, response: Response) {
   const { q, page } = request.query;
   
   const results = await DB.selectFrom("posts")
@@ -117,23 +117,23 @@ node laju make:controller PostController
 import { Request, Response } from "../../type";
 import DB from "../services/DB";
 
-class PostController {
+export const PostController = {
   // List all posts
-  public async index(request: Request, response: Response) {
+  async index(request: Request, response: Response) {
     const posts = await DB.selectFrom("posts")
       .selectAll()
       .orderBy("created_at", "desc")
       .execute();
     return response.inertia("posts/index", { posts });
-  }
+  },
 
   // Show create form
-  public async create(request: Request, response: Response) {
+  async create(request: Request, response: Response) {
     return response.inertia("posts/create");
-  }
+  },
 
   // Store new post
-  public async store(request: Request, response: Response) {
+  async store(request: Request, response: Response) {
     const { title, content } = await request.json();
     
     await DB.insertInto("posts").values({
@@ -145,10 +145,10 @@ class PostController {
     }).execute();
     
     return response.redirect("/posts");
-  }
+  },
 
   // Show single post
-  public async show(request: Request, response: Response) {
+  async show(request: Request, response: Response) {
     const { id } = request.params;
     const post = await DB.selectFrom("posts")
       .selectAll()
@@ -160,10 +160,10 @@ class PostController {
     }
     
     return response.inertia("posts/show", { post });
-  }
+  },
 
   // Show edit form
-  public async edit(request: Request, response: Response) {
+  async edit(request: Request, response: Response) {
     const { id } = request.params;
     const post = await DB.selectFrom("posts")
       .selectAll()
@@ -175,10 +175,10 @@ class PostController {
     }
     
     return response.inertia("posts/edit", { post });
-  }
+  },
 
   // Update post
-  public async update(request: Request, response: Response) {
+  async update(request: Request, response: Response) {
     const { id } = request.params;
     const { title, content } = await request.json();
     
@@ -192,17 +192,17 @@ class PostController {
       .execute();
     
     return response.redirect("/posts");
-  }
+  },
 
   // Delete post
-  public async destroy(request: Request, response: Response) {
+  async destroy(request: Request, response: Response) {
     const { id } = request.params;
     await DB.deleteFrom("posts").where("id", "=", id).execute();
     return response.json({ success: true });
   }
-}
+};
 
-export default new PostController();
+export default PostController;
 ```
 
 ### RESTful Routes
@@ -220,77 +220,53 @@ Route.put("/posts/:id", PostController.update);      // Update
 Route.delete("/posts/:id", PostController.destroy);  // Delete
 ```
 
-### ⚠️ Controller Organization & Method Calls
+### ⚠️ Controller Pattern: Plain Objects
 
-**CRITICAL:** Laju exports controller **instances**, not classes. This affects how you organize controller code.
+**IMPORTANT:** Laju controllers are **plain objects**, not classes. This makes them simpler and more predictable.
 
-#### ❌ DON'T: Use `this` for internal methods
+#### ✅ Controller Pattern
 
 ```typescript
-// ❌ WRONG - this.method() doesn't work
-class UserController {
-  public async store(request: Request, response: Response) {
+// ✅ CORRECT - Plain object pattern
+export const UserController = {
+  async store(request: Request, response: Response) {
     const body = await request.json();
 
-    // This will fail because 'this' doesn't work with exported instances
-    const validated = this.validateUser(body);
+    // Validate using utility function
+    const validated = validateUser(body);
 
     await DB.insertInto("users").values(validated).execute();
     return response.json({ success: true });
-  }
+  },
 
-  private validateUser(data: any) {
-    // Validation logic
-    return data;
+  async index(request: Request, response: Response) {
+    const users = await DB.selectFrom("users").selectAll().execute();
+    return response.json({ users });
   }
-}
+};
 
-export default new UserController();
+export default UserController;
 ```
 
-#### ✅ DO: Use Static Methods
-
-```typescript
-// ✅ CORRECT - Use static methods
-class UserController {
-  public async store(request: Request, response: Response) {
-    const body = await request.json();
-
-    // Call static method
-    const validated = UserController.validateUser(body);
-
-    await DB.insertInto("users").values(validated).execute();
-    return response.json({ success: true });
-  }
-
-  private static validateUser(data: any) {
-    // Validation logic
-    return data;
-  }
-}
-
-export default new UserController();
-```
-
-#### ✅ DO: Use Separate Utility Functions
+#### ✅ Use Separate Utility Functions
 
 ```typescript
 // ✅ ALSO CORRECT - Extract to utility function
 import { validateUser } from "../utils/validation";
 
-class UserController {
-  public async store(request: Request, response: Response) {
+export const UserController = {
+  async store(request: Request, response: Response) {
     const body = await request.json();
 
     // Call utility function
     const validated = validateUser(body);
 
-    await DB.insertInto("users").values(validated).execute();
+    await DB.insertFrom("users").values(validated).execute();
     return response.json({ success: true });
   }
-}
+};
 
-export default new UserController();
+export default UserController;
 
 // In utils/validation.ts
 export function validateUser(data: any) {
@@ -299,43 +275,31 @@ export function validateUser(data: any) {
 }
 ```
 
-#### Why This Happens
-
-Laju controllers are exported as **instances**, not classes:
+#### How It Works
 
 ```typescript
 // routes/web.ts
 import UserController from "../app/controllers/UserController";
 
-// UserController is already an instance (new UserController())
+// UserController is a plain object with methods
 Route.post("/users", UserController.store);
-```
-
-When methods are called, the context (`this`) is lost because methods are referenced by reference:
-
-```typescript
-// The method is extracted as a function reference
-Route.post("/users", UserController.store);
-// Same as: const handler = UserController.store;
-// When called: handler(request, response) → 'this' is undefined
 ```
 
 #### Best Practices for Controller Organization
 
 1. **Keep controllers thin** - Move business logic to services
-2. **Use static methods** for helper functions within controllers
-3. **Extract utilities** - Put reusable functions in separate files
-4. **Use services** - Business logic goes in `app/services/`
+2. **Extract utilities** - Put reusable functions in separate files
+3. **Use services** - Business logic goes in `app/services/`
 
 ```typescript
 // Good controller structure
-class UserController {
+export const UserController = {
   // Main handler - thin, delegates to services
-  public async store(request: Request, response: Response) {
+  async store(request: Request, response: Response) {
     const body = await request.json();
 
-    // Validate (static method or utility)
-    const validated = UserController.validateInput(body);
+    // Validate (utility function)
+    const validated = validateInput(body);
     if (!validated) {
       return response.status(400).json({ error: "Invalid input" });
     }
@@ -345,28 +309,28 @@ class UserController {
 
     return response.json({ user });
   }
+};
 
-  // Static validation method
-  private static validateInput(data: any) {
-    return data.email && data.password && data.name;
-  }
+export default UserController;
+
+// Utility function (in same file or utils/)
+function validateInput(data: any) {
+  return data.email && data.password && data.name;
 }
-
-export default new UserController();
 ```
 
 #### Common Pattern: Service Layer
 
 ```typescript
 // app/services/UserService.ts
-class UserService {
+export const UserService = {
   async create(data: any) {
     // Business logic
     const hashedPassword = await Authenticate.hash(data.password);
     const user = { ...data, password: hashedPassword };
 
     return await DB.insertInto("users").values(user).execute();
-  }
+  },
 
   async findByEmail(email: string) {
     return await DB.selectFrom("users")
@@ -374,22 +338,22 @@ class UserService {
       .where("email", "=", email)
       .executeTakeFirst();
   }
-}
+};
 
-export default new UserService();
+export default UserService;
 
 // In controller
 import UserService from "../services/UserService";
 
-class UserController {
-  public async store(request: Request, response: Response) {
+export const UserController = {
+  async store(request: Request, response: Response) {
     const body = await request.json();
     const user = await UserService.create(body);
     return response.json({ user });
   }
-}
+};
 
-export default new UserController();
+export default UserController;
 ```
 
 ---
@@ -575,7 +539,7 @@ let { flash } = $props();
 import Validator from "../services/Validator";
 import { registerSchema } from "../validators/AuthValidator";
 
-public async processRegister(request: Request, response: Response) {
+async processRegister(request: Request, response: Response) {
   try {
     const body = await request.json();
     
@@ -627,7 +591,7 @@ public async processRegister(request: Request, response: Response) {
 Here's a complete example showing all aspects of error handling:
 
 ```typescript
-public async processRequest(request: Request, response: Response) {
+async processRequest(request: Request, response: Response) {
   try {
     const body = await request.json();
     
@@ -686,7 +650,7 @@ if (!validated) return; // Validation failed, response already sent
 ### Pattern 1: List with Pagination
 
 ```typescript
-public async index(request: Request, response: Response) {
+async index(request: Request, response: Response) {
   const page = parseInt(request.query.page || "1");
   const perPage = 10;
   const offset = (page - 1) * perPage;
@@ -717,7 +681,7 @@ public async index(request: Request, response: Response) {
 ### Pattern 2: Search & Filter
 
 ```typescript
-public async index(request: Request, response: Response) {
+async index(request: Request, response: Response) {
   const { search, status, sort } = request.query;
   
   let query = DB.selectFrom("posts").selectAll();
@@ -745,7 +709,7 @@ public async index(request: Request, response: Response) {
 ### Pattern 3: Form Validation
 
 ```typescript
-public async store(request: Request, response: Response) {
+async store(request: Request, response: Response) {
   const { title, content } = await request.json();
   
   // Validate
@@ -781,7 +745,7 @@ public async store(request: Request, response: Response) {
 ### Pattern 4: API Response
 
 ```typescript
-public async index(request: Request, response: Response) {
+async index(request: Request, response: Response) {
   try {
     const posts = await DB.selectFrom("posts").selectAll().execute();
     
@@ -831,7 +795,7 @@ import { uuidv7 } from "uuidv7";
 import sharp from "sharp";
 import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
 
-public async uploadImage(request: Request, response: Response) {
+async uploadImage(request: Request, response: Response) {
    if (!request.user) {
       return response.status(401).json({ error: 'Unauthorized' });
    }
@@ -900,7 +864,7 @@ public async uploadImage(request: Request, response: Response) {
 #### File Upload (Non-Image)
 
 ```typescript
-public async uploadFile(request: Request, response: Response) {
+async uploadFile(request: Request, response: Response) {
    if (!request.user) {
       return response.status(401).json({ error: 'Unauthorized' });
    }
@@ -1018,7 +982,7 @@ public async store(request: Request, response: Response) {
 **2. Use try-catch for error handling**
 ```typescript
 // ✅ Good
-public async store(request: Request, response: Response) {
+async store(request: Request, response: Response) {
   try {
     const data = await request.json();
     await DB.insertInto("posts").values(data).execute();
@@ -1133,7 +1097,7 @@ Route.get("/posts", PostController.index);
 Route.post("/posts", PostController.store);
 
 // Controller method
-public async index(request: Request, response: Response) {
+async index(request: Request, response: Response) {
   const posts = await DB.selectFrom("posts").selectAll().execute();
   return response.inertia("posts/index", { posts });
 }

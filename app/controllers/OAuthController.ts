@@ -6,14 +6,14 @@ import { randomUUID } from "crypto";
 import dayjs from "dayjs";
 import axios from "axios";
 
-class OAuthController {
-  public async redirect(request: Request, response: Response) {
+export const OAuthController = {
+  async redirect(request: Request, response: Response) {
     const params = redirectParamsURL();
     const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
     return response.redirect(googleLoginUrl);
-  }
+  },
 
-  public async googleCallback(request: Request, response: Response) {
+  async googleCallback(request: Request, response: Response) {
     const { code } = request.query;
 
     const { data } = await axios({
@@ -65,7 +65,7 @@ class OAuthController {
 
       return Authenticate.process(user, request, response);
     }
-  }
-}
+  },
+};
 
-export default new OAuthController();
+export default OAuthController;

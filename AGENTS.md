@@ -76,6 +76,19 @@ Help users build applications using Laju framework by understanding their needs 
 - Need database operations? → Use `DB.selectFrom("table")` directly, don't create service
 - Need create/edit form? → Use single `form.svelte` page for both (pass `post` prop for edit)
 
+**Controller Pattern:**
+```typescript
+// ✅ Correct - Plain object pattern
+export const PostController = {
+  async index(request: Request, response: Response) {
+    const posts = await DB.selectFrom("posts").selectAll().execute();
+    return response.inertia("posts/index", { posts });
+  }
+};
+
+export default PostController;
+```
+
 ## Project Structure
 
 ```
@@ -127,7 +140,7 @@ laju/
 
 ### Use Standard Patterns
 - Controllers → Services → Database
-- NO `this` in controllers
+- Controllers are **plain objects**, not classes
 - NO `next()` in middlewares
 - Use Kysely for database operations
 - Use Inertia for interactive pages
@@ -177,9 +190,14 @@ Laju framework uses a multi-agent workflow for different responsibilities:
 | Agent | Responsibility | When to Use |
 |-------|---------------|-------------|
 | **INIT_AGENT** | Project initialization | Starting a new project |
-| **TASK_AGENT** | Feature implementation | Building pages, controllers, routes |
+| **TASK_AGENT** | Feature implementation (concurrent) | Building pages, controllers, routes per-fitur |
+| **ONE_SHOT_AGENT** | Feature implementation (sequential) | Building all features in 1 session |
 | **TEST_AGENT** | Testing & coverage | After feature implementation |
 | **MANAGER_AGENT** | Documentation & coordination | Change requests, deployment approval |
+
+**Choose TASK_AGENT vs ONE_SHOT_AGENT:**
+- **TASK_AGENT** - For larger projects (20+ features), need review per feature, can work concurrent in multiple tabs
+- **ONE_SHOT_AGENT** - For smaller projects (< 20 features), auto-execute all features in 1 session without stopping
 
 ### Agent Workflow
 
@@ -190,7 +208,7 @@ INIT_AGENT → Setup project structure
     ↓
 MANAGER_AGENT → Create PRD, TDD
     ↓
-TASK_AGENT ← → TEST_AGENT
+TASK_AGENT / ONE_SHOT_AGENT ← → TEST_AGENT
     ↓
 MANAGER_AGENT → Approve deployment
 ```
@@ -201,9 +219,10 @@ MANAGER_AGENT → Approve deployment
    - After project setup complete
    - Handoff: PRD.md, TDD.md, PROGRESS.md ready
 
-2. **MANAGER_AGENT → TASK_AGENT**
+2. **MANAGER_AGENT → TASK_AGENT / ONE_SHOT_AGENT**
    - After requirements documented
    - Handoff: PROGRESS.md with features to implement
+   - User chooses: TASK_AGENT (per-fitur) or ONE_SHOT_AGENT (all at once)
 
 3. **TASK_AGENT → TEST_AGENT**
    - After feature implementation complete
@@ -216,7 +235,8 @@ MANAGER_AGENT → Approve deployment
 ### Workflow Files Reference
 
 - `workflow/INIT_AGENT.md` - Project initialization workflow
-- `workflow/TASK_AGENT.md` - Feature implementation workflow
+- `workflow/TASK_AGENT.md` - Feature implementation workflow (concurrent)
+- `workflow/ONE_SHOT_AGENT.md` - Feature implementation workflow (sequential)
 - `workflow/TEST_AGENT.md` - Testing workflow
 - `workflow/MANAGER_AGENT.md` - Change management & deployment
 

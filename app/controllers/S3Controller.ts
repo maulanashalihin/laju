@@ -1,14 +1,14 @@
 import { getPublicUrl, getSignedUploadUrl } from "app/services/S3";
 import Validator from "../services/Validator";
 import { signedUrlSchema } from "../validators/S3Validator";
-import { Request, Response } from "../../type"; 
+import { Request, Response } from "../../type";
 
-class S3Controller {
+export const S3Controller = {
   /**
    * Generate signed URL for file upload
    * POST /api/s3/signed-url
    */
-  public async getSignedUrl(request: Request, response: Response) {
+  async getSignedUrl(request: Request, response: Response) {
     try {
       const body = await request.json();
       
@@ -23,10 +23,6 @@ class S3Controller {
       }
       
       const { filename, contentType } = validationResult.data!;
- 
-     
-
-  
 
       // Generate unique file key
       const fileKey = "assets/" + filename;
@@ -53,19 +49,13 @@ class S3Controller {
         error: error instanceof Error ? error.message : "Unknown error",
       });
     }
-  }
-
-  /**
-   * Generate signed URL specifically for product images
-   * POST /api/s3/product-image-url
-   */
-  
+  },
 
   /**
    * Get public URL for existing file
    * GET /api/s3/public-url/:fileKey
    */
-  public async getPublicUrl(request: Request, response: Response) {
+  async getPublicUrl(request: Request, response: Response) {
     try {
       const { fileKey } = request.params;
 
@@ -94,13 +84,13 @@ class S3Controller {
         error: error instanceof Error ? error.message : "Unknown error",
       });
     }
-  }
+  },
 
   /**
    * Health check for S3 service
    * GET /api/s3/health
    */
-  public async health(request: Request, response: Response) {
+  async health(request: Request, response: Response) {
     try {
       return response.json({
         success: true,
@@ -119,7 +109,7 @@ class S3Controller {
         error: error instanceof Error ? error.message : "Unknown error",
       });
     }
-  }
-}
+  },
+};
 
-export default new S3Controller();
+export default S3Controller;

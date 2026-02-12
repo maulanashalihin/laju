@@ -8,12 +8,12 @@ import { randomUUID } from "crypto";
 import dayjs from "dayjs";
 import axios from "axios";
 
-class PasswordController {
-  public async forgotPasswordPage(request: Request, response: Response) {
+export const PasswordController = {
+  async forgotPasswordPage(request: Request, response: Response) {
     return response.inertia("auth/forgot-password");
-  }
+  },
 
-  public async resetPasswordPage(request: Request, response: Response) {
+  async resetPasswordPage(request: Request, response: Response) {
     const id = request.params.id;
 
     const token = await DB.selectFrom("password_reset_tokens")
@@ -27,9 +27,9 @@ class PasswordController {
     }
 
     return response.inertia("auth/reset-password", { id: request.params.id });
-  }
+  },
 
-  public async resetPassword(request: Request, response: Response) {
+  async resetPassword(request: Request, response: Response) {
     const body = await request.json();
 
     const validationResult = Validator.validate(resetPasswordSchema, body);
@@ -71,9 +71,9 @@ class PasswordController {
     await DB.deleteFrom("password_reset_tokens").where("token", "=", id).execute();
 
     return Authenticate.process(user, request, response);
-  }
+  },
 
-  public async sendResetPassword(request: Request, response: Response) {
+  async sendResetPassword(request: Request, response: Response) {
     const body = await request.json();
 
     const validationResult = Validator.validate(forgotPasswordSchema, body);
@@ -138,9 +138,9 @@ This link will expire in 24 hours.
     } catch (error) {}
 
     return response.flash("success", "Password reset link has been sent").redirect("/forgot-password", 303);
-  }
+  },
 
-  public async changePassword(request: Request, response: Response) {
+  async changePassword(request: Request, response: Response) {
     if (!request.user) {
       return response.status(401).json({ error: "Unauthorized" });
     }
@@ -180,7 +180,7 @@ This link will expire in 24 hours.
     } else {
       return response.status(400).json({ message: "Password lama tidak cocok" });
     }
-  }
-}
+  },
+};
 
-export default new PasswordController();
+export default PasswordController;

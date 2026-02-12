@@ -16,7 +16,7 @@ interface MultipartField {
   };
 }
 
-class UploadController {
+export const UploadController = {
   /**
    * Upload Image with Processing
    * - Validates image type
@@ -24,7 +24,7 @@ class UploadController {
    * - Uploads to storage
    * - Saves metadata to database
    */
-  public async uploadImage(request: Request, response: Response) {
+  async uploadImage(request: Request, response: Response) {
     try {
       if (!request.user) {
         return response.status(401).json({ error: "Unauthorized" });
@@ -98,7 +98,7 @@ class UploadController {
         error: "Internal server error",
       });
     }
-  }
+  },
 
   /**
    * Upload File (Non-Image)
@@ -106,7 +106,7 @@ class UploadController {
    * - Uploads directly without processing
    * - Saves metadata to database
    */
-  public async uploadFile(request: Request, response: Response) {
+  async uploadFile(request: Request, response: Response) {
     try {
       if (!request.user) {
         return response.status(401).json({ error: "Unauthorized" });
@@ -165,7 +165,7 @@ class UploadController {
         error: "Internal server error",
       });
     }
-  }
-}
+  },
+};
 
-export default new UploadController();
+export default UploadController;

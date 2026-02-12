@@ -101,8 +101,8 @@ Edit `app/controllers/PostController.ts`:
 import { Request, Response } from "../../type";
 import DB from "../services/DB";
 
-class PostController {
-  public async index(request: Request, response: Response) {
+export const PostController = {
+  async index(request: Request, response: Response) {
     const posts = await DB.selectFrom("posts")
       .selectAll()
       .orderBy("created_at", "desc")
@@ -111,9 +111,9 @@ class PostController {
     
     return response.inertia("posts/index", { posts });
   }
-}
+};
 
-export default new PostController();
+export default PostController;
 ```
 
 ### Step 3: Create Database Migration

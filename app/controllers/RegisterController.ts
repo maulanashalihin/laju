@@ -10,21 +10,21 @@ import { registerSchema } from "../validators/AuthValidator";
 import { Response, Request } from "../../type";
 import { randomUUID } from "crypto";
 
-class RegisterController {
+export const RegisterController = {
   /**
    * Display registration page
    */
-  public async registerPage(request: Request, response: Response) {
+  async registerPage(request: Request, response: Response) {
     if (request.cookies.auth_id) {
       return response.redirect("/home");
     }
     return response.inertia("auth/register");
-  }
+  },
 
   /**
    * Process registration form submission
    */
-  public async processRegister(request: Request, response: Response) {
+  async processRegister(request: Request, response: Response) {
     try {
       const body = await request.json();
 
@@ -70,7 +70,7 @@ class RegisterController {
         .flash("error", "An error occurred during registration. Please try again later.")
         .redirect("/register");
     }
-  }
-}
+  },
+};
 
-export default new RegisterController();
+export default RegisterController;

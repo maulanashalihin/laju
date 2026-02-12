@@ -352,9 +352,26 @@ npm run dev
 **Proses INIT AGENT selesai!**
 
 Setelah dev server berjalan dengan baik:
-1. Tutup session ini
-2. Buka session baru dan mulai dengan: **"Hai @[workflow/TASK_AGENT.md] yuk kita kerja"**
-3. Lanjutkan implementasi fitur sesuai `workflow/PROGRESS.md`
+
+**Pilih cara implementasi fitur:**
+
+**Option A: TASK_AGENT (Concurrent - Per Fitur)**
+- Untuk project besar (20+ fitur)
+- Kerja per fitur, bisa multi-tab
+- Review per fitur
+```
+"Hai @workflow/TASK_AGENT.md yuk kita kerja"
+```
+
+**Option B: ONE_SHOT_AGENT (Sequential - Semua Fitur Sekaligus)**
+- Untuk project kecil-menengah (< 20 fitur)
+- 1 sesi, semua fitur dikerjakan
+- Auto-commit per fitur
+```
+"Hai @workflow/ONE_SHOT_AGENT.md, tolong kerjakan semua fitur"
+```
+
+Lanjutkan implementasi fitur sesuai `workflow/PROGRESS.md`
 
 **Workflow setelah initialization:**
 ```
@@ -527,7 +544,7 @@ import Validator from '../services/Validator'
 import { storePostSchema } from '../validators/PostValidator'
 import { uuidv7 } from 'uuidv7'
 
-export class PostController  {
+export const PostController = {
   async index(request: Request, response: Response) {
     const posts = await DB.selectFrom('posts')
       .innerJoin('users', 'posts.user_id', 'users.id')
@@ -536,7 +553,7 @@ export class PostController  {
       .execute()
     
     return response.inertia('posts/index', { posts })
-  }
+  },
 
   async store(request: Request, response: Response) {
     const body = await request.json()
@@ -559,7 +576,7 @@ export class PostController  {
     }).execute()
     
     return response.flash('success', 'Post berhasil dibuat').redirect('/posts', 302)
-  }
+  },
 
   async update(request: Request, response: Response) {
     const body = await request.json()
@@ -580,7 +597,7 @@ export class PostController  {
       .execute()
     
     return response.flash('success', 'Post berhasil diupdate').redirect('/posts', 303)
-  }
+  },
 
   async destroy(request: Request, response: Response) {
     const id = request.params.id
