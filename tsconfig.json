@@ -55,5 +55,6 @@
     }
   }, 
   /* Files to include in compilation */
-  "include": ["./*.ts","./type/index.d.ts","commands","migrations","seeds"], 
+  "include": ["./*.ts","./type/index.d.ts","commands","migrations","seeds"],
+  "exclude": ["node_modules", "build", "dist", "test-results"] 
 }
