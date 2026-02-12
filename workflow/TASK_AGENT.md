@@ -4,10 +4,11 @@ Execute single feature per session based on `PROGRESS.md`.
 
 ## Quick Start
 
-1. **Read** `PROGRESS.md` → Show top 3 available tasks
-2. **User picks** task → Lock it with `[LOCKED: {AGENT_ID}]`
-3. **Check** existing files before creating new
-4. **Implement** → Test → Commit → Mark complete
+1. **Read** `IMPLEMENTATION_BRIEF.md` → Check project status & tech stack
+2. **Read** `PROGRESS.md` → Show top 3 available tasks
+3. **User picks** task → Lock it with `[LOCKED: {AGENT_ID}]`
+4. **Check** existing files before creating new
+5. **Implement** → Test → Commit → Mark complete
 
 ## Golden Rules
 
@@ -19,6 +20,11 @@ Execute single feature per session based on `PROGRESS.md`.
 6. ❌ **Never update PRD/TDD** - Manager Agent only
 
 ## Execution Checklist
+
+### Pre-Flight
+- [ ] Read `IMPLEMENTATION_BRIEF.md` - Check Status
+  - If 🔴 **NOT READY**: Stop and ask user to complete setup
+  - If 🟢 **READY**: Continue with implementation
 
 ### Pre-Implementation
 - [ ] Check feature dependencies (complete first?)
@@ -41,6 +47,7 @@ Execute single feature per session based on `PROGRESS.md`.
 
 | Topic | File |
 |-------|------|
+| Project Brief | `workflow/IMPLEMENTATION_BRIEF.md` |
 | Patterns | `skills/feature-implementation-patterns.md` |
 | Controller | `skills/create-controller.md` |
 | Request/Response | `skills/hyper-express.md` |

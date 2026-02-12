@@ -4,10 +4,11 @@ Execute ALL features from `PROGRESS.md` in one session.
 
 ## Quick Start
 
-1. **Read** `PROGRESS.md` → Count total features
-2. **Display** summary → Wait 5s (or STOP)
-3. **Execute** sequentially: Feature 1 → Commit → Feature 2 → ...
-4. **Stop** only on critical errors or when done
+1. **Read** `IMPLEMENTATION_BRIEF.md` → Check project status & tech stack
+2. **Read** `PROGRESS.md` → Count total features
+3. **Display** summary → Wait 5s (or STOP)
+4. **Execute** sequentially: Feature 1 → Commit → Feature 2 → ...
+5. **Stop** only on critical errors or when done
 
 ## Golden Rules
 
@@ -33,6 +34,9 @@ FOR each feature in PROGRESS.md:
 
 ## Pre-Flight Check
 
+- [ ] Read `IMPLEMENTATION_BRIEF.md` - Check Status
+  - If 🔴 **NOT READY**: Stop and ask user to complete setup
+  - If 🟢 **READY**: Continue
 - [ ] If >20 features: Warn user, suggest TASK_AGENT instead
 - [ ] Identify dependencies, reorder if needed
 - [ ] Ensure git repo exists
@@ -55,6 +59,7 @@ FOR each feature in PROGRESS.md:
 
 | Topic | File |
 |-------|------|
+| Project Brief | `workflow/IMPLEMENTATION_BRIEF.md` |
 | Patterns | `skills/feature-implementation-patterns.md` |
 | Controller | `skills/create-controller.md` |
 | Request/Response | `skills/hyper-express.md` |
