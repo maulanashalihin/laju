@@ -1,106 +1,75 @@
 # Project Initialization Workflow
 
-Panduan lengkap untuk memulai project baru dengan Laju Framework.
+Setup project baru dengan Laju Framework.
 
-## Scope Enforcement
+## Scope
 
-**INIT_AGENT CAN:**
+**CAN:**
 - ✅ Create project infrastructure
 - ✅ Setup GitHub Actions workflow
-- ✅ Setup testing infrastructure
-- ✅ Create documentation (README, PRD, TDD, PROGRESS, ui-kit)
-- ✅ Setup design system
-- ✅ Create layout components
+- ✅ Create documentation (README, PRD, TDD, PROGRESS, ui-kit, IMPLEMENTATION_BRIEF)
+- ✅ Setup design system & layouts
 - ✅ Customize auth pages
 - ✅ Git init and first commit
-- ✅ **MUST STOP and wait for user approval after Step 7 (Review Documentation)**
+- ✅ **STOP after Step 7 - Wait user approval**
 
-**INIT_AGENT CANNOT:**
+**CANNOT:**
 - ❌ Implement features or write code
-- ❌ Create controllers, pages, routes
-- ❌ Manage changes or update PRD/TDD after initialization
-- ❌ Deploy to production
-- ❌ Create release notes
-
-**If asked to do something outside scope:**
-```
-❌ REJECTED: "Tolong implementasi fitur ini"
-
-RESPONSE: "Saya tidak bisa implementasi fitur atau menulis code. 
-Itu adalah tanggung jawab TASK_AGENT. 
-Silakan mention @workflow/TASK_AGENT.md untuk implementasi fitur."
-```
-
-**Note:** INIT_AGENT hanya untuk setup project awal. Setelah initialization selesai, gunakan TASK_AGENT untuk implementasi fitur.
+- ❌ Manage changes after initialization
 
 ## Tech Stack
 
-- **Svelte**: v5.41.3 (with runes `$state`, `$props`)
+- **Svelte**: v5.41.3 (runes: `$state`, `$props`)
 - **Tailwind CSS**: v3.4.17
 - **Inertia.js**: v2.2.10
-- **Vite**: v5.4.10
-- **TypeScript**: v5.6.3 (backend only)
-- **HyperExpress**: v6.17.3 (backend server)
-- **Kysely**: v0.28.10 (type-safe SQL query builder)
-- **kysely-generic-sqlite**: v1.2.1 (Kysely SQLite dialect)
-- **better-sqlite3**: v12.4.1 (SQLite database driver)
+- **TypeScript**: v5.6.3 (backend)
+- **HyperExpress**: v6.17.3
+- **Kysely**: v0.28.10
 - **Zod**: v4.3.5 (validation)
-- **Lucide Icons**: Default icon library for laju.dev
+- **Lucide Icons**: Default icon library
 
 ## Initialization Steps
 
-Ikuti urutan ini saat memulai project baru:
-
 ### 1. Initialize Project
 
-Buat project Laju baru.
+Create new Laju project.
 
-### 2. Create/Replace README.md
+### 2. Create README.md
 
-Tanyakan user untuk:
-- Nama project
-- Deskripsi project
-- Fitur utama
+Ask user for:
+- Project name
+- Description
+- Main features
 
-Buat `README.md` dengan konten:
-- Nama dan deskripsi project
-- Quick start guide (installation, usage)
-- Tech stack
-- List fitur
+Include: Overview, quick start, tech stack, feature list.
 
 ### 3. Create workflow/PRD.md
 
-Dokumen Product Requirements yang berisi:
-- Objectives dan goals
-- List fitur
+Product Requirements:
+- Objectives and goals
+- Feature list
 - Success criteria
-- **Design specifications** (branding colors, typography, design system, visual identity)
+- **Design specs** (colors, typography, branding)
 
 ### 4. Create workflow/TDD.md
 
-Dokumen Technical Design yang berisi:
-- Technical architecture dan system design
-- Database schema dan relationships
-- API endpoints dan routes
-- Data models dan flow
+Technical Design:
+- Architecture & system design
+- Database schema
+- API endpoints
 - Security considerations
-- Technical specifications dari PRD.md
 
 ### 5. Create workflow/ui-kit.html
 
-Dokumen UI Design System yang berisi:
-- Color palette dan theme tokens
-- Typography styles (headings, body text)
-- Button styles dan variants
-- Form input styles
-- Card dan container styles
-- Status badges dan feedback components
-- Layout patterns dan spacing
-- Icon usage guidelines
+UI Design System:
+- Color palette & tokens
+- Typography styles
+- Button & form styles
+- Card & layout patterns
 
 ### 6. Create workflow/PROGRESS.md
 
-Template tracking development:
+Development tracking template:
 
 ```markdown
 # Development Progress
@@ -119,26 +88,13 @@ Template tracking development:
 ## Pending
 - [ ] Feature 2
 
----
-
 ## Features
-
-### Posts
-- [ ] Pages: index.svelte, form.svelte
-- [ ] Controller: PostController (index, create, store, edit, update, destroy)
-- [ ] Routes: GET /posts, GET /posts/create, POST /posts, GET /posts/:id/edit, PUT /posts/:id, DELETE /posts/:id
-
-### Users
-- [ ] Pages: index.svelte, form.svelte
-- [ ] Controller: UserController (index, create, store, edit, update, destroy)
-- [ ] Routes: GET /users, GET /users/create, POST /users, GET /users/:id/edit, PUT /users/:id, DELETE /users/:id
 
 ### [Feature Name]
 - [ ] Pages: index.svelte, form.svelte
-- [ ] Controller: [Feature]Controller (index, create, store, edit, update, destroy)
-- [ ] Routes: GET /[feature], GET /[feature]/create, POST /[feature], GET /[feature]/:id/edit, PUT /[feature]/:id, DELETE /[feature]/:id
-
----
+- [ ] Controller: [Feature]Controller
+- [ ] Routes: GET/POST/PUT/DELETE /[feature]
+- [ ] Validator: [Feature]Validator
 
 ## Migrations
 ### Completed
@@ -148,64 +104,75 @@ Template tracking development:
 - [ ] migration_name
 ```
 
+### 7. Create workflow/IMPLEMENTATION_BRIEF.md
 
-### 7. Review Documentation ⛔ MANDATORY
+Execution summary for agents:
 
-**🚨 CRITICAL: DO NOT SKIP THIS STEP 🚨**
+```markdown
+# IMPLEMENTATION_BRIEF.md
 
-Step ini **WAJIB** dan **TIDAK BOLEH DILEWATI**. INIT_AGENT harus **BERHENTI** di sini dan menunggu user review.
+## Project: [project_name]
+## Generated: [timestamp]
 
-**Yang harus direview user:**
-- `README.md` - Project overview, features, tech stack
-- `workflow/PRD.md` - Requirements, design specifications
-- `workflow/TDD.md` - Technical design document (architecture, database, API)
-- `workflow/ui-kit.html` - UI design system dan components
-- `workflow/PROGRESS.md` - Development tracking template
+## Status
+🔴 PENDING - Waiting for features definition
 
-**Format permintaan review ke user:**
+## Priority Queue
+<!-- From PROGRESS.md -->
+None yet.
+
+## Tech Stack Summary
+<!-- From TDD.md -->
+- Frontend: Svelte 5 + Inertia
+- Backend: HyperExpress
+- Database: [type]
+
+## UI Essentials
+<!-- From ui-kit.html -->
+- Primary: [color]
+- Icons: Lucide
+- Pattern: Single form for CRUD
+
+## Quick Reminders
+- Check existing controllers first
+- Use DashboardLayout for admin
+- Commit after user confirms
+```
+
+### 8. Review Documentation ⛔ MANDATORY STOP
+
+**Files to review:**
+1. `README.md` - Project overview
+2. `workflow/PRD.md` - Requirements & design
+3. `workflow/TDD.md` - Technical design
+4. `workflow/ui-kit.html` - UI system
+5. `workflow/PROGRESS.md` - Feature tracking
+6. `workflow/IMPLEMENTATION_BRIEF.md` - Execution summary
+
+**Ask user:**
 ```
 ## 📋 Review Required
 
-Saya sudah membuat dokumentasi awal project. Mohon review dan konfirmasi sebelum lanjut:
+Please review these files:
+- README.md
+- workflow/PRD.md
+- workflow/TDD.md
+- workflow/ui-kit.html
+- workflow/PROGRESS.md
+- workflow/IMPLEMENTATION_BRIEF.md
 
-### 📁 Files yang perlu direview:
-1. **README.md** - Project overview dan fitur
-2. **workflow/PRD.md** - Product requirements dan design specs  
-3. **workflow/TDD.md** - Technical design dan database schema
-4. **workflow/ui-kit.html** - UI design system (buka di browser)
-5. **workflow/PROGRESS.md** - Development tracking
+Reply "Lanjutkan" or tell me what to change.
 
-### ✅ Apa yang perlu dicek:
-- [ ] Nama project dan deskripsi sudah benar?
-- [ ] Fitur-fitur sudah lengkap?
-- [ ] Design specifications (warna, typography) sesuai branding?
-- [ ] Database schema sudah sesuai kebutuhan?
-- [ ] Ada yang perlu diubah/ditambah?
-
-**Silakan reply:**
-- "Lanjutkan" / "Oke" / "👍" - jika sudah OK
-- Atau beritahu apa yang perlu diubah
-
-⛔ **Saya akan menunggu konfirmasi Anda sebelum melanjutkan ke step berikutnya.**
+⛔ I will wait for your confirmation before continuing.
 ```
 
 **⛔ STOP - DO NOT PROCEED UNTIL USER CONFIRMS ⛔**
 
+### 9. Create Migrations
 
-### 8. Create Migrations
+Based on `workflow/TDD.md` database schema.
 
-Buat migration files untuk database schema berdasarkan `workflow/TDD.md`.
-
-### 9. Run Migrations
-
-```bash
-npm run migrate
-```
-
-**Migration Naming:**
-Migration files should follow pattern: `YYYYMMDDhhmmss_description.ts`
-
-**Migration Template:**
+**Migration template:**
 ```typescript
 import { Kysely } from "kysely";
 
@@ -223,117 +190,59 @@ export async function down(db: Kysely<any>): Promise<void> {
 }
 ```
 
-### 10. Setup Design System
+### 10. Run Migrations
 
-Konfigurasi theme:
-- Update `tailwind.config.js` dengan branding colors, typography, dan design tokens dari `workflow/PRD.md` dan `workflow/ui-kit.html`
-- Import Tailwind directives di `resources/js/index.css`
+```bash
+npm run migrate
+```
 
+### 11. Setup Design System
 
+Update `tailwind.config.js` with branding from `workflow/PRD.md` and `workflow/ui-kit.html`.
 
-### 11. Create Layout Components
+### 12. Create Layout Components
 
-Buat layout components di `resources/js/Components/Layouts/`:
-- Ikuti design system dari `workflow/ui-kit.html`
-- Apply branding colors, typography, dan design tokens dari PRD.md
-- **Gunakan group-based navigation pattern** (seperti di `Header.svelte`)
+Create in `resources/js/Components/Layouts/`:
+- Use design system from `workflow/ui-kit.html`
+- **Use group-based navigation pattern**
 
-**Group-Based Navigation Pattern:**
-
-Layout components seharusnya menggunakan prop `group` untuk menentukan menu/tab yang aktif, bukan berdasarkan URL path. Ini membuat navigation lebih fleksibel dan konsisten.
-
-**Contoh Pattern:**
-
+**Quick Pattern:**
 ```svelte
 <script>
   let { group } = $props();
-  
-  const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home, group: 'dashboard' },
-    { name: 'Events', href: '/events', icon: Calendar, group: 'events' },
-    { name: 'Settings', href: '/settings', icon: Settings, group: 'settings' },
+  const nav = [
+    { name: 'Dashboard', href: '/dashboard', group: 'dashboard' },
   ];
 </script>
 
-<nav class="p-4 space-y-1">
-  {#each navigation as item}
-    <a 
-      href={item.href}
-      class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors {
-        item.group === group 
-          ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/20 dark:text-primary-400' 
-          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-      }"
-    >
-      {#if item.icon}
-        <svelte:component this={item.icon} class="w-5 h-5" />
-      {/if}
-      {item.name}
-      {#if item.group === group}
-        <ChevronRight class="ml-auto w-4 h-4" />
-      {/if}
-    </a>
-  {/each}
-</nav>
+{#each nav as item}
+  <a class={item.group === group ? 'active' : ''} href={item.href}>
+    {item.name}
+  </a>
+{/each}
 ```
 
-**Cara Penggunaan:**
+### 13. Customize Auth Pages
 
-```svelte
-<!-- Di page yang menggunakan layout -->
-<OrganizationLayout group="events">
-  <!-- Events content -->
-</OrganizationLayout>
+Update built-in auth pages to match `workflow/ui-kit.html`:
+- `resources/js/Pages/auth/login.svelte`
+- `resources/js/Pages/auth/register.svelte`
+- `resources/js/Pages/auth/forgot-password.svelte`
+- `resources/js/Pages/auth/reset-password.svelte`
 
-<EventLayout group="checkin">
-  <!-- Check-in content -->
-</EventLayout>
-```
+### 14. Setup GitHub Actions
 
-**Keuntungan:**
-- Navigation state tidak tergantung URL path
-- Lebih fleksibel untuk nested routes
-- Konsisten dengan pattern di `Header.svelte`
-- Mudah mengontrol active state dari parent component
-
-### 12. Customize Built-in Auth Pages
-
-Update built-in auth pages untuk match design system dari `workflow/ui-kit.html`:
-
-- `resources/js/Pages/auth/login.svelte` - Sesuaikan dengan branding colors, typography, dan design tokens
-- `resources/js/Pages/auth/register.svelte` - Gunakan components dari ui-kit.html
-- `resources/js/Pages/auth/forgot-password.svelte` - Apply visual identity dari PRD.md
-- `resources/js/Pages/auth/reset-password.svelte` - Ikuti layout patterns dari ui-kit.html
-
-**Gunakan Layout Components** yang sudah dibuat di step 11 untuk konsistensi.
-
-### 13. Setup GitHub Actions Workflow
-
-Setup automated testing dan deployment workflow:
-
-**Copy GitHub Actions workflow:**
 ```bash
-# Copy workflow sample ke .github/workflows
 cp -r github-workflow-sample/workflows .github/
 ```
 
-**Setup GitHub Secrets:**
-1. Buka repository di GitHub
-2. Settings → Secrets and variables → Actions
-3. Tambahkan secrets:
-   - `SSH_HOST` - IP address server Anda
-   - `SSH_USER` - Username SSH server
-   - `SSH_PRIVATE_KEY` - Private key SSH
-   - `SLACK_WEBHOOK` - (Opsional) Slack webhook URL
+**Setup secrets:**
+- `SSH_HOST` - Server IP
+- `SSH_USER` - SSH username
+- `SSH_PRIVATE_KEY` - SSH private key
+- `SLACK_WEBHOOK` - (Optional)
 
-**Testing infrastructure sudah termasuk:**
-- Vitest (unit tests)
-- Supertest (integration tests)
-- Playwright (E2E tests)
-
-**Note:** GitHub Actions akan otomatis run tests setiap kali Anda push ke GitHub. Deployment hanya akan terjadi jika semua tests pass.
-
-### 14. Git Init and First Commit
+### 15. Git Init and First Commit
 
 ```bash
 git init
@@ -341,415 +250,73 @@ git add .
 git commit -m "Initial commit: Project setup"
 ```
 
-### 15. Start Dev Server
+### 16. Start Dev Server
 
 ```bash
 npm run dev
 ```
 
-### 16. Complete Initialization
+**Initialization complete!**
 
-**Proses INIT AGENT selesai!**
+## Choose Implementation Method
 
-Setelah dev server berjalan dengan baik:
-
-**Pilih cara implementasi fitur:**
-
-**Option A: TASK_AGENT (Concurrent - Per Fitur)**
-- Untuk project besar (20+ fitur)
-- Kerja per fitur, bisa multi-tab
-- Review per fitur
+**Option A: TASK_AGENT** (per feature, multi-tab)
 ```
-"Hai @workflow/TASK_AGENT.md yuk kita kerja"
+"@workflow/TASK_AGENT.md"
 ```
 
-**Option B: ONE_SHOT_AGENT (Sequential - Semua Fitur Sekaligus)**
-- Untuk project kecil-menengah (< 20 fitur)
-- 1 sesi, semua fitur dikerjakan
-- Auto-commit per fitur
+**Option B: ONE_SHOT_AGENT** (all features, 1 session)
 ```
-"Hai @workflow/ONE_SHOT_AGENT.md, tolong kerjakan semua fitur"
+"@workflow/ONE_SHOT_AGENT.md"
 ```
-
-Lanjutkan implementasi fitur sesuai `workflow/PROGRESS.md`
-
-**Workflow setelah initialization:**
-```
-TASK_AGENT (implement fitur)
-    ↓ Test lokal (opsional)
-    ↓ Push ke GitHub
-    ↓ 
-MANAGER_AGENT (release notes)
-    ↓ Update CHANGELOG.md
-```
- 
 
 ## Important Notes
 
-- **Selalu ikuti urutan ini** - Jangan skip steps
-- **⛔ STEP 7 (Review Documentation) WAJIB** - INIT_AGENT harus BERHENTI dan menunggu user review & approve sebelum lanjut ke step 8
-- **Jangan auto-lanjut setelah buat dokumentasi** - Tunggu explicit confirmation dari user
-- **Gunakan built-in functionality** - Cek dulu apakah controller/page/service sudah ada sebelum membuat baru
-- **Test sebelum commit** - Pastikan semua berjalan dengan baik sebelum commit
-- **Default PORT** - laju.dev default PORT adalah 5555 (lihat `.env.example`), user bisa mengganti port di `.env` file jika diperlukan
-- **GitHub Actions Testing** - Tests run otomatis via GitHub Actions CI setiap kali push
-- **Deployment Automation** - Deployment hanya terjadi jika semua tests pass
-- **Auto-rollback** - GitHub Actions akan auto-rollback jika deployment fail
+- **Follow the order** - Don't skip steps
+- **Step 8 is MANDATORY** - Wait for user approval
+- **Maximize existing** - Check built-in first
+- **Default PORT**: 5555
 
-## API Action Guidelines
+## API Guidelines
 
-**Gunakan Inertia Router** untuk:
-- Pindah halaman (navigation)
-- Form submission yang perlu redirect ke halaman lain
-- GET request untuk load data di halaman baru
-- Actions yang mengubah state dan perlu update halaman
+| Use | For |
+|-----|-----|
+| **Inertia Router** | Page navigation, form + redirect, state changes |
+| **Fetch API** | Stay-on-page actions, AJAX, modals, live search |
 
-**Gunakan Fetch API** untuk:
-- Actions yang tidak memerlukan pindah halaman
-- Form submission dengan stay-on-page behavior
-- AJAX requests untuk update data tanpa reload
-- Real-time updates, live search, autocomplete
-- Actions yang hanya perlu response JSON (success/error message)
-- Modal actions, dropdown actions, inline actions
+## Built-in Functionality
 
+**Controllers:** PublicController, LoginController, RegisterController, PasswordController, ProfileController, OAuthController, UploadController, StorageController
 
+**Services:** Authenticate, Validator, DB, CacheService, Mailer, RateLimiter
 
-## Core Principle: Maximize Existing Functionality
+**Middlewares:** auth, inertia, rateLimit, securityHeaders
 
-**ALWAYS check and use existing controllers, pages, and services before creating new ones.** This is the most important rule in Laju framework development.
+**Auth Pages:** login.svelte, register.svelte, forgot-password.svelte, reset-password.svelte
 
-**Why?**
-- Avoids redundant code
-- Maintains consistency
-- Reduces maintenance burden
-- Leverages tested, built-in functionality
+**Rule:** Use/modify existing before creating new.
 
-**Built-in Controllers:**
-- `PublicController` - Home page (SSR)
-- `LoginController` - User authentication (login)
-- `RegisterController` - User registration
-- `PasswordController` - Password reset (forgot/reset/change)
-- `ProfileController` - User profile management
-- `OAuthController` - OAuth authentication (Google, etc.)
-- `VerificationController` - Email verification
-- `UploadController` - File uploads (local/S3)
-- `StorageController` - Storage management
-- `S3Controller` - AWS S3 operations
-- `AssetController` - Asset serving
+## File Upload Pattern
 
-**Built-in Services:**
-- `Authenticate` - Password hashing, login/logout, session management
-- `Validator` - Input validation with Zod schemas
-- `DB` - Database operations (Kysely) - **Use directly for simple CRUD**
-- `CacheService` - Caching layer
-- `Mailer` / `Resend` - Email sending
-- `RateLimiter` - Rate limiting
-- `Logger` - Logging
-- `Translation` - Multi-language support
-- `View` - SSR template rendering
-- `S3` - AWS S3 integration
-- `Redis` - Redis client
-- `LocalStorage` - Local file storage
-- `GoogleAuth` - Google OAuth
+Store **URL** in database, not `asset_id`:
 
-**Repository Pattern (Optional):**
-- For simple CRUD: Use `DB` directly in controller
-- For complex queries (JOINs, aggregations): Create Repository in `app/repositories/`
-- See `skills/repository-pattern.md` for detailed guidelines on when to use Repository
-
-**Built-in Middlewares:**
-- `auth` - Authentication (checks user session)
-- `inertia` - Inertia.js headers
-- `rateLimit` - Rate limiting
-- `securityHeaders` - Security headers
-
-**Built-in Auth Pages:**
-- `resources/js/Pages/auth/login.svelte` - Login page (customize according to design system)
-- `resources/js/Pages/auth/register.svelte` - Registration page (customize according to design system)
-- `resources/js/Pages/auth/forgot-password.svelte` - Forgot password (customize according to design system)
-- `resources/js/Pages/auth/reset-password.svelte` - Reset password (customize according to design system)
-
-**Note:** These pages should be customized in step 10 to match the design system from `workflow/ui-kit.html` and branding specifications from `workflow/PRD.md`.
-
-**Built-in Migrations:**
-- `20230513055909_users.ts` - Users table (id [uuidv7], name, email, phone, avatar, is_verified, membership_date, is_admin, password, remember_me_token, timestamps)
-- `20230514062913_sessions.ts` - Sessions table (id [uuidv7], user_id, user_agent, expires_at)
-- `20240101000001_create_password_reset_tokens.ts` - Password reset tokens (id [uuidv7], email, token, created_at, expires_at)
-- `20240101000002_create_email_verification_tokens.ts` - Email verification tokens (id [uuidv7], user_id, token, created_at, expires_at)
-- `20250110233301_assets.ts` - Assets table (id [uuidv7], name, type, url, mime_type, size, storage_key, user_id, timestamps)
-- `20251023082000_create_backup_files.ts` - Backup files table (id [uuidv7], key, file_name, file_size, compression, storage, checksum, uploaded_at, deleted_at, encryption, enc_iv, enc_tag)
-- `20251210000000_create_cache_table.ts` - Cache table (key, value, expiration)
-
-**Rule:** If functionality exists, **use or modify** existing code instead of creating redundant controllers/services/middlewares/pages.
-
-
-## Common Implementation Patterns
-
-### File Upload Pattern
-
-When a table needs a file field (e.g., `posts.thumbnail`, `users.avatar`), the field should store the **URL directly**, not the `asset_id`.
-
-```typescript
-// UploadController returns:
-{
-  success: true,
-  data: {
-    id: "uuid",
-    type: "image",
-    url: "https://example.com/assets/uuid.webp",  // ← Store this URL
-    mime_type: "image/webp",
-    name: "uuid.webp",
-    size: 12345,
-    user_id: 1,
-    storage_key: "assets/uuid.webp",
-    created_at: 1234567890,
-    updated_at: 1234567890
-  }
-}
-```
-
-**Database Schema Example:**
 ```typescript
 // Migration
-import { Kysely } from 'kysely'
-
-export async function up(db: Kysely<any>) {
-  await db.schema
-    .createTable('posts')
-    .addColumn('id', 'text', (col) => col.primaryKey().notNull())
-    .addColumn('title', 'text')
-    .addColumn('content', 'text')
-    .addColumn('thumbnail', 'text')  // ← Store URL here, NOT asset_id
-    .addColumn('user_id', 'text', (col) => col.references('users.id'))
-    .addColumn('created_at', 'integer')
-    .addColumn('updated_at', 'integer')
-    .execute()
-}
+.addColumn('thumbnail', 'text')  // Store URL
 ```
 
+See `skills/file-upload-pattern.md` for complete guide.
 
-**Example: Creating Post System**
+## References
 
-1. **Check PROGRESS.md**: Find "Post system" in Phase 3
-2. **Check existing files**:
-   - Controller: `app/controllers/PostController.ts` (create if not exists)
-   - Page: `resources/js/Pages/posts/index.svelte` (create if not exists)
-   - Route: Check `routes/web.ts` for `/posts` routes
-
-3. **Create Controller** (following `skills/create-controller.md`):
-```typescript
-import { Response, Request } from "../../type";
-import DB from '../services/DB'
-import Validator from '../services/Validator'
-import { storePostSchema } from '../validators/PostValidator'
-import { uuidv7 } from 'uuidv7'
-
-export const PostController = {
-  async index(request: Request, response: Response) {
-    const posts = await DB.selectFrom('posts')
-      .innerJoin('users', 'posts.user_id', 'users.id')
-      .select(['posts.id', 'posts.title', 'posts.content', 'users.name'])
-      .orderBy('posts.created_at', 'desc')
-      .execute()
-    
-    return response.inertia('posts/index', { posts })
-  },
-
-  async store(request: Request, response: Response) {
-    const body = await request.json()
-    const validationResult = Validator.validate(storePostSchema, body)
-    if (!validationResult.success) {
-      const firstError = Object.values(validationResult.errors || {})[0]?.[0] || 'Validasi gagal'
-      return response.flash('error', firstError).redirect('/posts', 302)
-    }
-    
-    const { title, content } = validationResult.data!
-    
-    // Create post with uuidv7
-    await DB.insertInto('posts').values({
-      id: uuidv7(),
-      user_id: request.user.id,
-      title,
-      content,
-      created_at: Date.now(),
-      updated_at: Date.now()
-    }).execute()
-    
-    return response.flash('success', 'Post berhasil dibuat').redirect('/posts', 302)
-  },
-
-  async update(request: Request, response: Response) {
-    const body = await request.json()
-    const id = request.params.id
-    
-    const validationResult = Validator.validate(storePostSchema, body)
-    if (!validationResult.success) {
-      const firstError = Object.values(validationResult.errors || {})[0]?.[0] || 'Validasi gagal'
-      return response.flash('error', firstError).redirect(`/posts/${id}/edit`, 303)
-    }
-    
-    const { title, content } = validationResult.data!
-    
-    // Update post
-    await DB.updateTable('posts')
-      .set({ title, content, updated_at: Date.now() })
-      .where('id', '=', id)
-      .execute()
-    
-    return response.flash('success', 'Post berhasil diupdate').redirect('/posts', 303)
-  },
-
-  async destroy(request: Request, response: Response) {
-    const id = request.params.id
-    
-    // Delete post
-    await DB.deleteFrom('posts').where('id', '=', id).execute()
-    
-    return response.flash('success', 'Post berhasil dihapus').redirect('/posts', 303)
-  }
-}
-```
-
-4. **Create Pages** (following `skills/create-svelte-inertia-page.md` and `workflow/ui-kit.html`):
-
-**Index Page** (`resources/js/Pages/posts/index.svelte`):
-```svelte
-<script>
-  import { router } from '@inertiajs/svelte'
-  import { CircleX, CircleCheck, Plus, User } from 'lucide-svelte'
-  import DashboardLayout from '@/Components/DashboardLayout.svelte'
-  let { flash, posts } = $props()
-</script>
-
-<DashboardLayout activeItem="posts" title="Posts" subtitle="Kelola post Anda">
-  <!-- Flash Messages -->
-  {#if flash?.error}
-    <div class="flex items-start gap-4 p-4 rounded-xl bg-danger-surface border border-danger/20 mb-4">
-      <CircleX class="text-danger mt-0.5 w-5 h-5 flex-shrink-0" />
-      <div>
-        <h4 class="text-sm font-bold text-danger">Error</h4>
-        <p class="text-xs text-danger/80 mt-1">{flash.error}</p>
-      </div>
-    </div>
-  {/if}
-
-  {#if flash?.success}
-    <div class="flex items-start gap-4 p-4 rounded-xl bg-success-surface border border-success/20 mb-4">
-      <CircleCheck class="text-success mt-0.5 w-5 h-5 flex-shrink-0" />
-      <div>
-        <h4 class="text-sm font-bold text-success">Success</h4>
-        <p class="text-xs text-success/80 mt-1">{flash.success}</p>
-      </div>
-    </div>
-  {/if}
-
-  <!-- Create Button -->
-  <a href="/posts/create" use:inertia class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl font-bold text-sm bg-[#065F46] text-white shadow-lg shadow-primary/20 mb-6">
-    <Plus class="w-4 h-4" />
-    Buat Post
-  </a>
-
-  <!-- Post Cards -->
-  <div class="space-y-4">
-    {#each posts as post}
-      <div class="bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg transition duration-500 border border-gray-100">
-        <div class="flex justify-between items-start mb-3">
-          <div>
-            <h3 class="font-serif text-xl font-bold text-gray-900 mb-1">{post.title}</h3>
-            <div class="flex items-center gap-2 text-sm text-gray-500">
-              <User class="w-4 h-4" />
-              {post.name} • {new Date(post.created_at).toLocaleDateString()}
-            </div>
-          </div>
-          <div class="flex gap-2">
-            <a href={`/posts/${post.id}/edit`} use:inertia class="px-4 py-2 rounded-xl border border-gray-200 hover:border-[#065F46] hover:text-[#065F46] font-bold text-xs transition">
-              Edit
-            </a>
-            <button onclick={() => router.delete(`/posts/${post.id}`)} class="px-4 py-2 rounded-xl border border-danger/20 hover:bg-danger/10 hover:text-danger font-bold text-xs transition">
-              Hapus
-            </button>
-          </div>
-        </div>
-        <p class="text-gray-600 text-sm">{post.content}</p>
-      </div>
-    {/each}
-  </div>
-</DashboardLayout>
-```
-
-**Form Page** (`resources/js/Pages/posts/form.svelte`):
-```svelte
-<script>
-  import { router } from '@inertiajs/svelte'
-  import { CircleX } from 'lucide-svelte'
-  import DashboardLayout from '@/Components/DashboardLayout.svelte'
-  let { flash, post } = $props()
-  let isEdit = !!post
-  let formData = $state({
-    title: post?.title || '',
-    content: post?.content || ''
-  })
-</script>
-
-<DashboardLayout activeItem="posts" title={isEdit ? 'Edit Post' : 'Buat Post'} subtitle={isEdit ? 'Edit post Anda' : 'Buat post baru'}>
-  <!-- Flash Messages -->
-  {#if flash?.error}
-    <div class="flex items-start gap-4 p-4 rounded-xl bg-danger-surface border border-danger/20 mb-4">
-      <CircleX class="text-danger mt-0.5 w-5 h-5 flex-shrink-0" />
-      <div>
-        <h4 class="text-sm font-bold text-danger">Error</h4>
-        <p class="text-xs text-danger/80 mt-1">{flash.error}</p>
-      </div>
-    </div>
-  {/if}
-
-  <!-- Form -->
-  <div class="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
-    <form onsubmit={(e) => {
-      e.preventDefault()
-      if (isEdit) {
-        router.put(`/posts/${post.id}`, formData)
-      } else {
-        router.post('/posts', formData)
-      }
-    }}>
-      <div class="mb-4">
-        <label class="block text-sm font-bold text-gray-700 mb-2">Title</label>
-        <input type="text" bind:value={formData.title} class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#065F46] focus:outline-none" required />
-      </div>
-      <div class="mb-6">
-        <label class="block text-sm font-bold text-gray-700 mb-2">Content</label>
-        <textarea bind:value={formData.content} class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[#065F46] focus:outline-none h-32" required></textarea>
-      </div>
-      <div class="flex gap-3">
-        <a href="/posts" use:inertia class="flex-1 px-6 py-3 rounded-xl border border-gray-200 font-bold text-sm text-center">
-          Batal
-        </a>
-        <button type="submit" class="flex-1 px-6 py-3 rounded-xl bg-[#065F46] text-white font-bold text-sm">
-          {isEdit ? 'Update' : 'Simpan'}
-        </button>
-      </div>
-    </form>
-  </div>
-</DashboardLayout>
-```
-
-5. **Add Routes** (in `routes/web.ts`):
-```typescript
-import PostController from "../app/controllers/PostController"
-
-// Post routes
-Route.get('/posts', [Auth], PostController.index)
-Route.get('/posts/create', [Auth], PostController.create)
-Route.post('/posts', [Auth], PostController.store)
-Route.get('/posts/:id/edit', [Auth], PostController.edit)
-Route.put('/posts/:id', [Auth], PostController.update)
-Route.delete('/posts/:id', [Auth], PostController.destroy)
-```
+- `skills/create-controller.md`
+- `skills/create-svelte-inertia-page.md`
+- `skills/feature-implementation-patterns.md`
+- `skills/file-upload-pattern.md`
+- `skills/kysely.md`
 
 ## Next Steps
 
-Setelah project initialization selesai, lanjutkan dengan:
-1. Implementasi fitur pertama sesuai `workflow/PROGRESS.md`
-2. Gunakan `workflow/TASK_AGENT.md` untuk panduan implementasi fitur
-3. Update `workflow/PROGRESS.md` setelah setiap fitur selesai
+1. Implement features per `workflow/PROGRESS.md`
+2. Use `IMPLEMENTATION_BRIEF.md` for quick reference
+3. Update `PROGRESS.md` after each feature
