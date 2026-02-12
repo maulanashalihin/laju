@@ -6,15 +6,16 @@ Setup project baru dengan Laju Framework.
 
 **CAN:**
 - ✅ Create project infrastructure
-- ✅ Setup GitHub Actions workflow
 - ✅ Create documentation (README, PRD, TDD, PROGRESS, ui-kit, IMPLEMENTATION_BRIEF)
 - ✅ Setup design system & layouts
-- ✅ Customize auth pages
+- ✅ Customize auth pages (styling only)
+- ✅ Setup database types and migrations (schema only)
 - ✅ Git init and first commit
 - ✅ **STOP after Step 7 - Wait user approval**
 
 **CANNOT:**
-- ❌ Implement features or write code
+- ❌ **Implement features** - Use TASK_AGENT or ONE_SHOT_AGENT
+- ❌ Write business logic code
 - ❌ Manage changes after initialization
 
 ## Tech Stack
@@ -287,19 +288,7 @@ Update built-in auth pages to match `workflow/ui-kit.html`:
 
 **IMPORTANT: All auth pages MUST support dark mode** using `dark:` classes.
 
-### 15. Setup GitHub Actions
-
-```bash
-cp -r github-workflow-sample/workflows .github/
-```
-
-**Setup secrets:**
-- `SSH_HOST` - Server IP
-- `SSH_USER` - SSH username
-- `SSH_PRIVATE_KEY` - SSH private key
-- `SLACK_WEBHOOK` - (Optional)
-
-### 16. Git Init and First Commit
+### 15. Git Init and First Commit
 
 ```bash
 git init
@@ -307,7 +296,7 @@ git add .
 git commit -m "Initial commit: Project setup"
 ```
 
-### 17. Start Dev Server
+### 16. Start Dev Server
 
 ```bash
 npm run dev
@@ -332,6 +321,8 @@ npm run dev
 - **Follow the order** - Don't skip steps
 - **Step 8 is MANDATORY** - Wait for user approval
 - **Maximize existing** - Check built-in first
+- **DO NOT implement features** - Only setup infrastructure and documentation
+- **Feature implementation** is handled by TASK_AGENT or ONE_SHOT_AGENT
 - **Default PORT**: 5555
 
 ## API Guidelines
