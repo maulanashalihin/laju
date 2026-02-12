@@ -84,6 +84,11 @@ Before making any changes, analyze:
    - Pending tasks?
    - Development phases?
 
+4. **Database Types Impact** - Does this change affect:
+   - New table interfaces in `type/db-types.ts`?
+   - Existing table columns (add/modify/remove)?
+   - Type definitions (Selectable, Insertable, Updateable)?
+
 ### Step 3: Update Documentation
 
 Update the three key documents in this order:
@@ -108,11 +113,12 @@ Update the three key documents in this order:
 When updating TDD.md:
 
 1. **Add new database tables** to Section 2.2
-2. **Add new API endpoints** to Section 3
-3. **Update data models** in Section 4
-4. **Add security considerations** if applicable
-5. **Update migration plan** in Section 8
-6. **Add new migrations** to the migration list
+2. **Update `type/db-types.ts`** with new interfaces
+3. **Add new API endpoints** to Section 3
+4. **Update data models** in Section 4
+5. **Add security considerations** if applicable
+6. **Update migration plan** in Section 8
+7. **Add new migrations** to the migration list
 
 **Example migration addition:**
 ```markdown
@@ -131,6 +137,9 @@ When updating PROGRESS.md:
 4. **Add notes** about what changed and why
 5. **Update Deployment Approval section** when all features in a phase are completed
 6. **MANAGER_AGENT updates version in package.json** when approving deployment
+7. **Update Database Types section** if schema changed
+   - Add `type/db-types.ts` update task
+   - List new/modified interfaces
 
 **Important:** The version in PROGRESS.md is the source of truth. MANAGER_AGENT is responsible for updating package.json to match the version in PROGRESS.md when approving deployment.
 
