@@ -7,7 +7,23 @@
 import { readFileSync, existsSync } from "fs";
 import { Eta } from 'eta'
 import path from "path";
-import "dotenv/config";  
+import "dotenv/config";
+
+// Get Vite dev server URL from .vite-port file or fallback to env/default
+function getViteDevUrl(): string {
+  try {
+    // Try to read from .vite-port file (written by Vite plugin)
+    const portFile = path.join(process.cwd(), '.vite-port');
+    if (existsSync(portFile)) {
+      return readFileSync(portFile, 'utf8').trim();
+    }
+  } catch {
+    // Fallback to env or default
+  }
+  // Fallback: use env VITE_PORT or default 5173
+  const port = process.env.VITE_PORT || '5173';
+  return `http://localhost:${port}`;
+}  
 
 // Set views directory based on environment
 let directory = "resources/views";
@@ -77,7 +93,7 @@ export function view(filename: string, view_data?: Record<string, unknown>) {
         if (!entry) return file;
         return file.endsWith(".js") ? "/"+entry.file : entry.file.endsWith(".css") ? "/"+entry.file : "/"+entry.css?.[0] || "/"+file;
       }
-      return `http://localhost:${process.env.VITE_PORT}/${file}`
+      return `${getViteDevUrl()}/${file}`
    }
 
    let rendered = eta.render(filename, view_data || {});

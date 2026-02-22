@@ -8,6 +8,9 @@ data/*
 storage/*
 !storage/.gitkeep
 
+# Vite dynamic port file
+.vite-port
+
 # Testing
 coverage/
 .vitest/

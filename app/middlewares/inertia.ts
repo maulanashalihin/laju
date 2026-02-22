@@ -15,7 +15,7 @@ const inertia = () => {
       };
 
 
-      response.redirect = ((url: string, status: number = 302) => { 
+      response.redirect = ((url: string, status: number = 303) => { 
          return response.status(status).setHeader("Location", url).send();
       }) as { (url: string): boolean; (url: string, status?: number): Response };
 
