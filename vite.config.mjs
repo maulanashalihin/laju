@@ -23,11 +23,7 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     svelte(),
-    inertia({ 
-      ssr: {
-        enabled: false,
-      },
-    }),
+    inertia(),
     {
       name: "write-port",
       configureServer(server) {

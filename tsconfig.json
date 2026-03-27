@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     /* Specify ECMAScript target version */
-    "target": "es2021",                                  
+    "target": "ES2022",
     /* Specify library files to be included in the compilation */
-    "lib": ["es2021"],    
+    "lib": ["es2022"],
     /* Skip type checking of declaration files */
     "skipLibCheck": true,
     /* Generates corresponding .map file */
@@ -11,11 +11,9 @@
     /* Specify output directory for compiled files */
     "outDir": "./build",
     /* Specify module code generation */
-    "module": "commonjs",    
+    "module": "commonjs",
     /* Specify module resolution strategy */
-    "moduleResolution": "node",
-    /* Remove comments in output */
-    "removeComments": true,
+    "moduleResolution": "bundler",
     /* Enable all strict type checking options */
     "strict": true,
     /* Raise error on expressions and declarations with an implied any type */
@@ -51,10 +49,12 @@
       "app/*": ["app/*"],
       "routes/*": ["routes/*"],
       "resources/*": ["resources/*"],
-      "type/*": ["type/*"]
-    }
-  }, 
+      "type/*": ["type/*"],
+    },
+    /* Ignore deprecation warnings for Node10 module resolution */
+    "ignoreDeprecations": "6.0",
+  },
   /* Files to include in compilation */
-  "include": ["./*.ts","./type/index.d.ts","commands","migrations","seeds"],
-  "exclude": ["node_modules", "build", "dist", "test-results"] 
+  "include": ["./*.ts", "./type/index.d.ts", "commands", "migrations", "seeds"],
+  "exclude": ["node_modules", "build", "dist", "test-results"],
 }
