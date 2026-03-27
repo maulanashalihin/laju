@@ -3,8 +3,9 @@
 // loads environment variables, and configures HTTPS for local development.
 
 // Load environment variables from .env into process.env
+// override: true ensures .env values take precedence over shell environment
 import { config } from "dotenv";
-config();
+config({ override: true });
 
 // Inertia middleware: integrates Inertia.js responses for SSR-like pages
 import inertia from "./app/middlewares/inertia";
