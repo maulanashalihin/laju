@@ -1,33 +1,43 @@
 <script>
-import { onMount } from 'svelte';
 import { Sun, Moon } from 'lucide-svelte';
 
 let darkMode = $state(false);
 let mounted = $state(false);
 
-onMount(() => {
-    // Check system preference
+// Initialize dark mode immediately (before component mounts)
+(function initDarkMode() {
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    // Check localStorage or fallback to system preference
     const savedMode = localStorage.getItem('darkMode');
     darkMode = savedMode === null ? systemPrefersDark : savedMode === 'true';
     
-    // Apply saved preference
+    // Apply saved preference immediately
     applyDarkMode(darkMode);
-
+    
+    // Mark as mounted after applying
+    mounted = true;
+    
     // Add transition class after initial load to prevent flash
     setTimeout(() => {
         document.documentElement.classList.add('transition-colors');
-        mounted = true;
     }, 100);
+})();
 
-    // Listen for system preference changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+// Listen for system preference changes
+$effect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    function handleChange(e) {
         if (localStorage.getItem('darkMode') === null) {
             darkMode = e.matches;
             applyDarkMode(darkMode);
         }
-    });
+    }
+    
+    mediaQuery.addEventListener('change', handleChange);
+    
+    return () => {
+        mediaQuery.removeEventListener('change', handleChange);
+    };
 });
 
 function applyDarkMode(isDark) {
@@ -41,18 +51,23 @@ function applyDarkMode(isDark) {
 function toggleDarkMode() {
     darkMode = !darkMode;
     applyDarkMode(darkMode);
-    localStorage.setItem('darkMode', darkMode);
+    localStorage.setItem('darkMode', darkMode.toString());
 }
 </script>
 
-<button 
+<button
     onclick={toggleDarkMode}
     class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-700"
     aria-label="Toggle dark mode"
 >
-    {#if darkMode}
-        <Sun class="w-5 h-5 text-slate-800 dark:text-slate-200" />
+    {#if mounted}
+        {#if darkMode}
+            <Sun class="w-5 h-5 text-slate-800 dark:text-slate-200" />
+        {:else}
+            <Moon class="w-5 h-5 text-slate-800 dark:text-slate-200" />
+        {/if}
     {:else}
-        <Moon class="w-5 h-5 text-slate-800 dark:text-slate-200" />
+        <!-- Placeholder to prevent layout shift -->
+        <div class="w-5 h-5" />
     {/if}
 </button>
