@@ -1,185 +1,272 @@
-<!-- home.svelte -->
 <script>
-    import { inertia } from "@inertiajs/svelte";
-    import { fly, fade } from "svelte/transition";
     import Header from "../Components/Header.svelte";
+    import { page, inertia } from "@inertiajs/svelte";
+    import { fly } from "svelte/transition";
 
-    let features = [
-        {
-            title: "Powerful Features",
-            description: "Built with modern tools for maximum productivity",
-            icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />`,
-        },
-        {
-            title: "Dark Mode Support",
-            description: "Seamless dark mode integration for better viewing",
-            icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />`,
-        },
-        {
-            title: "Modern UI/UX",
-            description: "Beautiful interfaces with smooth animations",
-            icon: `<path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />`,
-        },
-    ];
+    let user = page.props.user;
 </script>
 
 <Header group="home" />
 
-<!-- Hero Section -->
-<div class="relative min-h-screen overflow-hidden bg-white dark:bg-slate-950">
+<!-- Main Content -->
+<div class="relative min-h-screen bg-white dark:bg-slate-950">
+    <!-- Desktop Sidebar Spacer -->
     <div
-        class="absolute top-0 -left-4 w-72 h-72 bg-brand-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob dark:mix-blend-normal dark:opacity-10"
-    ></div>
-    <div
-        class="absolute top-0 -right-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000 dark:mix-blend-normal dark:opacity-10"
+        class="hidden lg:block w-72 fixed inset-y-0 left-0 pointer-events-none"
     ></div>
 
+    <!-- Background Effects -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div
+            class="absolute top-0 -left-4 w-96 h-96 bg-brand-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"
+        ></div>
+        <div
+            class="absolute top-0 -right-4 w-96 h-96 bg-purple-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"
+        ></div>
+    </div>
+
+    <!-- Page Header -->
     <div
-        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16 relative z-10"
+        class="relative pt-8 pb-12 px-6 border-b border-slate-200 dark:border-slate-800/50 bg-white/50 dark:bg-slate-950/50 backdrop-blur-xl"
     >
-        <div class="text-center" in:fly={{ y: 20, duration: 800, delay: 200 }}>
-            <h1 class="flex justify-center">
-                <div class="flex items-center gap-2 mb-4">
+        <div class="max-w-5xl mx-auto">
+            <h1 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Dashboard</h1>
+            <p class="text-slate-600 dark:text-slate-400">Welcome back, {user?.name || "Guest"}</p>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="relative max-w-5xl mx-auto px-6 py-12">
+        <!-- Welcome Card -->
+        <div
+            class="bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/50 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 mb-8"
+            in:fly={{ y: 20, duration: 600 }}
+        >
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500 to-orange-500 flex items-center justify-center shadow-2xl shadow-brand-500/20"
+                >
                     <svg
-                        width="40"
-                        height="40"
-                        viewBox="0 0 100 100"
+                        class="w-8 h-8 text-white"
                         fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
                     >
-                        <defs>
-                            <linearGradient
-                                id="grad1"
-                                x1="0%"
-                                y1="0%"
-                                x2="100%"
-                                y2="0%"
-                            >
-                                <stop
-                                    offset="0%"
-                                    style="stop-color:#f97316;stop-opacity:1"
-                                />
-                                <stop
-                                    offset="100%"
-                                    style="stop-color:#ea580c;stop-opacity:1"
-                                />
-                            </linearGradient>
-                        </defs>
-                        <path d="M30 10 H65 L55 50 H20 Z" fill="url(#grad1)" />
-                        <path d="M20 58 H85 L75 90 H10 Z" fill="url(#grad1)" />
-                        <rect
-                            x="70"
-                            y="58"
-                            width="20"
-                            height="32"
-                            transform="skewX(-14)"
-                            fill="white"
-                            fill-opacity="0.1"
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"
                         />
                     </svg>
-                    <div class="text-4xl font-black tracking-tighter italic">
-                        Laju<span class="text-brand-500">.dev</span>
-                    </div>
                 </div>
-            </h1>
-            <p
-                class="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mb-8"
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">
+                        Welcome to Laju
+                    </h2>
+                    <p class="text-slate-600 dark:text-slate-400">
+                        The AI-Native TypeScript framework built for speed
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+            <!-- Stat Card 1 -->
+            <div
+                class="bg-white/50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 p-6"
+                in:fly={{ y: 20, duration: 600, delay: 100 }}
             >
-                A high-performance TypeScript web framework for building modern
-                full-stack applications with speed and elegance.
-            </p>
-            <div class="flex justify-center gap-4">
+                <div class="flex items-center gap-3 mb-4">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center"
+                    >
+                        <svg
+                            class="w-5 h-5 text-brand-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                            />
+                        </svg>
+                    </div>
+                    <span class="text-sm font-medium text-slate-600 dark:text-slate-400"
+                        >Performance</span
+                    >
+                </div>
+                <div class="text-3xl font-bold text-slate-900 dark:text-white mb-1">258,611</div>
+                <div class="text-sm text-green-600 dark:text-green-400">
+                    +11x faster than Express
+                </div>
+            </div>
+
+            <!-- Stat Card 2 -->
+            <div
+                class="bg-white/50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 p-6"
+                in:fly={{ y: 20, duration: 600, delay: 200 }}
+            >
+                <div class="flex items-center gap-3 mb-4">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center"
+                    >
+                        <svg
+                            class="w-5 h-5 text-purple-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                        </svg>
+                    </div>
+                    <span class="text-sm font-medium text-slate-600 dark:text-slate-400"
+                        >Avg Latency</span
+                    >
+                </div>
+                <div class="text-3xl font-bold text-slate-900 dark:text-white mb-1">1.52ms</div>
+                <div class="text-sm text-green-600 dark:text-green-400">
+                    -3.6x better response time
+                </div>
+            </div>
+
+            <!-- Stat Card 3 -->
+            <div
+                class="bg-white/50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 p-6"
+                in:fly={{ y: 20, duration: 600, delay: 300 }}
+            >
+                <div class="flex items-center gap-3 mb-4">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center"
+                    >
+                        <svg
+                            class="w-5 h-5 text-cyan-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                            />
+                        </svg>
+                    </div>
+                    <span class="text-sm font-medium text-slate-600 dark:text-slate-400"
+                        >Uptime</span
+                    >
+                </div>
+                <div class="text-3xl font-bold text-slate-900 dark:text-white mb-1">99.99%</div>
+                <div class="text-sm text-slate-600 dark:text-slate-400">Last 30 days</div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div
+            class="bg-white/50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 p-6"
+            in:fly={{ y: 20, duration: 600, delay: 400 }}
+        >
+            <div class="flex items-center gap-3 mb-6">
+                <div
+                    class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center"
+                >
+                    <svg
+                        class="w-5 h-5 text-blue-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 dark:text-white">
+                        Quick Start
+                    </h3>
+                    <p class="text-sm text-slate-600 dark:text-slate-500">
+                        Get started with Laju framework
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-4">
                 <a
                     href="https://github.com/maulanashalihin/laju/tree/main/docs"
                     target="_blank"
-                    class="px-6 py-3 text-white bg-brand-600 hover:bg-brand-700 rounded-xl font-medium transition-all shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40"
-                >
-                    Get Started
-                </a>
-                <a
-                    href="https://deepwiki.com/maulanashalihin/laju"
-                    target="_blank"
-                    class="px-6 py-3 text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600 rounded-xl font-medium transition-colors"
-                >
-                    Learn More
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Features Section -->
-<div class="py-24 bg-white dark:bg-slate-950">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid md:grid-cols-3 gap-8">
-            {#each features as feature, i}
-                <div
-                    class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-brand-500/50 dark:hover:border-brand-500/50 hover:shadow-lg transition-all duration-300 group"
-                    in:fly={{ y: 20, duration: 800, delay: 200 + i * 100 }}
+                    class="flex items-center gap-3 p-4 rounded-xl bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-brand-500/30 transition-all group"
                 >
                     <div
-                        class="w-12 h-12 bg-brand-100 dark:bg-brand-900/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform"
+                        class="w-10 h-10 rounded-lg bg-brand-500/10 flex items-center justify-center group-hover:bg-brand-500/20 transition-colors"
                     >
                         <svg
-                            xmlns="http://www.w3.org/2000/svg"
+                            class="w-5 h-5 text-brand-400"
                             fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
                             stroke="currentColor"
-                            class="w-6 h-6 text-brand-600 dark:text-brand-400"
+                            viewBox="0 0 24 24"
                         >
-                            {@html feature.icon}
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                            />
                         </svg>
                     </div>
-                    <h3
-                        class="text-xl font-bold text-slate-900 dark:text-white mb-2"
-                    >
-                        {feature.title}
-                    </h3>
-                    <p class="text-slate-600 dark:text-slate-400">
-                        {feature.description}
-                    </p>
-                </div>
-            {/each}
-        </div>
-    </div>
-</div>
+                    <div>
+                        <div class="text-sm font-semibold text-slate-900 dark:text-white">
+                            Documentation
+                        </div>
+                        <div class="text-xs text-slate-600 dark:text-slate-500">Read the docs</div>
+                    </div>
+                </a>
 
-<!-- CTA Section -->
-<div
-    class="py-24 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800"
->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div in:fly={{ y: 20, duration: 800 }}>
-            <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">
-                Ready to Get Started?
-            </h2>
-            <p
-                class="text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-2xl mx-auto"
-            >
-                Join us and experience the next generation of development tools.
-            </p>
-            <a
-                href="/register"
-                use:inertia
-                class="inline-flex items-center px-8 py-4 text-white bg-brand-600 hover:bg-brand-700 rounded-xl font-bold transition-all shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40"
-            >
-                Create Account
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="w-5 h-5 ml-2"
+                <a
+                    href="/profile"
+                    use:inertia
+                    class="flex items-center gap-3 p-4 rounded-xl bg-white/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-brand-500/30 transition-all group"
                 >
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                    />
-                </svg>
-            </a>
+                    <div
+                        class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors"
+                    >
+                        <svg
+                            class="w-5 h-5 text-purple-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                            />
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="text-sm font-semibold text-slate-900 dark:text-white">
+                            Profile Settings
+                        </div>
+                        <div class="text-xs text-slate-600 dark:text-slate-500">
+                            Manage your account
+                        </div>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
 </div>
