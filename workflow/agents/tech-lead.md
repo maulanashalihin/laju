@@ -391,6 +391,7 @@ Catatan Penting:
 - **WAJIB update `type/db-types.ts` setelah buat migration**
 - Jalankan migration: npm run migrate
 - **WAJIB pakai Header untuk semua protected pages**
+- **Handler pattern: app/handlers/[domain].handler.ts**
 ```
 
 ---
@@ -416,51 +417,51 @@ Catatan Penting:
 ```typescript
 // routes/web.ts
 import HyperExpress from 'hyper-express';
-import ItemController from "../app/controllers/ItemController";
-import Auth from "../app/middlewares/auth"
+import ItemHandler from "../app/handlers/item.handler";
+import Auth from "../app/middlewares/auth.middleware"
 
 const Route = new HyperExpress.Router();
 
 // Public routes
-Route.get("/items", ItemController.index);
+Route.get("/items", ItemHandler.index);
 
 // Protected routes (with auth middleware)
-Route.get("/items/create", [Auth], ItemController.create);
-Route.post("/items", [Auth], ItemController.store);
-Route.get("/items/:id/edit", [Auth], ItemController.edit);
-Route.put("/items/:id", [Auth], ItemController.update);
-Route.delete("/items/:id", [Auth], ItemController.destroy);
+Route.get("/items/create", [Auth], ItemHandler.create);
+Route.post("/items", [Auth], ItemHandler.store);
+Route.get("/items/:id/edit", [Auth], ItemHandler.edit);
+Route.put("/items/:id", [Auth], ItemHandler.update);
+Route.delete("/items/:id", [Auth], ItemHandler.destroy);
 
 export default Route;
 ```
 
-### Controller Pattern
-**File:** `app/controllers/ItemController.ts`
+### Handler Pattern
+**File:** `app/handlers/ItemHandler.ts`
 
 ```typescript
 import { Response, Request } from "../../type";
 import ItemRepository from "../repositories/ItemRepository";
 
-export const ItemController = {
+export const ItemHandler = {
   async index(request: Request, response: Response) {
     const items = await ItemRepository.getAll();
     return response.inertia("items/Index", { items });
   },
-  
+
   async create(request: Request, response: Response) {
     return response.inertia("items/Create", { errors: {} });
   },
-  
+
   async store(request: Request, response: Response) {
     const body = await request.json();
     // ... validation & save
     return response.flash("success", "Item created").redirect("/items");
   },
-  
+
   // ... edit, update, destroy
 };
 
-export default ItemController;
+export default ItemHandler;
 ```
 
 ### Page Component (Svelte)

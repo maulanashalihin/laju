@@ -121,3 +121,31 @@ workflow/outputs/
 2. **Every stage has mandatory review** - tunggu client approve
 3. **No auto-skip** - client harus eksplisit approve
 4. **README dan examples hanya referensi** - agent files yang self-contained
+
+---
+
+## Laju Patterns
+
+### Handler Pattern
+```typescript
+// app/handlers/[domain].handler.ts
+export const [Domain]Handler = {
+  async methodName(request: Request, response: Response) {
+    // Handler logic
+  }
+};
+```
+
+### Route Pattern
+```typescript
+// routes/web.ts
+import [Domain]Handler from "../app/handlers/[domain].handler";
+
+Route.get("/path", [Domain]Handler.method);
+```
+
+### File Naming
+- Handlers: `kebab-case.handler.ts` (e.g., `auth.handler.ts`)
+- Middlewares: `kebab-case.middleware.ts` (e.g., `auth.middleware.ts`)
+- Repositories: `kebab-case.repository.ts` (e.g., `user.repository.ts`)
+- Validators: `kebab-case.validator.ts` (e.g., `auth.validator.ts`)

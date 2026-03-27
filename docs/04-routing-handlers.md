@@ -1,13 +1,13 @@
-# Routing & Controllers
+# Routing & Handlers
 
-Learn how to define routes and create controllers in Laju Framework.
+Learn how to define routes and create handlers in Laju Framework.
 
 ## Table of Contents
 
 1. [Introduction](#introduction)
 2. [Basic Routing](#basic-routing)
 3. [Route Parameters](#route-parameters)
-4. [Controllers](#controllers)
+4. [Handlers](#handlers)
 5. [Request & Response](#request--response)
 6. [Common Patterns](#common-patterns)
 7. [Best Practices](#best-practices)
@@ -16,12 +16,12 @@ Learn how to define routes and create controllers in Laju Framework.
 
 ## Introduction
 
-Routes define how your application responds to HTTP requests. Controllers handle the business logic for each route.
+Routes define how your application responds to HTTP requests. Handlers handle the business logic for each route.
 
 ### Request Flow
 
 ```
-HTTP Request → Route → Middleware → Controller → Response
+HTTP Request → Route → Middleware → Handler → Response
 ```
 
 ---
@@ -34,29 +34,30 @@ Routes are defined in `routes/web.ts`:
 
 ```typescript
 import Route from "./Route";
-import HomeController from "../app/controllers/HomeController";
+import AppHandler from "../app/handlers/app.handler";
+import AuthHandler from "../app/handlers/auth.handler";
 
 // GET request
-Route.get("/", HomeController.index);
+Route.get("/", AppHandler.homePage);
 
 // POST request
-Route.post("/contact", HomeController.contact);
+Route.post("/login", AuthHandler.processLogin);
 
 // PUT request
-Route.put("/users/:id", UserController.update);
+Route.put("/users/:id", AppHandler.changeProfile);
 
 // DELETE request
-Route.delete("/posts/:id", PostController.destroy);
+Route.delete("/users/:id", AppHandler.deleteUsers);
 ```
 
 ### HTTP Methods
 
 ```typescript
-Route.get("/path", Controller.method);     // GET
-Route.post("/path", Controller.method);    // POST
-Route.put("/path", Controller.method);     // PUT
-Route.patch("/path", Controller.method);   // PATCH
-Route.delete("/path", Controller.method);  // DELETE
+Route.get("/path", Handler.method);     // GET
+Route.post("/path", Handler.method);    // POST
+Route.put("/path", Handler.method);     // PUT
+Route.patch("/path", Handler.method);   // PATCH
+Route.delete("/path", Handler.method);  // DELETE
 ```
 
 ---
@@ -67,10 +68,10 @@ Route.delete("/path", Controller.method);  // DELETE
 
 ```typescript
 // routes/web.ts
-Route.get("/users/:id", UserController.show);
-Route.get("/posts/:postId/comments/:commentId", CommentController.show);
+Route.get("/users/:id", AppHandler.profilePage);
+Route.get("/posts/:postId/comments/:commentId", CommentHandler.show);
 
-// Controller
+// Handler
 async show(request: Request, response: Response) {
   const { id } = request.params;
   const user = await DB.selectFrom("users")
@@ -88,36 +89,48 @@ async show(request: Request, response: Response) {
 
 async search(request: Request, response: Response) {
   const { q, page } = request.query;
-  
+
   const results = await DB.selectFrom("posts")
     .selectAll()
     .where("title", "like", `%${q}%`)
     .limit(10)
     .offset((page - 1) * 10)
     .execute();
-  
+
   return response.json({ results });
 }
 ```
 
 ---
 
-## Controllers
+## Handlers
 
-### Creating a Controller
+### Handler Structure
 
-**Using CLI:**
-```bash
-node laju make:controller PostController
+Handlers are organized by domain in single files:
+
+```
+app/handlers/
+├── auth.handler.ts         # Authentication (login, register, OAuth, password)
+├── app.handler.ts          # Application pages (dashboard, profile)
+├── public.handler.ts       # Public pages (home, about)
+├── upload.handler.ts       # File upload operations
+├── s3.handler.ts           # S3 storage operations
+├── storage.handler.ts      # Local storage file serving
+└── asset.handler.ts        # Static asset serving
 ```
 
-**Manual creation** (`app/controllers/PostController.ts`):
+### Creating a Handler
+
+**Manual creation** (`app/handlers/posts.handler.ts`):
 
 ```typescript
 import { Request, Response } from "../../type";
 import DB from "../services/DB";
+import Validator from "../services/Validator";
+import { createPostSchema, updatePostSchema } from "../validators/post.validator";
 
-export const PostController = {
+export const PostHandler = {
   // List all posts
   async index(request: Request, response: Response) {
     const posts = await DB.selectFrom("posts")
@@ -134,17 +147,26 @@ export const PostController = {
 
   // Store new post
   async store(request: Request, response: Response) {
-    const { title, content } = await request.json();
-    
+    const body = await request.json();
+    const validationResult = Validator.validate(createPostSchema, body);
+
+    if (!validationResult.success) {
+      const firstError = Object.values(validationResult.errors || {})[0]?.[0] || "Validation error";
+      return response.flash("error", firstError).redirect("/posts/create", 302);
+    }
+
+    const { title, content } = validationResult.data!;
+
     await DB.insertInto("posts").values({
+      id: crypto.randomUUID(),
       title,
       content,
       user_id: request.user.id,
       created_at: Date.now(),
       updated_at: Date.now()
     }).execute();
-    
-    return response.redirect("/posts");
+
+    return response.flash("success", "Post created").redirect("/posts", 302);
   },
 
   // Show single post
@@ -154,11 +176,11 @@ export const PostController = {
       .selectAll()
       .where("id", "=", id)
       .executeTakeFirst();
-    
+
     if (!post) {
-      return response.status(404).json({ error: "Post not found" });
+      return response.status(404).inertia("errors/404");
     }
-    
+
     return response.inertia("posts/show", { post });
   },
 
@@ -169,19 +191,27 @@ export const PostController = {
       .selectAll()
       .where("id", "=", id)
       .executeTakeFirst();
-    
+
     if (!post) {
-      return response.status(404).json({ error: "Post not found" });
+      return response.status(404).inertia("errors/404");
     }
-    
+
     return response.inertia("posts/edit", { post });
   },
 
   // Update post
   async update(request: Request, response: Response) {
     const { id } = request.params;
-    const { title, content } = await request.json();
-    
+    const body = await request.json();
+    const validationResult = Validator.validate(updatePostSchema, body);
+
+    if (!validationResult.success) {
+      const firstError = Object.values(validationResult.errors || {})[0]?.[0] || "Validation error";
+      return response.flash("error", firstError).redirect(`/posts/${id}/edit`, 303);
+    }
+
+    const { title, content } = validationResult.data!;
+
     await DB.updateTable("posts")
       .set({
         title,
@@ -190,45 +220,46 @@ export const PostController = {
       })
       .where("id", "=", id)
       .execute();
-    
-    return response.redirect("/posts");
+
+    return response.flash("success", "Post updated").redirect("/posts", 303);
   },
 
   // Delete post
   async destroy(request: Request, response: Response) {
     const { id } = request.params;
     await DB.deleteFrom("posts").where("id", "=", id).execute();
-    return response.json({ success: true });
+    return response.flash("success", "Post deleted").redirect("/posts", 303);
   }
 };
 
-export default PostController;
+export default PostHandler;
 ```
 
 ### RESTful Routes
 
 ```typescript
 // routes/web.ts
-import PostController from "../app/controllers/PostController";
+import PostHandler from "../app/handlers/posts.handler";
+import Auth from "../app/middlewares/auth.middleware";
 
-Route.get("/posts", PostController.index);           // List
-Route.get("/posts/create", PostController.create);   // Create form
-Route.post("/posts", PostController.store);          // Store
-Route.get("/posts/:id", PostController.show);        // Show
-Route.get("/posts/:id/edit", PostController.edit);   // Edit form
-Route.put("/posts/:id", PostController.update);      // Update
-Route.delete("/posts/:id", PostController.destroy);  // Delete
+Route.get("/posts", PostHandler.index);                    // List
+Route.get("/posts/create", [Auth], PostHandler.create);    // Create form
+Route.post("/posts", [Auth], PostHandler.store);           // Store
+Route.get("/posts/:id", PostHandler.show);                 // Show
+Route.get("/posts/:id/edit", [Auth], PostHandler.edit);    // Edit form
+Route.put("/posts/:id", [Auth], PostHandler.update);       // Update
+Route.delete("/posts/:id", [Auth], PostHandler.destroy);   // Delete
 ```
 
-### ⚠️ Controller Pattern: Plain Objects
+### ⚠️ Handler Pattern: Plain Objects
 
-**IMPORTANT:** Laju controllers are **plain objects**, not classes. This makes them simpler and more predictable.
+**IMPORTANT:** Laju handlers are **plain objects**, not classes. This makes them simpler and more predictable.
 
-#### ✅ Controller Pattern
+#### ✅ Handler Pattern
 
 ```typescript
 // ✅ CORRECT - Plain object pattern
-export const UserController = {
+export const UserHandler = {
   async store(request: Request, response: Response) {
     const body = await request.json();
 
@@ -245,7 +276,7 @@ export const UserController = {
   }
 };
 
-export default UserController;
+export default UserHandler;
 ```
 
 #### ✅ Use Separate Utility Functions
@@ -254,19 +285,19 @@ export default UserController;
 // ✅ ALSO CORRECT - Extract to utility function
 import { validateUser } from "../utils/validation";
 
-export const UserController = {
+export const UserHandler = {
   async store(request: Request, response: Response) {
     const body = await request.json();
 
     // Call utility function
     const validated = validateUser(body);
 
-    await DB.insertFrom("users").values(validated).execute();
+    await DB.insertInto("users").values(validated).execute();
     return response.json({ success: true });
   }
 };
 
-export default UserController;
+export default UserHandler;
 
 // In utils/validation.ts
 export function validateUser(data: any) {
@@ -279,21 +310,21 @@ export function validateUser(data: any) {
 
 ```typescript
 // routes/web.ts
-import UserController from "../app/controllers/UserController";
+import UserHandler from "../app/handlers/user.handler";
 
-// UserController is a plain object with methods
-Route.post("/users", UserController.store);
+// UserHandler is a plain object with methods
+Route.post("/users", UserHandler.store);
 ```
 
-#### Best Practices for Controller Organization
+#### Best Practices for Handler Organization
 
-1. **Keep controllers thin** - Move business logic to services
+1. **Keep handlers thin** - Move business logic to services
 2. **Extract utilities** - Put reusable functions in separate files
 3. **Use services** - Business logic goes in `app/services/`
 
 ```typescript
-// Good controller structure
-export const UserController = {
+// Good handler structure
+export const UserHandler = {
   // Main handler - thin, delegates to services
   async store(request: Request, response: Response) {
     const body = await request.json();
@@ -311,7 +342,7 @@ export const UserController = {
   }
 };
 
-export default UserController;
+export default UserHandler;
 
 // Utility function (in same file or utils/)
 function validateInput(data: any) {
@@ -342,10 +373,10 @@ export const UserService = {
 
 export default UserService;
 
-// In controller
+// In handler
 import UserService from "../services/UserService";
 
-export const UserController = {
+export const UserHandler = {
   async store(request: Request, response: Response) {
     const body = await request.json();
     const user = await UserService.create(body);
@@ -353,7 +384,7 @@ export const UserController = {
   }
 };
 
-export default UserController;
+export default UserHandler;
 ```
 
 ---
@@ -366,22 +397,22 @@ export default UserController;
 public async store(request: Request, response: Response) {
   // Get JSON body
   const data = await request.json();
-  
+
   // Get text body
   const text = await request.text();
-  
+
   // Get headers
   const contentType = request.header("content-type");
   const auth = request.headers.authorization;
-  
+
   // Get cookies
   const authId = request.cookies.auth_id;
-  
+
   // Get URL info
   const url = request.originalUrl;
   const method = request.method;
   const ip = request.ip;
-  
+
   // Get user (from auth middleware)
   const userId = request.user?.id;
 }
@@ -434,19 +465,19 @@ return response.redirect("/submit", 307);
 // ✅ CORRECT - Use 303 for form updates
 public async update(request: Request, response: Response) {
   const body = await request.json();
-  
+
   const validationResult = Validator.validate(updateSchema, body);
   if (!validationResult.success) {
     const errors = validationResult.errors || {};
-    const firstError = Object.values(errors)[0]?.[0] || 'Terjadi kesalahan validasi';
+    const firstError = Object.values(errors)[0]?.[0] || 'Validation error';
     return response.flash("error", firstError).redirect("/profile", 303);
   }
-  
+
   await DB.updateTable("users")
     .set(body)
     .where("id", "=", request.user.id)
     .execute();
-  
+
   return response
     .flash("success", "Profile updated successfully")
     .redirect("/profile", 303);
@@ -494,22 +525,22 @@ Flash messages allow you to send temporary messages (errors, success, info, warn
 - `info` - Information messages
 - `warning` - Warning messages
 
-#### Usage in Controller
+#### Usage in Handler
 
 ```typescript
 // Send error message
 return response
-   .flash("error", "Email sudah terdaftar")
+   .flash("error", "Email already registered")
    .redirect("/register");
 
 // Send success message
 return response
-   .flash("success", "Registrasi berhasil!")
+   .flash("success", "Registration successful!")
    .redirect("/login");
 
 // Chain with other methods
 return response
-   .flash("error", "Password salah")
+   .flash("error", "Incorrect password")
    .redirect("/login");
 ```
 
@@ -542,20 +573,20 @@ import { registerSchema } from "../validators/auth.validator";
 async processRegister(request: Request, response: Response) {
   try {
     const body = await request.json();
-    
+
     // Validate input
     const validationResult = Validator.validate(registerSchema, body);
-    
+
     if (!validationResult.success) {
       const errors = validationResult.errors || {};
-      const firstError = Object.values(errors)[0]?.[0] || 'Terjadi kesalahan validasi';
+      const firstError = Object.values(errors)[0]?.[0] || 'Validation error';
       return response
          .flash("error", firstError)
          .redirect("/register");
     }
-    
+
     const { email, password, name } = validationResult.data!;
-    
+
     // Business logic
     const existingUser = await DB.selectFrom("users")
       .selectAll()
@@ -563,23 +594,23 @@ async processRegister(request: Request, response: Response) {
       .executeTakeFirst();
     if (existingUser) {
       return response
-         .flash("error", "Email sudah terdaftar")
+         .flash("error", "Email already registered")
          .redirect("/register");
     }
-    
+
     // Success
     return response.redirect("/success");
-    
+
   } catch (error: any) {
     console.error("Error:", error);
-    
+
     // Handle specific database errors
     if (error.code === 'SQLITE_CONSTRAINT') {
-      return response.flash("error", "Data sudah ada").redirect("/path");
+      return response.flash("error", "Data already exists").redirect("/path");
     }
-    
+
     // Generic error
-    return response.flash("error", "Terjadi kesalahan. Silakan coba lagi nanti.").redirect("/path");
+    return response.flash("error", "An error occurred. Please try again later.").redirect("/path");
   }
 }
 ```
@@ -594,53 +625,42 @@ Here's a complete example showing all aspects of error handling:
 async processRequest(request: Request, response: Response) {
   try {
     const body = await request.json();
-    
+
     // 1. Validation
     const validationResult = Validator.validate(schema, body);
     if (!validationResult.success) {
       const errors = validationResult.errors || {};
-      const firstError = Object.values(errors)[0]?.[0] || 'Terjadi kesalahan validasi';
+      const firstError = Object.values(errors)[0]?.[0] || 'Validation error';
       return response.flash("error", firstError).redirect("/path");
     }
-    
+
     // 2. Business logic
     const { email } = validationResult.data!;
-    
+
     // 3. Database operations
     const existing = await DB.selectFrom("users")
       .selectAll()
       .where("email", "=", email)
       .executeTakeFirst();
     if (existing) {
-      return response.flash("error", "Email sudah terdaftar").redirect("/path");
+      return response.flash("error", "Email already registered").redirect("/path");
     }
-    
+
     // 4. Success
     return response.redirect("/success");
-    
+
   } catch (error: any) {
     console.error("Error:", error);
-    
+
     // Handle specific database errors
     if (error.code === 'SQLITE_CONSTRAINT') {
-      return response.flash("error", "Data sudah ada").redirect("/path");
+      return response.flash("error", "Data already exists").redirect("/path");
     }
-    
+
     // Generic error
-    return response.flash("error", "Terjadi kesalahan. Silakan coba lagi nanti.").redirect("/path");
+    return response.flash("error", "An error occurred. Please try again later.").redirect("/path");
   }
 }
-```
-
----
-
-### Validation with JSON Response (For API Endpoints)
-
-For API endpoints (not Inertia forms), use `validateOrFail()`:
-
-```typescript
-const validated = Validator.validateOrFail(schema, body, response);
-if (!validated) return; // Validation failed, response already sent
 ```
 
 ---
@@ -654,18 +674,18 @@ async index(request: Request, response: Response) {
   const page = parseInt(request.query.page || "1");
   const perPage = 10;
   const offset = (page - 1) * perPage;
-  
+
   const posts = await DB.selectFrom("posts")
     .selectAll()
     .orderBy("created_at", "desc")
     .limit(perPage)
     .offset(offset)
     .execute();
-  
+
   const total = await DB.selectFrom("posts")
     .select(({ fn }) => [fn.count("*").as("count")])
     .executeTakeFirst();
-  
+
   return response.inertia("posts/index", {
     posts,
     pagination: {
@@ -683,25 +703,25 @@ async index(request: Request, response: Response) {
 ```typescript
 async index(request: Request, response: Response) {
   const { search, status, sort } = request.query;
-  
+
   let query = DB.selectFrom("posts").selectAll();
-  
+
   // Search
   if (search) {
     query = query.where("title", "like", `%${search}%`) as any;
   }
-  
+
   // Filter
   if (status) {
     query = query.where("status", "=", status) as any;
   }
-  
+
   // Sort
   const sortBy = sort || "created_at";
   query = query.orderBy(sortBy, "desc") as any;
-  
+
   const posts = await query.execute();
-  
+
   return response.inertia("posts/index", { posts, search, status, sort });
 }
 ```
@@ -711,25 +731,25 @@ async index(request: Request, response: Response) {
 ```typescript
 async store(request: Request, response: Response) {
   const { title, content } = await request.json();
-  
+
   // Validate
   const errors: any = {};
-  
+
   if (!title || title.trim().length === 0) {
     errors.title = "Title is required";
   }
-  
+
   if (!content || content.trim().length < 10) {
     errors.content = "Content must be at least 10 characters";
   }
-  
+
   if (Object.keys(errors).length > 0) {
     return response.status(422).json({
       error: "Validation failed",
       details: errors
     });
   }
-  
+
   // Store
   await DB.insertInto("posts").values({
     title,
@@ -737,7 +757,7 @@ async store(request: Request, response: Response) {
     created_at: Date.now(),
     updated_at: Date.now()
   }).execute();
-  
+
   return response.redirect("/posts");
 }
 ```
@@ -748,7 +768,7 @@ async store(request: Request, response: Response) {
 async index(request: Request, response: Response) {
   try {
     const posts = await DB.selectFrom("posts").selectAll().execute();
-    
+
     return response.json({
       success: true,
       data: posts,
@@ -757,7 +777,7 @@ async index(request: Request, response: Response) {
         timestamp: Date.now()
       }
     });
-    
+
   } catch (error) {
     return response.status(500).json({
       success: false,
@@ -768,356 +788,81 @@ async index(request: Request, response: Response) {
 }
 ```
 
-### Pattern 5: File Upload
-
-Laju provides two separate upload endpoints for different file types:
-
-#### Upload Routes
-
-```typescript
-// routes/web.ts
-import UploadController from "../app/controllers/UploadController";
-import Auth from "../app/middlewares/auth";
-import { uploadRateLimit } from "../app/middlewares/rateLimit";
-
-// Upload images with processing (resize, convert to WebP)
-Route.post("/api/upload/image", [Auth, uploadRateLimit], UploadController.uploadImage);
-
-// Upload files without processing (PDF, Word, Excel, etc.)
-Route.post("/api/upload/file", [Auth, uploadRateLimit], UploadController.uploadFile);
-```
-
-#### Image Upload with Processing
-
-```typescript
-// app/controllers/UploadController.ts
-import { uuidv7 } from "uuidv7";
-import sharp from "sharp";
-import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
-
-async uploadImage(request: Request, response: Response) {
-   if (!request.user) {
-      return response.status(401).json({ error: 'Unauthorized' });
-   }
-
-   const userId = request.user.id;
-   let uploadedAsset: any = null;
-
-   await request.multipart(async (field: unknown) => {
-      if (field && typeof field === 'object' && 'file' in field && field.file) {
-         const file = field.file as { stream: NodeJS.ReadableStream; mime_type: string };
-         
-         // Validate file type
-         const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-         if (!allowedTypes.includes(file.mime_type)) {
-            return response.status(400).json({ 
-               success: false, 
-               error: 'Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.' 
-            });
-         }
-
-         // Convert stream to buffer
-         const chunks: Buffer[] = [];
-         file.stream.on('data', (chunk: Buffer) => chunks.push(chunk));
-         
-         await new Promise((resolve) => {
-            file.stream.on('end', resolve);
-         });
-         
-         const buffer = Buffer.concat(chunks);
-
-         // Process image with Sharp
-         const processedBuffer = await sharp(buffer)
-            .webp({ quality: 80 })
-            .resize(1200, 1200, { fit: 'inside', withoutEnlargement: true })
-            .toBuffer();
-
-         // Upload to storage
-         const id = uuidv7();
-         const fileName = `${id}.webp`;
-         const storageKey = `assets/${fileName}`;
-         
-         await uploadBuffer(storageKey, processedBuffer, 'image/webp');
-         const publicUrl = getPublicUrl(storageKey);
-
-         // Save to database
-         uploadedAsset = {
-            id,
-            type: 'image',
-            url: publicUrl,
-            mime_type: 'image/webp',
-            name: fileName,
-            size: processedBuffer.length,
-            user_id: userId,
-            storage_key: storageKey,
-            created_at: Date.now(),
-            updated_at: Date.now()
-         };
-
-         await DB.insertInto("assets").values(uploadedAsset).execute();
-         response.json({ success: true, data: uploadedAsset });
-      }
-   });
-}
-```
-
-#### File Upload (Non-Image)
-
-```typescript
-async uploadFile(request: Request, response: Response) {
-   if (!request.user) {
-      return response.status(401).json({ error: 'Unauthorized' });
-   }
-
-   const userId = request.user.id;
-
-   await request.multipart(async (field: unknown) => {
-      if (field && typeof field === 'object' && 'file' in field && field.file) {
-         const file = field.file as { stream: NodeJS.ReadableStream; mime_type: string; name: string };
-         
-         // Validate file type
-         const allowedTypes = [
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'text/plain',
-            'text/csv'
-         ];
-         
-         if (!allowedTypes.includes(file.mime_type)) {
-            return response.status(400).json({ 
-               success: false, 
-               error: 'Invalid file type. Allowed types: PDF, Word, Excel, Text, CSV' 
-            });
-         }
-
-         // Convert stream to buffer
-         const chunks: Buffer[] = [];
-         file.stream.on('data', (chunk: Buffer) => chunks.push(chunk));
-         
-         await new Promise((resolve) => {
-            file.stream.on('end', resolve);
-         });
-         
-         const buffer = Buffer.concat(chunks);
-
-         // Upload directly without processing
-         const id = uuidv7();
-         const ext = file.name.split('.').pop();
-         const fileName = `${id}.${ext}`;
-         const storageKey = `files/${userId}/${fileName}`;
-         
-         await uploadBuffer(storageKey, buffer, file.mime_type);
-         const publicUrl = getPublicUrl(storageKey);
-
-         // Save to database
-         const uploadedAsset = {
-            id,
-            type: 'file',
-            url: publicUrl,
-            mime_type: file.mime_type,
-            name: file.name,
-            size: buffer.length,
-            user_id: userId,
-            storage_key: storageKey,
-            created_at: Date.now(),
-            updated_at: Date.now()
-         };
-
-         await DB.insertInto("assets").values(uploadedAsset).execute();
-         response.json({ success: true, data: uploadedAsset });
-      }
-   });
-}
-```
-
-#### Storage Service Selection
-
-Choose between S3 and Local Storage by changing the import:
-
-```typescript
-// For S3 Storage
-import { getPublicUrl, uploadBuffer } from "app/services/S3";
-
-// For Local Storage
-import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
-```
-
-Both services have the same API, making it easy to switch between them.
-
-#### Client-Side Upload Example
-
-```javascript
-// Upload image
-const formData = new FormData();
-formData.append('file', imageFile);
-
-const response = await fetch('/api/upload/image', {
-  method: 'POST',
-  body: formData
-});
-
-const { success, data } = await response.json();
-console.log(data.url); // Public URL of uploaded image
-```
-
 ---
 
 ## Best Practices
 
 ### ✅ DO
 
-**1. Keep controllers thin**
+**1. Keep handlers thin**
 ```typescript
 // ✅ Good - Delegate to services
 public async store(request: Request, response: Response) {
   const data = await request.json();
-  const post = await PostService.create(data);
-  return response.json({ success: true, data: post });
+  const user = await UserService.create(data);
+  return response.json({ user });
 }
 ```
 
-**2. Use try-catch for error handling**
+**2. Use absolute imports**
 ```typescript
 // ✅ Good
-async store(request: Request, response: Response) {
-  try {
-    const data = await request.json();
-    await DB.insertInto("posts").values(data).execute();
-    return response.json({ success: true });
-  } catch (error) {
-    return response.status(500).json({ error: "Failed to create post" });
-  }
+import DB from "app/services/DB";
+import AuthHandler from "app/handlers/auth.handler";
+
+// ❌ Avoid
+import DB from "../../app/services/DB";
+```
+
+**3. Validate input first**
+```typescript
+// ✅ Good
+const validationResult = Validator.validate(schema, body);
+if (!validationResult.success) {
+  return response.flash("error", "Validation failed").redirect("/path");
 }
 ```
 
-**3. Validate input**
+**4. Use flash messages for user feedback**
 ```typescript
 // ✅ Good
-const { email } = await request.json();
-
-if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-  return response.status(422).json({ error: "Invalid email" });
-}
+return response
+  .flash("success", "Profile updated successfully")
+  .redirect("/profile", 303);
 ```
-
-**4. Use proper HTTP status codes**
-```typescript
-// ✅ Good
-200 // OK
-201 // Created
-400 // Bad Request
-401 // Unauthorized
-404 // Not Found
-422 // Validation Error
-500 // Server Error
-```
-
-**5. Return consistent response format**
-```typescript
-// ✅ Good - Success
-{ success: true, data: { ... } }
-
-// ✅ Good - Error
-{ error: "Message", details: { ... } }
-```
-
----
 
 ### ❌ DON'T
 
-**1. Don't put business logic in controllers**
+**1. Don't put business logic in handlers**
 ```typescript
-// ❌ Bad
+// ❌ Bad - Business logic in handler
 public async store(request: Request, response: Response) {
-  const data = await request.json();
-  // Complex validation logic
-  // Complex business rules
-  // Complex data transformation
-  await DB.insertInto("posts").values(data).execute();
+  const { email, password } = await request.json();
+  const hashed = await crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512');
+  // ... more logic
+}
+
+// ✅ Good - Use service
+public async store(request: Request, response: Response) {
+  const { email, password } = await request.json();
+  const user = await UserService.create({ email, password });
+  return response.json({ user });
 }
 ```
 
-**2. Don't forget error handling**
-```typescript
-// ❌ Bad - No error handling
-public async store(request: Request, response: Response) {
-  const data = await request.json();
-  await DB.insertInto("posts").values(data).execute();
-  return response.json({ success: true });
-}
-```
-
-**3. Don't expose sensitive data**
+**2. Don't use 302 for form submissions**
 ```typescript
 // ❌ Bad
-const user = await DB.selectFrom("users")
-  .selectAll()
-  .where("id", "=", id)
-  .executeTakeFirst();
-return response.json({ user }); // Includes password hash!
+return response.redirect("/profile"); // 302
 
 // ✅ Good
-const user = await DB.selectFrom("users")
-  .select(["id", "name", "email"])
-  .where("id", "=", id)
-  .executeTakeFirst();
-return response.json({ user });
-```
-
-**4. Don't use synchronous operations**
-```typescript
-// ❌ Bad
-const data = fs.readFileSync("file.txt");
-
-// ✅ Good
-const data = await fs.promises.readFile("file.txt");
-```
-
----
-
-## Summary
-
-### Key Takeaways
-
-1. **Routes connect URLs to controllers** - Define in `routes/web.ts`
-2. **Controllers handle business logic** - Keep them thin and focused
-3. **Use proper HTTP methods** - GET, POST, PUT, DELETE
-4. **Validate input** - Always validate user data
-5. **Handle errors** - Use try-catch blocks
-6. **Return consistent responses** - Use standard format
-
-### Quick Reference
-
-```typescript
-// Define route
-Route.get("/posts", PostController.index);
-Route.post("/posts", PostController.store);
-
-// Controller method
-async index(request: Request, response: Response) {
-  const posts = await DB.selectFrom("posts").selectAll().execute();
-  return response.inertia("posts/index", { posts });
-}
-
-// Get request data
-const data = await request.json();
-const { id } = request.params;
-const { page } = request.query;
-
-// Send response
-return response.json({ data });
-return response.inertia("page", { props });
-return response.redirect("/path");
+return response.redirect("/profile", 303);
 ```
 
 ---
 
 ## Next Steps
 
-- [Frontend (Svelte 5)](05-FRONTEND-SVELTE.md) - Build UI with Svelte
-- [Middleware Guide](07-MIDDLEWARE.md) - Add authentication & validation
-- [Database Guide](03-DATABASE.md) - Learn database operations
-- [Validation Guide](08-VALIDATION.md) - Input validation with Zod
+- [Frontend (Svelte 5)](05-frontend-svelte.md) - Build reactive UIs
+- [Validation](08-validation.md) - Input validation with Zod
+- [Middleware](07-middleware.md) - Custom middleware patterns

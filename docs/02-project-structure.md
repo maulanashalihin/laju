@@ -7,9 +7,10 @@ Complete overview of the Laju framework directory structure and file organizatio
 ```
 laju/
 ├── app/                          # Backend application code
-│   ├── controllers/              # Request handlers
+│   ├── handlers/                 # Request handlers (domain-based)
 │   ├── middlewares/              # Custom middleware
 │   ├── services/                 # Business logic layer
+│   ├── repositories/             # Database query layer
 │   └── validators/               # Input validation schemas
 ├── resources/                    # Frontend resources
 │   ├── js/                       # JavaScript/Svelte code
@@ -51,56 +52,83 @@ app/validators/
     └── uploadSchema        # File upload validation
 ```
 
-### Controllers (`app/controllers/`)
+### Handlers (`app/handlers/`)
 
-Request handlers that coordinate between routes and services. Controllers are split by domain for better maintainability.
+Request handlers that coordinate between routes and services. Handlers are organized by domain for better maintainability.
 
 ```
-app/controllers/
-├── LoginController.ts      # Login/logout logic
+app/handlers/
+├── auth.handler.ts         # Authentication (login, register, OAuth, password reset)
 │   ├── loginPage()         # Display login form
 │   ├── processLogin()      # Handle login submission
-│   └── logout()            # End user session
-│
-├── RegisterController.ts   # Registration logic
 │   ├── registerPage()      # Display registration form
-│   └── processRegister()   # Handle registration
-│
-├── PasswordController.ts   # Password management
+│   ├── processRegister()   # Handle registration
+│   ├── logout()            # End user session
+│   ├── googleRedirect()    # Google OAuth redirect
+│   ├── googleCallback()    # Google OAuth callback
 │   ├── forgotPasswordPage() # Password reset form
 │   ├── sendResetPassword() # Send reset email
 │   ├── resetPasswordPage() # Reset password form
 │   ├── resetPassword()     # Process password reset
 │   └── changePassword()    # Change password
 │
-├── ProfileController.ts    # User profile logic
+├── app.handler.ts          # Application pages (dashboard, profile, user management)
 │   ├── homePage()          # User dashboard
 │   ├── profilePage()       # User profile
 │   ├── changeProfile()     # Update profile
 │   └── deleteUsers()       # Admin: bulk delete users
 │
-├── OAuthController.ts      # OAuth providers
-│   ├── redirect()          # Google OAuth redirect
-│   └── googleCallback()    # Google OAuth callback
+├── public.handler.ts       # Public pages
+│   ├── index()             # Landing page
+│   ├── test()              # Test page
+│   └── test2()             # Test page 2
 │
-├── VerificationController.ts # Email verification
-│   ├── verify()            # Send verification email
-│   └── verifyPage()        # Process verification
+├── upload.handler.ts       # File upload operations
+│   ├── uploadImage()       # Upload image with processing
+│   └── uploadFile()        # Upload file (PDF, Word, Excel, etc.)
 │
-├── HomeController.ts       # Home page logic
-│   └── index()             # Landing page
-│
-├── AssetController.ts      # Static file serving
-│   ├── distFolder()        # Serve compiled assets
-│   └── publicFolder()      # Serve public files
-│
-├── S3Controller.ts         # S3 operations
+├── s3.handler.ts           # S3 operations
 │   ├── getSignedUrl()      # Generate presigned URL
 │   ├── getPublicUrl()      # Get public file URL
 │   └── health()            # S3 health check
 │
-└── StorageController.ts    # Local storage operations
-    └── serveFile()         # Serve local storage files
+├── storage.handler.ts      # Local storage file serving
+│   └── serveFile()         # Serve local storage files
+│
+└── asset.handler.ts        # Static asset serving
+    ├── distFolder()        # Serve compiled assets
+    └── publicFolder()      # Serve public files
+```
+
+**Handler Pattern:**
+
+```typescript
+// app/handlers/auth.handler.ts
+import { UserRepository } from "../repositories/user.repository";
+import Authenticate from "../services/Authenticate";
+import Validator from "../services/Validator";
+import { Response, Request } from "../../type";
+
+export const AuthHandler = {
+  async loginPage(request: Request, response: Response) {
+    return response.inertia("auth/login");
+  },
+
+  async processLogin(request: Request, response: Response) {
+    const body = await request.json();
+    const validationResult = Validator.validate(loginSchema, body);
+    
+    if (!validationResult.success) {
+      const firstError = Object.values(validationResult.errors || {})[0]?.[0] || "Validation error";
+      return response.flash("error", firstError).redirect("/login");
+    }
+
+    // Business logic...
+    return Authenticate.process(user, request, response);
+  }
+};
+
+export default AuthHandler;
 ```
 
 ### Middleware (`app/middlewares/`)
@@ -289,7 +317,7 @@ migrations/
 ```
 commands/
 ├── native/                 # Built-in commands
-│   ├── MakeController.ts   # Generate controller
+│   ├── MakeHandler.ts      # Generate handler
 │   └── MakeCommand.ts      # Generate command
 └── index.ts                # Command registry
 ```
@@ -299,7 +327,7 @@ commands/
 ```
 tests/
 ├── unit/                   # Unit tests
-│   ├── controllers/        # Controller tests
+│   ├── handlers/           # Handler tests
 │   └── services/           # Service tests
 ├── integration/            # Integration tests
 │   └── auth.test.ts        # Auth flow tests
@@ -340,9 +368,10 @@ Complete production build:
 ```
 build/
 ├── app/                    # Compiled backend
-│   ├── controllers/        # Compiled controllers
+│   ├── handlers/           # Compiled handlers
 │   ├── middlewares/        # Compiled middleware
-│   └── services/           # Compiled services
+│   ├── services/           # Compiled services
+│   └── repositories/       # Compiled repositories
 ├── dist/                   # Frontend assets
 │   ├── assets/             # Bundled JS/CSS
 │   └── views/              # Templates
@@ -383,9 +412,11 @@ laju/
 
 ### Backend (TypeScript)
 
-- **Controllers:** `PascalCase` + `Controller.ts` (e.g., `AuthController.ts`)
+- **Handlers:** `kebab-case` + `.handler.ts` (e.g., `auth.handler.ts`)
 - **Services:** `PascalCase.ts` (e.g., `Authenticate.ts`, `DB.ts`)
-- **Middleware:** `camelCase.ts` (e.g., `auth.ts`, `inertia.ts`)
+- **Middleware:** `kebab-case` + `.middleware.ts` (e.g., `auth.middleware.ts`, `csrf.middleware.ts`)
+- **Repositories:** `kebab-case` + `.repository.ts` (e.g., `user.repository.ts`)
+- **Validators:** `kebab-case` + `.validator.ts` (e.g., `auth.validator.ts`)
 - **Migrations:** `timestamp_description.ts` (e.g., `20230513055909_users.ts`)
 
 ### Frontend (Svelte)
@@ -406,7 +437,9 @@ Laju supports absolute imports from project root:
 ```typescript
 // ✅ Absolute imports (recommended)
 import DB from "app/services/DB";
-import AuthController from "app/controllers/AuthController";
+import AuthHandler from "app/handlers/auth.handler";
+import Auth from "app/middlewares/auth.middleware";
+import { UserRepository } from "app/repositories/user.repository";
 import { Request, Response } from "type";
 
 // ❌ Relative imports (avoid)
@@ -432,7 +465,7 @@ Configured in `tsconfig.json`:
 ## Next Steps
 
 - [Database Guide](03-database.md) - Learn database operations
-- [Routing & Controllers](04-routing-controllers.md) - Handle HTTP requests
+- [Routing & Handlers](04-routing-handlers.md) - Handle HTTP requests
 - [Frontend (Svelte 5)](05-frontend-svelte.md) - Build reactive UI
 - [Authentication](06-authentication.md) - User authentication
 - [Middleware Guide](07-middleware.md) - Custom middleware patterns

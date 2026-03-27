@@ -69,7 +69,7 @@ Documentation is organized for progressive learning from beginner to advanced.
 - [Database](docs/03-database.md) - Kysely + SQLite
 
 ### Core Features
-- [Routing & Controllers](docs/04-routing-controllers.md) - Handle requests
+- [Routing & Handlers](docs/04-routing-handlers.md) - Handle requests
 - [Frontend (Svelte 5)](docs/05-frontend-svelte.md) - Build reactive UI
 - [Authentication](docs/06-authentication.md) - Sessions + OAuth
 - [Middleware](docs/07-middleware.md) - Auth, Rate limiting
@@ -103,17 +103,17 @@ Documentation is organized for progressive learning from beginner to advanced.
 
 ```
 app/
-├── controllers/     # Request handlers
+├── handlers/        # Request handlers (domain-based)
 ├── middlewares/     # Auth, rate limiting, CSRF
 ├── services/        # DB, Mailer, Storage, Cache
-├── repositories/    # Database query layer (optional)
+├── repositories/    # Database query layer
 └── validators/      # Input validation
 
 resources/
 ├── js/
 │   ├── Pages/       # Svelte/Inertia pages
 │   ├── Components/  # Reusable components
-│   └── index.css    # TailwindCSS 3 & 4
+│   └── index.css    # TailwindCSS
 └── views/           # Eta templates
 
 routes/              # Route definitions
@@ -132,7 +132,7 @@ type/                # TypeScript definitions
 ```bash
 npm run dev                              # Development
 npm run build                            # Production build
-node laju make:controller UserController # Generate controller
+node laju make:handler UserHandler       # Generate handler
 npm run migrate                          # Run migrations
 npm run migrate:down                     # Rollback last migration
 npm run migrate:down 3                   # Rollback 3 migrations

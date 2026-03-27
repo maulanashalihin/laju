@@ -2,34 +2,34 @@
 
 Common patterns for implementing features in Laju Framework.
 
-## Pattern 1: New Feature (Page + Controller + Route)
+## Pattern 1: New Feature (Page + Handler + Route)
 
 **Example: Creating Post System**
 
 ### 1. Check PROGRESS.md
 Find "Post system" task and check existing files:
-- Controller: `app/controllers/PostController.ts`
+- Handler: `app/handlers/posts.handler.ts`
 - Page: `resources/js/Pages/posts/index.svelte`
 - Route: Check `routes/web.ts`
 
-### 2. Create Controller
+### 2. Create Handler
 
 ```typescript
-// app/controllers/PostController.ts
+// app/handlers/posts.handler.ts
 import { Response, Request } from "../../type";
 import DB from '../services/DB'
 import Validator from '../services/Validator'
-import { storePostSchema } from '../validators/PostValidator'
+import { storePostSchema } from '../validators/post.validator'
 import { uuidv7 } from 'uuidv7'
 
-export const PostController = {
+export const PostHandler = {
   async index(request: Request, response: Response) {
     const posts = await DB.selectFrom('posts')
       .innerJoin('users', 'posts.user_id', 'users.id')
       .select(['posts.id', 'posts.title', 'posts.content', 'users.name'])
       .orderBy('posts.created_at', 'desc')
       .execute()
-    
+
     return response.inertia('posts/index', { posts })
   },
 
@@ -37,12 +37,12 @@ export const PostController = {
     const body = await request.json()
     const validationResult = Validator.validate(storePostSchema, body)
     if (!validationResult.success) {
-      const firstError = Object.values(validationResult.errors || {})[0]?.[0] || 'Validasi gagal'
+      const firstError = Object.values(validationResult.errors || {})[0]?.[0] || 'Validation error'
       return response.flash('error', firstError).redirect('/posts', 302)
     }
-    
+
     const { title, content } = validationResult.data!
-    
+
     await DB.insertInto('posts').values({
       id: uuidv7(),
       user_id: request.user.id,
@@ -51,34 +51,34 @@ export const PostController = {
       created_at: Date.now(),
       updated_at: Date.now()
     }).execute()
-    
-    return response.flash('success', 'Post berhasil dibuat').redirect('/posts', 302)
+
+    return response.flash('success', 'Post created successfully').redirect('/posts', 302)
   },
 
   async update(request: Request, response: Response) {
     const body = await request.json()
     const id = request.params.id
-    
+
     const validationResult = Validator.validate(storePostSchema, body)
     if (!validationResult.success) {
-      const firstError = Object.values(validationResult.errors || {})[0]?.[0] || 'Validasi gagal'
+      const firstError = Object.values(validationResult.errors || {})[0]?.[0] || 'Validation error'
       return response.flash('error', firstError).redirect(`/posts/${id}/edit`, 303)
     }
-    
+
     const { title, content } = validationResult.data!
-    
+
     await DB.updateTable('posts')
       .set({ title, content, updated_at: Date.now() })
       .where('id', '=', id)
       .execute()
-    
-    return response.flash('success', 'Post berhasil diupdate').redirect('/posts', 303)
+
+    return response.flash('success', 'Post updated successfully').redirect('/posts', 303)
   },
 
   async destroy(request: Request, response: Response) {
     const id = request.params.id
     await DB.deleteFrom('posts').where('id', '=', id).execute()
-    return response.flash('success', 'Post berhasil dihapus').redirect('/posts', 303)
+    return response.flash('success', 'Post deleted successfully').redirect('/posts', 303)
   }
 }
 ```
@@ -146,14 +146,15 @@ export const PostController = {
 
 ```typescript
 // routes/web.ts
-import PostController from "../app/controllers/PostController"
+import PostHandler from "../app/handlers/posts.handler"
+import Auth from "../app/middlewares/auth.middleware"
 
-Route.get('/posts', [Auth], PostController.index)
-Route.get('/posts/create', [Auth], PostController.create)
-Route.post('/posts', [Auth], PostController.store)
-Route.get('/posts/:id/edit', [Auth], PostController.edit)
-Route.put('/posts/:id', [Auth], PostController.update)
-Route.delete('/posts/:id', [Auth], PostController.destroy)
+Route.get('/posts', [Auth], PostHandler.index)
+Route.get('/posts/create', [Auth], PostHandler.create)
+Route.post('/posts', [Auth], PostHandler.store)
+Route.get('/posts/:id/edit', [Auth], PostHandler.edit)
+Route.put('/posts/:id', [Auth], PostHandler.update)
+Route.delete('/posts/:id', [Auth], PostHandler.destroy)
 ```
 
 ### 5. Update PROGRESS.md
@@ -178,14 +179,14 @@ Mark completed items with `[x]` and add completion date.
 
 ### 2. Identify Changes Needed
 
-- Controller: Add `exportExcel` method
+- Handler: Add `exportExcel` method
 - Route: Add new route
 - Dependencies: Install `exceljs`
 
 ### 3. Implement
 
 ```typescript
-// Add to ReportController.ts
+// Add to PostsHandler.ts
 async exportExcel(request: Request, response: Response) {
   // Implementation here
 }
@@ -221,7 +222,7 @@ Route.get('/reports/export/excel', [Auth], ReportController.exportExcel)
 
 ### 2. Identify Components
 
-- Controller: New `NotificationController`
+- Handler: New `NotificationHandler`
 - Route: New route
 - Service: WhatsApp integration
 
@@ -238,7 +239,7 @@ Mark all items `[x]` complete with date.
 ## Key Principles
 
 1. **Always check existing files first** - Don't create duplicates
-2. **Follow Laju patterns** - Controllers, validators, routes
+2. **Follow Laju patterns** - Handlers, validators, routes
 3. **Use DB directly for simple CRUD** - Repository only for complex queries
 4. **Update PROGRESS.md** - After each feature completion
 5. **Test manually** - Before committing
@@ -255,7 +256,7 @@ Mark all items `[x]` complete with date.
 
 ## See Also
 
-- `skills/create-controller.md` - Controller patterns
+- `skills/create-handler.md` - Handler patterns
 - `skills/create-svelte-inertia-page.md` - Page patterns
 - `skills/repository-pattern.md` - When to use Repository
 - `skills/kysely.md` - Database queries

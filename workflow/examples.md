@@ -56,7 +56,7 @@ Saya mau bikin aplikasi inventory untuk UMKM.
 
 Kebutuhan:
 - Kelola beberapa gudang
-- Track stok real-time  
+- Track stok real-time
 - Purchase order ke supplier
 - Sales order dari customer
 - Laporan penjualan dan stok
@@ -126,6 +126,7 @@ Kebutuhan produk sudah di-approve client.
 • Frontend: Svelte 5 + Inertia
 • Database: SQLite + Kysely
 • Auth: Session-based
+• Handlers: Domain-based (app/handlers/)
 
 📊 Timeline: 16 minggu (8 sprint)
 

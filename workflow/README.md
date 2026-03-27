@@ -168,3 +168,29 @@ workflow/outputs/
 ├── 03-tasks/             # Task breakdowns
 └── 04-reports/           # @workflow/agents/qa.md
 ```
+
+---
+
+## Laju Patterns
+
+### Handler Pattern
+
+Handlers are organized by domain:
+
+```
+app/handlers/
+├── auth.handler.ts         # Authentication
+├── app.handler.ts          # Application pages
+├── public.handler.ts       # Public pages
+└── ...
+```
+
+### Route Pattern
+
+```typescript
+// routes/web.ts
+import AuthHandler from "../app/handlers/auth.handler";
+
+Route.get("/login", AuthHandler.loginPage);
+Route.post("/login", AuthHandler.processLogin);
+```

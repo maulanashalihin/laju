@@ -121,89 +121,89 @@ Kasih list prioritas jika client bingung.
 
 ```typescript
 import HyperExpress from 'hyper-express';
-import ItemController from "../app/controllers/ItemController";
-import Auth from "../app/middlewares/auth"
+import ItemHandler from "../app/handlers/item.handler";
+import Auth from "../app/middlewares/auth.middleware"
 
 const Route = new HyperExpress.Router();
 
 // Public routes
-Route.get("/items", ItemController.index);
+Route.get("/items", ItemHandler.index);
 
 // Protected routes (with auth middleware)
-Route.get("/items/create", [Auth], ItemController.create);
-Route.post("/items", [Auth], ItemController.store);
-Route.get("/items/:id/edit", [Auth], ItemController.edit);
-Route.put("/items/:id", [Auth], ItemController.update);
-Route.delete("/items/:id", [Auth], ItemController.destroy);
+Route.get("/items/create", [Auth], ItemHandler.create);
+Route.post("/items", [Auth], ItemHandler.store);
+Route.get("/items/:id/edit", [Auth], ItemHandler.edit);
+Route.put("/items/:id", [Auth], ItemHandler.update);
+Route.delete("/items/:id", [Auth], ItemHandler.destroy);
 
 export default Route;
 ```
 
 ### Controller Pattern
-**File:** `app/controllers/ItemController.ts`
+**File:** `app/handlers/[domain].handler.ts`
 
 ```typescript
 import { Response, Request } from "../../type";
 import ItemRepository from "../repositories/ItemRepository";
 import Validator from "../services/Validator";
-import { createItemSchema, updateItemSchema } from "../validators/item";
+import { createItemSchema, updateItemSchema } from "../validators/item.validator";
 
-export const ItemController = {
+export const ItemHandler = {
   // List page
   async index(request: Request, response: Response) {
     const items = await ItemRepository.getAll();
     return response.inertia("items/Index", { items });
   },
-  
+
   // Create form page
   async create(request: Request, response: Response) {
     return response.inertia("items/Create", { errors: {} });
   },
-  
+
   // Handle create
   async store(request: Request, response: Response) {
     const body = await request.json();
     const result = Validator.validate(createItemSchema, body);
-    
+
     if (!result.success) {
       return response
         .flash("error", "Validation failed")
         .inertia("items/Create", { errors: result.error.flatten().fieldErrors });
     }
-    
+
     await ItemRepository.create(result.data);
     return response.flash("success", "Item created").redirect("/items");
   },
-  
+
   // Edit form page
   async edit(request: Request, response: Response) {
     const { id } = request.params;
     const item = await ItemRepository.findById(id);
-    
+
     if (!item) {
       return response.status(404).inertia("errors/404");
     }
-    
+
     return response.inertia("items/Edit", { item, errors: {} });
   },
-  
+
   // Handle update
   async update(request: Request, response: Response) {
     const { id } = request.params;
     const body = await request.json();
     const result = Validator.validate(updateItemSchema, body);
-    
+
     if (!result.success) {
       const item = await ItemRepository.findById(id);
       return response
         .flash("error", "Validation failed")
         .inertia("items/Edit", { item, errors: result.error.flatten().fieldErrors });
     }
-    
+
     await ItemRepository.update(id, result.data);
     return response.flash("success", "Item updated").redirect("/items");
   },
-  
+
   // Handle delete
   async destroy(request: Request, response: Response) {
     const { id } = request.params;
@@ -212,7 +212,7 @@ export const ItemController = {
   }
 };
 
-export default ItemController;
+export default ItemHandler;
 ```
 
 ### Svelte Page dengan Form
@@ -328,11 +328,11 @@ Siap untuk testing.
 
 ## Project Structure
 
-### Controllers: `app/controllers/`
+### Handlers: `app/handlers/`
 - Request handlers
 - Export object dengan async methods
-- Pattern: `export const [Name]Controller = { ... }`
-- Import di routes: `import [Name]Controller from "../app/controllers/[Name]Controller"`
+- Pattern: `export const [Domain]Handler = { ... }`
+- Import di routes: `import [Domain]Handler from "../app/handlers/[domain].handler"`
 
 ### Services: `app/services/`
 - Business logic
@@ -349,18 +349,18 @@ Siap untuk testing.
 - Pattern: `export const [name]Schema = z.object({ ... })`
 
 ### Middlewares: `app/middlewares/`
-- Auth middleware: `app/middlewares/auth.ts`
-- Rate limiting: `app/middlewares/rateLimit.ts`
+- Auth middleware: `app/middlewares/auth.middleware.ts`
+- Rate limiting: `app/middlewares/rate-limit.middleware.ts`
 
 ### Routes: `routes/web.ts`
 - Define all routes here
-- Import controllers dan middlewares
-- Pattern: `Route.[method]("[path]", [middleware], Controller.method)`
+- Import handlers dan middlewares
+- Pattern: `Route.[method]("[path]", [middleware], Handler.method)`
 
 ### Pages: `resources/js/Pages/`
 - Svelte components for Inertia
 - Mirror URL structure
-- Controllers use: `response.inertia("items/Index", props)`
+- Handlers use: `response.inertia("items/Index", props)`
 
 ### Components: `resources/js/Components/`
 - Reusable Svelte components
@@ -543,11 +543,11 @@ async adminPage(request: Request, response: Response) {
 
 ### Auth Middleware Import
 ```typescript
-import Auth from "../app/middlewares/auth"
+import Auth from "../app/middlewares/auth.middleware"
 import {
   authRateLimit,
   apiRateLimit
-} from "../app/middlewares/rateLimit";
+} from "../app/middlewares/rate-limit.middleware";
 ```
 
 ---
