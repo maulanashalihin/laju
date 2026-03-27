@@ -2,14 +2,14 @@
   import { fly, fade } from 'svelte/transition';
   import { page, router, inertia } from '@inertiajs/svelte';
   import { clickOutside } from '../Components/helper';
-  import DarkModeToggle from './DarkModeToggle.svelte'; 
+  import DarkModeToggle from './DarkModeToggle.svelte';
 
-  let user = $page.props.user;
+  let user = page.props.user;
   let isMenuOpen = false;
   let isUserMenuOpen = false;
   let scrollY = 0;
 
-  export let group; 
+  export let group;
 
   const menuLinks = [
     { href: '/home', label: 'Beranda', group: 'home', show : true },  
