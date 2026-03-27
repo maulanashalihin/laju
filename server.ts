@@ -3,7 +3,8 @@
 // loads environment variables, and configures HTTPS for local development.
 
 // Load environment variables from .env into process.env
-import "dotenv/config";
+import { config } from "dotenv";
+config();
 
 // Inertia middleware: integrates Inertia.js responses for SSR-like pages
 import inertia from "./app/middlewares/inertia";

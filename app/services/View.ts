@@ -7,7 +7,8 @@
 import { readFileSync, existsSync } from "fs";
 import { Eta } from 'eta'
 import path from "path";
-import "dotenv/config";
+
+// NOTE: dotenv is loaded globally in server.ts, no need to import here
 
 // Get Vite dev server URL from .vite-port file or fallback to env/default
 function getViteDevUrl(): string {
