@@ -1,16 +1,29 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= it.app_title || "Laju - LAJU - Hyper Performance TypeScript Monolith" %></title>
-    <link rel="icon" type="image/png" sizes="32x32" href="/public/new-laju.png"> 
-    <link rel="stylesheet" href="<%= it.asset('js/index.css') %>">
-</head>
-<body class="bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white antialiased selection:bg-primary-500 selection:text-white dark:selection:bg-primary-600">
-    <div id="app" data-page="<%= it.page %>"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>
+            <%= it.app_title || "Laju - Hyper Performance TypeScript Monolith"
+            %>
+        </title>
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/public/new-laju.png"
+        />
+        <link rel="stylesheet" href="<%= it.asset('js/index.css') %>" />
+    </head>
+    <body
+        class="bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white antialiased selection:bg-primary-500 selection:text-white dark:selection:bg-primary-600"
+    >
+        <div id="app"></div>
 
+        <script data-page="app" type="application/json">
+            <%= it.page %>
+        </script>
 
-       <script type="module" src="<%= it.asset('js/app.js') %>"></script>
-</body>
+        <script type="module" src="<%= it.asset('js/app.js') %>"></script>
+    </body>
 </html>

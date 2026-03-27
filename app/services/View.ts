@@ -32,7 +32,7 @@ let directory = "resources/views";
 const eta = new Eta({
    views: path.join(process.cwd(), directory),
    cache: process.env.NODE_ENV !== 'development',
-   autoEscape: true
+   autoEscape: false
 });
 
 // Cache for JS files in development mode
@@ -83,9 +83,14 @@ if(process.env.NODE_ENV === 'production')
  * @returns Rendered HTML string
  */
 export function view(filename: string, view_data?: Record<string, unknown>) {
-   view_data = view_data || {};  
-   view_data.base_url = process.env.APP_URL; 
-   view_data.current_year = new Date().getFullYear(); 
+   view_data = view_data || {};
+   console.log('[View] Received data for', filename, ':', {
+      page: view_data.page ? 'present (' + (view_data.page as string).length + ' chars)' : 'MISSING',
+      hasAsset: typeof view_data.asset === 'function'
+   });
+   
+   view_data.base_url = process.env.APP_URL;
+   view_data.current_year = new Date().getFullYear();
    view_data.asset = function(file: string){
       if(process.env.NODE_ENV === 'production')
       {
@@ -97,9 +102,8 @@ export function view(filename: string, view_data?: Record<string, unknown>) {
    }
 
    let rendered = eta.render(filename, view_data || {});
-    
- 
-   
+
+   console.log('[View] Rendered length:', rendered?.length || 0);
    return rendered;
 }
  
