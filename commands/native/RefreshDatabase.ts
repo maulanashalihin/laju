@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as readline from "readline";
 import DB from "../../app/services/DB";
-import Migrator from "../../app/services/Migrator";
+import { createMigrator } from "../../app/services/Migrator";
 
 // Database configuration
 const dbConfig: Record<string, { filename: string }> = {
@@ -113,7 +113,7 @@ class Command {
       const db = DB.getConnection(selectedDb.env);
 
       // Run migrations
-      const migrator = new Migrator(db);
+      const migrator = createMigrator(db);
       const result = await migrator.migrateToLatest();
 
       if (result.success) {

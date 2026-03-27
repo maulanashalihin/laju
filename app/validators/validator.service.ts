@@ -18,7 +18,7 @@ interface ValidationResult<T> {
 /**
  * Validator Service
  */
-class ValidatorService {
+export const Validator = {
   /**
    * Validate data against a Zod schema
    * @param schema - Zod schema to validate against
@@ -35,7 +35,7 @@ class ValidatorService {
     } catch (error: unknown) {
       if (error instanceof ZodError) {
         const errors: Record<string, string[]> = {};
-        
+
         error.issues.forEach((err) => {
           const path = err.path.join('.');
           if (!errors[path]) {
@@ -49,10 +49,10 @@ class ValidatorService {
           errors,
         };
       }
-      
+
       throw error;
     }
-  }
+  },
 
   /**
    * Validate and return data or send error response
@@ -78,7 +78,7 @@ class ValidatorService {
     }
 
     return result.data!;
-  }
+  },
 
   /**
    * Validate and throw error if validation fails
@@ -89,12 +89,12 @@ class ValidatorService {
    */
   validateOrThrow<T>(schema: ZodSchema<T>, data: unknown): T {
     return schema.parse(data);
-  }
+  },
 
   /**
    * Common validation schemas
    */
-  schemas = {
+  schemas: {
     // Email validation
     email: z.string().email('Invalid email'),
 
@@ -130,10 +130,10 @@ class ValidatorService {
 
     // UUID
     uuid: z.string().uuid('Invalid UUID'),
-  };
-}
+  },
+};
 
-export default new ValidatorService();
+export default Validator;
 
 // Export Zod for custom schemas
 export { z };

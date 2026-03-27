@@ -48,7 +48,7 @@
     "paths": {
       "app/*": ["app/*"],
       "routes/*": ["routes/*"],
-      "resources/*": ["resources/*"],
+      "frontend/*": ["frontend/*"],
       "type/*": ["type/*"],
     },
     /* Ignore deprecation warnings for Node10 module resolution */

@@ -5,7 +5,7 @@
 
 import { processImage, isImageMimeType, ProcessImageOptions } from "./ImageProcessor";
 import { validateFile, ValidationSets, ValidationResult } from "./FileValidator";
-import { AssetRepository, CreateAssetData } from "../repositories/AssetRepository";
+import { AssetRepository, CreateAssetData } from "../repositories/asset.repository";
 import { getPublicUrl, uploadBuffer } from "./LocalStorage";
 import path from "path";
 

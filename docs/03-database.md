@@ -402,23 +402,23 @@ npm run migrate:down 20230514062913_sessions.ts
 
 ```typescript
 import DB from "../app/services/DB";
-import Migrator from "../app/services/Migrator";
+import { createMigrator } from "../app/services/Migrator";
 
 async function rollback() {
-  const migrator = new Migrator(DB);
-  
+  const migrator = createMigrator(DB);
+
   // Rollback one migration
   const result = await migrator.migrateDown(1);
-  
+
   // Or rollback to specific migration
   // const result = await migrator.migrateTo("20230514062913_sessions");
-  
+
   if (result.success) {
     console.log("✅ Rollback completed");
   } else {
     console.error("❌ Rollback failed:", result.error);
   }
-  
+
   await DB.destroy();
 }
 

@@ -113,7 +113,7 @@ Use `validate()` with flash messages for form submissions:
 ```typescript
 // app/controllers/ProfileController.ts
 import Validator from "../services/Validator";
-import { updateProfileSchema } from "../validators/ProfileValidator";
+import { updateProfileSchema } from "../validators/profile.validator";
 
 class ProfileController {
   public async update(request: Request, response: Response) {

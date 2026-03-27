@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { field } from './CommonValidator';
+import { field } from './common.validator';
 
 /**
  * Update profile schema

@@ -537,7 +537,7 @@ let { flash } = $props();
 
 ```typescript
 import Validator from "../services/Validator";
-import { registerSchema } from "../validators/AuthValidator";
+import { registerSchema } from "../validators/auth.validator";
 
 async processRegister(request: Request, response: Response) {
   try {

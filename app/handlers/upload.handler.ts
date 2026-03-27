@@ -1,6 +1,6 @@
 /**
- * Upload Controller
- * Handles file upload endpoints using UploadService
+ * Upload Handler
+ * Handles file upload operations
  */
 
 import { Response, Request } from "../../type";
@@ -16,13 +16,14 @@ interface MultipartField {
   };
 }
 
-export const UploadController = {
+export const UploadHandler = {
   /**
    * Upload Image with Processing
    * - Validates image type
    * - Processes with Sharp (resize, convert to WebP)
    * - Uploads to storage
    * - Saves metadata to database
+   * POST /api/upload/image
    */
   async uploadImage(request: Request, response: Response) {
     try {
@@ -105,6 +106,7 @@ export const UploadController = {
    * - Validates file type
    * - Uploads directly without processing
    * - Saves metadata to database
+   * POST /api/upload/file
    */
   async uploadFile(request: Request, response: Response) {
     try {
@@ -168,4 +170,4 @@ export const UploadController = {
   },
 };
 
-export default UploadController;
+export default UploadHandler;

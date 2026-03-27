@@ -8,16 +8,16 @@ import { writeFileSync, rmSync } from "fs";
 
 // Vite entry point - only build JS/CSS assets
 const input = {
-  app: resolve(__dirname, "resources/js/app.js"),
-  index: resolve(__dirname, "resources/js/index.js"),
-  css: resolve(__dirname, "resources/js/index.css"),
+  app: resolve(__dirname, "frontend/src/app.js"),
+  index: resolve(__dirname, "frontend/src/index.js"),
+  css: resolve(__dirname, "frontend/src/index.css"),
 };
 
 // https://vite.dev/config/
 export default defineConfig({
   resolve: {
     alias: {
-      "@": resolve(__dirname, "resources/js"),
+      "@": resolve(__dirname, "frontend/src"),
     },
   },
   plugins: [
@@ -48,7 +48,7 @@ export default defineConfig({
       },
     },
   ],
-  root: "resources",
+  root: "frontend",
   server: {
     host: "0.0.0.0",
     port: 0, // Let Vite find available port automatically

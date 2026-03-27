@@ -123,7 +123,7 @@ class Command {
          execSync("npm install", { stdio: "inherit" });
          console.log("\n✅ Successfully migrated to Tailwind CSS v4!");
          console.log("\n📋 Next steps:");
-         console.log("   - Review resources/js/index.css for customizations");
+         console.log("   - Review frontend/src/index.css for customizations");
          console.log("   - tailwind.config.js backed up as tailwind.config.js.backup");
          console.log("   - Run npm run dev to test\n");
       } catch (error) {
@@ -184,7 +184,7 @@ class Command {
       const configContent = `/** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./resources/**/*.{svelte,html,js,ts}",
+    "./frontend/src/**/*.{svelte,html,js,ts}",
   ],
   darkMode: 'class',
   theme: {
@@ -267,7 +267,7 @@ export default {
    }
 
    private createCssConfigV4() {
-      const cssPath = path.resolve("resources/js/index.css");
+      const cssPath = path.resolve("frontend/src/index.css");
       const cssContent = `@import "tailwindcss";
 
 @theme {
@@ -307,11 +307,11 @@ export default {
 }
 `;
       fs.writeFileSync(cssPath, cssContent);
-      console.log("   ✓ Created CSS configuration in resources/js/index.css");
+      console.log("   ✓ Created CSS configuration in frontend/src/index.css");
    }
 
    private updateCssImportsV3() {
-      const cssPath = path.resolve("resources/js/index.css");
+      const cssPath = path.resolve("frontend/src/index.css");
       const cssContent = `@tailwind base;
 @tailwind components;
 @tailwind utilities;

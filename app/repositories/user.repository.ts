@@ -4,7 +4,7 @@
  */
 
 import DB from "../services/DB";
-import type { User, NewUser, UserUpdate } from "../../type/db-types";
+import type { User } from "../../type/db-types";
 
 export interface CreateUserData {
   id: string;
@@ -24,41 +24,41 @@ export interface UpdateProfileData {
   avatar?: string | null;
 }
 
-export class UserRepository {
+export const UserRepository = {
   /**
    * Find user by ID
    */
-  static async findById(id: string): Promise<User | undefined> {
+  async findById(id: string): Promise<User | undefined> {
     return DB.selectFrom("users")
       .selectAll()
       .where("id", "=", id)
       .executeTakeFirst();
-  }
+  },
 
   /**
    * Find user by email
    */
-  static async findByEmail(email: string): Promise<User | undefined> {
+  async findByEmail(email: string): Promise<User | undefined> {
     return DB.selectFrom("users")
       .selectAll()
       .where("email", "=", email.toLowerCase())
       .executeTakeFirst();
-  }
+  },
 
   /**
    * Find user by phone
    */
-  static async findByPhone(phone: string): Promise<User | undefined> {
+  async findByPhone(phone: string): Promise<User | undefined> {
     return DB.selectFrom("users")
       .selectAll()
       .where("phone", "=", phone)
       .executeTakeFirst();
-  }
+  },
 
   /**
    * Create new user
    */
-  static async create(data: CreateUserData): Promise<User> {
+  async create(data: CreateUserData): Promise<User> {
     const now = Date.now();
 
     await DB.insertInto("users")
@@ -81,12 +81,12 @@ export class UserRepository {
     }
 
     return user;
-  }
+  },
 
   /**
    * Update user profile
    */
-  static async updateProfile(id: string, data: UpdateProfileData): Promise<void> {
+  async updateProfile(id: string, data: UpdateProfileData): Promise<void> {
     await DB.updateTable("users")
       .set({
         ...data,
@@ -94,12 +94,12 @@ export class UserRepository {
       })
       .where("id", "=", id)
       .execute();
-  }
+  },
 
   /**
    * Update password
    */
-  static async updatePassword(id: string, hashedPassword: string): Promise<void> {
+  async updatePassword(id: string, hashedPassword: string): Promise<void> {
     await DB.updateTable("users")
       .set({
         password: hashedPassword,
@@ -107,38 +107,40 @@ export class UserRepository {
       })
       .where("id", "=", id)
       .execute();
-  }
+  },
 
   /**
    * Delete user by ID
    */
-  static async delete(id: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     await DB.deleteFrom("users").where("id", "=", id).execute();
-  }
+  },
 
   /**
    * Delete multiple users
    */
-  static async deleteMany(ids: string[]): Promise<void> {
+  async deleteMany(ids: string[]): Promise<void> {
     await DB.deleteFrom("users").where("id", "in", ids).execute();
-  }
+  },
 
   /**
    * Check if email exists
    */
-  static async emailExists(email: string): Promise<boolean> {
+  async emailExists(email: string): Promise<boolean> {
     const user = await this.findByEmail(email);
     return !!user;
-  }
+  },
 
   /**
    * Get all users (for admin)
    */
-  static async getAll(limit: number = 100, offset: number = 0): Promise<User[]> {
+  async getAll(limit: number = 100, offset: number = 0): Promise<User[]> {
     return DB.selectFrom("users")
       .selectAll()
       .limit(limit)
       .offset(offset)
       .execute();
-  }
-}
+  },
+};
+
+export default UserRepository;

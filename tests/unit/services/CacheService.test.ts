@@ -4,75 +4,74 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { CacheService } from '../../../app/services/CacheService';
+import CacheService from '../../../app/services/CacheService';
 
 describe('CacheService', () => {
-  let cache: CacheService;
-
   beforeEach(() => {
-    cache = new CacheService();
+    // Clear cache before each test
+    CacheService.flush();
   });
 
   describe('Basic Operations', () => {
     it('should store and retrieve a value', () => {
-      cache.put('key1', 'value1', 5);
-      
-      const result = cache.get('key1');
+      CacheService.put('key1', 'value1', 5);
+
+      const result = CacheService.get('key1');
       expect(result).toBe('value1');
     });
 
     it('should return null for non-existent key', () => {
-      const result = cache.get('non-existent');
+      const result = CacheService.get('non-existent');
       expect(result).toBeNull();
     });
 
     it('should return null for expired key', async () => {
-      cache.put('key1', 'value1', 0.01); // 0.01 minutes = 0.6 seconds
-      
+      CacheService.put('key1', 'value1', 0.01); // 0.01 minutes = 0.6 seconds
+
       // Wait for expiration
       await new Promise(resolve => setTimeout(resolve, 700));
-      
-      const result = cache.get('key1');
+
+      const result = CacheService.get('key1');
       expect(result).toBeNull();
     });
 
     it('should delete expired key on get', async () => {
-      cache.put('key1', 'value1', 0.01);
-      
+      CacheService.put('key1', 'value1', 0.01);
+
       await new Promise(resolve => setTimeout(resolve, 700));
-      
+
       // First get should return null and delete
-      cache.get('key1');
-      
+      CacheService.get('key1');
+
       // Key should be deleted
-      expect(cache.has('key1')).toBe(false);
+      expect(CacheService.has('key1')).toBe(false);
     });
 
     it('should update existing key', () => {
-      cache.put('key1', 'value1', 5);
-      cache.put('key1', 'value2', 5);
-      
-      const result = cache.get('key1');
+      CacheService.put('key1', 'value1', 5);
+      CacheService.put('key1', 'value2', 5);
+
+      const result = CacheService.get('key1');
       expect(result).toBe('value2');
     });
   });
 
   describe('Different Data Types', () => {
     it('should cache string', () => {
-      cache.put('str', 'hello', 5);
-      expect(cache.get('str')).toBe('hello');
+      CacheService.put('str', 'hello', 5);
+      expect(CacheService.get('str')).toBe('hello');
     });
 
     it('should cache number', () => {
-      cache.put('num', 42, 5);
-      expect(cache.get('num')).toBe(42);
+      CacheService.put('num', 42, 5);
+      expect(CacheService.get('num')).toBe(42);
     });
 
     it('should cache object', () => {
       const obj = { name: 'John', age: 30 };
-      cache.put('obj', obj, 5);
-      
-      const result = cache.get('obj');
+      CacheService.put('obj', obj, 5);
+
+      const result = CacheService.get('obj');
       expect(result).toEqual(obj);
       // Note: In-memory cache stores reference, so result === obj
       // This is expected behavior for in-memory cache (performance optimization)
@@ -81,38 +80,38 @@ describe('CacheService', () => {
 
     it('should cache array', () => {
       const arr = [1, 2, 3];
-      cache.put('arr', arr, 5);
-      
-      const result = cache.get('arr');
+      CacheService.put('arr', arr, 5);
+
+      const result = CacheService.get('arr');
       expect(result).toEqual([1, 2, 3]);
     });
 
     it('should cache null', () => {
-      cache.put('null', null, 5);
-      
+      CacheService.put('null', null, 5);
+
       // Note: get returns null for both "not found" and "cached null"
       // This is a design limitation
-      const result = cache.get('null');
+      const result = CacheService.get('null');
       expect(result).toBeNull();
     });
   });
 
   describe('remember() - Async', () => {
     it('should return cached value if exists', async () => {
-      cache.put('key1', 'cached', 5);
-      
+      CacheService.put('key1', 'cached', 5);
+
       const callback = async () => 'new-value';
-      const result = await cache.remember('key1', 5, callback);
-      
+      const result = await CacheService.remember('key1', 5, callback);
+
       expect(result).toBe('cached');
     });
 
     it('should call callback and cache result if not exists', async () => {
       const callback = async () => 'computed';
-      const result = await cache.remember('key1', 5, callback);
-      
+      const result = await CacheService.remember('key1', 5, callback);
+
       expect(result).toBe('computed');
-      expect(cache.get('key1')).toBe('computed');
+      expect(CacheService.get('key1')).toBe('computed');
     });
 
     it('should only call callback once for same key', async () => {
@@ -121,137 +120,138 @@ describe('CacheService', () => {
         callCount++;
         return 'value';
       };
-      
-      await cache.remember('key1', 5, callback);
-      await cache.remember('key1', 5, callback);
-      await cache.remember('key1', 5, callback);
-      
+
+      await CacheService.remember('key1', 5, callback);
+      await CacheService.remember('key1', 5, callback);
+      await CacheService.remember('key1', 5, callback);
+
       expect(callCount).toBe(1);
     });
 
     it('should not cache null values from callback', async () => {
       const callback = async () => null;
-      await cache.remember('key1', 5, callback);
-      
+      await CacheService.remember('key1', 5, callback);
+
       // Should call callback again because null wasn't cached
       let callCount = 0;
       const callback2 = async () => {
         callCount++;
         return null;
       };
-      
-      await cache.remember('key1', 5, callback2);
+
+      await CacheService.remember('key1', 5, callback2);
       expect(callCount).toBe(1); // Callback was called
     });
   });
 
   describe('rememberSync() - Sync', () => {
     it('should return cached value if exists', () => {
-      cache.put('key1', 'cached', 5);
-      
+      CacheService.put('key1', 'cached', 5);
+
       const callback = () => 'new-value';
-      const result = cache.rememberSync('key1', 5, callback);
-      
+      const result = CacheService.rememberSync('key1', 5, callback);
+
       expect(result).toBe('cached');
     });
 
     it('should call callback and cache result if not exists', () => {
       const callback = () => 'computed';
-      const result = cache.rememberSync('key1', 5, callback);
-      
+      const result = CacheService.rememberSync('key1', 5, callback);
+
       expect(result).toBe('computed');
-      expect(cache.get('key1')).toBe('computed');
+      expect(CacheService.get('key1')).toBe('computed');
     });
   });
 
   describe('forget()', () => {
     it('should delete specific key', () => {
-      cache.put('key1', 'value1', 5);
-      cache.put('key2', 'value2', 5);
-      
-      cache.forget('key1');
-      
-      expect(cache.get('key1')).toBeNull();
-      expect(cache.get('key2')).toBe('value2');
+      CacheService.put('key1', 'value1', 5);
+      CacheService.put('key2', 'value2', 5);
+
+      CacheService.forget('key1');
+
+      expect(CacheService.get('key1')).toBeNull();
+      expect(CacheService.get('key2')).toBe('value2');
     });
 
     it('should not throw for non-existent key', () => {
-      expect(() => cache.forget('non-existent')).not.toThrow();
+      expect(() => CacheService.forget('non-existent')).not.toThrow();
     });
   });
 
   describe('has()', () => {
     it('should return true for existing key', () => {
-      cache.put('key1', 'value1', 5);
-      expect(cache.has('key1')).toBe(true);
+      CacheService.put('key1', 'value1', 5);
+      expect(CacheService.has('key1')).toBe(true);
     });
 
     it('should return false for non-existent key', () => {
-      expect(cache.has('non-existent')).toBe(false);
+      expect(CacheService.has('non-existent')).toBe(false);
     });
 
     it('should return false for expired key', async () => {
-      cache.put('key1', 'value1', 0.01);
-      
+      CacheService.put('key1', 'value1', 0.01);
+
       await new Promise(resolve => setTimeout(resolve, 700));
-      
-      expect(cache.has('key1')).toBe(false);
+
+      expect(CacheService.has('key1')).toBe(false);
     });
   });
 
   describe('ttl()', () => {
     it('should return remaining seconds', () => {
-      cache.put('key1', 'value1', 5); // 5 minutes = 300 seconds
-      
-      const ttl = cache.ttl('key1');
-      
+      CacheService.put('key1', 'value1', 5); // 5 minutes = 300 seconds
+
+      const ttl = CacheService.ttl('key1');
+
       expect(ttl).toBeGreaterThan(295); // Allow some margin
       expect(ttl).toBeLessThanOrEqual(300);
     });
 
     it('should return 0 for non-existent key', () => {
-      expect(cache.ttl('non-existent')).toBe(0);
+      expect(CacheService.ttl('non-existent')).toBe(0);
     });
 
     it('should return 0 for expired key', async () => {
-      cache.put('key1', 'value1', 0.01);
-      
+      CacheService.put('key1', 'value1', 0.01);
+
       await new Promise(resolve => setTimeout(resolve, 700));
-      
-      expect(cache.ttl('key1')).toBe(0);
+
+      expect(CacheService.ttl('key1')).toBe(0);
     });
   });
 
   describe('flush()', () => {
     it('should clear all entries', () => {
-      cache.put('key1', 'value1', 5);
-      cache.put('key2', 'value2', 5);
-      cache.put('key3', 'value3', 5);
-      
-      cache.flush();
-      
-      expect(cache.get('key1')).toBeNull();
-      expect(cache.get('key2')).toBeNull();
-      expect(cache.get('key3')).toBeNull();
-      expect(cache.stats().size).toBe(0);
+      CacheService.put('key1', 'value1', 5);
+      CacheService.put('key2', 'value2', 5);
+      CacheService.put('key3', 'value3', 5);
+
+      CacheService.flush();
+
+      expect(CacheService.get('key1')).toBeNull();
+      expect(CacheService.get('key2')).toBeNull();
+      expect(CacheService.get('key3')).toBeNull();
+      expect(CacheService.stats().size).toBe(0);
     });
   });
 
   describe('stats()', () => {
     it('should return correct size', () => {
-      cache.put('key1', 'value1', 5);
-      cache.put('key2', 'value2', 5);
-      
-      const stats = cache.stats();
-      
+      CacheService.put('key1', 'value1', 5);
+      CacheService.put('key2', 'value2', 5);
+
+      const stats = CacheService.stats();
+
       expect(stats.size).toBe(2);
       expect(stats.keys).toContain('key1');
       expect(stats.keys).toContain('key2');
     });
 
     it('should return empty stats for empty cache', () => {
-      const stats = cache.stats();
-      
+      CacheService.flush();
+      const stats = CacheService.stats();
+
       expect(stats.size).toBe(0);
       expect(stats.keys).toEqual([]);
     });
@@ -259,24 +259,24 @@ describe('CacheService', () => {
 
   describe('cleanup()', () => {
     it('should remove expired entries', async () => {
-      cache.put('key1', 'value1', 0.01); // expires quickly
-      cache.put('key2', 'value2', 5);    // stays valid
-      
+      CacheService.put('key1', 'value1', 0.01); // expires quickly
+      CacheService.put('key2', 'value2', 5);    // stays valid
+
       await new Promise(resolve => setTimeout(resolve, 700));
-      
-      const cleaned = cache.cleanup();
-      
+
+      const cleaned = CacheService.cleanup();
+
       expect(cleaned).toBe(1);
-      expect(cache.has('key1')).toBe(false);
-      expect(cache.has('key2')).toBe(true);
+      expect(CacheService.has('key1')).toBe(false);
+      expect(CacheService.has('key2')).toBe(true);
     });
 
     it('should return 0 if no entries to clean', () => {
-      cache.put('key1', 'value1', 5);
-      cache.put('key2', 'value2', 5);
-      
-      const cleaned = cache.cleanup();
-      
+      CacheService.put('key1', 'value1', 5);
+      CacheService.put('key2', 'value2', 5);
+
+      const cleaned = CacheService.cleanup();
+
       expect(cleaned).toBe(0);
     });
   });
@@ -284,24 +284,24 @@ describe('CacheService', () => {
   describe('Performance', () => {
     it('should handle high throughput', () => {
       const iterations = 10000;
-      
+
       const start = performance.now();
-      
+
       for (let i = 0; i < iterations; i++) {
-        cache.put(`key-${i}`, `value-${i}`, 5);
+        CacheService.put(`key-${i}`, `value-${i}`, 5);
       }
-      
+
       for (let i = 0; i < iterations; i++) {
-        cache.get(`key-${i}`);
+        CacheService.get(`key-${i}`);
       }
-      
+
       const duration = performance.now() - start;
-      
+
       // Should complete 20k operations in less than 100ms
       expect(duration).toBeLessThan(100);
-      
+
       // All values should be retrievable
-      expect(cache.stats().size).toBe(iterations);
+      expect(CacheService.stats().size).toBe(iterations);
     });
   });
 });

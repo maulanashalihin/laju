@@ -15,10 +15,7 @@ interface ValidationResult<T> {
   errors?: Record<string, string[]>;
 }
 
-/**
- * Validator Service
- */
-class ValidatorService {
+export const Validator = {
   /**
    * Validate data against a Zod schema
    * @param schema - Zod schema to validate against
@@ -35,7 +32,7 @@ class ValidatorService {
     } catch (error: unknown) {
       if (error instanceof ZodError) {
         const errors: Record<string, string[]> = {};
-        
+
         error.issues.forEach((err) => {
           const path = err.path.join('.');
           if (!errors[path]) {
@@ -49,10 +46,36 @@ class ValidatorService {
           errors,
         };
       }
-      
+
       throw error;
     }
-  }
+  },
+
+  /**
+   * Validate and return data or send error response
+   * @param schema - Zod schema to validate against
+   * @param data - Data to validate
+   * @param response - HyperExpress response object
+   * @returns Validated data or null if validation fails
+   */
+  validateOrFail<T>(
+    schema: ZodSchema<T>,
+    data: unknown,
+    response: Response
+  ): T | null {
+    const result = this.validate(schema, data);
+
+    if (!result.success) {
+      response.status(422).json({
+        success: false,
+        message: 'Validation failed',
+        errors: result.errors,
+      });
+      return null;
+    }
+
+    return result.data!;
+  },
 
   /**
    * Validate and throw error if validation fails
@@ -63,12 +86,12 @@ class ValidatorService {
    */
   validateOrThrow<T>(schema: ZodSchema<T>, data: unknown): T {
     return schema.parse(data);
-  }
+  },
 
   /**
    * Common validation schemas
    */
-  schemas = {
+  schemas: {
     // Email validation
     email: z.string().email('Invalid email'),
 
@@ -104,10 +127,10 @@ class ValidatorService {
 
     // UUID
     uuid: z.string().uuid('Invalid UUID'),
-  };
-}
+  },
+};
 
-export default new ValidatorService();
+export default Validator;
 
 // Export Zod for custom schemas
 export { z };

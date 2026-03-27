@@ -27,7 +27,7 @@ function getViteDevUrl(): string {
 }
 
 // Set views directory based on environment
-let directory = "resources/views";
+let directory = "templates";
 
 // Configure Eta instance
 const eta = new Eta({

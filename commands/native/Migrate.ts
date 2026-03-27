@@ -1,5 +1,5 @@
 import DB from "../../app/services/DB";
-import Migrator from "../../app/services/Migrator";
+import { createMigrator } from "../../app/services/Migrator";
 
 class Command {
   public args: string[] = [];
@@ -9,7 +9,7 @@ class Command {
     console.log("\n🚀 Running migrations...\n");
 
     try {
-      const migrator = new Migrator(DB);
+      const migrator = createMigrator(DB);
       const result = await migrator.migrateToLatest();
 
       if (result.success) {

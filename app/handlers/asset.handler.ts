@@ -1,14 +1,20 @@
+/**
+ * Asset Handler
+ * Handles static asset serving (dist assets, public assets)
+ */
+
 import { Response, Request } from "../../type";
 import fs from "fs";
 
 let cache: { [key: string]: Buffer } = {};
 
-export const AssetController = {
+export const AssetHandler = {
   /**
    * Serves assets from the dist folder (compiled assets)
    * - Handles CSS and JS files with proper content types
    * - Implements file caching for better performance
    * - Sets appropriate cache headers for browser caching
+   * GET /assets/:file
    */
   async distFolder(request: Request, response: Response) {
     const file = request.params.file;
@@ -36,7 +42,7 @@ export const AssetController = {
       // Check if file exists and serve it
       if (await fs.promises.access(filePath).then(() => true).catch(() => false)) {
         const fileContent = await fs.promises.readFile(filePath);
-        
+
         // Cache the file content
         cache[file] = fileContent;
 
@@ -55,6 +61,7 @@ export const AssetController = {
    * - Implements security by checking allowed file extensions
    * - Prevents directory traversal attacks
    * - Handles various file types (images, fonts, documents, etc.)
+   * GET /public/*
    */
   async publicFolder(request: Request, response: Response) {
     // List of allowed file extensions for security
@@ -88,4 +95,4 @@ export const AssetController = {
   },
 };
 
-export default AssetController;
+export default AssetHandler;

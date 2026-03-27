@@ -14,10 +14,7 @@ const KEYLEN = 64;
 const DIGEST = "sha512";
 const SALT_SIZE = 16;
 
-/**
- * Authentication class providing core authentication functionality
- */
-class Authenticate {
+export const Authenticate = {
   /**
    * Hashes a plain text password using PBKDF2
    * @param {string} password - The plain text password to hash
@@ -27,7 +24,7 @@ class Authenticate {
     const salt = randomBytes(SALT_SIZE).toString("hex");
     const hash = pbkdf2Sync(password, salt, ITERATIONS, KEYLEN, DIGEST).toString("hex");
     return `${salt}:${hash}`;
-  }
+  },
 
   /**
    * Compares a plain text password with a hashed password
@@ -39,7 +36,7 @@ class Authenticate {
     const [salt, hash] = storedHash.split(":");
     const newHash = pbkdf2Sync(password, salt, ITERATIONS, KEYLEN, DIGEST).toString("hex");
     return hash === newHash;
-  }
+  },
 
   /**
    * Processes user login by creating a new session
@@ -69,7 +66,7 @@ class Authenticate {
 
     // Set cookie with 60-day expiration and redirect to home
     response.cookie("auth_id", token, 1000 * 60 * 60 * 24 * 60).redirect(redirectPath);
-  }
+  },
 
   /**
    * Handles user logout by removing the session
@@ -87,7 +84,6 @@ class Authenticate {
 
     response.cookie("auth_id", "", 0).redirect("/login");
   }
-}
+};
 
-// Export a singleton instance
-export default new Authenticate();
+export default Authenticate;

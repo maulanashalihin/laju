@@ -1,9 +1,14 @@
+/**
+ * S3 Handler
+ * Handles S3 storage operations (signed URLs, public URLs)
+ */
+
 import { getPublicUrl, getSignedUploadUrl } from "app/services/S3";
 import Validator from "../services/Validator";
-import { signedUrlSchema } from "../validators/S3Validator";
+import { signedUrlSchema } from "../validators/s3.validator";
 import { Request, Response } from "../../type";
 
-export const S3Controller = {
+export const S3Handler = {
   /**
    * Generate signed URL for file upload
    * POST /api/s3/signed-url
@@ -11,9 +16,9 @@ export const S3Controller = {
   async getSignedUrl(request: Request, response: Response) {
     try {
       const body = await request.json();
-      
+
       const validationResult = Validator.validate(signedUrlSchema, body);
-      
+
       if (!validationResult.success) {
          return response.status(422).json({
             success: false,
@@ -21,7 +26,7 @@ export const S3Controller = {
             errors: validationResult.errors,
          });
       }
-      
+
       const { filename, contentType } = validationResult.data!;
 
       // Generate unique file key
@@ -112,4 +117,4 @@ export const S3Controller = {
   },
 };
 
-export default S3Controller;
+export default S3Handler;

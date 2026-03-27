@@ -17,32 +17,32 @@ export interface CreateAssetData {
   user_id: string | null;
 }
 
-export class AssetRepository {
+export const AssetRepository = {
   /**
    * Find asset by ID
    */
-  static async findById(id: string): Promise<Asset | undefined> {
+  async findById(id: string): Promise<Asset | undefined> {
     return DB.selectFrom("assets")
       .selectAll()
       .where("id", "=", id)
       .executeTakeFirst();
-  }
+  },
 
   /**
    * Find assets by user ID
    */
-  static async findByUserId(userId: string): Promise<Asset[]> {
+  async findByUserId(userId: string): Promise<Asset[]> {
     return DB.selectFrom("assets")
       .selectAll()
       .where("user_id", "=", userId)
       .orderBy("created_at", "desc")
       .execute();
-  }
+  },
 
   /**
    * Create new asset
    */
-  static async create(data: CreateAssetData): Promise<Asset> {
+  async create(data: CreateAssetData): Promise<Asset> {
     const now = new Date().toISOString();
 
     await DB.insertInto("assets")
@@ -66,12 +66,12 @@ export class AssetRepository {
     }
 
     return asset;
-  }
+  },
 
   /**
    * Update asset
    */
-  static async update(id: string, data: Partial<CreateAssetData>): Promise<void> {
+  async update(id: string, data: Partial<CreateAssetData>): Promise<void> {
     const updateData: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
@@ -88,43 +88,45 @@ export class AssetRepository {
       .set(updateData as any)
       .where("id", "=", id)
       .execute();
-  }
+  },
 
   /**
    * Delete asset by ID
    */
-  static async delete(id: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     await DB.deleteFrom("assets").where("id", "=", id).execute();
-  }
+  },
 
   /**
    * Delete multiple assets
    */
-  static async deleteMany(ids: string[]): Promise<void> {
+  async deleteMany(ids: string[]): Promise<void> {
     if (ids.length === 0) return;
     await DB.deleteFrom("assets").where("id", "in", ids as string[]).execute();
-  }
+  },
 
   /**
    * Get total size of assets for a user
    */
-  static async getTotalSizeByUser(userId: string): Promise<number> {
+  async getTotalSizeByUser(userId: string): Promise<number> {
     const result = await DB.selectFrom("assets")
       .select((eb) => eb.fn.sum("size").as("total"))
       .where("user_id", "=", userId)
       .executeTakeFirst();
 
     return Number(result?.total || 0);
-  }
+  },
 
   /**
    * Find assets by type
    */
-  static async findByType(type: string, limit: number = 100): Promise<Asset[]> {
+  async findByType(type: string, limit: number = 100): Promise<Asset[]> {
     return DB.selectFrom("assets")
       .selectAll()
       .where("type", "=", type)
       .limit(limit)
       .execute();
-  }
-}
+  },
+};
+
+export default AssetRepository;

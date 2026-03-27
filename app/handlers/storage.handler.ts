@@ -1,3 +1,8 @@
+/**
+ * Storage Handler
+ * Handles local storage file serving
+ */
+
 import { Response, Request } from "../../type";
 import fs from "fs";
 import path from "path";
@@ -5,11 +10,15 @@ import "dotenv/config";
 
 const storagePath = process.env.LOCAL_STORAGE_PATH || "./storage";
 
-export const StorageController = {
+export const StorageHandler = {
+  /**
+   * Serve files from local storage
+   * GET /storage/*
+   */
   async serveFile(request: Request, response: Response) {
     // Extract path after /storage/ from request.path (same pattern as AssetController)
     const requestPath = request.path || "";
-    const filePath = requestPath.startsWith("/storage/") 
+    const filePath = requestPath.startsWith("/storage/")
       ? requestPath.substring("/storage/".length).replaceAll("%20", " ")
       : "";
 
@@ -72,4 +81,4 @@ export const StorageController = {
   },
 };
 
-export default StorageController;
+export default StorageHandler;

@@ -8,13 +8,13 @@ import { config } from "dotenv";
 config({ override: true });
 
 // Inertia middleware: integrates Inertia.js responses for SSR-like pages
-import inertia from "./app/middlewares/inertia";
+import inertia from "./app/middlewares/inertia.middleware";
 
 // CSRF protection middleware
 // import csrf from "./app/middlewares/csrf";
 
 // Security headers middleware
-// import { securityHeaders } from "./app/middlewares/securityHeaders";
+// import { securityHeaders } from "./app/middlewares/security-headers.middleware";
 
 // Application routes definition (all app endpoints)
 import Web from "./routes/web";

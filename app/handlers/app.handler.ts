@@ -1,16 +1,25 @@
 /**
- * Profile Controller
- * Handles user profile management
+ * App Handler
+ * Handles application pages (dashboard, profile, user management)
  */
 
-import { UserRepository } from "../repositories/UserRepository";
+import { UserRepository } from "../repositories/user.repository";
 import Validator from "../services/Validator";
-import { updateProfileSchema, deleteUsersSchema } from "../validators/ProfileValidator";
+import { updateProfileSchema, deleteUsersSchema } from "../validators/profile.validator";
 import { Response, Request } from "../../type";
 
-export const ProfileController = {
+export const AppHandler = {
+  /**
+   * Display home page (user dashboard)
+   * GET /home
+   */
+  async homePage(request: Request, response: Response) {
+    return response.inertia("home");
+  },
+
   /**
    * Display profile page
+   * GET /profile
    */
   async profilePage(request: Request, response: Response) {
     return response.inertia("profile", { user: request.user });
@@ -18,6 +27,7 @@ export const ProfileController = {
 
   /**
    * Update user profile
+   * POST /change-profile
    */
   async changeProfile(request: Request, response: Response) {
     if (!request.user) {
@@ -46,14 +56,8 @@ export const ProfileController = {
   },
 
   /**
-   * Display home page
-   */
-  async homePage(request: Request, response: Response) {
-    return response.inertia("home");
-  },
-
-  /**
    * Delete multiple users (admin only)
+   * DELETE /users
    */
   async deleteUsers(request: Request, response: Response) {
     if (!request.user) {
@@ -82,4 +86,4 @@ export const ProfileController = {
   },
 };
 
-export default ProfileController;
+export default AppHandler;

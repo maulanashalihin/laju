@@ -1,14 +1,11 @@
-import LoginController from "../app/controllers/LoginController";
-import RegisterController from "../app/controllers/RegisterController";
-import PasswordController from "../app/controllers/PasswordController";
-import ProfileController from "../app/controllers/ProfileController";
-import OAuthController from "../app/controllers/OAuthController";
-import Auth from "../app/middlewares/auth"
-import PublicController from "../app/controllers/PublicController";
-import AssetController from "../app/controllers/AssetController";
-import UploadController from "../app/controllers/UploadController";
-import S3Controller from "../app/controllers/S3Controller";
-import StorageController from "../app/controllers/StorageController";
+import AuthHandler from "../app/handlers/auth.handler";
+import AppHandler from "../app/handlers/app.handler";
+import PublicHandler from "../app/handlers/public.handler";
+import UploadHandler from "../app/handlers/upload.handler";
+import S3Handler from "../app/handlers/s3.handler";
+import StorageHandler from "../app/handlers/storage.handler";
+import AssetHandler from "../app/handlers/asset.handler";
+import Auth from "../app/middlewares/auth.middleware";
 import HyperExpress from 'hyper-express';
 
 // Rate limiting middleware
@@ -18,7 +15,7 @@ import {
   passwordResetRateLimit,
   createAccountRateLimit,
   uploadRateLimit
-} from "../app/middlewares/rateLimit";
+} from "../app/middlewares/rate-limit.middleware";
 
 const Route = new HyperExpress.Router();
 
@@ -28,19 +25,19 @@ const Route = new HyperExpress.Router();
  * ------------------------------------------------
  * GET  / - Home page
  */
-Route.get("/", PublicController.index);
-Route.get("/test", PublicController.test);
-Route.get("/test2", PublicController.test2);
+Route.get("/", PublicHandler.index);
+Route.get("/test", PublicHandler.test);
+Route.get("/test2", PublicHandler.test2);
 
 /**
  * Upload Routes
- * Routes for file uploads
+ * Routes for handling file uploads
  * ------------------------------------------------
  * POST /api/upload/image - Upload image with processing
  * POST /api/upload/file - Upload file (PDF, Word, Excel, etc.)
  */
-Route.post("/api/upload/image", [Auth, uploadRateLimit], UploadController.uploadImage);
-Route.post("/api/upload/file", [Auth, uploadRateLimit], UploadController.uploadFile);
+Route.post("/api/upload/image", [Auth, uploadRateLimit], UploadHandler.uploadImage);
+Route.post("/api/upload/file", [Auth, uploadRateLimit], UploadHandler.uploadFile);
 
 /**
  * S3 Routes
@@ -50,9 +47,9 @@ Route.post("/api/upload/file", [Auth, uploadRateLimit], UploadController.uploadF
  * GET  /api/s3/public-url/:fileKey - Get public URL for existing file
  * GET  /api/s3/health - S3 service health check
  */
-Route.post("/api/s3/signed-url", [Auth, uploadRateLimit], S3Controller.getSignedUrl);
-Route.get("/api/s3/public-url/:fileKey", [apiRateLimit], S3Controller.getPublicUrl);
-Route.get("/api/s3/health", [apiRateLimit], S3Controller.health);
+Route.post("/api/s3/signed-url", [Auth, uploadRateLimit], S3Handler.getSignedUrl);
+Route.get("/api/s3/public-url/:fileKey", [apiRateLimit], S3Handler.getPublicUrl);
+Route.get("/api/s3/health", [apiRateLimit], S3Handler.health);
 
 /**
  * Local Storage Static Files
@@ -60,7 +57,7 @@ Route.get("/api/s3/health", [apiRateLimit], S3Controller.health);
  * ------------------------------------------------
  * GET /storage/* - Serve local storage files
  */
-Route.get("/storage/*", StorageController.serveFile);
+Route.get("/storage/*", StorageHandler.serveFile);
 /**
  * Authentication Routes
  * Routes for handling user authentication
@@ -73,13 +70,13 @@ Route.get("/storage/*", StorageController.serveFile);
  * GET   /google/redirect - Google OAuth redirect
  * GET   /google/callback - Google OAuth callback
  */
-Route.get("/login", LoginController.loginPage);
-Route.post("/login", [authRateLimit], LoginController.processLogin);
-Route.get("/register", RegisterController.registerPage);
-Route.post("/register", [createAccountRateLimit], RegisterController.processRegister);
-Route.post("/logout", LoginController.logout);
-Route.get("/google/redirect", OAuthController.redirect);
-Route.get("/google/callback", OAuthController.googleCallback);
+Route.get("/login", AuthHandler.loginPage);
+Route.post("/login", [authRateLimit], AuthHandler.processLogin);
+Route.get("/register", AuthHandler.registerPage);
+Route.post("/register", [createAccountRateLimit], AuthHandler.processRegister);
+Route.post("/logout", AuthHandler.logout);
+Route.get("/google/redirect", AuthHandler.googleRedirect);
+Route.get("/google/callback", AuthHandler.googleCallback);
 
 /**
  * Password Reset Routes
@@ -90,10 +87,10 @@ Route.get("/google/callback", OAuthController.googleCallback);
  * GET   /reset-password/:id - Reset password page
  * POST  /reset-password - Process password reset
  */
-Route.get("/forgot-password", PasswordController.forgotPasswordPage);
-Route.post("/forgot-password", [passwordResetRateLimit], PasswordController.sendResetPassword);
-Route.get("/reset-password/:id", PasswordController.resetPasswordPage);
-Route.post("/reset-password", [authRateLimit], PasswordController.resetPassword);
+Route.get("/forgot-password", AuthHandler.forgotPasswordPage);
+Route.post("/forgot-password", [passwordResetRateLimit], AuthHandler.sendResetPassword);
+Route.get("/reset-password/:id", AuthHandler.resetPasswordPage);
+Route.post("/reset-password", [authRateLimit], AuthHandler.resetPassword);
 
 /**
  * Protected Routes
@@ -105,11 +102,11 @@ Route.post("/reset-password", [authRateLimit], PasswordController.resetPassword)
  * POST  /change-password - Change password
  * DELETE /users - Delete users (admin only)
  */
-Route.get("/home", [Auth], ProfileController.homePage);
-Route.get("/profile", [Auth], ProfileController.profilePage);
-Route.post("/change-profile", [Auth], ProfileController.changeProfile);
-Route.post("/change-password", [Auth], PasswordController.changePassword);
-Route.delete("/users", [Auth], ProfileController.deleteUsers);
+Route.get("/home", [Auth], AppHandler.homePage);
+Route.get("/profile", [Auth], AppHandler.profilePage);
+Route.post("/change-profile", [Auth], AppHandler.changeProfile);
+Route.post("/change-password", [Auth], AuthHandler.changePassword);
+Route.delete("/users", [Auth], AppHandler.deleteUsers);
 
 /**
  * Static Asset Handling Routes
@@ -124,7 +121,7 @@ Route.delete("/users", [Auth], ProfileController.deleteUsers);
  * - /assets/app.1234abc.js
  * - /assets/main.5678def.css
  */
-Route.get("/assets/:file", AssetController.distFolder);
+Route.get("/assets/:file", AssetHandler.distFolder);
 
 /**
  * 2. Public Assets (/*) - Catch-all Route
@@ -146,6 +143,6 @@ Route.get("/assets/:file", AssetController.distFolder);
  * - /documents/terms.pdf
  * - /fonts/roboto.woff2
  */
-Route.get("/public/*", AssetController.publicFolder);
+Route.get("/public/*", AssetHandler.publicFolder);
 
 export default Route;
