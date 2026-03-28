@@ -6,7 +6,7 @@ Build modern full-stack applications with HyperExpress, Svelte 5, and Inertia.js
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-20--22-brightgreen)](https://nodejs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0+-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![GitHub stars](https://img.shields.io/github/stars/maulanashalihin/laju?style=social)](https://github.com/maulanashalihin/laju)
 
 ## 🚀 Quick Start
@@ -17,7 +17,6 @@ npx create-laju-app my-project
 cd my-project
 
 # Setup database
-cp .env.example .env
 npm run migrate
 
 # Start development
@@ -25,6 +24,8 @@ npm run dev
 ```
 
 Visit `http://localhost:5555`
+
+**Want AI to build everything?** Mention `@workflow/INIT_AGENT.md` in your AI assistant! 🤖
 
 ## ✨ Features
 
@@ -36,8 +37,8 @@ Visit `http://localhost:5555`
 ### Modern Stack
 - **Svelte 5** - Reactive UI with runes
 - **Inertia.js** - SPA without client-side routing
-- **TailwindCSS 3 & 4** - Utility-first CSS with Vite (easy migration)
-- **TypeScript** - Full type safety
+- **TailwindCSS 4** - Utility-first CSS with Vite
+- **TypeScript 6.0** - Full type safety
 
 ### Built-in Services
 - **Authentication** - Sessions, OAuth (Google), password reset
@@ -45,6 +46,11 @@ Visit `http://localhost:5555`
 - **Email** - Nodemailer (SMTP) or Resend (API)
 - **Caching** - Database cache or Redis
 - **Templates** - Eta for SSR
+
+### AI Development
+- **INIT_AGENT** - Project setup, PRD, database design
+- **TASK_AGENT** - Build features with AI assistance
+- **MANAGER_AGENT** - Code review and deployment
 
 ## 📊 Performance
 
@@ -63,41 +69,44 @@ Visit `http://localhost:5555`
 
 Documentation is organized for progressive learning from beginner to advanced.
 
-### Getting Started
-- [Introduction](docs/01-introduction.md) - Framework overview, quick start
-- [Project Structure](docs/02-project-structure.md) - Directory layout
-- [Database](docs/03-database.md) - Kysely + SQLite
+### Quick Start
+- [5-Minute Quick Start](docs/00-quickstart.md) - Get running in 5 minutes
+- [Introduction](docs/01-introduction.md) - Framework overview, tech stack
+- [Project Structure](docs/02-project-structure.md) - Directory layout, conventions
 
 ### Core Features
-- [Routing & Handlers](docs/04-routing-handlers.md) - Handle requests
-- [Frontend (Svelte 5)](docs/05-frontend-svelte.md) - Build reactive UI
-- [Authentication](docs/06-authentication.md) - Sessions + OAuth
-- [Middleware](docs/07-middleware.md) - Auth, Rate limiting
-- [Validation](docs/08-validation.md) - Input validation
-- [Email](docs/09-email.md) - Send emails
-- [Templates (Eta)](docs/16-eta.md) - Server-side rendering
-- [Performance](docs/19-performance.md) - Optimization tips
+- [Database Guide](docs/03-database.md) - Kysely + SQLite, WAL mode, migrations
+- [Routing & Controllers](docs/04-routing-controllers.md) - Routes, handlers, request/response
+- [Frontend (Svelte 5)](docs/05-frontend-svelte.md) - Runes, State, Forms, Inertia.js
+- [Authentication](docs/06-authentication.md) - Sessions, OAuth, password reset
+- [Middleware](docs/07-middleware.md) - Auth, rate limiting, custom middleware
+- [Validation](docs/08-validation.md) - Zod schemas, input validation
+- [Email](docs/09-email.md) - Nodemailer, Resend, email templates
 
 ### Advanced Features
-- [Storage (S3)](docs/10-storage.md) - File uploads
-- [Caching](docs/11-caching.md) - Redis + Database cache
-- [Redis](docs/12-redis.md) - Redis configuration
-- [Background Jobs](docs/13-background-jobs.md) - Cron jobs, Scheduling
-- [CSRF Protection](docs/14-csrf.md) - Security
-- [Translation](docs/15-translation.md) - Multi-language
-- [Backup & Restore](docs/23-backup-restore.md) - Database backup
+- [Storage (S3)](docs/10-storage.md) - S3/Wasabi, presigned URLs, file uploads
+- [Caching](docs/11-caching.md) - Database cache vs Redis, strategies
+- [Redis](docs/12-redis.md) - Redis configuration and usage
+- [Background Jobs](docs/13-background-jobs.md) - Cron jobs, task scheduling
+- [CSRF Protection](docs/14-csrf.md) - Token generation, form protection
+- [Translation (i18n)](docs/15-translation.md) - Multi-language support
+- [Eta Templates](docs/16-eta.md) - SSR, partials, helpers
 
-### Production
-- [Best Practices](docs/17-best-practices.md) - Code quality
-- [Security Guide](docs/18-security.md) - Secure your app
-- [Testing](docs/20-testing.md) - Unit + Integration tests
-- [Deployment](docs/21-deployment.md) - Production setup
+### Production Ready
+- [Best Practices](docs/17-best-practices.md) - Code organization, patterns
+- [Security Guide](docs/18-security.md) - Authentication, XSS, CSRF, CSP
+- [Performance Guide](docs/19-performance.md) - Database, caching, optimization
+- [Testing](docs/20-testing.md) - Unit, integration, Vitest, Playwright
+- [Deployment](docs/21-deployment.md) - Production build, PM2, HTTPS
 - [GitHub Actions](docs/22-github-actions.md) - CI/CD workflows
-- [AI Development](docs/24-ai-development.md) - AI integration
+- [Backup & Restore](docs/23-backup-restore.md) - Database backup automation
 
-### Reference
-- [API Reference](docs/25-api-reference.md) - Framework API
-- [TypeScript Guide](docs/26-typescript.md) - TypeScript patterns
+### Advanced Topics
+- [AI Development](docs/24-ai-development.md) - Build with AI assistants
+- [API Reference](docs/25-api-reference.md) - Complete API documentation
+- [TypeScript Guide](docs/26-typescript.md) - TypeScript configuration, strict mode
+- [Tailwind CSS Migration](docs/27-tailwind-migration.md) - Migrate between v3/v4
+- [Troubleshooting](docs/99-troubleshooting.md) - Common issues and solutions
 
 ## Project Structure
 
@@ -109,12 +118,18 @@ app/
 ├── repositories/    # Database query layer
 └── validators/      # Input validation
 
-resources/
-├── js/
+frontend/
+├── src/
 │   ├── Pages/       # Svelte/Inertia pages
 │   ├── Components/  # Reusable components
+│   ├── app.js       # Main entry point
+│   ├── index.js     # Secondary entry point
 │   └── index.css    # TailwindCSS
-└── views/           # Eta templates
+
+templates/           # Eta templates (SSR)
+├── index.html       # Landing page template
+├── inertia.html     # Inertia.js base template
+└── partials/        # Template partials
 
 routes/              # Route definitions
 migrations/          # Database migrations
@@ -124,32 +139,52 @@ docs/                # Documentation
 benchmark/           # Performance benchmarks
 public/              # Static assets
 storage/             # Local storage
+data/                # SQLite databases
 type/                # TypeScript definitions
 ```
 
 ## Commands
 
 ```bash
-npm run dev                              # Development
-npm run build                            # Production build
-node laju make:handler UserHandler       # Generate handler
-npm run migrate                          # Run migrations
+# Development
+npm run dev                              # Start dev server (Vite + Nodemon)
+
+# Production
+npm run build                            # Build for production
+node build/server.js                     # Run production server
+
+# Database
+npm run migrate                          # Run all migrations
 npm run migrate:down                     # Rollback last migration
 npm run migrate:down 3                   # Rollback 3 migrations
 npm run migrate:down 20230514062913      # Rollback to specific migration
-npm run refresh                          # Refresh database
+npm run migrate:rollback                 # Rollback to last batch
+npm run refresh                          # Drop and re-migrate database
+
+# Testing
+npm run test:run                         # Run unit/integration tests (Vitest)
+npm run test:ui                          # Run tests with UI
+npm run test:coverage                    # Run tests with coverage
+npm run test:e2e                         # Run E2E tests (Playwright)
+npm run test:e2e:ui                      # Run E2E tests with UI
+npm run test:e2e:debug                   # Run E2E tests in debug mode
+
+# Code Generation
+npx tsx commands/native/MakeController.ts UserController    # Generate controller
+npx tsx commands/native/MakeCommand.ts CustomCommand        # Generate command
 ```
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| Server | HyperExpress |
+| Server | HyperExpress v6.17 |
 | Database | BetterSQLite3 + Kysely |
 | Frontend | Svelte 5 + Inertia.js |
-| Styling | TailwindCSS 3 & 4 |
+| Styling | TailwindCSS 4 |
 | Build | Vite |
 | Templates | Eta |
+| Language | TypeScript 6.0 |
 
 ## Author
 
