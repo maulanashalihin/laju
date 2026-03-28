@@ -78,43 +78,44 @@ Agents: `product.md` → `tech-lead.md` → `developer.md` → `qa.md` → `devo
 Documentation is organized for progressive learning from beginner to advanced.
 
 ### Quick Start
-- [5-Minute Quick Start](docs/00-quickstart.md) - Get running in 5 minutes
-- [Introduction](docs/01-introduction.md) - Framework overview, tech stack
-- [Project Structure](docs/02-project-structure.md) - Directory layout, conventions
+- [5-Minute Quick Start](https://docs.laju.dev/00-quickstart) - Get running in 5 minutes
+- [Introduction](https://docs.laju.dev/01-introduction) - Framework overview, tech stack
+- [Project Structure](https://docs.laju.dev/02-project-structure) - Directory layout, conventions
 
 ### Core Features
-- [Database Guide](docs/03-database.md) - Kysely + SQLite, WAL mode, migrations
-- [Routing & Controllers](docs/04-routing-controllers.md) - Routes, handlers, request/response
-- [Frontend (Svelte 5)](docs/05-frontend-svelte.md) - Runes, State, Forms, Inertia.js
-- [Authentication](docs/06-authentication.md) - Sessions, OAuth, password reset
-- [Middleware](docs/07-middleware.md) - Auth, rate limiting, custom middleware
-- [Validation](docs/08-validation.md) - Zod schemas, input validation
-- [Email](docs/09-email.md) - Nodemailer, Resend, email templates
+- [Database Guide](https://docs.laju.dev/03-database) - Kysely + SQLite, WAL mode, migrations
+- [Routing & Handlers](https://docs.laju.dev/04-routing-handlers) - Routes, handlers, request/response
+- [Frontend (Svelte 5)](https://docs.laju.dev/05-frontend-svelte) - Runes, State, Forms, Inertia.js
+- [Authentication](https://docs.laju.dev/06-authentication) - Sessions, OAuth, password reset
+- [Middleware](https://docs.laju.dev/07-middleware) - Auth, rate limiting, custom middleware
+- [Validation](https://docs.laju.dev/08-validation) - Zod schemas, input validation
+- [Email](https://docs.laju.dev/09-email) - Nodemailer, Resend, email templates
 
 ### Advanced Features
-- [Storage (S3)](docs/10-storage.md) - S3/Wasabi, presigned URLs, file uploads
-- [Caching](docs/11-caching.md) - Database cache vs Redis, strategies
-- [Redis](docs/12-redis.md) - Redis configuration and usage
-- [Background Jobs](docs/13-background-jobs.md) - Cron jobs, task scheduling
-- [CSRF Protection](docs/14-csrf.md) - Token generation, form protection
-- [Translation (i18n)](docs/15-translation.md) - Multi-language support
-- [Eta Templates](docs/16-eta.md) - SSR, partials, helpers
+- [Storage (S3)](https://docs.laju.dev/10-storage) - S3/Wasabi, presigned URLs, file uploads
+- [Caching](https://docs.laju.dev/11-caching) - Database cache vs Redis, strategies
+- [Redis](https://docs.laju.dev/12-redis) - Redis configuration and usage
+- [Background Jobs](https://docs.laju.dev/13-background-jobs) - Cron jobs, task scheduling
+- [CSRF Protection](https://docs.laju.dev/14-csrf) - Token generation, form protection
+- [Translation (i18n)](https://docs.laju.dev/15-translation) - Multi-language support
+- [Eta Templates](https://docs.laju.dev/16-eta) - SSR, partials, helpers
 
 ### Production Ready
-- [Best Practices](docs/17-best-practices.md) - Code organization, patterns
-- [Security Guide](docs/18-security.md) - Authentication, XSS, CSRF, CSP
-- [Performance Guide](docs/19-performance.md) - Database, caching, optimization
-- [Testing](docs/20-testing.md) - Unit, integration, Vitest, Playwright
-- [Deployment](docs/21-deployment.md) - Production build, PM2, HTTPS
-- [GitHub Actions](docs/22-github-actions.md) - CI/CD workflows
-- [Backup & Restore](docs/23-backup-restore.md) - Database backup automation
+- [Best Practices](https://docs.laju.dev/17-best-practices) - Code organization, patterns
+- [Security Guide](https://docs.laju.dev/18-security) - Authentication, XSS, CSRF, CSP
+- [Performance Guide](https://docs.laju.dev/19-performance) - Database, caching, optimization
+- [Testing](https://docs.laju.dev/20-testing) - Unit, integration, Vitest, Playwright
+- [Deployment](https://docs.laju.dev/21-deployment) - Production build, PM2, HTTPS
+- [GitHub Actions](https://docs.laju.dev/22-github-actions) - CI/CD workflows
+- [Backup & Restore](https://docs.laju.dev/23-backup-restore) - Database backup automation
 
 ### Advanced Topics
-- [AI Development](docs/24-ai-development.md) - Build with AI assistants
-- [API Reference](docs/25-api-reference.md) - Complete API documentation
-- [TypeScript Guide](docs/26-typescript.md) - TypeScript configuration, strict mode
-- [Tailwind CSS Migration](docs/27-tailwind-migration.md) - Migrate between v3/v4
-- [Troubleshooting](docs/99-troubleshooting.md) - Common issues and solutions
+- [AI Development](https://docs.laju.dev/24-ai-development) - Build with AI assistants
+- [API Reference](https://docs.laju.dev/25-api-reference) - Complete API documentation
+- [TypeScript Guide](https://docs.laju.dev/26-typescript) - TypeScript configuration, strict mode
+- [Tailwind CSS Migration](https://docs.laju.dev/27-tailwind-migration) - Migrate between v3/v4
+- [Migration Guide](https://docs.laju.dev/28-migration-guide) - Migration patterns
+- [Troubleshooting](https://docs.laju.dev/99-troubleshooting) - Common issues and solutions
 
 ## Project Structure
 
