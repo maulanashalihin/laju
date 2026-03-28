@@ -25,7 +25,7 @@ npm run dev
 
 Visit `http://localhost:5555`
 
-**Want AI to build everything?** Mention `@workflow/INIT_AGENT.md` in your AI assistant! 🤖
+**Want AI to build everything?** Mention `@workflow/agents/developer.md` in your AI assistant! 🤖
 
 ## ✨ Features
 
