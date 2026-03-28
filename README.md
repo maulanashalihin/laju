@@ -203,9 +203,7 @@ npx tsx commands/native/MakeValidator.ts AuthValidator      # Generate validator
 
 **Maulana Shalihin** - [maulana@drip.id](mailto:maulana@drip.id)
 
-- [tapsite.ai](https://tapsite.ai) - AI website builder
-- [dripsender.id](https://dripsender.id) - Email marketing
-- [laju.dev](https://laju.dev) - This framework
+- [maulanabuilds.com](https://maulanabuilds.com) - Senior Full-Stack Engineer, MVP Development
 
 ## Support
 
