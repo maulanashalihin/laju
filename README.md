@@ -25,7 +25,13 @@ npm run dev
 
 Visit `http://localhost:5555`
 
-**Want AI to build everything?** Mention `@workflow/agents/developer.md` in your AI assistant! 🤖
+**Want AI to build everything?** Use multi-agent workflow with mandatory review points:
+
+```
+@workflow/agents/product.md  Saya mau bikin aplikasi [deskripsikan]
+```
+
+Agents: `product.md` → `tech-lead.md` → `developer.md` → `qa.md` → `devops.md`
 
 ## ✨ Features
 
@@ -48,9 +54,11 @@ Visit `http://localhost:5555`
 - **Templates** - Eta for SSR
 
 ### AI Development
-- **INIT_AGENT** - Project setup, PRD, database design
-- **TASK_AGENT** - Build features with AI assistance
-- **MANAGER_AGENT** - Code review and deployment
+- **Product Agent** - Define requirements, PRD, user stories
+- **Tech Lead Agent** - Design system architecture, database schema
+- **Developer Agent** - Implement features with mandatory review
+- **QA Agent** - Test and review before deploy
+- **DevOps Agent** - Deploy to production
 
 ## 📊 Performance
 
@@ -172,6 +180,10 @@ npm run test:e2e:debug                   # Run E2E tests in debug mode
 # Code Generation
 npx tsx commands/native/MakeController.ts UserController    # Generate controller
 npx tsx commands/native/MakeCommand.ts CustomCommand        # Generate command
+npx tsx commands/native/MakeHandler.ts UserHandler          # Generate handler
+npx tsx commands/native/MakeMiddleware.ts AuthMiddleware    # Generate middleware
+npx tsx commands/native/MakeRepository.ts UserRepository    # Generate repository
+npx tsx commands/native/MakeValidator.ts AuthValidator      # Generate validator
 ```
 
 ## Tech Stack
