@@ -54,7 +54,7 @@ Create the blog index page showing:
 ```
 
 **What AI will do:**
-- Create `BlogController.ts`
+- Create `BlogHandler.ts`
 - Create `resources/js/Pages/blog/index.svelte`
 - Add routes to `routes/web.ts`
 - Run migrations
@@ -89,19 +89,19 @@ npm run migrate
 npm run dev
 ```
 
-### Step 2: Create Your First Controller
+### Step 2: Create Your First Handler
 
 ```bash
-node laju make:controller PostController
+node laju make:controller PostHandler
 ```
 
-Edit `app/controllers/PostController.ts`:
+Edit `app/handlers/PostHandler.ts`:
 
 ```typescript
 import { Request, Response } from "../../type";
 import DB from "../services/DB";
 
-export const PostController = {
+export const PostHandler = {
   async index(request: Request, response: Response) {
     const posts = await DB.selectFrom("posts")
       .selectAll()
@@ -113,7 +113,7 @@ export const PostController = {
   }
 };
 
-export default PostController;
+export default PostHandler;
 ```
 
 ### Step 3: Create Database Migration
@@ -173,10 +173,10 @@ Create `resources/js/Pages/posts/index.svelte`:
 Edit `routes/web.ts`:
 
 ```typescript
-import PostController from "../app/controllers/PostController";
+import PostHandler from "../app/handlers/PostHandler";
 
 // Add this line
-Route.get("/posts", PostController.index);
+Route.get("/posts", PostHandler.index);
 ```
 
 Visit `http://localhost:5555/posts` — your blog is live!
@@ -194,7 +194,7 @@ Choose your path:
 - [AI Best Practices](24-ai-development.md#tips-for-non-coders) — Get better results from AI
 
 ### Manual Path
-- [Routing & Controllers](04-routing-controllers.md) — Full routing guide
+- [Routing & Handlers](04-routing-controllers.md) — Full routing guide
 - [Frontend (Svelte 5)](05-frontend-svelte.md) — Build interactive UIs
 - [Database Guide](03-database.md) — Master Kysely queries
 - [Authentication](06-authentication.md) — Add login/register
@@ -216,7 +216,7 @@ Choose your path:
 
 ### For Manual Coders
 1. **Use absolute imports** — `import DB from "app/services/DB"` (not `../../app/services/DB`)
-2. **Follow conventions** — Controllers use `PascalCase`, pages use `kebab-case.svelte`
+2. **Follow conventions** — Handlers use `PascalCase`, pages use `kebab-case.svelte`
 3. **Check existing code** — Laju has built-in auth, storage, email — reuse them!
 4. **Use `response.inertia()`** — For authenticated pages (SPA feel)
 5. **Use `view()`** — For public/SEO pages (server-side rendered)

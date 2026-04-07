@@ -330,7 +330,7 @@ export default defineConfig({
 ### Asset Caching
 
 ```typescript
-// AssetController.ts - Long cache headers
+// AssetHandler.ts - Long cache headers
 response.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
 ```
 

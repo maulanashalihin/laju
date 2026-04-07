@@ -6,7 +6,7 @@ Laju uses **Eta** templating engine for server-side rendering (SSR). Use SSR for
 - Public pages needing SEO (landing pages, marketing pages, blogs)
 - Routes WITHOUT `auth` middleware
 
-For protected/admin routes, use **Inertia.js** (see `skills/create-controller.md` and `skills/create-svelte-inertia-page.md`).
+For protected/admin routes, use **Inertia.js** (see `skills/create-handler.md` and `skills/create-svelte-inertia-page.md`).
 
 ## File Types
 
@@ -18,18 +18,18 @@ For protected/admin routes, use **Inertia.js** (see `skills/create-controller.md
 
 ## Quick Example
 
-**Controller** (`app/controllers/HomeController.ts`):
+**Handler** (`app/handlers/home.handler.ts`):
 ```typescript
 import { view } from '../services/View'
 
-export const HomeController = {
+export const HomeHandler = {
   async index(request: Request, response: Response) {
     const posts = await DB.selectFrom('posts')
       .selectAll()
       .orderBy('created_at', 'desc')
       .limit(10)
       .execute()
-    
+
     return response.type('html').send(view('home', { posts, title: 'Welcome' }))
   }
 }
@@ -57,7 +57,7 @@ export const HomeController = {
 </html>
 ```
 
-See `skills/create-controller.md` for SSR vs Inertia decision guide.
+See `skills/create-handler.md` for SSR vs Inertia decision guide.
 
 ## Eta Syntax
 
@@ -205,11 +205,11 @@ For SSR templates (index.html, inertia.html), use inline SVG icons:
 |----------|----------|-----|
 | Public SEO pages | SSR (Eta) | This guide |
 | Protected admin routes | Inertia + Svelte | `skills/create-svelte-inertia-page.md` |
-| Authentication pages | SSR (Eta) | Built-in controllers |
-| Dashboard/CRUD | Inertia + Svelte | `skills/create-controller.md` |
+| Authentication pages | SSR (Eta) | Built-in handlers |
+| Dashboard/CRUD | Inertia + Svelte | `skills/create-handler.md` |
 
 ## Related Guides
 
-- `skills/create-controller.md` - Controller patterns (SSR vs Inertia)
+- `skills/create-handler.md` - Handler patterns (SSR vs Inertia)
 - `skills/create-svelte-inertia-page.md` - Inertia.js page patterns
-- `skills/kysely.md` - Database queries for controllers
+- `skills/kysely.md` - Database queries for handlers

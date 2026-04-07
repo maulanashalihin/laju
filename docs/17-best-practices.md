@@ -28,13 +28,13 @@ For in-depth documentation, see these focused guides:
 
 ## Code Organization
 
-### Controller Structure
+### Handler Structure
 
-✅ **DO: Keep controllers thin**
+✅ **DO: Keep handlers thin**
 
 ```typescript
-// ✅ Good - Controller delegates to services
-export const PostController = {
+// ✅ Good - Handler delegates to services
+export const PostHandler = {
   async store(request: Request, response: Response) {
     const data = await request.json();
     const post = await PostService.create(data);
@@ -43,11 +43,11 @@ export const PostController = {
 };
 ```
 
-❌ **DON'T: Put business logic in controllers**
+❌ **DON'T: Put business logic in handlers**
 
 ```typescript
-// ❌ Bad - Business logic in controller
-export const PostController = {
+// ❌ Bad - Business logic in handler
+export const PostHandler = {
   async store(request: Request, response: Response) {
     const data = await request.json();
     // Validation logic
@@ -92,7 +92,7 @@ export default PostService;
 ✅ **DO: Use consistent naming conventions**
 
 ```
-Controllers:  PascalCase + Controller.ts  (AuthController.ts)
+Handlers:  PascalCase + Handler.ts  (AuthHandler.ts)
 Services:     PascalCase.ts               (Authenticate.ts, DB.ts)
 Middleware:   camelCase.ts                (auth.ts, rateLimit.ts)
 Components:   PascalCase.svelte           (Header.svelte)
@@ -106,7 +106,7 @@ Pages:        kebab-case.svelte           (forgot-password.svelte)
 ```typescript
 // ✅ Good
 import DB from "app/services/DB";
-import AuthController from "app/controllers/AuthController";
+import AuthHandler from "app/handlers/AuthHandler";
 import { Request, Response } from "type";
 ```
 
@@ -115,7 +115,7 @@ import { Request, Response } from "type";
 ```typescript
 // ❌ Bad
 import DB from "../../app/services/DB";
-import AuthController from "../controllers/AuthController";
+import AuthHandler from "../handlers/AuthHandler";
 ```
 
 ---
@@ -230,9 +230,9 @@ const apiKey = "sk_live_abc123xyz";
 
 ```typescript
 // ✅ Good
-Route.post("/login", [authRateLimit], AuthController.processLogin);
-Route.post("/register", [createAccountRateLimit], AuthController.processRegister);
-Route.post("/api/s3/signed-url", [Auth, uploadRateLimit], S3Controller.getSignedUrl);
+Route.post("/login", [authRateLimit], AuthHandler.processLogin);
+Route.post("/register", [createAccountRateLimit], AuthHandler.processRegister);
+Route.post("/api/s3/signed-url", [Auth, uploadRateLimit], S3Handler.getSignedUrl);
 ```
 
 ### CORS Configuration
@@ -508,13 +508,13 @@ await DB.insertInto("posts").values({
 
 ```typescript
 // ✅ Good
-Route.get("/posts", PostController.index);           // List
-Route.get("/posts/create", PostController.create);   // Create form
-Route.post("/posts", PostController.store);          // Store
-Route.get("/posts/:id", PostController.show);        // Show
-Route.get("/posts/:id/edit", PostController.edit);   // Edit form
-Route.put("/posts/:id", PostController.update);      // Update
-Route.delete("/posts/:id", PostController.destroy);  // Delete
+Route.get("/posts", PostHandler.index);           // List
+Route.get("/posts/create", PostHandler.create);   // Create form
+Route.post("/posts", PostHandler.store);          // Store
+Route.get("/posts/:id", PostHandler.show);        // Show
+Route.get("/posts/:id/edit", PostHandler.edit);   // Edit form
+Route.put("/posts/:id", PostHandler.update);      // Update
+Route.delete("/posts/:id", PostHandler.destroy);  // Delete
 ```
 
 ### Response Format
@@ -763,7 +763,7 @@ process.on("SIGTERM", async () => {
 - [ ] Use transactions for bulk operations
 
 ### Code Quality
-- [ ] Keep controllers thin
+- [ ] Keep handlers thin
 - [ ] Create reusable services
 - [ ] Use consistent naming
 - [ ] Handle errors gracefully

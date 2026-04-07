@@ -42,16 +42,16 @@ export const createPostSchema = z.object({
 export const updatePostSchema = createPostSchema.partial();
 ```
 
-### 2. Use in Controller
+### 2. Use in Handler
 
 ```typescript
-// app/controllers/PostController.ts
+// app/handlers/PostHandler.ts
 import Validator from "../services/Validator";
 import { createPostSchema } from "../validators/PostValidator";
 import { Response, Request } from "../../type";
 import DB from "../services/DB";
 
-class PostController {
+class PostHandler {
   public async store(request: Request, response: Response) {
     const body = await request.json();
 
@@ -77,7 +77,7 @@ class PostController {
   }
 }
 
-export default new PostController();
+export default new PostHandler();
 ```
 
 ## Validator Service API
@@ -104,18 +104,18 @@ Validate and throw ZodError if validation fails.
 const data = Validator.validateOrThrow(schema, body);
 ```
 
-## Validation in Controllers
+## Validation in Handlers
 
 ### For Inertia Forms (Web UI)
 
 Use `validate()` with flash messages for form submissions:
 
 ```typescript
-// app/controllers/ProfileController.ts
+// app/handlers/ProfileHandler.ts
 import Validator from "../services/Validator";
 import { updateProfileSchema } from "../validators/profile.validator";
 
-class ProfileController {
+class ProfileHandler {
   public async update(request: Request, response: Response) {
     const body = await request.json();
 
@@ -156,11 +156,11 @@ class ProfileController {
 Use `validate()` and handle JSON response in controller:
 
 ```typescript
-// app/controllers/ApiController.ts
+// app/handlers/ApiHandler.ts
 import Validator from "../services/Validator";
 import { createPostSchema } from "../validators/PostValidator";
 
-class ApiController {
+class ApiHandler {
   public async createPost(request: Request, response: Response) {
     const body = await request.json();
 
@@ -190,7 +190,7 @@ class ApiController {
 ```
 
 **Why handle response in controller?**
-- Controller owns HTTP response logic
+- Handler owns HTTP response logic
 - Flexibility to customize error format per endpoint
 - Easier testing without mocking Response object
 - Clear separation of concerns
@@ -498,9 +498,9 @@ Laju already provides validators for existing controllers:
 
 | File | Schemas | Used By |
 |------|---------|--------|
-| `AuthValidator.ts` | `loginSchema`, `registerSchema`, `forgotPasswordSchema`, `resetPasswordSchema`, `changePasswordSchema` | LoginController, RegisterController, PasswordController |
-| `ProfileValidator.ts` | `updateProfileSchema`, `deleteUsersSchema` | ProfileController |
-| `S3Validator.ts` | `signedUrlSchema` | S3Controller |
+| `AuthValidator.ts` | `loginSchema`, `registerSchema`, `forgotPasswordSchema`, `resetPasswordSchema`, `changePasswordSchema` | LoginHandler, RegisterHandler, PasswordHandler |
+| `ProfileValidator.ts` | `updateProfileSchema`, `deleteUsersSchema` | ProfileHandler |
+| `S3Validator.ts` | `signedUrlSchema` | S3Handler |
 | `CommonValidator.ts` | `field.*` (reusable fields) | All validators |
 
 ## Resources

@@ -1,6 +1,6 @@
 # Repository Pattern Guidelines
 
-Repository Pattern = Layer abstraction antara Controller dan Database. Semua query database kompleks ditempatkan di `app/repositories/`.
+Repository Pattern = Layer abstraction antara Handler dan Database. Semua query database kompleks ditempatkan di `app/repositories/`.
 
 ## Decision Tree: Repository vs Direct DB Access
 
@@ -9,7 +9,7 @@ Implementing a feature with database operations
     ↓
 Is this a simple CRUD operation (SELECT, INSERT, UPDATE, DELETE basic)?
     ↓ YES
-Use DB directly in controller:
+Use DB directly in handler:
   await DB.selectFrom('posts').where('id', '=', id).execute()
     ↓
 Done ✅
@@ -23,7 +23,7 @@ Create/use Repository:
 Done ✅
 
     ↓ NO
-Is this same query used in 3+ different controllers?
+Is this same query used in 3+ different handlers?
     ↓ YES
 Create/use Repository:
   await UserRepository.findByEmail(email)
@@ -38,7 +38,7 @@ Create/use Repository
 Done ✅
 
     ↓ NO
-Use DB directly in controller
+Use DB directly in handler
     ↓
 Done ✅
 ```
@@ -58,7 +58,7 @@ Done ✅
 | Scenario | Example | Action |
 |----------|---------|--------|
 | **Simple CRUD** | Basic SELECT/INSERT/UPDATE/DELETE | ❌ Use DB directly |
-| **One-time query** | Query only used in one controller method | ❌ Use DB directly |
+| **One-time query** | Query only used in one handler method | ❌ Use DB directly |
 | **Simple WHERE** | `.where('status', '=', 'active')` | ❌ Use DB directly |
 | **MVP/Prototype** | Rapid development, quick validation | ❌ Use DB directly |
 
@@ -67,14 +67,14 @@ Done ✅
 ### ❌ DON'T Use Repository (Simple CRUD)
 
 ```typescript
-// PostController.ts - Simple operations
-export const PostController = {
+// app/handlers/posts.handler.ts - Simple operations
+export const PostHandler = {
   async show(request: Request, response: Response) {
     const post = await DB.selectFrom('posts')
       .selectAll()
       .where('id', '=', request.params.id)
       .executeTakeFirst()
-    
+
     return response.inertia('posts/show', { post })
   },
   
@@ -123,8 +123,8 @@ export class PostRepository {
   }
 }
 
-// PostController.ts
-export const PostController = {
+// app/handlers/posts.handler.ts
+export const PostHandler = {
   async show(request: Request, response: Response) {
     // Use Repository for complex query
     const post = await PostRepository.findWithDetails(request.params.id)
@@ -144,7 +144,7 @@ export class UserRepository {
       .where('email', '=', email.toLowerCase())
       .executeTakeFirst()
   }
-  
+
   static async findByPhone(phone: string) {
     return DB.selectFrom('users')
       .selectAll()
@@ -153,8 +153,8 @@ export class UserRepository {
   }
 }
 
-// Used in multiple controllers:
-// LoginController.ts, RegisterController.ts, PasswordController.ts
+// Used in multiple handlers:
+// AuthHandler (login, register, password reset)
 const user = await UserRepository.findByEmail(email)
 ```
 

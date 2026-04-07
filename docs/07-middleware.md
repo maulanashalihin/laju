@@ -129,10 +129,10 @@ export function securityHeaders() {
 
 ```typescript
 // Single middleware
-Route.get("/profile", [Auth], ProfileController.show);
+Route.get("/profile", [Auth], ProfileHandler.show);
 
 // Multiple middleware (executed in order)
-Route.post("/upload", [Auth, uploadRateLimit, validateFile], UploadController.store);
+Route.post("/upload", [Auth, uploadRateLimit, validateFile], UploadHandler.store);
 
 // Global middleware (applies to all routes)
 webserver.use(inertia());
@@ -141,7 +141,7 @@ webserver.use(inertia());
 ### Execution Order
 
 ```typescript
-Route.post("/posts", [middleware1, middleware2, middleware3], Controller.store);
+Route.post("/posts", [middleware1, middleware2, middleware3], Handler.store);
 
 // Flow:
 // 1. middleware1 executes
@@ -152,8 +152,8 @@ Route.post("/posts", [middleware1, middleware2, middleware3], Controller.store);
 //    - If no return → continue to #3
 // 3. middleware3 executes
 //    - If returns response → STOP
-//    - If no return → continue to Controller.store
-// 4. Controller.store executes
+//    - If no return → continue to Handler.store
+// 4. Handler.store executes
 ```
 
 ---
@@ -170,11 +170,11 @@ Protects routes requiring authentication with session-based authentication.
 import Auth from "app/middlewares/auth";
 
 // Protect single route
-Route.get("/dashboard", [Auth], DashboardController.index);
+Route.get("/dashboard", [Auth], DashboardHandler.index);
 
 // Protect multiple routes
-Route.get("/profile", [Auth], ProfileController.show);
-Route.post("/profile", [Auth], ProfileController.update);
+Route.get("/profile", [Auth], ProfileHandler.show);
+Route.post("/profile", [Auth], ProfileHandler.update);
 ```
 
 **How it works:**
@@ -225,7 +225,7 @@ export default async (request: Request, response: Response) => {
 - ✅ Error handling with fallback to login
 - ✅ Includes phone field in user data
 
-**Access user in controller:**
+**Access user in handler:**
 
 ```typescript
 public async show(request: Request, response: Response) => {
@@ -264,7 +264,7 @@ webserver.use(csrf({
 import { csrfCheck } from "app/middlewares/csrf";
 
 // Apply to specific routes
-Route.post("/upload", [csrfCheck], UploadController.store);
+Route.post("/upload", [csrfCheck], UploadHandler.store);
 ```
 
 #### How It Works
@@ -371,9 +371,9 @@ import {
 } from "app/middlewares/rateLimit";
 
 // Usage
-Route.post("/login", [authRateLimit], AuthController.processLogin);
-Route.post("/register", [createAccountRateLimit], AuthController.processRegister);
-Route.post("/api/upload", [Auth, uploadRateLimit], UploadController.store);
+Route.post("/login", [authRateLimit], AuthHandler.processLogin);
+Route.post("/register", [createAccountRateLimit], AuthHandler.processRegister);
+Route.post("/api/upload", [Auth, uploadRateLimit], UploadHandler.store);
 ```
 
 #### Custom Rate Limiter
@@ -390,7 +390,7 @@ const customLimit = rateLimit({
   skip: (request) => request.user?.is_admin  // Skip for admins
 });
 
-Route.post("/api/data", [customLimit], DataController.store);
+Route.post("/api/data", [customLimit], DataHandler.store);
 ```
 
 #### Custom Handler
@@ -413,7 +413,7 @@ import { userRateLimit } from "app/middlewares/rateLimit";
 // 50 requests per 15 minutes per user
 const userLimit = userRateLimit(50, 15 * 60 * 1000);
 
-Route.post("/api/posts", [Auth, userLimit], PostController.store);
+Route.post("/api/posts", [Auth, userLimit], PostHandler.store);
 ```
 
 #### Custom Key Rate Limit
@@ -424,7 +424,7 @@ import { customRateLimit } from "app/middlewares/rateLimit";
 // Rate limit by custom key
 const apiLimit = customRateLimit('api:v1:endpoint', 1000, 15 * 60 * 1000);
 
-Route.get("/api/v1/data", [apiLimit], DataController.index);
+Route.get("/api/v1/data", [apiLimit], DataHandler.index);
 ```
 
 **Features:**
@@ -618,7 +618,7 @@ import inertia from "app/middlewares/inertia";
 // Apply globally in server.ts
 webserver.use(inertia());
 
-// Now you can use response.inertia() in controllers
+// Now you can use response.inertia() in handlers
 public async index(request: Request, response: Response) => {
   const posts = await DB.selectFrom("posts").selectAll().execute();
   return response.inertia("posts/index", { posts });
@@ -712,7 +712,7 @@ const inertia = () => {
 #### Flash Messages
 
 ```typescript
-// Set flash message in controller
+// Set flash message in handler
 public async store(request: Request, response: Response) {
   // ... create post logic
   return response.flash("success", "Post created successfully!")
@@ -790,7 +790,7 @@ export default async (request: Request, response: Response) => {
 import requestLogger from "../app/middlewares/requestLogger";
 
 // Apply to specific routes
-Route.get("/api/data", [requestLogger], DataController.index);
+Route.get("/api/data", [requestLogger], DataHandler.index);
 
 // Or globally
 webserver.use(requestLogger);
@@ -830,7 +830,7 @@ export default async (request: Request, response: Response) => {
 ```typescript
 import apiKey from "../app/middlewares/apiKey";
 
-Route.get("/api/external/data", [apiKey], ExternalController.getData);
+Route.get("/api/external/data", [apiKey], ExternalHandler.getData);
 ```
 
 ---
@@ -864,8 +864,8 @@ import Auth from "../app/middlewares/auth";
 import requireAdmin from "../app/middlewares/requireAdmin";
 
 // Both middleware must pass
-Route.get("/admin/users", [Auth, requireAdmin], AdminController.users);
-Route.delete("/admin/users/:id", [Auth, requireAdmin], AdminController.deleteUser);
+Route.get("/admin/users", [Auth, requireAdmin], AdminHandler.users);
+Route.delete("/admin/users/:id", [Auth, requireAdmin], AdminHandler.deleteUser);
 ```
 
 ---
@@ -905,7 +905,7 @@ export default async (request: Request, response: Response) => {
 ```typescript
 import validatePost from "../app/middlewares/validatePost";
 
-Route.post("/posts", [Auth, validatePost], PostController.store);
+Route.post("/posts", [Auth, validatePost], PostHandler.store);
 ```
 
 ---
@@ -1031,8 +1031,8 @@ export function requireRole(role: string) {
 // Usage
 import { requireRole } from "../app/middlewares/requireRole";
 
-Route.get("/admin/dashboard", [Auth, requireRole('admin')], AdminController.dashboard);
-Route.get("/moderator/reports", [Auth, requireRole('moderator')], ModeratorController.reports);
+Route.get("/admin/dashboard", [Auth, requireRole('admin')], AdminHandler.dashboard);
+Route.get("/moderator/reports", [Auth, requireRole('moderator')], ModeratorHandler.reports);
 ```
 
 ---
@@ -1062,7 +1062,7 @@ export default async (request: Request, response: Response) => {
   // Continue to handler
 }
 
-// Usage in controller
+// Usage in handler
 public async show(request: Request, response: Response) {
   // Post already loaded by middleware
   return response.json({ post: request.post });
@@ -1107,7 +1107,7 @@ import { validateEmail, validatePassword } from "../app/middlewares/validators";
 Route.post("/register", [
   validateEmail(),
   validatePassword()
-], AuthController.processRegister);
+], AuthHandler.processRegister);
 ```
 
 ---
@@ -1190,10 +1190,10 @@ import validatePost from "../app/middlewares/validatePost";
 **3. Order middleware correctly**
 ```typescript
 // ✅ Good - Auth before authorization
-Route.post("/admin/users", [Auth, requireAdmin], AdminController.createUser);
+Route.post("/admin/users", [Auth, requireAdmin], AdminHandler.createUser);
 
 // ✅ Good - Validation before processing
-Route.post("/posts", [Auth, validatePost, uploadRateLimit], PostController.store);
+Route.post("/posts", [Auth, validatePost, uploadRateLimit], PostHandler.store);
 ```
 
 **4. Return response to stop execution**

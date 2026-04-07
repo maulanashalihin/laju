@@ -105,7 +105,7 @@ This loads AGENTS.md context with all conventions.
 **Solution:**
 Be specific in your prompt:
 ```
-Create a blog controller in app/controllers/BlogController.ts
+Create a blog controller in app/handlers/BlogHandler.ts
 Create the index page in resources/js/Pages/blog/index.svelte
 ```
 
@@ -119,7 +119,7 @@ Create the index page in resources/js/Pages/blog/index.svelte
 Remind AI of Laju patterns:
 ```
 Remember: Laju controllers don't use "this". 
-Use: export default new ControllerName()
+Use: export default new HandlerName()
 ```
 
 ---
@@ -198,7 +198,7 @@ public async index(request: Request, response: Response) {
 }
 
 // Check middleware in routes/web.ts
-Route.get("/posts", [Auth, inertia], PostController.index);
+Route.get("/posts", [Auth, inertia], PostHandler.index);
 ```
 
 ---
@@ -447,7 +447,7 @@ return response.inertia("blog/index", { data }); // .svelte not needed
 
 ### Flash Messages Not Showing
 
-**In Controller:**
+**In Handler:**
 ```typescript
 return response.flash("success", "Post created!").redirect("/posts");
 ```

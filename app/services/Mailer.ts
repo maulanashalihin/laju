@@ -35,10 +35,10 @@ interface MailOptions {
 
 /**
  * Sends an email using the configured SMTP transporter (Nodemailer).
- * 
+ *
  * This function maintains the same signature as the Resend service's MailTo,
- * enabling "drop-in" replacement in Controllers without code changes.
- * 
+ * enabling "drop-in" replacement in Handlers without code changes.
+ *
  * @param {MailOptions} options - Email options containing recipient, subject, and body text
  * @returns {Promise<void>} Resolves when the handshake and transmission are complete
  * 

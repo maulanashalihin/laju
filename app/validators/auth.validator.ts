@@ -1,6 +1,6 @@
 /**
  * Auth Validation Schemas
- * Schemas for LoginController, RegisterController, PasswordController
+ * Schemas for AuthHandler (login, register, password reset)
  */
 
 import { z } from 'zod';
@@ -13,7 +13,7 @@ interface EmailPhoneData {
 
 /**
  * Login schema
- * Used by: LoginController.processLogin
+ * Used by: AuthHandler.processLogin
  */
 export const loginSchema = z.object({
   email: z.string().optional(),
@@ -29,7 +29,7 @@ export const loginSchema = z.object({
 
 /**
  * Register schema
- * Used by: RegisterController.processRegister
+ * Used by: AuthHandler.processRegister
  */
 export const registerSchema = z.object({
   name: field.name,
@@ -39,7 +39,7 @@ export const registerSchema = z.object({
 
 /**
  * Forgot password schema
- * Used by: PasswordController.sendResetPassword
+ * Used by: AuthHandler.sendResetPassword
  */
 export const forgotPasswordSchema = z.object({
   email: z.string().optional(),
@@ -54,7 +54,7 @@ export const forgotPasswordSchema = z.object({
 
 /**
  * Reset password schema
- * Used by: PasswordController.resetPassword
+ * Used by: AuthHandler.resetPassword
  */
 export const resetPasswordSchema = z.object({
   id: z.string().min(1, 'Invalid token'),
@@ -63,7 +63,7 @@ export const resetPasswordSchema = z.object({
 
 /**
  * Change password schema
- * Used by: PasswordController.changePassword
+ * Used by: AuthHandler.changePassword
  */
 export const changePasswordSchema = z.object({
   current_password: z.string().min(1, 'Current password is required'),

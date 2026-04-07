@@ -179,12 +179,11 @@ npm run test:e2e:ui                      # Run E2E tests with UI
 npm run test:e2e:debug                   # Run E2E tests in debug mode
 
 # Code Generation
-npx tsx commands/native/MakeController.ts UserController    # Generate controller
+npx tsx commands/native/MakeHandler.ts user                 # Generate handler (kebab-case, adds -handler suffix)
 npx tsx commands/native/MakeCommand.ts CustomCommand        # Generate command
-npx tsx commands/native/MakeHandler.ts UserHandler          # Generate handler
-npx tsx commands/native/MakeMiddleware.ts AuthMiddleware    # Generate middleware
-npx tsx commands/native/MakeRepository.ts UserRepository    # Generate repository
-npx tsx commands/native/MakeValidator.ts AuthValidator      # Generate validator
+npx tsx commands/native/MakeMiddleware.ts auth              # Generate middleware (kebab-case)
+npx tsx commands/native/MakeRepository.ts user              # Generate repository (kebab-case)
+npx tsx commands/native/MakeValidator.ts auth               # Generate validator (kebab-case)
 ```
 
 ## Tech Stack

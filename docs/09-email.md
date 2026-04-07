@@ -284,7 +284,7 @@ if (!isValidEmail(email)) {
 ```typescript
 import { passwordResetRateLimit } from "../app/middlewares/rateLimit";
 
-Route.post("/forgot-password", [passwordResetRateLimit], PasswordController.sendReset);
+Route.post("/forgot-password", [passwordResetRateLimit], PasswordHandler.sendReset);
 ```
 
 ### 6. Use Plain Text

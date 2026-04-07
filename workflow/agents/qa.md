@@ -84,7 +84,7 @@ Test Report: [attach detail]
 
 ### Integration Tests (Vitest)
 - Lokasi: `tests/integration/**/*.test.ts`
-- Test controllers dan API endpoints
+- Test handlers dan API endpoints
 - Run: `npm run test:run`
 
 ### E2E Tests (Playwright)
@@ -94,7 +94,7 @@ Test Report: [attach detail]
 
 ### Test Priority
 1. Unit test untuk business logic (service.ts)
-2. Integration test untuk controllers
+2. Integration test untuk handlers
 3. E2E test untuk critical user flows
 
 ---

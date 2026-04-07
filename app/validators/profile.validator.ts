@@ -1,6 +1,6 @@
 /**
  * Profile Validation Schemas
- * Schemas for ProfileController
+ * Schemas for AppHandler (profile management)
  */
 
 import { z } from 'zod';
@@ -8,7 +8,7 @@ import { field } from './common.validator';
 
 /**
  * Update profile schema
- * Used by: ProfileController.changeProfile
+ * Used by: AppHandler.changeProfile
  */
 export const updateProfileSchema = z.object({
   name: field.name,
@@ -22,7 +22,7 @@ export const updateProfileSchema = z.object({
 
 /**
  * Delete users schema (admin only)
- * Used by: ProfileController.deleteUsers
+ * Used by: AppHandler.deleteUsers
  */
 export const deleteUsersSchema = z.object({
   ids: z.array(z.string()).min(1, 'Select at least 1 user'),

@@ -16,7 +16,7 @@ export const StorageHandler = {
    * GET /storage/*
    */
   async serveFile(request: Request, response: Response) {
-    // Extract path after /storage/ from request.path (same pattern as AssetController)
+    // Extract path after /storage/ from request.path (same pattern as AssetHandler)
     const requestPath = request.path || "";
     const filePath = requestPath.startsWith("/storage/")
       ? requestPath.substring("/storage/".length).replaceAll("%20", " ")

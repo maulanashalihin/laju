@@ -22,7 +22,7 @@ declare module 'hyper-express' {
     };
 
     /**
-     * Shared data across middlewares and controllers
+     * Shared data across middlewares and handlers
      * Used to pass data between request handlers
      */
     share?: Record<string, unknown>;

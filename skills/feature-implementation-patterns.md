@@ -171,9 +171,9 @@ Mark completed items with `[x]` and add completion date.
 
 ```markdown
 ### Reports
-- [x] Controller: ReportController (balance, monthly, exportPdf)
+- [x] Handler: ReportHandler (balance, monthly, exportPdf)
 - [ ] Excel export functionality (Added: 2025-01-19)
-  - [ ] Add exportExcel method to ReportController
+  - [ ] Add exportExcel method to ReportHandler
   - [ ] Add GET /reports/export/excel route
 ```
 
@@ -194,14 +194,14 @@ async exportExcel(request: Request, response: Response) {
 
 ```typescript
 // Add to routes/web.ts
-Route.get('/reports/export/excel', [Auth], ReportController.exportExcel)
+Route.get('/reports/export/excel', [Auth], ReportHandler.exportExcel)
 ```
 
 ### 4. Update PROGRESS.md
 
 ```markdown
 - [x] Excel export functionality (Added: 2025-01-19, Completed: 2025-01-20)
-  - [x] Add exportExcel method to ReportController
+  - [x] Add exportExcel method to ReportHandler
   - [x] Add GET /reports/export/excel route
 ```
 
@@ -215,7 +215,7 @@ Route.get('/reports/export/excel', [Auth], ReportController.exportExcel)
 
 ```markdown
 ### Notifications (Added: 2025-01-19)
-- [ ] Controller: NotificationController (sendReminder)
+- [ ] Handler: NotificationHandler (sendReminder)
 - [ ] Routes: POST /notifications/send-reminder
 - [ ] WhatsApp API integration
 ```

@@ -74,7 +74,7 @@ const inertia = () => {
     };
 
     // CRITICAL: Must not call anything here to let request pass through to route handlers
-    // The inertia method is just attached to response for use by controllers
+    // The inertia method is just attached to response for use by handlers
   };
 };
 

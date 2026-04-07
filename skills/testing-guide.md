@@ -63,21 +63,21 @@ Unit tests test individual components in isolation.
 - **Vitest** - Unit testing framework (built-in with Vite)
 - **Testing Library** - Component testing utilities
 
-**Controller Unit Tests:**
+**Handler Unit Tests:**
 ```typescript
-// tests/controllers/PostController.test.ts
+// tests/handlers/PostHandler.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { PostController } from '../../app/controllers/PostController'
+import { PostHandler } from '../../app/handlers/PostHandler'
 import { DB } from '../../app/services/DB'
 import { Validator } from '../../app/services/Validator'
 
-describe('PostController', () => {
-  let controller: PostController
+describe('PostHandler', () => {
+  let controller: PostHandler
   let mockRequest: any
   let mockResponse: any
 
   beforeEach(() => {
-    controller = new PostController()
+    controller = new PostHandler()
     mockRequest = {
       user: { id: 1 },
       json: vi.fn(),
@@ -366,8 +366,8 @@ npm run test:coverage
 
 **Run specific tests:**
 ```bash
-# Controller tests
-npm run test tests/controllers
+# Handler tests
+npm run test tests/handlers
 
 # Integration tests
 npm run test tests/integration
@@ -403,10 +403,10 @@ This generates a coverage report in `coverage/` directory showing:
 - Coverage: 85%
 
 ### Unit Tests
-- ✅ PostController.index
-- ✅ PostController.store
-- ✅ PostController.update
-- ✅ PostController.destroy
+- ✅ PostHandler.index
+- ✅ PostHandler.store
+- ✅ PostHandler.update
+- ✅ PostHandler.destroy
 - ✅ Validator.validate
 
 ### Integration Tests
@@ -434,7 +434,7 @@ This generates a coverage report in `coverage/` directory showing:
    - Action: Add dialog handler to test
 
 ### Recommendations
-- Fix status code issue in PostController.update
+- Fix status code issue in PostHandler.update
 - Add dialog handler to delete test
 - Increase coverage to 90%+
 
@@ -620,10 +620,10 @@ Focus on:
 
 ## Common Testing Patterns
 
-### Pattern 1: Controller Testing
+### Pattern 1: Handler Testing
 
 ```typescript
-describe('ControllerName', () => {
+describe('HandlerName', () => {
   beforeEach(() => {
     // Setup mocks
   })
@@ -706,8 +706,8 @@ test('user flow description', async ({ page }) => {
 ```
 tests/
 ├── unit/
-│   ├── controllers/
-│   │   └── PostController.test.ts
+│   ├── handlers/
+│   │   └── PostHandler.test.ts
 │   ├── services/
 │   │   └── Validator.test.ts
 │   └── utils/
@@ -779,13 +779,13 @@ npm run test:watch       # Watch mode
 ### Test Commands
 ```bash
 # Run specific test file
-npm run test PostController.test.ts
+npm run test PostHandler.test.ts
 
 # Run tests matching pattern
 npm run test -- --grep "should create"
 
 # Run tests in specific directory
-npm run test tests/controllers
+npm run test tests/handlers
 ```
 
 ### Coverage Commands

@@ -145,7 +145,7 @@
 **Important:** 
 - **Use `flash` prop** for error/success messages from controller
 - **Display flash directly in template** - no need for onMount or Toast
-- **Controller uses `response.flash()`** to send messages
+- **Handler uses `response.flash()`** to send messages
 
 ## Common Patterns
 
@@ -196,9 +196,9 @@ import { fly } from 'svelte/transition'
 | Flash messages | `flash` prop | `{#if flash?.error}{flash.error}{/if}` |
 | Transitions | `in:fly` | `<div in:fly={{ y: 20 }}>` |
 
-## Controller to Page Mapping
+## Handler to Page Mapping
 
-| Controller | Page Path |
+| Handler | Page Path |
 |------------|-----------|
 | `index()` | `posts/index.svelte` |
 | `create()` | `posts/form.svelte` (no post prop) |
@@ -229,7 +229,7 @@ import { fly } from 'svelte/transition'
 
 ## Related Guides
 
-- `skills/create-controller.md` - Controller patterns (REST methods)
+- `skills/create-handler.md` - Handler patterns (REST methods)
 - `skills/eta-template-engine-ssr.md` - SSR templates for public pages
 - `skills/kysely.md` - Database queries for controllers
 - `skills/repository-pattern.md` - Repository vs Direct DB decisions

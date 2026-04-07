@@ -56,7 +56,7 @@ Contoh:
 git status
 
 # 2. Add files
-git add app/controllers/[Fitur]Controller.ts
+git add app/handlers/[Fitur]Handler.ts
 git add app/repositories/[Fitur]Repository.ts
 git add app/validators/[fitur].ts
 git add resources/js/Pages/[fitur]/
@@ -139,7 +139,7 @@ Route.delete("/items/:id", [Auth], ItemHandler.destroy);
 export default Route;
 ```
 
-### Controller Pattern
+### Handler Pattern
 **File:** `app/handlers/[domain].handler.ts`
 
 ```typescript
@@ -512,16 +512,16 @@ Tambahkan middleware `Auth` sebagai array:
 import Auth from "../app/middlewares/auth"
 
 // Protected route
-Route.get("/items", [Auth], ItemController.index);
+Route.get("/items", [Auth], ItemHandler.index);
 
 // Multiple middlewares
-Route.post("/items", [Auth, rateLimit], ItemController.store);
+Route.post("/items", [Auth, rateLimit], ItemHandler.store);
 ```
 
 User data tersedia via `request.user` setelah melewati auth middleware:
 
 ```typescript
-// Controller
+// Handler
 async index(request: Request, response: Response) {
   const user = request.user; // { id, email, name, role }
   return response.inertia("items/Index", { user, items });

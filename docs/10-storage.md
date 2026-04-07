@@ -117,7 +117,7 @@ import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
 import { getPublicUrl, uploadBuffer } from "app/services/S3";
 ```
 
-Simply change the import in your controller to switch storage providers.
+Simply change the import in your handler to switch storage providers.
 
 ---
 
@@ -229,12 +229,12 @@ const fileExists = await exists('assets/photo.jpg');
 
 ## Server Implementation
 
-### UploadController
+### UploadHandler
 
-UploadController handles file uploads with two separate methods:
+UploadHandler handles file uploads with two separate methods:
 
 ```typescript
-// app/controllers/UploadController.ts
+// app/handlers/UploadHandler.ts
 import { uuidv7 } from "uuidv7";
 import { Response, Request } from "../../type";
 import sharp from "sharp";
@@ -250,7 +250,7 @@ import { getPublicUrl, uploadBuffer } from "app/services/LocalStorage";
 // S3 Storage:
 // import { getPublicUrl, uploadBuffer } from "app/services/S3";
 
-class UploadController {
+class UploadHandler {
     /**
      * Upload Image with Processing
      * - Validates image type (JPEG, PNG, GIF, WebP)
@@ -458,29 +458,29 @@ class UploadController {
     }
 }
 
-export default new UploadController();
+export default new UploadHandler();
 ```
 
 ### Routes
 
 ```typescript
 // routes/web.ts
-import UploadController from "../app/controllers/UploadController";
-import StorageController from "../app/controllers/StorageController";
+import UploadHandler from "../app/handlers/UploadHandler";
+import StorageHandler from "../app/handlers/StorageHandler";
 import Auth from "../app/middlewares/auth";
 import { uploadRateLimit } from "../app/middlewares/rateLimit";
 
 // Upload routes
-Route.post("/api/upload/image", [Auth, uploadRateLimit], UploadController.uploadImage);
-Route.post("/api/upload/file", [Auth, uploadRateLimit], UploadController.uploadFile);
+Route.post("/api/upload/image", [Auth, uploadRateLimit], UploadHandler.uploadImage);
+Route.post("/api/upload/file", [Auth, uploadRateLimit], UploadHandler.uploadFile);
 
 // Local storage route
-Route.get("/storage/*", StorageController.serveFile);
+Route.get("/storage/*", StorageHandler.serveFile);
 ```
 
 ### Choosing Storage Service
 
-To switch between S3 and Local Storage, change the import in UploadController:
+To switch between S3 and Local Storage, change the import in UploadHandler:
 
 ```typescript
 // For Local Storage (Development)
@@ -492,12 +492,12 @@ import { getPublicUrl, uploadBuffer } from "app/services/S3";
 
 Both services have the same API, making it easy to switch between them without changing any other code.
 
-### StorageController
+### StorageHandler
 
-StorageController serves static files from local storage with security features:
+StorageHandler serves static files from local storage with security features:
 
 ```typescript
-// app/controllers/StorageController.ts
+// app/handlers/StorageHandler.ts
 import { Response, Request } from "../../type";
 import fs from "fs";
 import path from "path";
@@ -505,7 +505,7 @@ import "dotenv/config";
 
 const storagePath = process.env.LOCAL_STORAGE_PATH || "./storage";
 
-class Controller {
+class Handler {
     public async serveFile(request: Request, response: Response) {
         // Extract path after /storage/ from request.path
         const requestPath = request.path || "";
@@ -574,29 +574,29 @@ class Controller {
     }
 }
 
-export default new Controller();
+export default new Handler();
 ```
 
 ### Routes
 
 ```typescript
 // routes/web.ts
-import UploadController from "../app/controllers/UploadController";
-import StorageController from "../app/controllers/StorageController";
+import UploadHandler from "../app/handlers/UploadHandler";
+import StorageHandler from "../app/handlers/StorageHandler";
 import Auth from "../app/middlewares/auth";
 import { uploadRateLimit } from "../app/middlewares/rateLimit";
 
 // Upload routes
-Route.post("/api/upload/image", [Auth, uploadRateLimit], UploadController.uploadImage);
-Route.post("/api/upload/file", [Auth, uploadRateLimit], UploadController.uploadFile);
+Route.post("/api/upload/image", [Auth, uploadRateLimit], UploadHandler.uploadImage);
+Route.post("/api/upload/file", [Auth, uploadRateLimit], UploadHandler.uploadFile);
 
 // Local storage route
-Route.get("/storage/*", StorageController.serveFile);
+Route.get("/storage/*", StorageHandler.serveFile);
 ```
 
 ### Choosing Storage Service
 
-To switch between S3 and Local Storage, change the import in UploadController:
+To switch between S3 and Local Storage, change the import in UploadHandler:
 
 ```typescript
 // For Local Storage (Development)
@@ -1049,7 +1049,7 @@ import { randomUUID } from "crypto";
 const key = `uploads/${userId}/${randomUUID()}.${ext}`;
 
 // For local storage, serve files with proper headers
-// app/controllers/StorageController.ts handles this automatically
+// app/handlers/StorageHandler.ts handles this automatically
 ```
 
 ---

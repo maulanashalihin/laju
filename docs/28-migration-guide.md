@@ -1,20 +1,20 @@
-# Migration Guide: Controllers to Handlers
+# Migration Guide: Handlers to Handlers
 
-Complete guide for migrating from Laravel-style controllers to domain-based handlers in Laju Framework.
+Complete guide for migrating from Laravel-style handlers to domain-based handlers in Laju Framework.
 
 ---
 
 ## Overview
 
-Laju Framework has migrated from a **Laravel-style MVC pattern** with multiple controllers per domain to a **Handler-based pattern** with consolidated domain files.
+Laju Framework has migrated from a **Laravel-style MVC pattern** with multiple handlers per domain to a **Handler-based pattern** with consolidated domain files.
 
 ### Why Migrate?
 
-| Aspect | Controllers (Old) | Handlers (New) | Benefit |
+| Aspect | Handlers (Old) | Handlers (New) | Benefit |
 |--------|------------------|----------------|---------|
 | **Organization** | Multiple files per domain | Single file per domain | Easier navigation |
-| **Naming** | `AuthController.ts`, `LoginController.ts`, `RegisterController.ts` | `auth.handler.ts` | Consistent naming |
-| **Imports** | Different import for each controller | Single import per domain | Cleaner code |
+| **Naming** | `AuthHandler.ts`, `LoginHandler.ts`, `RegisterHandler.ts` | `auth.handler.ts` | Consistent naming |
+| **Imports** | Different import for each handler | Single import per domain | Cleaner code |
 | **Maintenance** | Scattered related logic | Consolidated domain logic | Easier maintenance |
 
 ---
@@ -25,16 +25,16 @@ Laju Framework has migrated from a **Laravel-style MVC pattern** with multiple c
 
 ```diff
 app/
-- ├── controllers/
-- │   ├── LoginController.ts
-- │   ├── RegisterController.ts
-- │   ├── PasswordController.ts
-- │   ├── ProfileController.ts
-- │   ├── OAuthController.ts
-- │   ├── HomeController.ts
-- │   ├── UploadController.ts
-- │   ├── S3Controller.ts
-- │   └── StorageController.ts
+- ├── handlers/
+- │   ├── LoginHandler.ts
+- │   ├── RegisterHandler.ts
+- │   ├── PasswordHandler.ts
+- │   ├── ProfileHandler.ts
+- │   ├── OAuthHandler.ts
+- │   ├── HomeHandler.ts
+- │   ├── UploadHandler.ts
+- │   ├── S3Handler.ts
+- │   └── StorageHandler.ts
 + ├── handlers/
 + │   ├── auth.handler.ts        # All authentication logic
 + │   ├── app.handler.ts         # Application pages
@@ -49,21 +49,21 @@ app/
 
 | Old Pattern | New Pattern |
 |-------------|-------------|
-| `PascalCase` + `Controller.ts` | `kebab-case` + `.handler.ts` |
-| `AuthController.ts` | `auth.handler.ts` |
-| `LoginController.ts` | *(merged into)* `auth.handler.ts` |
+| `PascalCase` + `Handler.ts` | `kebab-case` + `.handler.ts` |
+| `AuthHandler.ts` | `auth.handler.ts` |
+| `LoginHandler.ts` | *(merged into)* `auth.handler.ts` |
 
 ### Export Pattern
 
 ```typescript
-// ❌ OLD: Multiple controllers
-// app/controllers/LoginController.ts
-export const LoginController = { ... };
-export default LoginController;
+// ❌ OLD: Multiple handlers
+// app/handlers/LoginHandler.ts
+export const LoginHandler = { ... };
+export default LoginHandler;
 
-// app/controllers/RegisterController.ts
-export const RegisterController = { ... };
-export default RegisterController;
+// app/handlers/RegisterHandler.ts
+export const RegisterHandler = { ... };
+export default RegisterHandler;
 
 // ✅ NEW: Single handler per domain
 // app/handlers/auth.handler.ts
@@ -81,37 +81,37 @@ export default AuthHandler;
 
 ## Migration Steps
 
-### Step 1: Identify Your Controllers
+### Step 1: Identify Your Handlers
 
-List all controllers you're currently using:
+List all handlers you're currently using:
 
 ```bash
-ls app/controllers/
+ls app/handlers/
 ```
 
 Example output:
 ```
-LoginController.ts
-RegisterController.ts
-PasswordController.ts
-ProfileController.ts
-OAuthController.ts
+LoginHandler.ts
+RegisterHandler.ts
+PasswordHandler.ts
+ProfileHandler.ts
+OAuthHandler.ts
 ```
 
-### Step 2: Map Controllers to Handlers
+### Step 2: Map Handlers to Handlers
 
-| Old Controllers | New Handler |
+| Old Handlers | New Handler |
 |-----------------|-------------|
-| `LoginController.ts` | `auth.handler.ts` |
-| `RegisterController.ts` | `auth.handler.ts` |
-| `PasswordController.ts` | `auth.handler.ts` |
-| `OAuthController.ts` | `auth.handler.ts` |
-| `ProfileController.ts` | `app.handler.ts` |
-| `HomeController.ts` | `app.handler.ts` |
-| `UploadController.ts` | `upload.handler.ts` |
-| `S3Controller.ts` | `s3.handler.ts` |
-| `StorageController.ts` | `storage.handler.ts` |
-| `AssetController.ts` | `asset.handler.ts` |
+| `LoginHandler.ts` | `auth.handler.ts` |
+| `RegisterHandler.ts` | `auth.handler.ts` |
+| `PasswordHandler.ts` | `auth.handler.ts` |
+| `OAuthHandler.ts` | `auth.handler.ts` |
+| `ProfileHandler.ts` | `app.handler.ts` |
+| `HomeHandler.ts` | `app.handler.ts` |
+| `UploadHandler.ts` | `upload.handler.ts` |
+| `S3Handler.ts` | `s3.handler.ts` |
+| `StorageHandler.ts` | `storage.handler.ts` |
+| `AssetHandler.ts` | `asset.handler.ts` |
 
 ### Step 3: Create Handler Files
 
@@ -126,7 +126,7 @@ import { loginSchema, registerSchema } from "../validators/auth.validator";
 import { Response, Request } from "../../type";
 
 export const AuthHandler = {
-  // From LoginController
+  // From LoginHandler
   async loginPage(request: Request, response: Response) {
     return response.inertia("auth/login");
   },
@@ -144,7 +144,7 @@ export const AuthHandler = {
     // ... login logic
   },
 
-  // From RegisterController
+  // From RegisterHandler
   async registerPage(request: Request, response: Response) {
     return response.inertia("auth/register");
   },
@@ -153,7 +153,7 @@ export const AuthHandler = {
     // ... register logic
   },
 
-  // From PasswordController
+  // From PasswordHandler
   async forgotPasswordPage(request: Request, response: Response) {
     return response.inertia("auth/forgot-password");
   },
@@ -172,13 +172,13 @@ Update your route definitions to use handlers:
 // routes/web.ts
 
 // ❌ OLD
-import LoginController from "../app/controllers/LoginController";
-import RegisterController from "../app/controllers/RegisterController";
+import LoginHandler from "../app/handlers/LoginHandler";
+import RegisterHandler from "../app/handlers/RegisterHandler";
 
-Route.get("/login", LoginController.loginPage);
-Route.post("/login", LoginController.processLogin);
-Route.get("/register", RegisterController.registerPage);
-Route.post("/register", RegisterController.processRegister);
+Route.get("/login", LoginHandler.loginPage);
+Route.post("/login", LoginHandler.processLogin);
+Route.get("/register", RegisterHandler.registerPage);
+Route.post("/register", RegisterHandler.processRegister);
 
 // ✅ NEW
 import AuthHandler from "../app/handlers/auth.handler";
@@ -191,31 +191,31 @@ Route.post("/register", AuthHandler.processRegister);
 
 ### Step 5: Update Imports in Tests
 
-If you have tests that import controllers:
+If you have tests that import handlers:
 
 ```typescript
 // ❌ OLD
-import LoginController from "../app/controllers/LoginController";
+import LoginHandler from "../app/handlers/LoginHandler";
 
 // ✅ NEW
 import AuthHandler from "../app/handlers/auth.handler";
 ```
 
-### Step 6: Delete Old Controller Files
+### Step 6: Delete Old Handler Files
 
 After confirming everything works:
 
 ```bash
-rm app/controllers/LoginController.ts
-rm app/controllers/RegisterController.ts
-rm app/controllers/PasswordController.ts
-rm app/controllers/OAuthController.ts
-rm app/controllers/ProfileController.ts
-rm app/controllers/HomeController.ts
-rm app/controllers/UploadController.ts
-rm app/controllers/S3Controller.ts
-rm app/controllers/StorageController.ts
-rm app/controllers/AssetController.ts
+rm app/handlers/LoginHandler.ts
+rm app/handlers/RegisterHandler.ts
+rm app/handlers/PasswordHandler.ts
+rm app/handlers/OAuthHandler.ts
+rm app/handlers/ProfileHandler.ts
+rm app/handlers/HomeHandler.ts
+rm app/handlers/UploadHandler.ts
+rm app/handlers/S3Handler.ts
+rm app/handlers/StorageHandler.ts
+rm app/handlers/AssetHandler.ts
 ```
 
 ---
@@ -224,15 +224,15 @@ rm app/controllers/AssetController.ts
 
 ### Authentication Example
 
-#### Before: Multiple Controllers
+#### Before: Multiple Handlers
 
 ```typescript
-// app/controllers/LoginController.ts
+// app/handlers/LoginHandler.ts
 import { Request, Response } from "../../type";
 import UserRepository from "../repositories/user.repository";
 import Authenticate from "../services/Authenticate";
 
-export const LoginController = {
+export const LoginHandler = {
   async loginPage(request: Request, response: Response) {
     return response.inertia("auth/login");
   },
@@ -255,16 +255,16 @@ export const LoginController = {
   }
 };
 
-export default LoginController;
+export default LoginHandler;
 ```
 
 ```typescript
-// app/controllers/RegisterController.ts
+// app/handlers/RegisterHandler.ts
 import { Request, Response } from "../../type";
 import UserRepository from "../repositories/user.repository";
 import Authenticate from "../services/Authenticate";
 
-export const RegisterController = {
+export const RegisterHandler = {
   async registerPage(request: Request, response: Response) {
     return response.inertia("auth/register");
   },
@@ -288,7 +288,7 @@ export const RegisterController = {
   }
 };
 
-export default RegisterController;
+export default RegisterHandler;
 ```
 
 #### After: Single Handler
@@ -382,8 +382,8 @@ export default AuthHandler;
 
 ```typescript
 // ❌ OLD
-import AuthController from "../app/controllers/AuthController";
-import HomeController from "../app/controllers/HomeController";
+import AuthHandler from "../app/handlers/AuthHandler";
+import HomeHandler from "../app/handlers/HomeHandler";
 
 // ✅ NEW
 import AuthHandler from "../app/handlers/auth.handler";
@@ -394,7 +394,7 @@ import AppHandler from "../app/handlers/app.handler";
 
 ```typescript
 // ❌ OLD
-import { LoginController } from "../app/controllers/LoginController";
+import { LoginHandler } from "../app/handlers/LoginHandler";
 
 // ✅ NEW
 import { AuthHandler } from "../app/handlers/auth.handler";
@@ -459,11 +459,11 @@ Route.post("/change-profile", [Auth], AppHandler.changeProfile);
 ### Migration Checklist
 
 - [ ] Create handler files in `app/handlers/`
-- [ ] Copy methods from controllers to handlers
+- [ ] Copy methods from handlers to handlers
 - [ ] Update route imports
 - [ ] Update test imports
 - [ ] Test all routes
-- [ ] Delete old controller files
+- [ ] Delete old handler files
 - [ ] Update documentation
 
 ### Testing Checklist

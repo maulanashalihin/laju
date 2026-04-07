@@ -134,7 +134,7 @@ response.redirect('/path', 303)         // PUT/DELETE success
 | Delete | DELETE | 303 | `response.redirect('/list', 303)` |
 | Read | GET | 200 | `response.inertia()` / `response.send()` |
 
-## Complete Controller Examples
+## Complete Handler Examples
 
 ### Index (GET /resources)
 
@@ -313,5 +313,5 @@ response.type('application/pdf').stream(stream)
 ## See Also
 
 - [HyperExpress Documentation](https://github.com/kartikk221/hyper-express)
-- `skills/create-controller.md` - Controller patterns
+- `skills/create-handler.md` - Handler patterns
 - `skills/feature-implementation-patterns.md` - Complete feature patterns

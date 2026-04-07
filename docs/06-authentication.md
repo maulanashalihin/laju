@@ -69,8 +69,8 @@ await Authenticate.logout(request, response);
 ### Registration Example
 
 ```typescript
-// app/controllers/RegisterController.ts
-export const RegisterController = {
+// app/handlers/RegisterHandler.ts
+export const RegisterHandler = {
   async processRegister(request: Request, response: Response) {
     const { name, email, password } = await request.json();
     
@@ -103,7 +103,7 @@ export const RegisterController = {
 ### Login Example
 
 ```typescript
-// app/controllers/LoginController.ts
+// app/handlers/LoginHandler.ts
 public async processLogin(request: Request, response: Response) {
   const { email, password } = await request.json();
   
@@ -177,16 +177,16 @@ export default async (request: Request, response: Response) => {
 import Auth from "../app/middlewares/auth";
 
 // Public routes
-Route.get("/", HomeController.index);
-Route.get("/login", LoginController.loginPage);
+Route.get("/", HomeHandler.index);
+Route.get("/login", LoginHandler.loginPage);
 
 // Protected routes
-Route.get("/home", [Auth], ProfileController.homePage);
-Route.get("/profile", [Auth], ProfileController.profilePage);
-Route.post("/posts", [Auth], PostController.store);
+Route.get("/home", [Auth], ProfileHandler.homePage);
+Route.get("/profile", [Auth], ProfileHandler.profilePage);
+Route.post("/posts", [Auth], PostHandler.store);
 ```
 
-### Access User in Controller
+### Access User in Handler
 
 ```typescript
 public async store(request: Request, response: Response) {
@@ -284,10 +284,10 @@ GOOGLE_REDIRECT_URI=http://localhost:5555/google/callback
 ### OAuth Flow
 
 ```typescript
-// app/controllers/OAuthController.ts
+// app/handlers/OAuthHandler.ts
 import { redirectParamsURL } from "../services/GoogleAuth";
 
-class OAuthController {
+class OAuthHandler {
   // Step 1: Redirect to Google
   public async redirect(request: Request, response: Response) {
     const params = redirectParamsURL();
@@ -342,8 +342,8 @@ class OAuthController {
 ### Routes
 
 ```typescript
-Route.get("/google/redirect", OAuthController.redirect);
-Route.get("/google/callback", OAuthController.googleCallback);
+Route.get("/google/redirect", OAuthHandler.redirect);
+Route.get("/google/callback", OAuthHandler.googleCallback);
 ```
 
 ---
@@ -358,10 +358,10 @@ Route.get("/google/callback", OAuthController.googleCallback);
 4. User clicks link, enters new password
 5. Verify token, update password, delete token
 
-### Controller
+### Handler
 
 ```typescript
-// app/controllers/PasswordController.ts
+// app/handlers/PasswordHandler.ts
 public async sendResetPassword(request: Request, response: Response) {
   const { email } = await request.json();
   
@@ -430,10 +430,10 @@ public async resetPassword(request: Request, response: Response) {
 3. User clicks link
 4. Verify token, mark user as verified
 
-### Controller
+### Handler
 
 ```typescript
-// app/controllers/VerificationController.ts
+// app/handlers/VerificationHandler.ts
 public async verify(request: Request, response: Response) {
   const token = randomUUID();
 
