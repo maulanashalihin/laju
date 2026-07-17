@@ -220,6 +220,7 @@ export default async (request: Request, response: Response) => {
 ```
 
 **Features:**
+
 - ✅ Session caching (60 days) for performance
 - ✅ Session expiration check
 - ✅ Error handling with fallback to login
@@ -327,6 +328,7 @@ export function csrf(options: CSRFOptions = {}) {
 ```
 
 **Features:**
+
 - ✅ Token rotation on each successful request
 - ✅ Automatic token generation for GET requests
 - ✅ Configurable path exclusions
@@ -428,6 +430,7 @@ Route.get("/api/v1/data", [apiLimit], DataHandler.index);
 ```
 
 **Features:**
+
 - ✅ Cloudflare IP detection (supports `cf-connecting-ip` header)
 - ✅ Rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`)
 - ✅ Custom key generators
@@ -446,6 +449,7 @@ Adds security-related HTTP headers to all responses.
 #### What It Does
 
 Automatically adds security headers to prevent:
+
 - XSS (Cross-Site Scripting) attacks
 - Clickjacking
 - MIME type sniffing
@@ -513,12 +517,14 @@ webserver.use(productionSecurityHeaders());
 #### Development vs Production
 
 **Development Mode:**
+
 - Allows all external resources (`http: https: data: blob:`)
 - Includes Vite dev server (`http://localhost:${VITE_PORT || 5173}`)
 - Disables HSTS (HTTP Strict Transport Security)
 - Permissive for easier development
 
 **Production Mode:**
+
 - Strict CSP - only `https:` for external resources
 - Enables HSTS with 1-year max-age
 - All security headers active
@@ -529,6 +535,7 @@ webserver.use(productionSecurityHeaders());
 The CSP is configured differently for development and production:
 
 **Development:**
+
 ```
 default-src 'self' http: https: data: blob:
 script-src 'self' 'unsafe-inline' 'unsafe-eval' http: https: http://localhost:${VITE_PORT}
@@ -540,6 +547,7 @@ frame-ancestors 'self'
 ```
 
 **Production:**
+
 ```
 default-src 'self'
 script-src 'self'
@@ -551,6 +559,7 @@ frame-ancestors 'self'
 ```
 
 This ensures:
+
 - ✅ External fonts (Google Fonts, Inter, Fira Code) work in development
 - ✅ Vite HMR works with WebSocket connections
 - ✅ CDN resources can be loaded during development
@@ -608,116 +617,62 @@ export function securityHeaders() {
 
 ### 5. Inertia Middleware
 
-Handles Inertia.js responses for SPA-like experience.
+Menggunakan [`hyper-express-inertia`](https://npmjs.com/package/hyper-express-inertia) package — Inertia.js v3 adapter untuk HyperExpress.
 
-**Location:** `app/middlewares/inertia.ts`
-
-```typescript
-import inertia from "app/middlewares/inertia";
-
-// Apply globally in server.ts
-webserver.use(inertia());
-
-// Now you can use response.inertia() in handlers
-public async index(request: Request, response: Response) => {
-  const posts = await DB.selectFrom("posts").selectAll().execute();
-  return response.inertia("posts/index", { posts });
-}
-```
-
-#### How It Works
+**Registrasi di `server.ts`:**
 
 ```typescript
-const inertia = () => {
-  return async (request: Request, response: Response) => {
-    // Set up the flash method on response
-    response.flash = (type: string, message: string, ttl: number = 3000) => {
-      response.cookie(type, message, ttl);
-      return response;
-    };
+import { inertia } from "./app/services/inertia";
 
-    // Override redirect method
-    response.redirect = ((url: string, status: number = 302) => {
-      return response.status(status).setHeader("Location", url).send();
-    }) as { (url: string): boolean; (url: string, status?: number): Response };
-
-    // Set up the inertia method on response
-    response.inertia = async (component: string, inertiaProps = {}, viewProps = {}) => {
-      const url = request.originalUrl;
-
-      // Merge shared props with inertia props
-      let props: Record<string, unknown> = {
-        ...request.share,
-        user: request.user || {},
-        ...inertiaProps
-      };
-
-      // Parse all flash messages from cookies
-      const flashTypes = ['error', 'success', 'info', 'warning'];
-      const flashMessages: Record<string, string> = {};
-
-      for (const type of flashTypes) {
-        if (request.cookies[type]) {
-          flashMessages[type] = request.cookies[type];
-          response.cookie(type, "", 0);
-        }
-      }
-
-      // Add flash messages to props
-      if (Object.keys(flashMessages).length > 0) {
-        props.flash = flashMessages;
-      }
-
-      const inertiaObject = {
-        component: component,
-        props: props,
-        url: url,
-        version: pkg.version,
-      };
-
-      if (!request.header("X-Inertia")) {
-        // Initial page load - return HTML
-        const html = view("inertia.html", {
-          page: JSON.stringify(inertiaObject),
-          title: "Laju - LAJU - Hyper Performance TypeScript Monolith",
-          ...viewProps
-        });
-
-        return response.type("html").send(html);
-      }
-
-      // Inertia request - return JSON
-      response.setHeader("Vary", "Accept");
-      response.setHeader("X-Inertia", "true");
-      response.setHeader("X-Inertia-Version", pkg.version);
-
-      return response.json(inertiaObject);
-    };
-
-    // CRITICAL: Must not call anything here to let request pass through to route handlers
-  };
-};
+// Apply globally
+webserver.use(inertia.middleware());
 ```
 
-#### Features
+**Konfigurasi di `app/services/inertia.ts`:**
 
-- ✅ Flash message support (error, success, info, warning)
-- ✅ Automatic flash message cleanup
-- ✅ Shared props merging
-- ✅ User prop automatically included
-- ✅ Version tracking for cache busting
-- ✅ Initial page load returns HTML
-- ✅ Subsequent requests return JSON
+```typescript
+import { Inertia } from "hyper-express-inertia";
+
+export const inertia = new Inertia({
+  version: pkg.version,
+  render: (req, res, page) => {
+    // Custom HTML render (Vite + CSRF + Flash)
+  },
+});
+
+// Shared props
+inertia.shareFunc("auth", (req) => { /* ... */ });
+inertia.share("appName", "Laju");
+```
+
+**Di handlers — panggil instance methods:**
+
+```typescript
+import inertia from "../services/inertia";
+import { redirect } from "hyper-express-inertia";
+
+// Render Inertia page
+return inertia.render(request, response, "posts/index", { posts });
+
+// Redirect (303 See Other)
+return redirect(response, "/posts");
+
+// Flash message (via package middleware)
+response.flash("success", "Post created!");
+
+// External redirect (409 + X-Inertia-Location)
+location(res, "https://external.com");
+
+// Back via Referer
+back(res, req);
+```
 
 #### Flash Messages
 
 ```typescript
 // Set flash message in handler
-public async store(request: Request, response: Response) {
-  // ... create post logic
-  return response.flash("success", "Post created successfully!")
-    .redirect("/posts");
-}
+response.flash("success", "Post created successfully!");
+return redirect(response, "/posts");
 
 // Access in Svelte component
 <script>
@@ -727,18 +682,6 @@ public async store(request: Request, response: Response) {
 {#if flash?.success}
   <div class="alert success">{flash.success}</div>
 {/if}
-```
-
-#### Shared Props
-
-```typescript
-// Set shared props in middleware
-request.share = { appName: "My App", theme: "dark" };
-
-// Available in all Inertia responses
-public async index(request: Request, response: Response) {
-  return response.inertia("dashboard", { posts }); // Includes shared props
-}
 ```
 
 ---
@@ -1171,6 +1114,7 @@ webserver.set_error_handler((request, response, error) => {
 ### ✅ DO
 
 **1. Keep middleware focused**
+
 ```typescript
 // ✅ Good - Single responsibility
 export default async (request: Request, response: Response) => {
@@ -1181,6 +1125,7 @@ export default async (request: Request, response: Response) => {
 ```
 
 **2. Use descriptive names**
+
 ```typescript
 // ✅ Good
 import requireAdmin from "../app/middlewares/requireAdmin";
@@ -1188,6 +1133,7 @@ import validatePost from "../app/middlewares/validatePost";
 ```
 
 **3. Order middleware correctly**
+
 ```typescript
 // ✅ Good - Auth before authorization
 Route.post("/admin/users", [Auth, requireAdmin], AdminHandler.createUser);
@@ -1197,6 +1143,7 @@ Route.post("/posts", [Auth, validatePost, uploadRateLimit], PostHandler.store);
 ```
 
 **4. Return response to stop execution**
+
 ```typescript
 // ✅ Good
 if (!isValid) {
@@ -1205,6 +1152,7 @@ if (!isValid) {
 ```
 
 **5. Use TypeScript types**
+
 ```typescript
 // ✅ Good
 import { Request, Response } from "../../type";
@@ -1219,6 +1167,7 @@ export default async (request: Request, response: Response) => {
 ### ❌ DON'T
 
 **1. Don't use next()**
+
 ```typescript
 // ❌ Bad - HyperExpress doesn't have next()
 export default async (request, response, next) => {
@@ -1228,6 +1177,7 @@ export default async (request, response, next) => {
 ```
 
 **2. Don't forget to return when stopping**
+
 ```typescript
 // ❌ Bad - Missing return
 if (!request.user) {
@@ -1241,6 +1191,7 @@ if (!request.user) {
 ```
 
 **3. Don't put business logic in middleware**
+
 ```typescript
 // ❌ Bad - Too much logic
 export default async (request: Request, response: Response) => {
@@ -1260,6 +1211,7 @@ export default async (request: Request, response: Response) => {
 ```
 
 **4. Don't modify response after sending**
+
 ```typescript
 // ❌ Bad
 return response.json({ success: true });

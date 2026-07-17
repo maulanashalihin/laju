@@ -1,192 +1,189 @@
 /**
- * Database Service using Kysely
- * This service provides a configured database connection instance using Kysely query builder.
- * It supports multiple database connections based on different stages (development, production, etc.).
+ * Database Service
+ * Provides a configured better-sqlite3 database connection.
+ * Supports multiple database connections for different environments.
  */
 
 import "dotenv/config";
-import { Kysely, sql } from "kysely";
-import { GenericSqliteDialect } from "kysely-generic-sqlite";
-import type { IGenericSqlite } from "kysely-generic-sqlite";
 import Database from "better-sqlite3";
-import type { DB as DatabaseTypes } from "../../type/db-types";
+import type { RunResult } from "../../type/db-types";
 
 // Database configuration
 const dbConfig: Record<string, { filename: string }> = {
-  development: {
-    filename: "./data/dev.sqlite3",
-  },
-  production: {
-    filename: "./data/production.sqlite3",
-  },
-  test: {
-    filename: "./data/test.sqlite3",
-  },
+	development: {
+		filename: "./data/dev.sqlite3",
+	},
+	production: {
+		filename: "./data/production.sqlite3",
+	},
+	test: {
+		filename: "./data/test.sqlite3",
+	},
 };
 
-/**
- * Create SQLite executor for Kysely generic dialect
- */
-function createSqliteExecutor(db: Database.Database): IGenericSqlite<Database.Database> {
-  const getStmt = (sql: string) => db.prepare(sql);
-
-  return {
-    db,
-    query: (_isSelect: boolean, sql: string, parameters?: unknown[] | readonly unknown[]) => {
-      const stmt = getStmt(sql);
-      const params = parameters ?? [];
-      if (stmt.reader) {
-        return { rows: stmt.all(params) as Record<string, unknown>[] };
-      }
-      const { changes, lastInsertRowid } = stmt.run(params);
-      return {
-        rows: [],
-        numAffectedRows: BigInt(changes ?? 0),
-        insertId: BigInt(lastInsertRowid ?? 0),
-      };
-    },
-    close: () => db.close(),
-    iterator: (isSelect: boolean, sql: string, parameters?: unknown[] | readonly unknown[]) => {
-      if (!isSelect) {
-        throw new Error("Only support select in stream()");
-      }
-      const params = parameters ?? [];
-      return getStmt(sql).iterate(params) as any;
-    },
-  };
-}
-
-/**
- * Apply SQLite PRAGMAs for better performance and correctness
- */
-function applySQLitePragmas(db: Database.Database) {
-  try {
-    db.pragma("journal_mode = WAL");
-    db.pragma("synchronous = NORMAL");
-    db.pragma("foreign_keys = ON");
-    db.pragma("busy_timeout = 5000"); // Wait 5s before throwing SQLITE_BUSY error
-  } catch (err) {
-    console.warn("Failed to apply SQLite PRAGMA:", err);
-  }
-}
-
-/**
- * Create a new Kysely database instance
- */
-function createKyselyInstance(stage: string): Kysely<DatabaseTypes> {
-  const config = dbConfig[stage];
-  if (!config) {
-    throw new Error(`Unknown database connection: ${stage}`);
-  }
-
-  const nativeDb = new Database(config.filename);
-  applySQLitePragmas(nativeDb);
-
-  const dialect = new GenericSqliteDialect(() => createSqliteExecutor(nativeDb));
-
-  return new Kysely<DatabaseTypes>({
-    dialect,
-  });
-}
-
-/**
- * Extended Kysely interface with helper methods
- */
-interface DBType extends Kysely<DatabaseTypes> {
-  /**
-   * Creates a new database connection for a specific stage
-   * @param {string} stage - The environment stage (e.g., 'development', 'production')
-   * @returns {DBType} A new database instance for the specified stage
-   */
-  getConnection: (stage: string) => DBType;
-
-  /**
-   * Get raw better-sqlite3 database instance
-   * @returns {Database.Database} The native database instance
-   */
-  getNativeDb: () => Database.Database;
-}
-
-/**
- * Default database instance
- * Uses the configuration based on DB_CONNECTION environment variable
- *
- * @example
- * // Using the default connection
- * const users = await DB.selectFrom('users').selectAll().execute();
- *
- * // Using a specific stage connection
- * const stagingDB = DB.getConnection('staging');
- * const products = await stagingDB.selectFrom('products').selectAll().execute();
- */
+// Get current stage
 const currentStage = process.env.DB_CONNECTION || "development";
-let nativeDbInstance: Database.Database;
+const config = dbConfig[currentStage];
 
-function initNativeDb(stage: string): Database.Database {
-  const config = dbConfig[stage];
-  if (!config) {
-    throw new Error(`Unknown database connection: ${stage}`);
-  }
-  nativeDbInstance = new Database(config.filename);
-  applySQLitePragmas(nativeDbInstance);
-  return nativeDbInstance;
+if (!config) {
+	throw new Error(
+		`Invalid database configuration for connection: ${currentStage}`,
+	);
 }
 
-nativeDbInstance = initNativeDb(currentStage);
+// Create the native database instance
+const nativeDb = new Database(config.filename);
 
-const dialect = new GenericSqliteDialect(() => createSqliteExecutor(nativeDbInstance));
+// Apply SQLite PRAGMAs for performance and correctness
+nativeDb.pragma("journal_mode = WAL");
+nativeDb.pragma("synchronous = NORMAL");
+nativeDb.pragma("foreign_keys = ON");
+nativeDb.pragma("busy_timeout = 5000");
 
-// Create base Kysely instance
-const baseDB = new Kysely<DatabaseTypes>({
-  dialect,
-});
+/**
+ * Statement cache for prepared statement reuse
+ */
+const statementCache = new Map<string, Database.Statement>();
 
-// Extend with custom methods
-const DB = Object.assign(baseDB, {
-  /**
-   * Method to create a new database connection for a specific stage
-   * Useful when needing to connect to different databases in the same application
-   *
-   * @param {string} stage - The environment stage to connect to
-   * @returns {DBType} A new database instance configured for the specified stage
-   */
-  getConnection(stage: string): DBType {
-    const newDb = createKyselyInstance(stage);
-    return Object.assign(newDb, {
-      getConnection: this.getConnection,
-      getNativeDb: () => {
-        const config = dbConfig[stage];
-        if (!config) {
-          throw new Error(`Unknown database connection: ${stage}`);
-        }
-        const db = new Database(config.filename);
-        applySQLitePragmas(db);
-        return db;
-      },
-    }) as DBType;
-  },
+/**
+ * Get or create a prepared statement
+ */
+function prepare(sql: string): Database.Statement {
+	let stmt = statementCache.get(sql);
+	if (!stmt) {
+		stmt = nativeDb.prepare(sql);
+		statementCache.set(sql, stmt);
+	}
+	return stmt;
+}
 
-  /**
-   * Get the native better-sqlite3 database instance
-   * @returns {Database.Database} The native database instance
-   */
-  getNativeDb() {
-    return nativeDbInstance;
-  },
-}) as DBType;
+/**
+ * Database Service interface
+ */
+interface DBService {
+	/** Get a single row */
+	get<T = Record<string, unknown>>(
+		sql: string,
+		params?: unknown[],
+	): T | undefined;
+	/** Get multiple rows */
+	all<T = Record<string, unknown>>(sql: string, params?: unknown[]): T[];
+	/** Execute a write query */
+	run(sql: string, params?: unknown[]): RunResult;
+	/** Execute a transaction */
+	transaction<T>(fn: () => T): T;
+	/** Get the native database instance */
+	getNativeDb(): Database.Database;
+	/** Create a new connection for a specific stage */
+	getConnection(stage: string): DBService;
+}
+
+/**
+ * DB Service with cached prepared statements
+ */
+const DB: DBService = {
+	get<T>(sql: string, params: unknown[] = []): T | undefined {
+		try {
+			const stmt = prepare(sql);
+			return stmt.get(...params) as T | undefined;
+		} catch (error) {
+			console.error("DB get error:", error);
+			throw error;
+		}
+	},
+
+	all<T>(sql: string, params: unknown[] = []): T[] {
+		try {
+			const stmt = prepare(sql);
+			return stmt.all(...params) as T[];
+		} catch (error) {
+			console.error("DB all error:", error);
+			throw error;
+		}
+	},
+
+	run(sql: string, params: unknown[] = []): RunResult {
+		try {
+			const stmt = prepare(sql);
+			const result = stmt.run(...params);
+			return {
+				changes: result.changes,
+				lastInsertRowid: Number(result.lastInsertRowid),
+			};
+		} catch (error) {
+			console.error("DB run error:", error);
+			throw error;
+		}
+	},
+
+	transaction<T>(fn: () => T): T {
+		return nativeDb.transaction(fn)();
+	},
+
+	getNativeDb(): Database.Database {
+		return nativeDb;
+	},
+
+	getConnection(stage: string): DBService {
+		const connConfig = dbConfig[stage];
+		if (!connConfig) {
+			throw new Error(`Unknown database connection: ${stage}`);
+		}
+		const db = new Database(connConfig.filename);
+		db.pragma("journal_mode = WAL");
+		db.pragma("synchronous = NORMAL");
+		db.pragma("foreign_keys = ON");
+		db.pragma("busy_timeout = 5000");
+
+		const connStmtCache = new Map<string, Database.Statement>();
+
+		return {
+			get<T>(sql: string, params: unknown[] = []): T | undefined {
+				let stmt = connStmtCache.get(sql);
+				if (!stmt) {
+					stmt = db.prepare(sql);
+					connStmtCache.set(sql, stmt);
+				}
+				return stmt.get(...params) as T | undefined;
+			},
+			all<T>(sql: string, params: unknown[] = []): T[] {
+				let stmt = connStmtCache.get(sql);
+				if (!stmt) {
+					stmt = db.prepare(sql);
+					connStmtCache.set(sql, stmt);
+				}
+				return stmt.all(...params) as T[];
+			},
+			run(sql: string, params: unknown[] = []): RunResult {
+				let stmt = connStmtCache.get(sql);
+				if (!stmt) {
+					stmt = db.prepare(sql);
+					connStmtCache.set(sql, stmt);
+				}
+				const result = stmt.run(...params);
+				return {
+					changes: result.changes,
+					lastInsertRowid: Number(result.lastInsertRowid),
+				};
+			},
+			transaction<T>(fn: () => T): T {
+				return db.transaction(fn)();
+			},
+			getNativeDb(): Database.Database {
+				return db;
+			},
+			getConnection(_stage: string): DBService {
+				throw new Error("Nested getConnection not supported");
+			},
+		};
+	},
+};
 
 export default DB;
-
-// Helper functions for common operations
 
 /**
  * Get current timestamp in milliseconds
  */
 export function now(): number {
-  return Date.now();
+	return Date.now();
 }
-
-/**
- * Raw SQL helper
- */
-export { sql };

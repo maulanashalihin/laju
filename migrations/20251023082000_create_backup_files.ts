@@ -1,16 +1,17 @@
-import { Kysely } from "kysely";
+import type DB from "../app/services/DB";
 
-export async function up(db: Kysely<any>): Promise<void> {
-  await db.schema
-    .createTable("backup_files")
-    .addColumn("id", "integer", (col) => col.primaryKey().autoIncrement())
-    .addColumn("filename", "text", (col) => col.notNull())
-    .addColumn("path", "text", (col) => col.notNull())
-    .addColumn("size", "integer", (col) => col.notNull())
-    .addColumn("created_at", "integer", (col) => col.notNull())
-    .execute();
+export async function up(db: typeof DB): Promise<void> {
+	db.run(`
+    CREATE TABLE IF NOT EXISTS backup_files (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      filename TEXT NOT NULL,
+      path TEXT NOT NULL,
+      size INTEGER NOT NULL,
+      created_at INTEGER NOT NULL
+    )
+  `);
 }
 
-export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable("backup_files").execute();
+export async function down(db: typeof DB): Promise<void> {
+	db.run("DROP TABLE IF EXISTS backup_files");
 }

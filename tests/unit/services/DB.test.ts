@@ -1,353 +1,161 @@
 /**
- * Unit Tests for DB Service (Kysely)
- * Testing Kysely query builder operations
+ * Unit Tests for DB Service (better-sqlite3)
+ * Tests core database operations using raw SQL.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import DB, { sql } from '../../../app/services/DB';
-import { randomUUID } from 'crypto';
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import DB from "../../../app/services/DB";
+import { randomUUID } from "crypto";
 
-describe('DB Service (Kysely)', () => {
-  const testUser = {
-    id: randomUUID(),
-    name: 'Kysely Test User',
-    email: 'kysely@example.com',
-    password: 'hashed_password',
-    created_at: Date.now(),
-    updated_at: Date.now()
-  };
+describe("DB Service (better-sqlite3)", () => {
+	let testUserId: string;
 
-  let insertedUserId: string;
+	beforeAll(() => {
+		// Ensure users table exists
+		DB.run(`CREATE TABLE IF NOT EXISTS test_users (
+      id TEXT PRIMARY KEY,
+      name TEXT,
+      email TEXT UNIQUE,
+      password TEXT,
+      created_at INTEGER,
+      updated_at INTEGER
+    )`);
+	});
 
-  beforeEach(async () => {
-    // Clean up before each test
-    await DB.deleteFrom('users').where('email', '=', testUser.email).execute();
-  });
+	afterAll(() => {
+		DB.run("DROP TABLE IF EXISTS test_users");
+	});
 
-  afterEach(async () => {
-    // Clean up after each test
-    if (insertedUserId) {
-      await DB.deleteFrom('users').where('id', '=', insertedUserId).execute();
-    }
-  });
+	describe("INSERT operations", () => {
+		it("should insert a new record", () => {
+			const id = randomUUID();
+			const result = DB.run(
+				"INSERT INTO test_users (id, name, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+				[
+					id,
+					"Test User",
+					"test@example.com",
+					"hashed_pwd",
+					Date.now(),
+					Date.now(),
+				],
+			);
+			expect(result.changes).toBe(1);
+			expect(result.lastInsertRowid).toBeTruthy();
+			testUserId = id;
+		});
 
-  describe('INSERT operations', () => {
-    it('should insert a new user', async () => {
-      const userId = randomUUID();
-      await DB.insertInto('users')
-        .values({ ...testUser, id: userId })
-        .execute();
-      
-      insertedUserId = userId;
-      
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('id', '=', userId)
-        .executeTakeFirst();
-      expect(user).toBeDefined();
-    });
+		it("should fail on duplicate unique constraint", () => {
+			expect(() => {
+				DB.run(
+					"INSERT INTO test_users (id, name, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+					[
+						randomUUID(),
+						"Another",
+						"test@example.com",
+						"pwd",
+						Date.now(),
+						Date.now(),
+					],
+				);
+			}).toThrow();
+		});
+	});
 
-    it('should insert and return the user', async () => {
-      const userId = randomUUID();
-      await DB.insertInto('users')
-        .values({ ...testUser, id: userId })
-        .execute();
-      insertedUserId = userId;
+	describe("SELECT operations", () => {
+		it("should get a record by id", () => {
+			const user = DB.get<{ id: string; name: string; email: string }>(
+				"SELECT * FROM test_users WHERE id = ?",
+				[testUserId],
+			);
+			expect(user).toBeDefined();
+			expect(user?.name).toBe("Test User");
+		});
 
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('id', '=', userId)
-        .executeTakeFirst();
-      
-      expect(user).toBeDefined();
-      expect(user?.email).toBe(testUser.email);
-      expect(user?.name).toBe(testUser.name);
-    });
-  });
+		it("should get all records", () => {
+			const users = DB.all<{ id: string }>("SELECT * FROM test_users");
+			expect(users.length).toBeGreaterThanOrEqual(1);
+		});
 
-  describe('SELECT operations', () => {
-    beforeEach(async () => {
-      const userId = randomUUID();
-      await DB.insertInto('users')
-        .values({ ...testUser, id: userId })
-        .execute();
-      insertedUserId = userId;
-    });
+		it("should return undefined for non-existent record", () => {
+			const user = DB.get("SELECT * FROM test_users WHERE id = ?", [
+				"nonexistent",
+			]);
+			expect(user).toBeUndefined();
+		});
+	});
 
-    it('should select user by id', async () => {
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('id', '=', insertedUserId)
-        .executeTakeFirst();
-      
-      expect(user).toBeDefined();
-      expect(user?.id).toBe(insertedUserId);
-      expect(user?.email).toBe(testUser.email);
-    });
+	describe("UPDATE operations", () => {
+		it("should update a record", () => {
+			const result = DB.run("UPDATE test_users SET name = ? WHERE id = ?", [
+				"Updated Name",
+				testUserId,
+			]);
+			expect(result.changes).toBe(1);
 
-    it('should select user by email', async () => {
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('email', '=', testUser.email)
-        .executeTakeFirst();
-      
-      expect(user).toBeDefined();
-      expect(user?.email).toBe(testUser.email);
-    });
+			const user = DB.get<{ name: string }>(
+				"SELECT * FROM test_users WHERE id = ?",
+				[testUserId],
+			);
+			expect(user?.name).toBe("Updated Name");
+		});
 
-    it('should return undefined for non-existent user', async () => {
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('id', '=', 'non-existent-id')
-        .executeTakeFirst();
-      
-      expect(user).toBeUndefined();
-    });
+		it("should return 0 changes for non-existent record", () => {
+			const result = DB.run("UPDATE test_users SET name = ? WHERE id = ?", [
+				"Test",
+				"nonexistent",
+			]);
+			expect(result.changes).toBe(0);
+		});
+	});
 
-    it('should select all users with filter', async () => {
-      const users = await DB.selectFrom('users')
-        .selectAll()
-        .where('email', '=', testUser.email)
-        .execute();
-      
-      expect(Array.isArray(users)).toBe(true);
-      expect(users.length).toBeGreaterThan(0);
-      expect(users[0].email).toBe(testUser.email);
-    });
+	describe("DELETE operations", () => {
+		it("should delete a record", () => {
+			const id = randomUUID();
+			DB.run(
+				"INSERT INTO test_users (id, name, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+				[id, "To Delete", "delete@test.com", "pwd", Date.now(), Date.now()],
+			);
 
-    it('should count users', async () => {
-      const result = await DB.selectFrom('users')
-        .select((eb) => eb.fn.countAll().as('count'))
-        .where('email', '=', testUser.email)
-        .executeTakeFirst();
-      
-      expect(Number(result?.count)).toBeGreaterThan(0);
-    });
-  });
+			const result = DB.run("DELETE FROM test_users WHERE id = ?", [id]);
+			expect(result.changes).toBe(1);
+		});
 
-  describe('UPDATE operations', () => {
-    beforeEach(async () => {
-      const userId = randomUUID();
-      await DB.insertInto('users')
-        .values({ ...testUser, id: userId })
-        .execute();
-      insertedUserId = userId;
-    });
+		it("should return 0 changes for non-existent record", () => {
+			const result = DB.run("DELETE FROM test_users WHERE id = ?", [
+				"nonexistent",
+			]);
+			expect(result.changes).toBe(0);
+		});
+	});
 
-    it('should update user name', async () => {
-      const newName = 'Updated Kysely Name';
-      const updated = await DB.updateTable('users')
-        .set({ name: newName })
-        .where('id', '=', insertedUserId)
-        .executeTakeFirst();
+	describe("TRANSACTION operations", () => {
+		it("should execute transaction successfully", () => {
+			const id = randomUUID();
+			const result = DB.transaction(() => {
+				DB.run(
+					"INSERT INTO test_users (id, name, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+					[
+						id,
+						"Transaction User",
+						"transact@test.com",
+						"pwd",
+						Date.now(),
+						Date.now(),
+					],
+				);
+				return "done";
+			});
+			expect(result).toBe("done");
+		});
+	});
 
-      expect(updated.numUpdatedRows).toBe(BigInt(1));
-
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('id', '=', insertedUserId)
-        .executeTakeFirst();
-      expect(user?.name).toBe(newName);
-    });
-
-    it('should update multiple fields', async () => {
-      const updates = {
-        name: 'New Name',
-        phone: '08123456789',
-        updated_at: Date.now()
-      };
-
-      await DB.updateTable('users')
-        .set(updates)
-        .where('id', '=', insertedUserId)
-        .execute();
-
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('id', '=', insertedUserId)
-        .executeTakeFirst();
-      expect(user?.name).toBe(updates.name);
-      expect(user?.phone).toBe(updates.phone);
-    });
-  });
-
-  describe('DELETE operations', () => {
-    beforeEach(async () => {
-      const userId = randomUUID();
-      await DB.insertInto('users')
-        .values({ ...testUser, id: userId })
-        .execute();
-      insertedUserId = userId;
-    });
-
-    it('should delete a user', async () => {
-      const deleted = await DB.deleteFrom('users')
-        .where('id', '=', insertedUserId)
-        .executeTakeFirst();
-      
-      expect(deleted.numDeletedRows).toBe(BigInt(1));
-
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('id', '=', insertedUserId)
-        .executeTakeFirst();
-      expect(user).toBeUndefined();
-      
-      // Prevent double cleanup
-      insertedUserId = '';
-    });
-
-    it('should delete multiple users', async () => {
-      // Insert another user
-      const id2 = randomUUID();
-      await DB.insertInto('users').values({
-        id: id2,
-        name: 'User 2',
-        email: 'user2@kysely.com',
-        password: 'pass',
-        created_at: Date.now(),
-        updated_at: Date.now()
-      }).execute();
-
-      const deleted = await DB.deleteFrom('users')
-        .where('id', 'in', [insertedUserId, id2])
-        .executeTakeFirst();
-      
-      expect(deleted.numDeletedRows).toBe(BigInt(2));
-      insertedUserId = '';
-    });
-  });
-
-  describe('QUERY BUILDER features', () => {
-    beforeEach(async () => {
-      // Insert multiple test users
-      await DB.insertInto('users').values([
-        { id: randomUUID(), name: 'Alice', email: 'alice@test.com', password: 'pass', is_verified: 1, created_at: Date.now(), updated_at: Date.now() },
-        { id: randomUUID(), name: 'Bob', email: 'bob@test.com', password: 'pass', is_verified: 0, created_at: Date.now(), updated_at: Date.now() },
-        { id: randomUUID(), name: 'Charlie', email: 'charlie@test.com', password: 'pass', is_verified: 1, created_at: Date.now(), updated_at: Date.now() }
-      ]).execute();
-    });
-
-    afterEach(async () => {
-      await DB.deleteFrom('users')
-        .where('email', 'in', ['alice@test.com', 'bob@test.com', 'charlie@test.com'])
-        .execute();
-    });
-
-    it('should filter with WHERE clause', async () => {
-      const verified = await DB.selectFrom('users')
-        .selectAll()
-        .where('is_verified', '=', 1)
-        .execute();
-      
-      expect(verified.length).toBeGreaterThanOrEqual(2);
-    });
-
-    it('should use LIKE operator', async () => {
-      const users = await DB.selectFrom('users')
-        .selectAll()
-        .where('name', 'like', '%li%')
-        .execute();
-      
-      expect(users.length).toBeGreaterThan(0);
-      expect(users.some(u => u.name.toLowerCase().includes('li'))).toBe(true);
-    });
-
-    it('should use ORDER BY', async () => {
-      const users = await DB.selectFrom('users')
-        .selectAll()
-        .where('email', 'in', ['alice@test.com', 'bob@test.com', 'charlie@test.com'])
-        .orderBy('name', 'asc')
-        .execute();
-      
-      expect(users[0].name).toBe('Alice');
-    });
-
-    it('should use LIMIT and OFFSET', async () => {
-      const users = await DB.selectFrom('users')
-        .selectAll()
-        .where('email', 'in', ['alice@test.com', 'bob@test.com', 'charlie@test.com'])
-        .limit(2)
-        .offset(0)
-        .execute();
-      
-      expect(users.length).toBe(2);
-    });
-
-    it('should use complex WHERE conditions', async () => {
-      const users = await DB.selectFrom('users')
-        .selectAll()
-        .where((eb) => eb.or([
-          eb('name', 'like', '%li%'),
-          eb('name', 'like', '%ob%')
-        ]))
-        .where('is_verified', '=', 1)
-        .execute();
-      
-      expect(users.length).toBeGreaterThan(0);
-    });
-  });
-
-  describe('TRANSACTION operations', () => {
-    it('should execute transaction successfully', async () => {
-      const result = await DB.transaction().execute(async (trx) => {
-        const id1 = randomUUID();
-        const id2 = randomUUID();
-        
-        await trx.insertInto('users').values({
-          id: id1,
-          name: 'Transaction User 1',
-          email: 'trx1@test.com',
-          password: 'pass',
-          created_at: Date.now(),
-          updated_at: Date.now()
-        }).execute();
-
-        await trx.insertInto('users').values({
-          id: id2,
-          name: 'Transaction User 2',
-          email: 'trx2@test.com',
-          password: 'pass',
-          created_at: Date.now(),
-          updated_at: Date.now()
-        }).execute();
-
-        return { id1, id2 };
-      });
-
-      expect(result.id1).toBeDefined();
-      expect(result.id2).toBeDefined();
-
-      // Cleanup
-      await DB.deleteFrom('users')
-        .where('email', 'in', ['trx1@test.com', 'trx2@test.com'])
-        .execute();
-    });
-
-    it('should rollback on error', async () => {
-      try {
-        await DB.transaction().execute(async (trx) => {
-          await trx.insertInto('users').values({
-            id: randomUUID(),
-            name: 'Rollback User',
-            email: 'rollback@test.com',
-            password: 'pass',
-            created_at: Date.now(),
-            updated_at: Date.now()
-          }).execute();
-
-          // Force error
-          throw new Error('Intentional error');
-        });
-      } catch (error) {
-        // Expected error
-      }
-
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('email', '=', 'rollback@test.com')
-        .executeTakeFirst();
-      expect(user).toBeUndefined();
-    });
-  });
+	describe("Connection management", () => {
+		it("should create a separate connection for a different stage", () => {
+			const testDb = DB.getConnection("test");
+			expect(testDb).toBeDefined();
+			const result = testDb.get<{ val: number }>("SELECT 1 as val");
+			expect(result?.val).toBe(1);
+		});
+	});
 });

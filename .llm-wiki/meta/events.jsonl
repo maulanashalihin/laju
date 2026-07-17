@@ -1,0 +1,9 @@
+{"timestamp":"2026-07-16T13:41:04.904Z","kind":"bootstrap","topic":"Laju TS - TypeScript Web Framework (HyperExpress + Svelte 5 + Inertia v3 + SQLite)","mode":"personal"}
+{"timestamp":"2026-07-16T13:41:29.722Z","kind":"observe","slug":"obs-2026-07-16-agents-md-created-for-laju-ts","title":"AGENTS.md created for laju-ts","relevance":"high"}
+{"timestamp":"2026-07-16T14:04:43.112Z","kind":"observe","slug":"obs-2026-07-16-laju-ts-refactored-session-based-auth-hyper-inertia-package-","title":"Laju-ts refactored: session-based auth, hyper-inertia package, kysely removed","relevance":"high"}
+{"timestamp":"2026-07-16T14:04:48.823Z","kind":"retro","slug":"three-tier-architecture-ts","title":"Three-Tier Architecture in Laju TS","category":"architecture"}
+{"timestamp":"2026-07-16T14:04:53.986Z","kind":"retro","slug":"hyper-inertia-package","title":"@laju/hyper-inertia - Standalone Inertia v3 Adapter","category":"architecture"}
+{"timestamp":"2026-07-16T23:16:28.843Z","kind":"observe","slug":"obs-2026-07-16-hyper-express-inertia-simplified-integration","title":"hyper-express-inertia simplified integration","relevance":"high"}
+{"timestamp":"2026-07-17T00:26:52.168Z","kind":"observe","slug":"obs-2026-07-17-hyper-express-inertia-v1-1-0-published-with-built-in-templat","title":"hyper-express-inertia v1.1.0 published with built-in template customization","relevance":"high"}
+{"timestamp":"2026-07-17T00:38:54.885Z","kind":"observe","slug":"obs-2026-07-17-handler-files-konsisten-pakai-inertia-instance-api","title":"Handler files konsisten pakai inertia instance API","relevance":"medium"}
+{"timestamp":"2026-07-17T00:45:55.035Z","kind":"observe","slug":"obs-2026-07-17-hyper-express-inertia-v1-3-0-dengan-inertia-v3-html-render","title":"hyper-express-inertia v1.3.0 dengan Inertia v3 HTML render","relevance":"high"}

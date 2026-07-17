@@ -1,0 +1,101 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-07-17T00:45:55.053Z",
+  "pages": {
+    "sources/hyper-inertia-package": {
+      "type": "source",
+      "title": "\"@laju/hyper-inertia - Standalone Inertia v3 Adapter\"",
+      "created": "2026-07-16",
+      "updated": "2026-07-16",
+      "slug": "hyper-inertia-package",
+      "status": "insight",
+      "category": "architecture"
+    },
+    "sources/obs-2026-07-16-agents-md-created-for-laju-ts": {
+      "type": "source",
+      "title": "\"Observation: AGENTS.md created for laju-ts\"",
+      "created": "2026-07-16",
+      "updated": "2026-07-16",
+      "slug": "obs-2026-07-16-agents-md-created-for-laju-ts",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-07-16T13:41:29.721Z",
+      "tags": [
+        "documentation",
+        "agents.md",
+        "architecture"
+      ],
+      "source_context": "\"Setting up AGENTS.md and .llm-wiki for laju-ts project\""
+    },
+    "sources/obs-2026-07-16-hyper-express-inertia-simplified-integration": {
+      "type": "source",
+      "title": "\"Observation: hyper-express-inertia simplified integration\"",
+      "created": "2026-07-16",
+      "updated": "2026-07-16",
+      "slug": "obs-2026-07-16-hyper-express-inertia-simplified-integration",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-07-16T23:16:28.843Z"
+    },
+    "sources/obs-2026-07-16-laju-ts-refactored-session-based-auth-hyper-inertia-package-": {
+      "type": "source",
+      "title": "\"Observation: Laju-ts refactored: session-based auth, hyper-inertia package, kysely removed\"",
+      "created": "2026-07-16",
+      "updated": "2026-07-16",
+      "slug": "obs-2026-07-16-laju-ts-refactored-session-based-auth-hyper-inertia-package-",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-07-16T14:04:43.111Z",
+      "tags": [
+        "refactoring",
+        "session",
+        "auth",
+        "kysely",
+        "inertia",
+        "hyper-express"
+      ],
+      "source_context": "\"Refactoring laju-ts to match laju-go's architecture\""
+    },
+    "sources/obs-2026-07-17-handler-files-konsisten-pakai-inertia-instance-api": {
+      "type": "source",
+      "title": "\"Observation: Handler files konsisten pakai inertia instance API\"",
+      "created": "2026-07-17",
+      "updated": "2026-07-17",
+      "slug": "obs-2026-07-17-handler-files-konsisten-pakai-inertia-instance-api",
+      "status": "observation",
+      "relevance": "medium",
+      "observed_at": "2026-07-17T00:38:54.867Z",
+      "source_context": "\"Standardizing inertia instance API usage across all handler files\""
+    },
+    "sources/obs-2026-07-17-hyper-express-inertia-v1-1-0-published-with-built-in-templat": {
+      "type": "source",
+      "title": "\"Observation: hyper-express-inertia v1.1.0 published with built-in template customization\"",
+      "created": "2026-07-17",
+      "updated": "2026-07-17",
+      "slug": "obs-2026-07-17-hyper-express-inertia-v1-1-0-published-with-built-in-templat",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-07-17T00:26:52.168Z"
+    },
+    "sources/obs-2026-07-17-hyper-express-inertia-v1-3-0-dengan-inertia-v3-html-render": {
+      "type": "source",
+      "title": "\"Observation: hyper-express-inertia v1.3.0 dengan Inertia v3 HTML render\"",
+      "created": "2026-07-17",
+      "updated": "2026-07-17",
+      "slug": "obs-2026-07-17-hyper-express-inertia-v1-3-0-dengan-inertia-v3-html-render",
+      "status": "observation",
+      "relevance": "high",
+      "observed_at": "2026-07-17T00:45:55.034Z",
+      "source_context": "\"Updating hyper-express-inertia package to Inertia v3 HTML render format\""
+    },
+    "sources/three-tier-architecture-ts": {
+      "type": "source",
+      "title": "\"Three-Tier Architecture in Laju TS\"",
+      "created": "2026-07-16",
+      "updated": "2026-07-16",
+      "slug": "three-tier-architecture-ts",
+      "status": "insight",
+      "category": "architecture"
+    }
+  }
+}

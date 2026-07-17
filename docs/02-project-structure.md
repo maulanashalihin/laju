@@ -285,7 +285,6 @@ Eta HTML templates for server-side rendering.
 ```
 resources/views/
 ├── index.html              # Landing page template
-├── inertia.html            # Inertia layout template
 └── partials/               # Reusable template parts
     └── header.html         # Header partial
 ```

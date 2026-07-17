@@ -129,6 +129,8 @@ import { Request, Response } from "../../type";
 import DB from "../services/DB";
 import Validator from "../services/Validator";
 import { createPostSchema, updatePostSchema } from "../validators/post.validator";
+import inertia from "../services/inertia";
+import { redirect } from "hyper-express-inertia";
 
 export const PostHandler = {
   // List all posts
@@ -137,12 +139,12 @@ export const PostHandler = {
       .selectAll()
       .orderBy("created_at", "desc")
       .execute();
-    return response.inertia("posts/index", { posts });
+    return inertia.render(request, response, "posts/index", { posts });
   },
 
   // Show create form
   async create(request: Request, response: Response) {
-    return response.inertia("posts/create");
+    return inertia.render(request, response, "posts/create");
   },
 
   // Store new post
@@ -152,7 +154,8 @@ export const PostHandler = {
 
     if (!validationResult.success) {
       const firstError = Object.values(validationResult.errors || {})[0]?.[0] || "Validation error";
-      return response.flash("error", firstError).redirect("/posts/create", 302);
+      response.flash("error", firstError);
+      return redirect(response, "/posts/create");
     }
 
     const { title, content } = validationResult.data!;
@@ -166,7 +169,8 @@ export const PostHandler = {
       updated_at: Date.now()
     }).execute();
 
-    return response.flash("success", "Post created").redirect("/posts", 302);
+    response.flash("success", "Post created");
+    return redirect(response, "/posts");
   },
 
   // Show single post
@@ -178,10 +182,10 @@ export const PostHandler = {
       .executeTakeFirst();
 
     if (!post) {
-      return response.status(404).inertia("errors/404");
+      return inertia.render(request, response, "errors/404", {}, { status: 404 });
     }
 
-    return response.inertia("posts/show", { post });
+    return inertia.render(request, response, "posts/show", { post });
   },
 
   // Show edit form
@@ -193,10 +197,10 @@ export const PostHandler = {
       .executeTakeFirst();
 
     if (!post) {
-      return response.status(404).inertia("errors/404");
+      return inertia.render(request, response, "errors/404", {}, { status: 404 });
     }
 
-    return response.inertia("posts/edit", { post });
+    return inertia.render(request, response, "posts/edit", { post });
   },
 
   // Update post
@@ -207,7 +211,8 @@ export const PostHandler = {
 
     if (!validationResult.success) {
       const firstError = Object.values(validationResult.errors || {})[0]?.[0] || "Validation error";
-      return response.flash("error", firstError).redirect(`/posts/${id}/edit`, 303);
+      response.flash("error", firstError);
+      return redirect(response, `/posts/${id}/edit`);
     }
 
     const { title, content } = validationResult.data!;
@@ -221,14 +226,16 @@ export const PostHandler = {
       .where("id", "=", id)
       .execute();
 
-    return response.flash("success", "Post updated").redirect("/posts", 303);
+    response.flash("success", "Post updated");
+    return redirect(response, "/posts");
   },
 
   // Delete post
   async destroy(request: Request, response: Response) {
     const { id } = request.params;
     await DB.deleteFrom("posts").where("id", "=", id).execute();
-    return response.flash("success", "Post deleted").redirect("/posts", 303);
+    response.flash("success", "Post deleted");
+    return redirect(response, "/posts");
   }
 };
 
@@ -795,6 +802,7 @@ async index(request: Request, response: Response) {
 ### ✅ DO
 
 **1. Keep handlers thin**
+
 ```typescript
 // ✅ Good - Delegate to services
 public async store(request: Request, response: Response) {
@@ -805,6 +813,7 @@ public async store(request: Request, response: Response) {
 ```
 
 **2. Use absolute imports**
+
 ```typescript
 // ✅ Good
 import DB from "app/services/DB";
@@ -815,6 +824,7 @@ import DB from "../../app/services/DB";
 ```
 
 **3. Validate input first**
+
 ```typescript
 // ✅ Good
 const validationResult = Validator.validate(schema, body);
@@ -824,6 +834,7 @@ if (!validationResult.success) {
 ```
 
 **4. Use flash messages for user feedback**
+
 ```typescript
 // ✅ Good
 return response
@@ -834,6 +845,7 @@ return response
 ### ❌ DON'T
 
 **1. Don't put business logic in handlers**
+
 ```typescript
 // ❌ Bad - Business logic in handler
 public async store(request: Request, response: Response) {
@@ -851,6 +863,7 @@ public async store(request: Request, response: Response) {
 ```
 
 **2. Don't use 302 for form submissions**
+
 ```typescript
 // ❌ Bad
 return response.redirect("/profile"); // 302

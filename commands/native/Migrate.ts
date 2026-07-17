@@ -1,35 +1,43 @@
-import DB from "../../app/services/DB";
-import { createMigrator } from "../../app/services/Migrator";
+import { migrateToLatest, migrateDown } from "../../app/services/Migrator";
 
 class Command {
-  public args: string[] = [];
-  public commandName = "db:migrate";
+	public args: string[] = [];
 
-  public async run() {
-    console.log("\n🚀 Running migrations...\n");
+	public async run() {
+		const direction = this.args[0] || "up";
 
-    try {
-      const migrator = createMigrator(DB);
-      const result = await migrator.migrateToLatest();
+		console.log("\n🚀 Running migrations...\n");
 
-      if (result.success) {
-        console.log("\n✅ Migrations completed!");
-        process.exit(0);
-      } else {
-        console.error("\n❌ Migration failed:", result.error);
-        process.exit(1);
-      }
-    } catch (error) {
-      console.error("\n❌ Migration failed:", error);
-      process.exit(1);
-    } finally {
-      await DB.destroy();
-    }
-  }
+		try {
+			if (direction === "down") {
+				const steps = parseInt(this.args[1] || "1", 10);
+				const results = await migrateDown(steps);
+				const failed = results.filter((r) => !r.success);
+				if (failed.length > 0) {
+					console.error(`\n❌ ${failed.length} migration(s) failed`);
+					failed.forEach((r) => console.error(`   ${r.name}: ${r.error}`));
+					process.exit(1);
+				}
+				console.log(`\n✅ Rolled back ${results.length} migration(s)!`);
+			} else {
+				const results = await migrateToLatest();
+				const failed = results.filter((r) => !r.success);
+				if (failed.length > 0) {
+					console.error(`\n❌ ${failed.length} migration(s) failed`);
+					failed.forEach((r) => console.error(`   ${r.name}: ${r.error}`));
+					process.exit(1);
+				}
+				console.log(`\n✅ Migrations completed!`);
+			}
+
+			process.exit(0);
+		} catch (error) {
+			console.error("\n❌ Migration failed:", error);
+			process.exit(1);
+		}
+	}
 }
 
 const cmd = new Command();
 cmd.args = process.argv.slice(2);
 cmd.run();
-
-export default new Command();

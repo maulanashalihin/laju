@@ -36,17 +36,20 @@ Agents: `product.md` → `tech-lead.md` → `developer.md` → `qa.md` → `devo
 ## ✨ Features
 
 ### Performance First
+
 - **258,611 req/sec** - HyperExpress server (11x faster than Express)
 - **19.9x faster writes** - SQLite with WAL mode
 - **Zero-config caching** - Database cache included (optional Redis)
 
 ### Modern Stack
+
 - **Svelte 5** - Reactive UI with runes
 - **Inertia.js** - SPA without client-side routing
 - **TailwindCSS 4** - Utility-first CSS with Vite
 - **TypeScript 6.0** - Full type safety
 
 ### Built-in Services
+
 - **Authentication** - Sessions, OAuth (Google), password reset
 - **Storage** - S3/Wasabi with presigned URLs
 - **Email** - Nodemailer (SMTP) or Resend (API)
@@ -54,6 +57,7 @@ Agents: `product.md` → `tech-lead.md` → `developer.md` → `qa.md` → `devo
 - **Templates** - Eta for SSR
 
 ### AI Development
+
 - **Product Agent** - Define requirements, PRD, user stories
 - **Tech Lead Agent** - Design system architecture, database schema
 - **Developer Agent** - Implement features with mandatory review
@@ -78,12 +82,14 @@ Agents: `product.md` → `tech-lead.md` → `developer.md` → `qa.md` → `devo
 Documentation is organized for progressive learning from beginner to advanced.
 
 ### Quick Start
+
 - [5-Minute Quick Start](https://docs.laju.dev/00-quickstart) - Get running in 5 minutes
 - [Introduction](https://docs.laju.dev/01-introduction) - Framework overview, tech stack
 - [Project Structure](https://docs.laju.dev/02-project-structure) - Directory layout, conventions
 
 ### Core Features
-- [Database Guide](https://docs.laju.dev/03-database) - Kysely + SQLite, WAL mode, migrations
+
+- [Database Guide](https://docs.laju.dev/03-database) - SQLite + better-sqlite3, WAL mode, migrations
 - [Routing & Handlers](https://docs.laju.dev/04-routing-handlers) - Routes, handlers, request/response
 - [Frontend (Svelte 5)](https://docs.laju.dev/05-frontend-svelte) - Runes, State, Forms, Inertia.js
 - [Authentication](https://docs.laju.dev/06-authentication) - Sessions, OAuth, password reset
@@ -92,6 +98,7 @@ Documentation is organized for progressive learning from beginner to advanced.
 - [Email](https://docs.laju.dev/09-email) - Nodemailer, Resend, email templates
 
 ### Advanced Features
+
 - [Storage (S3)](https://docs.laju.dev/10-storage) - S3/Wasabi, presigned URLs, file uploads
 - [Caching](https://docs.laju.dev/11-caching) - Database cache vs Redis, strategies
 - [Redis](https://docs.laju.dev/12-redis) - Redis configuration and usage
@@ -101,6 +108,7 @@ Documentation is organized for progressive learning from beginner to advanced.
 - [Eta Templates](https://docs.laju.dev/16-eta) - SSR, partials, helpers
 
 ### Production Ready
+
 - [Best Practices](https://docs.laju.dev/17-best-practices) - Code organization, patterns
 - [Security Guide](https://docs.laju.dev/18-security) - Authentication, XSS, CSRF, CSP
 - [Performance Guide](https://docs.laju.dev/19-performance) - Database, caching, optimization
@@ -110,6 +118,7 @@ Documentation is organized for progressive learning from beginner to advanced.
 - [Backup & Restore](https://docs.laju.dev/23-backup-restore) - Database backup automation
 
 ### Advanced Topics
+
 - [AI Development](https://docs.laju.dev/24-ai-development) - Build with AI assistants
 - [API Reference](https://docs.laju.dev/25-api-reference) - Complete API documentation
 - [TypeScript Guide](https://docs.laju.dev/26-typescript) - TypeScript configuration, strict mode
@@ -137,7 +146,6 @@ frontend/
 
 templates/           # Eta templates (SSR)
 ├── index.html       # Landing page template
-├── inertia.html     # Inertia.js base template
 └── partials/        # Template partials
 
 routes/              # Route definitions
@@ -163,12 +171,9 @@ npm run build                            # Build for production
 node build/server.js                     # Run production server
 
 # Database
-npm run migrate                          # Run all migrations
-npm run migrate:down                     # Rollback last migration
+npm run migrate                          # Run all pending migrations
+npm run migrate:down                     # Rollback 1 migration
 npm run migrate:down 3                   # Rollback 3 migrations
-npm run migrate:down 20230514062913      # Rollback to specific migration
-npm run migrate:rollback                 # Rollback to last batch
-npm run refresh                          # Drop and re-migrate database
 
 # Testing
 npm run test:run                         # Run unit/integration tests (Vitest)
@@ -191,8 +196,9 @@ npx tsx commands/native/MakeValidator.ts auth               # Generate validator
 | Layer | Technology |
 |-------|------------|
 | Server | HyperExpress v6.17 |
-| Database | BetterSQLite3 + Kysely |
-| Frontend | Svelte 5 + Inertia.js |
+| Database | better-sqlite3 (raw SQL via repositories) |
+| Inertia | [hyper-express-inertia](https://npmjs.com/package/hyper-express-inertia) (standalone adapter) |
+| Frontend | Svelte 5 + Inertia.js v3 |
 | Styling | TailwindCSS 4 |
 | Build | Vite |
 | Templates | Eta |

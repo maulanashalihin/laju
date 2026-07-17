@@ -1,24 +1,26 @@
-import { Kysely, sql } from "kysely";
+import type DB from "../app/services/DB";
 
-export async function up(db: Kysely<any>): Promise<void> {
-  await db.schema
-    .createTable("assets")
-    .addColumn("id", "text", (col) => col.primaryKey())
-    .addColumn("name", "text")
-    .addColumn("type", "text", (col) => col.notNull()) // image, video, document, etc
-    .addColumn("url", "text", (col) => col.notNull())
-    .addColumn("mime_type", "text")
-    .addColumn("size", "integer") // file size in bytes
-    .addColumn("storage_key", "text")
-    .addColumn("user_id", "text")
-    .addColumn("created_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
-    .addColumn("updated_at", "text", (col) => col.defaultTo(sql`CURRENT_TIMESTAMP`))
-    .execute();
-
-  await db.schema.createIndex("assets_storage_key_idx").on("assets").column("storage_key").execute();
-  await db.schema.createIndex("assets_user_id_idx").on("assets").column("user_id").execute();
+export async function up(db: typeof DB): Promise<void> {
+	db.run(`
+    CREATE TABLE IF NOT EXISTS assets (
+      id TEXT PRIMARY KEY NOT NULL,
+      name TEXT,
+      type TEXT NOT NULL,
+      url TEXT NOT NULL,
+      mime_type TEXT,
+      size INTEGER,
+      storage_key TEXT,
+      user_id TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+	db.run(
+		"CREATE INDEX IF NOT EXISTS assets_storage_key_idx ON assets(storage_key)",
+	);
+	db.run("CREATE INDEX IF NOT EXISTS assets_user_id_idx ON assets(user_id)");
 }
 
-export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable("assets").execute();
+export async function down(db: typeof DB): Promise<void> {
+	db.run("DROP TABLE IF EXISTS assets");
 }

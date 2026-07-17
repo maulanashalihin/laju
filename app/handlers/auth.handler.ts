@@ -1,275 +1,285 @@
 /**
  * Auth Handler
  * Handles authentication-related HTTP requests (login, register, logout, OAuth, password reset)
+ *
+ * Follows Handler → Service → Repository rule.
+ * NO direct DB calls from handlers.
  */
 
 import { UserRepository } from "../repositories/user.repository";
+import { PasswordResetRepository } from "../repositories/password-reset.repository";
 import Authenticate from "../services/Authenticate";
 import Validator from "../services/Validator";
 import {
-  loginSchema,
-  registerSchema,
-  forgotPasswordSchema,
-  resetPasswordSchema,
-  changePasswordSchema,
+	loginSchema,
+	registerSchema,
+	forgotPasswordSchema,
+	resetPasswordSchema,
+	changePasswordSchema,
 } from "../validators/auth.validator";
 import { MailTo } from "../services/Resend";
-import DB from "../services/DB";
 import { redirectParamsURL } from "../services/GoogleAuth";
-import { Response, Request, User } from "../../type";
+import inertia from "../services/inertia";
+import type { Response, Request, User } from "../../type";
 import { randomUUID } from "crypto";
 import dayjs from "dayjs";
 import axios from "axios";
 
 export const AuthHandler = {
-  /**
-   * Display login page
-   * GET /login
-   */
-  async loginPage(request: Request, response: Response) {
-    if (request.cookies.auth_id) {
-      return response.redirect("/home");
-    }
-    return response.inertia("auth/login");
-  },
+	/**
+	 * Display login page
+	 * GET /login
+	 */
+	async loginPage(request: Request, response: Response) {
+		if (request.cookies.auth_id) {
+			response.redirect("/home"); // native HyperExpress = 302
+			return;
+		}
+		return inertia.render(request, response, "auth/login");
+	},
 
-  /**
-   * Process login form submission
-   * POST /login
-   */
-  async processLogin(request: Request, response: Response) {
-    try {
-      const body = await request.json();
+	/**
+	 * Process login form submission
+	 * POST /login
+	 */
+	async processLogin(request: Request, response: Response) {
+		try {
+			const body = await request.json();
 
-      // Validate input
-      const validationResult = Validator.validate(loginSchema, body);
-      if (!validationResult.success) {
-        const errors = validationResult.errors || {};
-        const firstError = Object.values(errors)[0]?.[0] || "Validation error";
-        return response.flash("error", firstError).redirect("/login");
-      }
+			const validationResult = Validator.validate(loginSchema, body);
+			if (!validationResult.success) {
+				const errors = validationResult.errors || {};
+				const firstError = Object.values(errors)[0]?.[0] || "Validation error";
+				inertia.flash(response, "error", firstError);
+				return inertia.redirect(response, "/login");
+			}
 
-      const { email, password, phone } = validationResult.data!;
+			const { email, password, phone } = validationResult.data!;
 
-      // Find user by email or phone
-      let user: User | undefined;
-      if (email && email.includes("@")) {
-        user = await UserRepository.findByEmail(email.toLowerCase());
-      } else if (phone) {
-        user = await UserRepository.findByPhone(phone);
-      }
+			let user: User | undefined;
+			if (email && email.includes("@")) {
+				user = await UserRepository.findByEmail(email.toLowerCase());
+			} else if (phone) {
+				user = await UserRepository.findByPhone(phone);
+			}
 
-      // Check if user exists and password matches
-      if (!user) {
-        return response.flash("error", "Email/Phone not registered").redirect("/login");
-      }
+			if (!user) {
+				inertia.flash(response, "error", "Email/Phone not registered");
+				return inertia.redirect(response, "/login");
+			}
 
-      const passwordMatch = await Authenticate.compare(password, user.password);
-      if (!passwordMatch) {
-        return response.flash("error", "Incorrect password").redirect("/login");
-      }
+			const passwordMatch = await Authenticate.compare(password, user.password);
+			if (!passwordMatch) {
+				inertia.flash(response, "error", "Incorrect password");
+				return inertia.redirect(response, "/login");
+			}
 
-      // Login successful
-      return Authenticate.process(user, request, response);
-    } catch (error) {
-      console.error("Login error:", error);
-      return response
-        .flash("error", "An error occurred during login. Please try again later.")
-        .redirect("/login");
-    }
-  },
+			return Authenticate.process(user, request, response);
+		} catch (error) {
+			console.error("Login error:", error);
+			inertia.flash(
+				response,
+				"error",
+				"An error occurred during login. Please try again later.",
+			);
+			return inertia.redirect(response, "/login");
+		}
+	},
 
-  /**
-   * Display registration page
-   * GET /register
-   */
-  async registerPage(request: Request, response: Response) {
-    if (request.cookies.auth_id) {
-      return response.redirect("/home");
-    }
-    return response.inertia("auth/register");
-  },
+	/**
+	 * Display registration page
+	 * GET /register
+	 */
+	async registerPage(request: Request, response: Response) {
+		if (request.cookies.auth_id) {
+			response.redirect("/home"); // native HyperExpress = 302
+			return;
+		}
+		return inertia.render(request, response, "auth/register");
+	},
 
-  /**
-   * Process registration form submission
-   * POST /register
-   */
-  async processRegister(request: Request, response: Response) {
-    try {
-      const body = await request.json();
+	/**
+	 * Process registration form submission
+	 * POST /register
+	 */
+	async processRegister(request: Request, response: Response) {
+		try {
+			const body = await request.json();
 
-      // Validate input
-      const validationResult = Validator.validate(registerSchema, body);
-      if (!validationResult.success) {
-        const errors = validationResult.errors || {};
-        const firstError = Object.values(errors)[0]?.[0] || "Validation error";
-        return response.flash("error", firstError).redirect("/register");
-      }
+			const validationResult = Validator.validate(registerSchema, body);
+			if (!validationResult.success) {
+				const errors = validationResult.errors || {};
+				const firstError = Object.values(errors)[0]?.[0] || "Validation error";
+				inertia.flash(response, "error", firstError);
+				return inertia.redirect(response, "/register");
+			}
 
-      const { email, password, name } = validationResult.data!;
+			const { email, password, name } = validationResult.data!;
 
-      // Check if email already exists
-      const existingUser = await UserRepository.emailExists(email);
-      if (existingUser) {
-        return response
-          .flash("error", "Email already registered. Please use another email or login.")
-          .redirect("/register");
-      }
+			const existingUser = await UserRepository.emailExists(email);
+			if (existingUser) {
+				inertia.flash(
+					response,
+					"error",
+					"Email already registered. Please use another email or login.",
+				);
+				return inertia.redirect(response, "/register");
+			}
 
-      // Create new user
-      const user = await UserRepository.create({
-        id: randomUUID(),
-        email: email.toLowerCase(),
-        password: await Authenticate.hash(password),
-        name,
-      });
+			const user = await UserRepository.create({
+				id: randomUUID(),
+				email: email.toLowerCase(),
+				password: await Authenticate.hash(password),
+				name,
+			});
 
-      // Auto-login after registration
-      return Authenticate.process(user, request, response);
-    } catch (error: any) {
-      console.error("Registration error:", error);
+			return Authenticate.process(user, request, response);
+		} catch (error: any) {
+			console.error("Registration error:", error);
 
-      // Handle duplicate email error
-      if (error.code === "SQLITE_CONSTRAINT") {
-        return response
-          .flash("error", "Email already registered. Please use another email or login.")
-          .redirect("/register");
-      }
+			if (error.code === "SQLITE_CONSTRAINT") {
+				inertia.flash(
+					response,
+					"error",
+					"Email already registered. Please use another email or login.",
+				);
+				return inertia.redirect(response, "/register");
+			}
 
-      return response
-        .flash("error", "An error occurred during registration. Please try again later.")
-        .redirect("/register");
-    }
-  },
+			inertia.flash(
+				response,
+				"error",
+				"An error occurred during registration. Please try again later.",
+			);
+			return inertia.redirect(response, "/register");
+		}
+	},
 
-  /**
-   * Handle logout
-   * POST /logout
-   */
-  async logout(request: Request, response: Response) {
-    if (request.cookies.auth_id) {
-      await Authenticate.logout(request, response);
-    }
-  },
+	/**
+	 * Handle logout
+	 * POST /logout
+	 */
+	async logout(request: Request, response: Response) {
+		if (request.cookies.auth_id) {
+			await Authenticate.logout(request, response);
+		}
+	},
 
-  /**
-   * Google OAuth redirect
-   * GET /google/redirect
-   */
-  async googleRedirect(request: Request, response: Response) {
-    const params = redirectParamsURL();
-    const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
-    return response.redirect(googleLoginUrl);
-  },
+	/**
+	 * Google OAuth redirect
+	 * GET /google/redirect
+	 */
+	async googleRedirect(_request: Request, response: Response) {
+		const params = redirectParamsURL();
+		const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
+		// External redirect → full page navigation via 302
+		response.status(302).setHeader("Location", googleLoginUrl).send();
+	},
 
-  /**
-   * Google OAuth callback
-   * GET /google/callback
-   */
-  async googleCallback(request: Request, response: Response) {
-    const { code } = request.query;
+	/**
+	 * Google OAuth callback
+	 * GET /google/callback
+	 */
+	async googleCallback(request: Request, response: Response) {
+		const { code } = request.query;
 
-    const { data } = await axios({
-      url: `https://oauth2.googleapis.com/token`,
-      method: "post",
-      data: {
-        client_id: process.env.GOOGLE_CLIENT_ID,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET,
-        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
-        grant_type: "authorization_code",
-        code,
-      },
-    });
+		const { data } = await axios({
+			url: `https://oauth2.googleapis.com/token`,
+			method: "post",
+			data: {
+				client_id: process.env.GOOGLE_CLIENT_ID,
+				client_secret: process.env.GOOGLE_CLIENT_SECRET,
+				redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+				grant_type: "authorization_code",
+				code,
+			},
+		});
 
-    const result = await axios({
-      url: "https://www.googleapis.com/oauth2/v2/userinfo",
-      method: "get",
-      headers: {
-        Authorization: `Bearer ${data.access_token}`,
-      },
-    });
+		const result = await axios({
+			url: "https://www.googleapis.com/oauth2/v2/userinfo",
+			method: "get",
+			headers: {
+				Authorization: `Bearer ${data.access_token}`,
+			},
+		});
 
-    let { email, name, verified_email } = result.data;
+		let { email, name, verified_email } = result.data;
+		email = email.toLowerCase();
 
-    email = email.toLowerCase();
+		let user = await UserRepository.findByEmail(email);
 
-    const check = await DB.selectFrom("users").selectAll().where("email", "=", email).executeTakeFirst();
+		if (user) {
+			return Authenticate.process(user, request, response);
+		} else {
+			const userData: import("../../app/repositories/user.repository").CreateUserData =
+				{
+					id: randomUUID(),
+					email: email,
+					password: await Authenticate.hash(email),
+					name: name || null,
+					phone: null,
+					avatar: null,
+					is_verified: verified_email ? 1 : 0,
+					is_admin: 0,
+				};
 
-    if (check) {
-      return Authenticate.process(check, request, response);
-    } else {
-      const now = dayjs().valueOf();
-      const user = {
-        id: randomUUID(),
-        email: email,
-        password: await Authenticate.hash(email),
-        name: name || null,
-        phone: null,
-        avatar: null,
-        is_verified: verified_email ? 1 : 0,
-        is_admin: 0,
-        membership_date: null,
-        remember_me_token: null,
-        created_at: now,
-        updated_at: now,
-      };
+			user = await UserRepository.create(userData);
+			return Authenticate.process(user, request, response);
+		}
+	},
 
-      await DB.insertInto("users").values(user).execute();
+	/**
+	 * Display forgot password page
+	 * GET /forgot-password
+	 */
+	async forgotPasswordPage(request: Request, response: Response) {
+		return inertia.render(request, response, "auth/forgot-password");
+	},
 
-      return Authenticate.process(user, request, response);
-    }
-  },
+	/**
+	 * Send reset password link
+	 * POST /forgot-password
+	 */
+	async sendResetPassword(request: Request, response: Response) {
+		const body = await request.json();
 
-  /**
-   * Display forgot password page
-   * GET /forgot-password
-   */
-  async forgotPasswordPage(request: Request, response: Response) {
-    return response.inertia("auth/forgot-password");
-  },
+		const validationResult = Validator.validate(forgotPasswordSchema, body);
 
-  /**
-   * Send reset password link
-   * POST /forgot-password
-   */
-  async sendResetPassword(request: Request, response: Response) {
-    const body = await request.json();
+		if (!validationResult.success) {
+			const errors = validationResult.errors || {};
+			const firstError = Object.values(errors)[0]?.[0] || "Validation error";
+			inertia.flash(response, "error", firstError);
+			return inertia.redirect(response, "/forgot-password");
+		}
 
-    const validationResult = Validator.validate(forgotPasswordSchema, body);
+		const { email, phone } = validationResult.data!;
 
-    if (!validationResult.success) {
-      const errors = validationResult.errors || {};
-      const firstError = Object.values(errors)[0]?.[0] || "Validation error";
-      return response.flash("error", firstError).redirect("/forgot-password", 303);
-    }
+		let user: User | undefined;
 
-    const { email, phone } = validationResult.data!;
+		if (email && email.includes("@")) {
+			user = await UserRepository.findByEmail(email);
+		} else if (phone) {
+			user = await UserRepository.findByPhone(phone);
+		}
 
-    let user;
+		if (!user) {
+			inertia.flash(response, "error", "Email or phone not registered");
+			return inertia.redirect(response, "/forgot-password");
+		}
 
-    if (email && email.includes("@")) {
-      user = await DB.selectFrom("users").selectAll().where("email", "=", email).executeTakeFirst();
-    } else if (phone) {
-      user = await DB.selectFrom("users").selectAll().where("phone", "=", phone).executeTakeFirst();
-    }
+		const token = randomUUID();
 
-    if (!user) {
-      return response.flash("error", "Email or phone not registered").redirect("/forgot-password", 303);
-    }
+		PasswordResetRepository.create(
+			user.email,
+			token,
+			dayjs().add(24, "hours").toISOString(),
+		);
 
-    const token = randomUUID();
-
-    await DB.insertInto("password_reset_tokens").values({
-      email: user.email,
-      token: token,
-      expires_at: dayjs().add(24, "hours").toISOString(),
-    }).execute();
-
-    try {
-      await MailTo({
-        to: user.email,
-        subject: "Reset Password",
-        text: `You have requested a password reset. If this was you, please click the following link:
+		try {
+			await MailTo({
+				to: user.email,
+				subject: "Reset Password",
+				text: `You have requested a password reset. If this was you, please click the following link:
 
 ${process.env.APP_URL}/reset-password/${token}
 
@@ -277,15 +287,17 @@ If you did not request a password reset, please ignore this email.
 
 This link will expire in 24 hours.
         `,
-      });
-    } catch (error) {}
+			});
+		} catch (error) {
+			console.error("Email send error:", error);
+		}
 
-    try {
-      if (user.phone)
-        await axios.post("https://api.dripsender.id/send", {
-          api_key: process.env.DRIPSENDER_API_KEY,
-          phone: user.phone,
-          text: `You have requested a password reset. If this was you, please click the following link:
+		try {
+			if (user.phone)
+				await axios.post("https://api.dripsender.id/send", {
+					api_key: process.env.DRIPSENDER_API_KEY,
+					phone: user.phone,
+					text: `You have requested a password reset. If this was you, please click the following link:
 
 ${process.env.APP_URL}/reset-password/${token}
 
@@ -293,125 +305,124 @@ If you did not request a password reset, please ignore this message.
 
 This link will expire in 24 hours.
           `,
-        });
-    } catch (error) {}
+				});
+		} catch (error) {
+			console.error("SMS send error:", error);
+		}
 
-    return response.flash("success", "Password reset link has been sent").redirect("/forgot-password", 303);
-  },
+		inertia.flash(response, "success", "Password reset link has been sent");
+		return inertia.redirect(response, "/forgot-password");
+	},
 
-  /**
-   * Display reset password page
-   * GET /reset-password/:id
-   */
-  async resetPasswordPage(request: Request, response: Response) {
-    const id = request.params.id;
+	/**
+	 * Display reset password page
+	 * GET /reset-password/:id
+	 */
+	async resetPasswordPage(request: Request, response: Response) {
+		const id = request.params.id;
 
-    const token = await DB.selectFrom("password_reset_tokens")
-      .selectAll()
-      .where("token", "=", id)
-      .where("expires_at", ">", dayjs().toISOString())
-      .executeTakeFirst();
+		const token = PasswordResetRepository.findByToken(id);
 
-    if (!token) {
-      return response.status(404).send("Link tidak valid atau sudah kadaluarsa");
-    }
+		if (!token) {
+			return response
+				.status(404)
+				.send("Link tidak valid atau sudah kadaluarsa");
+		}
 
-    return response.inertia("auth/reset-password", { id: request.params.id });
-  },
+		return inertia.render(request, response, "auth/reset-password", {
+			id: request.params.id,
+		});
+	},
 
-  /**
-   * Process password reset
-   * POST /reset-password
-   */
-  async resetPassword(request: Request, response: Response) {
-    const body = await request.json();
+	/**
+	 * Process password reset
+	 * POST /reset-password
+	 */
+	async resetPassword(request: Request, response: Response) {
+		const body = await request.json();
 
-    const validationResult = Validator.validate(resetPasswordSchema, body);
+		const validationResult = Validator.validate(resetPasswordSchema, body);
 
-    if (!validationResult.success) {
-      return response.status(422).json({
-        success: false,
-        message: "Validation failed",
-        errors: validationResult.errors,
-      });
-    }
+		if (!validationResult.success) {
+			return response.status(422).json({
+				success: false,
+				message: "Validation failed",
+				errors: validationResult.errors,
+			});
+		}
 
-    const { id, password } = validationResult.data!;
+		const { id, password } = validationResult.data!;
 
-    const token = await DB.selectFrom("password_reset_tokens")
-      .selectAll()
-      .where("token", "=", id)
-      .where("expires_at", ">", dayjs().toISOString())
-      .executeTakeFirst();
+		const token = PasswordResetRepository.findByToken(id);
 
-    if (!token) {
-      return response.status(404).send("Link tidak valid atau sudah kadaluarsa");
-    }
+		if (!token) {
+			return response
+				.status(404)
+				.send("Link tidak valid atau sudah kadaluarsa");
+		}
 
-    const user = await DB.selectFrom("users").selectAll().where("email", "=", token.email).executeTakeFirst();
+		const user = await UserRepository.findByEmail(token.email);
 
-    if (!user) {
-      return response.status(404).send("User tidak ditemukan");
-    }
+		if (!user) {
+			return response.status(404).send("User tidak ditemukan");
+		}
 
-    await DB.updateTable("users")
-      .set({
-        password: await Authenticate.hash(password),
-        updated_at: Date.now(),
-      })
-      .where("id", "=", user.id)
-      .execute();
+		await UserRepository.updatePassword(
+			user.id,
+			await Authenticate.hash(password),
+		);
+		PasswordResetRepository.delete(token.token);
 
-    await DB.deleteFrom("password_reset_tokens").where("token", "=", id).execute();
+		return Authenticate.process(user, request, response);
+	},
 
-    return Authenticate.process(user, request, response);
-  },
+	/**
+	 * Change password (authenticated users)
+	 * POST /change-password
+	 */
+	async changePassword(request: Request, response: Response) {
+		if (!request.user) {
+			return response.status(401).json({ error: "Unauthorized" });
+		}
 
-  /**
-   * Change password (authenticated users)
-   * POST /change-password
-   */
-  async changePassword(request: Request, response: Response) {
-    if (!request.user) {
-      return response.status(401).json({ error: "Unauthorized" });
-    }
+		const body = await request.json();
 
-    const body = await request.json();
+		const validationResult = Validator.validate(changePasswordSchema, body);
 
-    const validationResult = Validator.validate(changePasswordSchema, body);
+		if (!validationResult.success) {
+			return response.status(422).json({
+				success: false,
+				message: "Validation failed",
+				errors: validationResult.errors,
+			});
+		}
 
-    if (!validationResult.success) {
-      return response.status(422).json({
-        success: false,
-        message: "Validation failed",
-        errors: validationResult.errors,
-      });
-    }
+		const validated = validationResult.data!;
 
-    const validated = validationResult.data!;
+		const user = await UserRepository.findById(request.user.id);
 
-    const user = await DB.selectFrom("users").selectAll().where("id", "=", request.user.id).executeTakeFirst();
+		if (!user) {
+			return response.status(404).json({ error: "User not found" });
+		}
 
-    if (!user) {
-      return response.status(404).json({ error: "User not found" });
-    }
+		const passwordMatch = await Authenticate.compare(
+			validated.current_password,
+			user.password,
+		);
 
-    const password_match = await Authenticate.compare(validated.current_password, user.password);
+		if (passwordMatch) {
+			await UserRepository.updatePassword(
+				user.id,
+				await Authenticate.hash(validated.new_password),
+			);
 
-    if (password_match) {
-      await DB.updateTable("users")
-        .set({
-          password: await Authenticate.hash(validated.new_password),
-          updated_at: Date.now(),
-        })
-        .where("id", "=", request.user.id)
-        .execute();
-
-      return response.json({ message: "Password berhasil diubah" });
-    } else {
-      return response.status(400).json({ message: "Password lama tidak cocok" });
-    }
-  },
+			return response.json({ message: "Password berhasil diubah" });
+		} else {
+			return response
+				.status(400)
+				.json({ message: "Password lama tidak cocok" });
+		}
+	},
 };
 
 export default AuthHandler;

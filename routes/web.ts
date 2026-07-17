@@ -5,16 +5,16 @@ import UploadHandler from "../app/handlers/upload.handler";
 import S3Handler from "../app/handlers/s3.handler";
 import StorageHandler from "../app/handlers/storage.handler";
 import AssetHandler from "../app/handlers/asset.handler";
-import Auth from "../app/middlewares/auth.middleware";
-import HyperExpress from 'hyper-express';
+import { authRequired } from "../app/middlewares/auth.middleware";
+import HyperExpress from "hyper-express";
 
 // Rate limiting middleware
 import {
-  authRateLimit,
-  apiRateLimit,
-  passwordResetRateLimit,
-  createAccountRateLimit,
-  uploadRateLimit
+	authRateLimit,
+	apiRateLimit,
+	passwordResetRateLimit,
+	createAccountRateLimit,
+	uploadRateLimit,
 } from "../app/middlewares/rate-limit.middleware";
 
 const Route = new HyperExpress.Router();
@@ -36,8 +36,16 @@ Route.get("/test2", PublicHandler.test2);
  * POST /api/upload/image - Upload image with processing
  * POST /api/upload/file - Upload file (PDF, Word, Excel, etc.)
  */
-Route.post("/api/upload/image", [Auth, uploadRateLimit], UploadHandler.uploadImage);
-Route.post("/api/upload/file", [Auth, uploadRateLimit], UploadHandler.uploadFile);
+Route.post(
+	"/api/upload/image",
+	[authRequired, uploadRateLimit],
+	UploadHandler.uploadImage,
+);
+Route.post(
+	"/api/upload/file",
+	[authRequired, uploadRateLimit],
+	UploadHandler.uploadFile,
+);
 
 /**
  * S3 Routes
@@ -47,8 +55,16 @@ Route.post("/api/upload/file", [Auth, uploadRateLimit], UploadHandler.uploadFile
  * GET  /api/s3/public-url/:fileKey - Get public URL for existing file
  * GET  /api/s3/health - S3 service health check
  */
-Route.post("/api/s3/signed-url", [Auth, uploadRateLimit], S3Handler.getSignedUrl);
-Route.get("/api/s3/public-url/:fileKey", [apiRateLimit], S3Handler.getPublicUrl);
+Route.post(
+	"/api/s3/signed-url",
+	[authRequired, uploadRateLimit],
+	S3Handler.getSignedUrl,
+);
+Route.get(
+	"/api/s3/public-url/:fileKey",
+	[apiRateLimit],
+	S3Handler.getPublicUrl,
+);
 Route.get("/api/s3/health", [apiRateLimit], S3Handler.health);
 
 /**
@@ -88,7 +104,11 @@ Route.get("/google/callback", AuthHandler.googleCallback);
  * POST  /reset-password - Process password reset
  */
 Route.get("/forgot-password", AuthHandler.forgotPasswordPage);
-Route.post("/forgot-password", [passwordResetRateLimit], AuthHandler.sendResetPassword);
+Route.post(
+	"/forgot-password",
+	[passwordResetRateLimit],
+	AuthHandler.sendResetPassword,
+);
 Route.get("/reset-password/:id", AuthHandler.resetPasswordPage);
 Route.post("/reset-password", [authRateLimit], AuthHandler.resetPassword);
 
@@ -102,11 +122,11 @@ Route.post("/reset-password", [authRateLimit], AuthHandler.resetPassword);
  * POST  /change-password - Change password
  * DELETE /users - Delete users (admin only)
  */
-Route.get("/home", [Auth], AppHandler.homePage);
-Route.get("/profile", [Auth], AppHandler.profilePage);
-Route.post("/change-profile", [Auth], AppHandler.changeProfile);
-Route.post("/change-password", [Auth], AuthHandler.changePassword);
-Route.delete("/users", [Auth], AppHandler.deleteUsers);
+Route.get("/home", [authRequired], AppHandler.homePage);
+Route.get("/profile", [authRequired], AppHandler.profilePage);
+Route.post("/change-profile", [authRequired], AppHandler.changeProfile);
+Route.post("/change-password", [authRequired], AuthHandler.changePassword);
+Route.delete("/users", [authRequired], AppHandler.deleteUsers);
 
 /**
  * Static Asset Handling Routes

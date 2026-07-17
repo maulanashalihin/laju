@@ -1,139 +1,211 @@
 /**
- * Kysely Migration Service
- * Handles database migrations using Kysely schema builder
+ * Simple Migration Runner using better-sqlite3
+ *
+ * Reads migration files from the migrations/ directory, tracks applied
+ * migrations in a `_migrations` table, and runs pending ones.
  */
 
-import { Kysely, Migrator as KyselyMigrator } from "kysely";
-import * as fs from "fs/promises";
+import DB from "./DB";
+import * as fs from "fs";
 import * as path from "path";
-import type { DB as DatabaseTypes } from "../../type/db-types";
 
-/**
- * Custom migration provider that loads migrations from the migrations directory
- */
-class CustomMigrationProvider {
-  async getMigrations(): Promise<Record<string, { up: (db: Kysely<any>) => Promise<void>; down: (db: Kysely<any>) => Promise<void> }>> {
-    const migrations: Record<string, { up: (db: Kysely<any>) => Promise<void>; down: (db: Kysely<any>) => Promise<void> }> = {};
-
-    const migrationsDir = path.resolve(process.cwd(), "migrations");
-
-    try {
-      const files = await fs.readdir(migrationsDir);
-      const tsFiles = files.filter((file) => file.endsWith(".ts") && !file.includes("Migrator"));
-
-      for (const file of tsFiles.sort()) {
-        const filePath = path.join(migrationsDir, file);
-        const migrationName = file.replace(".ts", "");
-
-        // Dynamic import for ES modules
-        const module = await import(filePath);
-
-        migrations[migrationName] = {
-          up: module.up,
-          down: module.down,
-        };
-      }
-    } catch (error) {
-      console.error("Error loading migrations:", error);
-    }
-
-    return migrations;
-  }
+export interface MigrationResult {
+	name: string;
+	success: boolean;
+	error?: string;
 }
 
 /**
- * Create a Migrator instance for a database connection
+ * Run all pending migrations.
+ * Seeds the `_migrations` table from `kysely_migration` on first run.
  */
-export function createMigrator(db: Kysely<DatabaseTypes>) {
-  const migrator = new KyselyMigrator({
-    db,
-    provider: new CustomMigrationProvider(),
-  });
+export async function migrateToLatest(): Promise<MigrationResult[]> {
+	ensureMigrationsTable();
+	seedFromKyselyIfNeeded();
 
-  return {
-    /**
-     * Run all pending migrations
-     */
-    async migrateToLatest(): Promise<{ success: boolean; error?: Error; results?: any[] }> {
-      const { error, results } = await migrator.migrateToLatest();
+	const pending = getPendingMigrations();
+	const results: MigrationResult[] = [];
 
-      if (error) {
-        console.error("Migration failed:", error);
-        return { success: false, error: error instanceof Error ? error : new Error(String(error)) };
-      }
+	for (const name of pending) {
+		try {
+			const migrationPath = path.resolve(
+				process.cwd(),
+				"migrations",
+				`${name}.ts`,
+			);
+			if (!fs.existsSync(migrationPath)) {
+				results.push({
+					name,
+					success: false,
+					error: `File not found: ${migrationPath}`,
+				});
+				continue;
+			}
 
-      if (results && results.length > 0) {
-        console.log("Migrations executed:");
-        results.forEach((result) => {
-          if (result.status === "Success") {
-            console.log(`  ✓ ${result.migrationName}`);
-          } else if (result.status === "Error") {
-            console.error(`  ✗ ${result.migrationName}: ${result.status}`);
-          } else {
-            console.log(`  • ${result.migrationName}: ${result.status}`);
-          }
-        });
-      } else {
-        console.log("No migrations to run. Database is up to date.");
-      }
+			// Dynamic import for ES module migration files
+			const mod = await import(migrationPath);
+			if (typeof mod.up !== "function") {
+				results.push({
+					name,
+					success: false,
+					error: "Migration missing up() export",
+				});
+				continue;
+			}
 
-      return { success: true, results };
-    },
+			// Run migration inside a transaction
+			DB.transaction(() => {
+				mod.up(DB);
+				markApplied(name);
+			});
 
-    /**
-     * Migrate down (undo migrations)
-     */
-    async migrateDown(steps: number = 1): Promise<{ success: boolean; error?: Error; results?: any[] }> {
-      const { error, results } = await migrator.migrateDown();
+			results.push({ name, success: true });
+			console.log(`  ✓ ${name}`);
+		} catch (error: any) {
+			console.error(`  ✗ ${name}: ${error.message}`);
+			results.push({ name, success: false, error: error.message });
+		}
+	}
 
-      if (error) {
-        console.error("Migration rollback failed:", error);
-        return { success: false, error: error instanceof Error ? error : new Error(String(error)) };
-      }
+	if (results.length === 0) {
+		console.log("  No pending migrations.");
+	}
 
-      if (results) {
-        console.log("Migrations rolled back:");
-        results.forEach((result) => {
-          console.log(`  ↓ ${result.migrationName}`);
-        });
-      }
-
-      return { success: true, results };
-    },
-
-    /**
-     * Migrate to specific migration (up or down)
-     * @param targetMigration - Target migration name (e.g., "20230514062913_sessions")
-     */
-    async migrateTo(targetMigration: string): Promise<{ success: boolean; error?: Error; results?: any[] }> {
-      const { error, results } = await migrator.migrateTo(targetMigration);
-
-      if (error) {
-        console.error("Migration failed:", error);
-        return { success: false, error: error instanceof Error ? error : new Error(String(error)) };
-      }
-
-      if (results) {
-        console.log("Migrations executed:");
-        results.forEach((result) => {
-          const direction = result.direction === "Down" ? "↓" : "✓";
-          console.log(`  ${direction} ${result.migrationName}`);
-        });
-      }
-
-      return { success: true, results };
-    },
-
-    /**
-     * Get migration status
-     */
-    async getMigrations(): Promise<{ migrations: any[]; error?: Error }> {
-      const migrations = await migrator.getMigrations();
-
-      return { migrations: Array.from(migrations) };
-    }
-  };
+	return results;
 }
 
-export { CustomMigrationProvider };
-export default createMigrator;
+/**
+ * Rollback the last N migrations
+ */
+export async function migrateDown(
+	steps: number = 1,
+): Promise<MigrationResult[]> {
+	ensureMigrationsTable();
+
+	const applied = DB.all<{ name: string }>(
+		"SELECT name FROM _migrations ORDER BY applied_at DESC LIMIT ?",
+		[steps],
+	);
+
+	const results: MigrationResult[] = [];
+
+	for (const row of applied) {
+		try {
+			const migrationPath = path.resolve(
+				process.cwd(),
+				"migrations",
+				`${row.name}.ts`,
+			);
+			if (!fs.existsSync(migrationPath)) {
+				results.push({
+					name: row.name,
+					success: false,
+					error: `File not found: ${migrationPath}`,
+				});
+				continue;
+			}
+
+			const mod = await import(migrationPath);
+			if (typeof mod.down !== "function") {
+				results.push({
+					name: row.name,
+					success: false,
+					error: "Migration missing down() export",
+				});
+				continue;
+			}
+
+			DB.transaction(() => {
+				mod.down(DB);
+				markUnapplied(row.name);
+			});
+
+			results.push({ name: row.name, success: true });
+			console.log(`  ↓ ${row.name}`);
+		} catch (error: any) {
+			console.error(`  ✗ ${row.name}: ${error.message}`);
+			results.push({ name: row.name, success: false, error: error.message });
+		}
+	}
+
+	return results;
+}
+
+/**
+ * Ensure the `_migrations` tracking table exists
+ */
+function ensureMigrationsTable(): void {
+	DB.run(`
+    CREATE TABLE IF NOT EXISTS _migrations (
+      name TEXT PRIMARY KEY NOT NULL,
+      applied_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+}
+
+/**
+ * Seed `_migrations` from `kysely_migration` if `_migrations` is empty
+ * and `kysely_migration` table exists.
+ */
+function seedFromKyselyIfNeeded(): void {
+	const count = DB.get<{ c: number }>("SELECT COUNT(*) as c FROM _migrations");
+	if (count && count.c > 0) return;
+
+	// Check if kysely_migration exists
+	const kyselyTable = DB.get<{ name: string }>(
+		"SELECT name FROM sqlite_master WHERE type='table' AND name='kysely_migration'",
+	);
+	if (!kyselyTable) return;
+
+	const existingMigrations = DB.all<{ name: string; timestamp: string }>(
+		"SELECT name, timestamp FROM kysely_migration ORDER BY name ASC",
+	);
+
+	for (const m of existingMigrations) {
+		DB.run(
+			"INSERT OR IGNORE INTO _migrations (name, applied_at) VALUES (?, ?)",
+			[m.name, m.timestamp],
+		);
+	}
+
+	console.log(
+		`  Seeded ${existingMigrations.length} existing migrations from kysely_migration`,
+	);
+}
+
+/**
+ * Get list of pending migrations
+ */
+function getPendingMigrations(): string[] {
+	const migrationsDir = path.resolve(process.cwd(), "migrations");
+	if (!fs.existsSync(migrationsDir)) return [];
+
+	const files = fs
+		.readdirSync(migrationsDir)
+		.filter((f) => f.endsWith(".ts") && !f.includes("Migrator"))
+		.sort();
+
+	const applied = new Set(
+		DB.all<{ name: string }>("SELECT name FROM _migrations").map((r) => r.name),
+	);
+
+	return files
+		.map((f) => f.replace(".ts", ""))
+		.filter((name) => !applied.has(name));
+}
+
+/**
+ * Mark a migration as applied
+ */
+function markApplied(name: string): void {
+	DB.run("INSERT OR IGNORE INTO _migrations (name) VALUES (?)", [name]);
+}
+
+/**
+ * Mark a migration as unapplied (for rollback)
+ */
+function markUnapplied(name: string): void {
+	DB.run("DELETE FROM _migrations WHERE name = ?", [name]);
+}
+
+export default { migrateToLatest, migrateDown };

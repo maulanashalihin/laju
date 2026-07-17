@@ -1,422 +1,366 @@
 /**
  * Integration Tests for Authentication Flow
- * Testing complete auth workflows including registration, login, logout
+ * Testing complete auth workflows using repositories and raw SQL.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import DB from '../../app/services/DB';
-import Authenticate from '../../app/services/Authenticate';
-import { randomUUID } from 'crypto';
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import DB from "../../app/services/DB";
+import { UserRepository } from "../../app/repositories/user.repository";
+import { PasswordResetRepository } from "../../app/repositories/password-reset.repository";
+import { SessionRepository } from "../../app/repositories/session.repository";
+import Authenticate from "../../app/services/Authenticate";
+import { randomUUID } from "crypto";
 
-describe('Authentication Integration Tests', () => {
-  const testUser = {
-    name: 'Integration Test User',
-    email: 'integration@test.com',
-    password: 'SecurePassword123',
-    phone: '08123456789'
-  };
+describe("Authentication Integration Tests", () => {
+	const testUser = {
+		name: "Integration Test User",
+		email: "integration@test.com",
+		password: "SecurePassword123",
+		phone: "08123456789",
+	};
 
-  let userId: string;
+	let userId: string;
 
-  beforeEach(async () => {
-    // Clean up test user
-    await DB.deleteFrom('users').where('email', '=', testUser.email).execute();
-    if (userId) {
-      await DB.deleteFrom('sessions').where('user_id', '=', userId).execute();
-    }
-  });
+	beforeEach(async () => {
+		// Clean up test user using raw SQL (not kysely)
+		const existing = DB.get<{ id: string }>(
+			"SELECT id FROM users WHERE email = ?",
+			[testUser.email],
+		);
+		if (existing) {
+			DB.run("DELETE FROM sessions WHERE user_id = ?", [existing.id]);
+			DB.run("DELETE FROM users WHERE id = ?", [existing.id]);
+		}
+		userId = "";
+	});
 
-  afterEach(async () => {
-    // Clean up after tests
-    if (userId) {
-      await DB.deleteFrom('sessions').where('user_id', '=', userId).execute();
-      await DB.deleteFrom('users').where('id', '=', userId).execute();
-    }
-  });
+	afterEach(async () => {
+		// Clean up after tests
+		if (userId) {
+			DB.run("DELETE FROM sessions WHERE user_id = ?", [userId]);
+			DB.run("DELETE FROM users WHERE id = ?", [userId]);
+		}
+	});
 
-  describe('User Registration Flow', () => {
-    it('should register a new user successfully', async () => {
-      // Hash password
-      const hashedPassword = await Authenticate.hash(testUser.password);
+	describe("User Registration Flow", () => {
+		it("should register a new user successfully", async () => {
+			const hashedPassword = await Authenticate.hash(testUser.password);
+			const id = randomUUID();
 
-      // Insert user
-      const id = randomUUID();
-      await DB.insertInto('users').values({
-        id,
-        name: testUser.name,
-        email: testUser.email.toLowerCase(),
-        password: hashedPassword,
-        phone: testUser.phone,
-        is_verified: 0,
-        is_admin: 0,
-        membership_date: null,
-        remember_me_token: null,
-        created_at: Date.now(),
-        updated_at: Date.now()
-      }).execute();
+			DB.run(
+				`INSERT INTO users (id, name, email, password, phone, is_verified, is_admin,
+          membership_date, remember_me_token, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, 0, 0, NULL, NULL, ?, ?)`,
+				[
+					id,
+					testUser.name,
+					testUser.email.toLowerCase(),
+					hashedPassword,
+					testUser.phone,
+					Date.now(),
+					Date.now(),
+				],
+			);
+			userId = id;
 
-      userId = id;
+			const user = DB.get<{
+				id: string;
+				email: string;
+				name: string;
+				password: string;
+			}>("SELECT * FROM users WHERE id = ?", [id]);
 
-      // Verify user exists
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('id', '=', id)
-        .executeTakeFirst();
-      
-      expect(user).toBeDefined();
-      expect(user.email).toBe(testUser.email.toLowerCase());
-      expect(user.name).toBe(testUser.name);
-      expect(user.password).not.toBe(testUser.password); // Should be hashed
-    });
+			expect(user).toBeDefined();
+			expect(user!.email).toBe(testUser.email.toLowerCase());
+			expect(user!.name).toBe(testUser.name);
+			expect(user!.password).not.toBe(testUser.password); // Should be hashed
+		});
 
-    it('should prevent duplicate email registration', async () => {
-      const hashedPassword = await Authenticate.hash(testUser.password);
+		it("should prevent duplicate email registration", async () => {
+			const hashedPassword = await Authenticate.hash(testUser.password);
+			const id = randomUUID();
 
-      // First registration
-      const id = randomUUID();
-      await DB.insertInto('users').values({
-        id,
-        name: testUser.name,
-        email: testUser.email,
-        password: hashedPassword,
-        is_verified: 0,
-        is_admin: 0,
-        membership_date: null,
-        remember_me_token: null,
-        created_at: Date.now(),
-        updated_at: Date.now()
-      }).execute();
-      userId = id;
+			DB.run(
+				"INSERT INTO users (id, name, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+				[
+					id,
+					testUser.name,
+					testUser.email,
+					hashedPassword,
+					Date.now(),
+					Date.now(),
+				],
+			);
+			userId = id;
 
-      // Try duplicate registration
-      try {
-        await DB.insertInto('users').values({
-          id: randomUUID(),
-          name: 'Another User',
-          email: testUser.email, // Same email
-          password: hashedPassword,
-          is_verified: 0,
-          is_admin: 0,
-          membership_date: null,
-          remember_me_token: null,
-          created_at: Date.now(),
-          updated_at: Date.now()
-        }).execute();
-        
-        // Should not reach here
-        expect(true).toBe(false);
-      } catch (error: any) {
-        // Should throw constraint error
-        expect(error).toBeDefined();
-      }
-    });
+			// Try duplicate registration
+			expect(() => {
+				DB.run(
+					"INSERT INTO users (id, name, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+					[
+						randomUUID(),
+						"Another User",
+						testUser.email,
+						hashedPassword,
+						Date.now(),
+						Date.now(),
+					],
+				);
+			}).toThrow();
+		});
 
-    it('should normalize email to lowercase', async () => {
-      const hashedPassword = await Authenticate.hash(testUser.password);
-      const mixedCaseEmail = 'Test@Example.COM';
+		it("should normalize email to lowercase", async () => {
+			const hashedPassword = await Authenticate.hash(testUser.password);
+			const mixedCaseEmail = "Test@Example.COM";
+			const id = randomUUID();
 
-      const id = randomUUID();
-      await DB.insertInto('users').values({
-        id,
-        name: testUser.name,
-        email: mixedCaseEmail.toLowerCase(),
-        password: hashedPassword,
-        is_verified: 0,
-        is_admin: 0,
-        membership_date: null,
-        remember_me_token: null,
-        created_at: Date.now(),
-        updated_at: Date.now()
-      }).execute();
-      userId = id;
+			DB.run(
+				"INSERT INTO users (id, name, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+				[
+					id,
+					testUser.name,
+					mixedCaseEmail.toLowerCase(),
+					hashedPassword,
+					Date.now(),
+					Date.now(),
+				],
+			);
+			userId = id;
 
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('id', '=', id)
-        .executeTakeFirst();
-      expect(user?.email).toBe(mixedCaseEmail.toLowerCase());
-    });
-  });
+			const user = DB.get<{ email: string }>(
+				"SELECT * FROM users WHERE id = ?",
+				[id],
+			);
+			expect(user?.email).toBe(mixedCaseEmail.toLowerCase());
+		});
+	});
 
-  describe('User Login Flow', () => {
-    beforeEach(async () => {
-      // Create test user for login tests
-      const hashedPassword = await Authenticate.hash(testUser.password);
-      const id = randomUUID();
-      await DB.insertInto('users').values({
-        id,
-        name: testUser.name,
-        email: testUser.email,
-        password: hashedPassword,
-        is_verified: 0,
-        is_admin: 0,
-        membership_date: null,
-        remember_me_token: null,
-        created_at: Date.now(),
-        updated_at: Date.now()
-      }).execute();
-      userId = id;
-    });
+	describe("User Login Flow", () => {
+		beforeEach(async () => {
+			const hashedPassword = await Authenticate.hash(testUser.password);
+			const id = randomUUID();
+			DB.run(
+				"INSERT INTO users (id, name, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+				[
+					id,
+					testUser.name,
+					testUser.email,
+					hashedPassword,
+					Date.now(),
+					Date.now(),
+				],
+			);
+			userId = id;
+		});
 
-    it('should login with correct credentials', async () => {
-      // Find user
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('email', '=', testUser.email)
-        .executeTakeFirst();
-      expect(user).toBeDefined();
+		it("should login with correct credentials", async () => {
+			const user = DB.get<{ id: string; email: string; password: string }>(
+				"SELECT * FROM users WHERE email = ?",
+				[testUser.email],
+			);
+			expect(user).toBeDefined();
 
-      // Verify password
-      const isValid = await Authenticate.compare(testUser.password, user!.password);
-      expect(isValid).toBe(true);
+			const isValid = await Authenticate.compare(
+				testUser.password,
+				user!.password,
+			);
+			expect(isValid).toBe(true);
 
-      // Create session
-      const sessionId = `session_${Date.now()}`;
-      await DB.insertInto('sessions').values({
-        id: sessionId,
-        user_id: user!.id,
-        user_agent: null,
-        expires_at: null
-      }).execute();
+			// Create session via repository
+			const sessionId = `session_${Date.now()}`;
+			SessionRepository.create(sessionId, user!.id, "{}", null, null);
 
-      // Verify session exists
-      const session = await DB.selectFrom('sessions')
-        .selectAll()
-        .where('id', '=', sessionId)
-        .executeTakeFirst();
-      expect(session).toBeDefined();
-      expect(session?.user_id).toBe(user!.id);
+			// Verify session exists
+			const session = SessionRepository.findById(sessionId);
+			expect(session).toBeDefined();
+			expect(session?.user_id).toBe(user!.id);
 
-      // Cleanup session
-      await DB.deleteFrom('sessions').where('id', '=', sessionId).execute();
-    });
+			// Cleanup session
+			SessionRepository.delete(sessionId);
+		});
 
-    it('should reject incorrect password', async () => {
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('email', '=', testUser.email)
-        .executeTakeFirst();
-      
-      const isValid = await Authenticate.compare('WrongPassword123', user!.password);
-      expect(isValid).toBe(false);
-    });
+		it("should reject incorrect password", async () => {
+			const user = DB.get<{ password: string }>(
+				"SELECT * FROM users WHERE email = ?",
+				[testUser.email],
+			);
+			const isValid = await Authenticate.compare(
+				"WrongPassword123",
+				user!.password,
+			);
+			expect(isValid).toBe(false);
+		});
 
-    it('should reject non-existent email', async () => {
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('email', '=', 'nonexistent@test.com')
-        .executeTakeFirst();
-      expect(user).toBeUndefined();
-    });
+		it("should reject non-existent email", async () => {
+			const user = DB.get<{ id: string }>(
+				"SELECT * FROM users WHERE email = ?",
+				["nonexistent@test.com"],
+			);
+			expect(user).toBeUndefined();
+		});
 
-    it('should support login by phone', async () => {
-      // Update user with phone
-      await DB.updateTable('users')
-        .set({ phone: testUser.phone })
-        .where('id', '=', userId)
-        .execute();
+		it("should support login by phone", async () => {
+			DB.run("UPDATE users SET phone = ? WHERE id = ?", [
+				testUser.phone,
+				userId,
+			]);
 
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('phone', '=', testUser.phone)
-        .executeTakeFirst();
-      expect(user).toBeDefined();
-      expect(user?.id).toBe(userId);
-    });
-  });
+			const user = DB.get<{ id: string }>(
+				"SELECT * FROM users WHERE phone = ?",
+				[testUser.phone],
+			);
+			expect(user).toBeDefined();
+			expect(user?.id).toBe(userId);
+		});
+	});
 
-  describe('Session Management', () => {
-    let sessionId: string;
+	describe("Session Management", () => {
+		let sessionId: string;
 
-    beforeEach(async () => {
-      // Create user and session
-      const hashedPassword = await Authenticate.hash(testUser.password);
-      const id = randomUUID();
-      await DB.insertInto('users').values({
-        id,
-        name: testUser.name,
-        email: testUser.email,
-        password: hashedPassword,
-        is_verified: 0,
-        is_admin: 0,
-        membership_date: null,
-        remember_me_token: null,
-        created_at: Date.now(),
-        updated_at: Date.now()
-      }).execute();
-      userId = id;
+		beforeEach(async () => {
+			const hashedPassword = await Authenticate.hash(testUser.password);
+			const id = randomUUID();
+			DB.run(
+				"INSERT INTO users (id, name, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+				[
+					id,
+					testUser.name,
+					testUser.email,
+					hashedPassword,
+					Date.now(),
+					Date.now(),
+				],
+			);
+			userId = id;
 
-      sessionId = `session_${Date.now()}`;
-      await DB.insertInto('sessions').values({
-        id: sessionId,
-        user_id: userId,
-        user_agent: null,
-        expires_at: null
-      }).execute();
-    });
+			sessionId = `session_${Date.now()}`;
+			SessionRepository.create(sessionId, userId, "{}", null, null);
+		});
 
-    afterEach(async () => {
-      if (sessionId) {
-        await DB.deleteFrom('sessions').where('id', '=', sessionId).execute();
-      }
-    });
+		afterEach(async () => {
+			if (sessionId) {
+				SessionRepository.delete(sessionId);
+			}
+		});
 
-    it('should retrieve user from session', async () => {
-      const session = await DB.selectFrom('sessions')
-        .innerJoin('users', 'sessions.user_id', 'users.id')
-        .select(['users.id', 'users.email', 'users.name'])
-        .where('sessions.id', '=', sessionId)
-        .executeTakeFirst();
+		it("should retrieve user from session", async () => {
+			// Get user_id from session
+			const session = SessionRepository.findById(sessionId);
+			expect(session).toBeDefined();
+			expect(session?.user_id).toBe(userId);
 
-      expect(session).toBeDefined();
-      expect(session?.id).toBe(userId);
-      expect(session?.email).toBe(testUser.email);
-    });
+			// Then find user
+			const user = DB.get<{ id: string; email: string }>(
+				"SELECT id, email FROM users WHERE id = ?",
+				[session!.user_id],
+			);
+			expect(user).toBeDefined();
+			expect(user?.id).toBe(userId);
+		});
 
-    it('should logout by deleting session', async () => {
-      await DB.deleteFrom('sessions').where('id', '=', sessionId).execute();
+		it("should logout by deleting session", async () => {
+			SessionRepository.delete(sessionId);
 
-      const session = await DB.selectFrom('sessions')
-        .selectAll()
-        .where('id', '=', sessionId)
-        .executeTakeFirst();
-      expect(session).toBeUndefined();
-      
-      sessionId = ''; // Prevent double cleanup
-    });
+			const session = SessionRepository.findById(sessionId);
+			expect(session).toBeUndefined();
 
-    it('should handle multiple sessions per user', async () => {
-      const session2Id = `session2_${Date.now()}`;
-      await DB.insertInto('sessions').values({
-        id: session2Id,
-        user_id: userId,
-        user_agent: null,
-        expires_at: null
-      }).execute();
+			sessionId = ""; // Prevent double cleanup
+		});
 
-      const sessions = await DB.selectFrom('sessions')
-        .selectAll()
-        .where('user_id', '=', userId)
-        .execute();
-      expect(sessions.length).toBeGreaterThanOrEqual(2);
+		it("should handle multiple sessions per user", async () => {
+			const session2Id = `session2_${Date.now()}`;
+			SessionRepository.create(session2Id, userId, "{}", null, null);
 
-      // Cleanup
-      await DB.deleteFrom('sessions').where('id', '=', session2Id).execute();
-    });
-  });
+			const sessions = SessionRepository.findByUserId(userId);
+			expect(sessions.length).toBeGreaterThanOrEqual(2);
 
-  describe('Password Reset Flow', () => {
-    beforeEach(async () => {
-      const hashedPassword = await Authenticate.hash(testUser.password);
-      const id = randomUUID();
-      await DB.insertInto('users').values({
-        id,
-        name: testUser.name,
-        email: testUser.email,
-        password: hashedPassword,
-        is_verified: 0,
-        is_admin: 0,
-        membership_date: null,
-        remember_me_token: null,
-        created_at: Date.now(),
-        updated_at: Date.now()
-      }).execute();
-      userId = id;
-    });
+			SessionRepository.delete(session2Id);
+		});
+	});
 
-    it('should create password reset token', async () => {
-      const token = randomUUID();
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('id', '=', userId)
-        .executeTakeFirst();
-      const expiresAt = new Date(Date.now() + (24 * 60 * 60 * 1000)).toISOString(); // 24 hours
+	describe("Password Reset Flow", () => {
+		beforeEach(async () => {
+			const hashedPassword = await Authenticate.hash(testUser.password);
+			const id = randomUUID();
+			DB.run(
+				"INSERT INTO users (id, name, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+				[
+					id,
+					testUser.name,
+					testUser.email,
+					hashedPassword,
+					Date.now(),
+					Date.now(),
+				],
+			);
+			userId = id;
+		});
 
-      await DB.insertInto('password_reset_tokens').values({
-        email: user!.email,
-        token: token,
-        expires_at: expiresAt
-      }).execute();
+		it("should create password reset token", async () => {
+			const token = randomUUID();
+			const user = DB.get<{ email: string }>(
+				"SELECT * FROM users WHERE id = ?",
+				[userId],
+			);
+			const expiresAt = new Date(
+				Date.now() + 24 * 60 * 60 * 1000,
+			).toISOString();
 
-      const resetToken = await DB.selectFrom('password_reset_tokens')
-        .selectAll()
-        .where('token', '=', token)
-        .executeTakeFirst();
-      expect(resetToken).toBeDefined();
-      expect(resetToken?.email).toBe(user?.email);
+			PasswordResetRepository.create(user!.email, token, expiresAt);
 
-      // Cleanup
-      await DB.deleteFrom('password_reset_tokens').where('token', '=', token).execute();
-    });
+			const resetToken = PasswordResetRepository.findByToken(token);
+			expect(resetToken).toBeDefined();
+			expect(resetToken?.email).toBe(user?.email);
 
-    it('should reset password with valid token', async () => {
-      const token = randomUUID();
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('id', '=', userId)
-        .executeTakeFirst();
-      const expiresAt = new Date(Date.now() + (24 * 60 * 60 * 1000)).toISOString();
+			PasswordResetRepository.delete(token);
+		});
 
-      await DB.insertInto('password_reset_tokens').values({
-        email: user!.email,
-        token: token,
-        expires_at: expiresAt
-      }).execute();
+		it("should reset password with valid token", async () => {
+			const token = randomUUID();
+			const user = DB.get<{ email: string }>(
+				"SELECT * FROM users WHERE id = ?",
+				[userId],
+			);
+			const expiresAt = new Date(
+				Date.now() + 24 * 60 * 60 * 1000,
+			).toISOString();
 
-      // Verify token
-      const resetToken = await DB.selectFrom('password_reset_tokens')
-        .selectAll()
-        .where('token', '=', token)
-        .where('expires_at', '>', new Date().toISOString())
-        .executeTakeFirst();
-      
-      expect(resetToken).toBeDefined();
+			PasswordResetRepository.create(user!.email, token, expiresAt);
 
-      // Update password
-      const newPassword = 'NewSecurePassword456';
-      const hashedNewPassword = await Authenticate.hash(newPassword);
-      
-      await DB.updateTable('users')
-        .set({ password: hashedNewPassword })
-        .where('email', '=', user!.email)
-        .execute();
+			const resetToken = PasswordResetRepository.findByToken(token);
+			expect(resetToken).toBeDefined();
 
-      // Delete token
-      await DB.deleteFrom('password_reset_tokens').where('token', '=', token).execute();
+			const newPassword = "NewSecurePassword456";
+			const hashedNewPassword = await Authenticate.hash(newPassword);
 
-      // Verify new password works
-      const updatedUser = await DB.selectFrom('users')
-        .selectAll()
-        .where('id', '=', userId)
-        .executeTakeFirst();
-      const isValid = await Authenticate.compare(newPassword, updatedUser!.password);
-      expect(isValid).toBe(true);
-    });
+			await UserRepository.updatePassword(userId, hashedNewPassword);
+			PasswordResetRepository.delete(token);
 
-    it('should reject expired token', async () => {
-      const token = randomUUID();
-      const user = await DB.selectFrom('users')
-        .selectAll()
-        .where('id', '=', userId)
-        .executeTakeFirst();
-      const expiresAt = new Date(Date.now() - 1000).toISOString(); // Already expired
+			const updatedUser = DB.get<{ password: string }>(
+				"SELECT * FROM users WHERE id = ?",
+				[userId],
+			);
+			const isValid = await Authenticate.compare(
+				newPassword,
+				updatedUser!.password,
+			);
+			expect(isValid).toBe(true);
+		});
 
-      await DB.insertInto('password_reset_tokens').values({
-        email: user!.email,
-        token: token,
-        expires_at: expiresAt
-      }).execute();
+		it("should reject expired token", async () => {
+			const token = randomUUID();
+			const user = DB.get<{ email: string }>(
+				"SELECT * FROM users WHERE id = ?",
+				[userId],
+			);
+			const expiresAt = new Date(Date.now() - 1000).toISOString(); // Already expired
 
-      const resetToken = await DB.selectFrom('password_reset_tokens')
-        .selectAll()
-        .where('token', '=', token)
-        .where('expires_at', '>', new Date().toISOString())
-        .executeTakeFirst();
-      
-      expect(resetToken).toBeUndefined();
+			PasswordResetRepository.create(user!.email, token, expiresAt);
 
-      // Cleanup
-      await DB.deleteFrom('password_reset_tokens').where('token', '=', token).execute();
-    });
-  });
+			const resetToken = PasswordResetRepository.findByToken(token);
+			expect(resetToken).toBeUndefined();
+
+			PasswordResetRepository.delete(token);
+		});
+	});
 });

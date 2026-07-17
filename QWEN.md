@@ -45,6 +45,7 @@ npm run dev
 ```
 
 This runs:
+
 - Vite for frontend assets (JS/CSS/Svelte)
 - Nodemon for backend auto-reload
 
@@ -132,7 +133,6 @@ laju/
 │   ├── middlewares/              # Middleware (*.middleware.ts, kebab-case)
 │   │   ├── auth.middleware.ts         # Authentication middleware
 │   │   ├── csrf.middleware.ts         # CSRF protection middleware
-│   │   ├── inertia.middleware.ts      # Inertia.js middleware
 │   │   ├── rate-limit.middleware.ts   # Rate limiting middleware
 │   │   └── security-headers.middleware.ts # Security headers middleware
 │   ├── services/                 # Business logic (PascalCase.ts)
@@ -148,7 +148,6 @@ laju/
 │   └── (build artifacts in dist/)
 ├── templates/                    # Eta templates (SSR)
 │   ├── index.html                # Landing page template
-│   ├── inertia.html              # Inertia.js base template
 │   └── partials/                 # Template partials
 ├── type/                         # TypeScript type definitions
 │   ├── index.d.ts                # App-wide types (Request, Response, User)
@@ -248,6 +247,7 @@ USER_MAILER=
 ### Common Patterns
 
 **Handler Pattern:**
+
 ```typescript
 import { Request, Response } from "type";
 
@@ -267,6 +267,7 @@ export default AuthHandler;
 ```
 
 **Service Pattern:**
+
 ```typescript
 import DB from "app/services/DB";
 
@@ -278,6 +279,7 @@ export default {
 ```
 
 **Validation Pattern:**
+
 ```typescript
 import { z } from "zod";
 

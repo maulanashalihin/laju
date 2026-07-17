@@ -1,14 +1,15 @@
-import { Kysely } from "kysely";
+import type DB from "../app/services/DB";
 
-export async function up(db: Kysely<any>): Promise<void> {
-  await db.schema
-    .createTable("cache")
-    .addColumn("key", "text", (col) => col.primaryKey())
-    .addColumn("value", "text", (col) => col.notNull())
-    .addColumn("expiration", "integer", (col) => col.notNull())
-    .execute();
+export async function up(db: typeof DB): Promise<void> {
+	db.run(`
+    CREATE TABLE IF NOT EXISTS cache (
+      key TEXT PRIMARY KEY NOT NULL,
+      value TEXT NOT NULL,
+      expiration INTEGER NOT NULL
+    )
+  `);
 }
 
-export async function down(db: Kysely<any>): Promise<void> {
-  await db.schema.dropTable("cache").execute();
+export async function down(db: typeof DB): Promise<void> {
+	db.run("DROP TABLE IF EXISTS cache");
 }
