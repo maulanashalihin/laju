@@ -64,19 +64,6 @@ inertia.location(res, "https://...")     // 409 + X-Inertia-Location (external/f
 inertia.back(res, req, "/fallback")      // Back via Referer
 ```
 
-### HTML Render — Inertia v3 format
-
-Package otomatis render HTML dengan format Inertia v3:
-
-```html
-<div id="app"></div>
-<script data-page="app" type="application/json">{"component":"Home",...}</script>
-<link rel="stylesheet" href="/assets/index-abc.css">
-<script type="module" src="/assets/app-xyz.js"></script>
-```
-
-Page data di `script[data-page]` (bukan attribute `data-page` di div).
-
 ### Shared Props — key harus sesuai frontend
 
 ```ts
