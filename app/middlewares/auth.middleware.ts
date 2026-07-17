@@ -42,11 +42,6 @@ export async function authRequired(req: Request, res: Response): Promise<void> {
 		is_admin: session.is_admin ? 1 : 0,
 		is_verified: session.email_verified ? 1 : 0,
 	};
-
-	req.share = req.share || {};
-	req.share.auth = {
-		user: req.user,
-	};
 }
 
 /**
