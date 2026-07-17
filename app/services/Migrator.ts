@@ -17,11 +17,9 @@ export interface MigrationResult {
 
 /**
  * Run all pending migrations.
- * Seeds the `_migrations` table from `kysely_migration` on first run.
  */
 export async function migrateToLatest(): Promise<MigrationResult[]> {
 	ensureMigrationsTable();
-	seedFromKyselyIfNeeded();
 
 	const pending = getPendingMigrations();
 	const results: MigrationResult[] = [];
@@ -141,36 +139,6 @@ function ensureMigrationsTable(): void {
       applied_at TEXT NOT NULL DEFAULT (datetime('now'))
     )
   `);
-}
-
-/**
- * Seed `_migrations` from `kysely_migration` if `_migrations` is empty
- * and `kysely_migration` table exists.
- */
-function seedFromKyselyIfNeeded(): void {
-	const count = DB.get<{ c: number }>("SELECT COUNT(*) as c FROM _migrations");
-	if (count && count.c > 0) return;
-
-	// Check if kysely_migration exists
-	const kyselyTable = DB.get<{ name: string }>(
-		"SELECT name FROM sqlite_master WHERE type='table' AND name='kysely_migration'",
-	);
-	if (!kyselyTable) return;
-
-	const existingMigrations = DB.all<{ name: string; timestamp: string }>(
-		"SELECT name, timestamp FROM kysely_migration ORDER BY name ASC",
-	);
-
-	for (const m of existingMigrations) {
-		DB.run(
-			"INSERT OR IGNORE INTO _migrations (name, applied_at) VALUES (?, ?)",
-			[m.name, m.timestamp],
-		);
-	}
-
-	console.log(
-		`  Seeded ${existingMigrations.length} existing migrations from kysely_migration`,
-	);
 }
 
 /**

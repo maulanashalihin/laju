@@ -231,5 +231,5 @@ import { fly } from 'svelte/transition'
 
 - `skills/create-handler.md` - Handler patterns (REST methods)
 - `skills/eta-template-engine-ssr.md` - SSR templates for public pages
-- `skills/kysely.md` - Database queries for controllers
+- `skills/repository-pattern.md` - Database queries
 - `skills/repository-pattern.md` - Repository vs Direct DB decisions

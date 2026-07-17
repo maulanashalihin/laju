@@ -212,4 +212,4 @@ For SSR templates (index.html, inertia.html), use inline SVG icons:
 
 - `skills/create-handler.md` - Handler patterns (SSR vs Inertia)
 - `skills/create-svelte-inertia-page.md` - Inertia.js page patterns
-- `skills/kysely.md` - Database queries for handlers
+- `skills/repository-pattern.md` - Database queries for handlers

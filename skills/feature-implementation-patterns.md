@@ -259,4 +259,4 @@ Mark all items `[x]` complete with date.
 - `skills/create-handler.md` - Handler patterns
 - `skills/create-svelte-inertia-page.md` - Page patterns
 - `skills/repository-pattern.md` - When to use Repository
-- `skills/kysely.md` - Database queries
+- `skills/repository-pattern.md` - Database queries

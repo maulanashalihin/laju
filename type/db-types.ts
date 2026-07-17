@@ -1,7 +1,7 @@
 /**
  * Database Types
  * Table schemas for type-safe database operations.
- * No kysely dependency — plain interfaces.
+ * Plain interfaces — no ORM dependency.
  */
 
 export interface UserTable {

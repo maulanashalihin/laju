@@ -22,7 +22,7 @@ describe("Authentication Integration Tests", () => {
 	let userId: string;
 
 	beforeEach(async () => {
-		// Clean up test user using raw SQL (not kysely)
+		// Clean up test user using raw SQL
 		const existing = DB.get<{ id: string }>(
 			"SELECT id FROM users WHERE email = ?",
 			[testUser.email],

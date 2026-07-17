@@ -282,7 +282,7 @@ Route.delete('/posts/:id', [Auth], PostHandler.destroy);
 
 ## See Also
 
-- `skills/kysely.md` - Database query patterns
+- `skills/repository-pattern.md` - Database query patterns
 - `skills/repository-pattern.md` - When to use Repository
 - `skills/eta-template-engine-ssr.md` - SSR templates with Eta
 - `skills/create-svelte-inertia-page.md` - Inertia.js page patterns
