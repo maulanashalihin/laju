@@ -197,10 +197,10 @@ npx tsx commands/native/MakeValidator.ts auth               # Generate validator
 |-------|------------|
 | Server | HyperExpress v6.17 |
 | Database | better-sqlite3 (raw SQL via repositories) |
-| Inertia | [hyper-express-inertia](https://npmjs.com/package/hyper-express-inertia) (standalone adapter) |
-| Frontend | Svelte 5 + Inertia.js v3 |
+| Inertia | [hyper-express-inertia](https://npmjs.com/package/hyper-express-inertia) v1.3+ (standalone adapter, Inertia v3 HTML render) |
+| Frontend | Svelte 5 + Inertia.js v3 + @inertiajs/vite |
 | Styling | TailwindCSS 4 |
-| Build | Vite |
+| Build | Vite 8 |
 | Templates | Eta |
 | Language | TypeScript 6.0 |
 

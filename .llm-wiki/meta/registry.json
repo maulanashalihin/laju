@@ -1,12 +1,12 @@
 {
   "version": "1.0",
-  "last_updated": "2026-07-17T00:45:55.053Z",
+  "last_updated": "2026-07-17T01:02:32.352Z",
   "pages": {
     "sources/hyper-inertia-package": {
       "type": "source",
-      "title": "\"@laju/hyper-inertia - Standalone Inertia v3 Adapter\"",
+      "title": "\"hyper-express-inertia — Standalone Inertia v3 Adapter for HyperExpress\"",
       "created": "2026-07-16",
-      "updated": "2026-07-16",
+      "updated": "2026-07-17",
       "slug": "hyper-inertia-package",
       "status": "insight",
       "category": "architecture"

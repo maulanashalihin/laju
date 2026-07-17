@@ -4,7 +4,7 @@
 
 ## Sources
 
-- [[sources/hyper-inertia-package]] — "@laju/hyper-inertia - Standalone Inertia v3 Adapter" *(created: 2026-07-16)*
+- [[sources/hyper-inertia-package]] — "hyper-express-inertia — Standalone Inertia v3 Adapter for HyperExpress" *(created: 2026-07-16)*
 - [[sources/obs-2026-07-16-agents-md-created-for-laju-ts]] — "Observation: AGENTS.md created for laju-ts" *(created: 2026-07-16)*
 - [[sources/obs-2026-07-16-hyper-express-inertia-simplified-integration]] — "Observation: hyper-express-inertia simplified integration" *(created: 2026-07-16)*
 - [[sources/obs-2026-07-16-laju-ts-refactored-session-based-auth-hyper-inertia-package-]] — "Observation: Laju-ts refactored: session-based auth, hyper-inertia package, kysely removed" *(created: 2026-07-16)*
@@ -14,4 +14,4 @@
 - [[sources/three-tier-architecture-ts]] — "Three-Tier Architecture in Laju TS" *(created: 2026-07-16)*
 
 ---
-*Last updated: 2026-07-17T00:45:55.053Z* | *Total pages: 8*
+*Last updated: 2026-07-17T01:02:32.352Z* | *Total pages: 8*

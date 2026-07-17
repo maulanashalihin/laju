@@ -34,31 +34,61 @@ routes/web.ts → app/handlers/ → app/services/ → app/repositories/ → SQLi
 
 ## Inertia v3 Protocol
 
-Package: [`hyper-express-inertia`](https://npmjs.com/package/hyper-express-inertia) — implements Inertia v3 protocol for HyperExpress. Mirip `fiber-inertia` di laju-go.
+Package: [`hyper-express-inertia`](https://npmjs.com/package/hyper-express-inertia) — standalone Inertia v3 adapter for HyperExpress.
 
-**Render — via instance (standard API):**
+### Import — cukup satu import inertia instance
 
 ```ts
 import inertia from "app/services/inertia";
+```
 
-// handler
+**JANGAN** import `{ redirect, location, back }` terpisah dari package. Semua method udah tersedia di instance `inertia`.
+
+### Render page
+
+```ts
 inertia.render(req, res, "Home", { title: "Welcome" })
 ```
 
-**Flash message — via response helper (attached by package middleware):**
+### Flash message
 
 ```ts
-res.flash("error", "msg")
+inertia.flash(res, "error", "Invalid credentials")
 ```
 
-**Redirect helpers — import langsung dari package:**
+### Redirect helpers — via instance
 
 ```ts
-import { redirect, location, back } from "hyper-express-inertia";
+inertia.redirect(res, "/dashboard")      // 303 See Other, form submissions
+inertia.location(res, "https://...")     // 409 + X-Inertia-Location (external/full page nav)
+inertia.back(res, req, "/fallback")      // Back via Referer
+```
 
-redirect(res, "/dashboard")      // 303 See Other, form submissions
-location(res, "https://...")    // 409 + X-Inertia-Location (external/full page nav)
-back(res, req, "/fallback")     // Back via Referer
+### HTML Render — Inertia v3 format
+
+Package otomatis render HTML dengan format Inertia v3:
+
+```html
+<div id="app"></div>
+<script data-page="app" type="application/json">{"component":"Home",...}</script>
+<link rel="stylesheet" href="/assets/index-abc.css">
+<script type="module" src="/assets/app-xyz.js"></script>
+```
+
+Page data di `script[data-page]` (bukan attribute `data-page` di div).
+
+### Shared Props — key harus sesuai frontend
+
+```ts
+// app/services/inertia.ts
+inertia.shareFunc("user", (req) => {
+  const session = SessionStore.get(req);
+  if (!session.user_id) return null;
+  return { id: session.user_id, name: session.name, ... };
+});
+```
+
+Frontend akses via `page.props.user` langsung (bukan `page.props.auth.user`).
 
 ## Svelte 5 Rules
 
@@ -70,7 +100,27 @@ back(res, req, "/fallback")     // Back via Referer
 
 ## Session Auth
 
-Session store di `app/session/` — user data disimpan sebagai JSON di `sessions.data` column. Auth middleware ambil dari session, **TIDAK** query users table. Mirip `app/session/session.go` di laju-go.
+Session store di `app/session/` — user data disimpan sebagai JSON di `sessions.data` column. Auth middleware ambil dari session, set `req.user` langsung. **TIDAK** query users table.
+
+```ts
+// Auth middleware
+req.user = {
+  id: session.user_id,
+  name: session.name,
+  email: session.email,
+  ...
+};
+```
+
+## Frontend — Inertia v3 + @inertiajs/vite
+
+```js
+// frontend/src/app.js
+import { createInertiaApp } from "@inertiajs/svelte";
+createInertiaApp();
+```
+
+Vite plugin `@inertiajs/vite` handle dev HTML rendering. Backend (`hyper-express-inertia`) handle production HTML.
 
 ## Migration Rules
 
@@ -92,3 +142,4 @@ Detail lebih lanjut di `.llm-wiki/wiki/`. Gunakan `wiki_search` / `wiki_recall` 
 - `.vite-port` stale? `rm .vite-port && restart`
 - Hyper-Express `max_body_length: 10MB`
 - Session store regenerates ID on login (fixation prevention)
+- Middleware (`rate-limit`) tetap pake `inertia.flash()` bukan `response.flash()`
